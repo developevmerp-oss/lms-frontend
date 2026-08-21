@@ -70,10 +70,16 @@ const ROUTINE_ITEMS_CONFIG: Omit<RoutineItem, 'completed'>[] = [
   },
 ];
 
+import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/config/api';
+
 export const DailyRoutineChecklist = ({ streak = 0, onCompleteRoutine }: { streak?: number; onCompleteRoutine?: () => void }) => {
+  const { token } = useAuth();
   const todayKey = `routine_${new Date().toISOString().split('T')[0]}`;
   const [completedItems, setCompletedItems] = useState<string[]>([]);
   const [isCompletedAll, setIsCompletedAll] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -90,6 +96,30 @@ export const DailyRoutineChecklist = ({ streak = 0, onCompleteRoutine }: { strea
     }
   }, [todayKey]);
 
+  const syncRoutineWithBackend = async (habits: string[]) => {
+    if (!token) return;
+    setIsSyncing(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/dashboard/student/routine`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ completedHabits: habits, date: new Date().toISOString().split('T')[0] })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSyncFeedback(data.message || '+10 XP recorded in database!');
+        if (onCompleteRoutine) onCompleteRoutine();
+      }
+    } catch (err) {
+      console.error('Error syncing routine with database:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const toggleItem = (id: string) => {
     let next: string[];
     if (completedItems.includes(id)) {
@@ -102,11 +132,12 @@ export const DailyRoutineChecklist = ({ streak = 0, onCompleteRoutine }: { strea
       localStorage.setItem(todayKey, JSON.stringify(next));
     } catch (_) {}
 
-    if (next.length === ROUTINE_ITEMS_CONFIG.length && !isCompletedAll) {
+    if (next.length === ROUTINE_ITEMS_CONFIG.length) {
       setIsCompletedAll(true);
-      if (onCompleteRoutine) onCompleteRoutine();
-    } else if (next.length < ROUTINE_ITEMS_CONFIG.length) {
+      syncRoutineWithBackend(next);
+    } else {
       setIsCompletedAll(false);
+      setSyncFeedback(null);
     }
   };
 
@@ -209,11 +240,13 @@ export const DailyRoutineChecklist = ({ streak = 0, onCompleteRoutine }: { strea
             <span className="text-2xl">🎉</span>
             <div>
               <p className="text-sm font-bold text-white">All 6 Daily Habits Completed!</p>
-              <p className="text-xs text-emerald-400">+10 XP added to your leaderboard standing for today.</p>
+              <p className="text-xs text-emerald-400">
+                {syncFeedback || "+10 XP recorded in database and added to your leaderboard standing!"}
+              </p>
             </div>
           </div>
           <span className="bg-emerald-500 text-slate-950 font-black text-xs px-3 py-1 rounded-full">
-            Streak Kept Active
+            {isSyncing ? "Saving to DB..." : "Streak Kept Active"}
           </span>
         </motion.div>
       )}
