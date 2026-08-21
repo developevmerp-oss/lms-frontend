@@ -185,34 +185,34 @@ const ART_DISCIPLINES = [
 const ROADMAP_STEPS = [
   {
     step: "01",
-    tier: "Fast Start (L0)",
-    title: "Resin Chemistry & Safety",
-    desc: "Understand 2:1 vs 3:1 mix ratios, ambient temperature control, bubble prevention without vacuums, and studio safety gear.",
-    badge: "Free Access",
+    tier: "Fast Track (L0)",
+    title: "Resin FastStart Bundle",
+    desc: "Foundations of epoxy chemistry, 2:1 vs 3:1 mix ratios, bubble prevention without vacuums, ambient cure controls, and studio safety gear.",
+    badge: "Foundation",
     badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
   },
   {
     step: "02",
-    tier: "Silver Member (L1)",
-    title: "Signature Decor Pieces",
-    desc: "Create flawless ocean coaster suites, bookmark sets, and initial keychains. Master bubble-free topcoats and mirror edge gilding.",
+    tier: "Silver Membership (L1)",
+    title: "Explore Membership",
+    desc: "Create signature ocean wave coaster suites, bookmarks, and initial keychains. Master multi-depth cell creation and mirror edge gilding.",
     badge: "Core Mastery",
     badgeColor: "bg-slate-700/50 text-slate-300 border-slate-600"
   },
   {
     step: "03",
-    tier: "Gold Member (L2)",
-    title: "Statement Wall Art & Clocks",
-    desc: "Build 24-inch Roman numeral geode wall clocks and 3D floral blocks. Learn packaging, courier proofing, and pricing formulas.",
-    badge: "Business Tier",
+    tier: "Gold Membership (L2)",
+    title: "Master Membership",
+    desc: "Build 24-inch Roman numeral geode crystal wall clocks and 3D bridal floral preservation blocks. Learn high-ticket client packaging and pricing.",
+    badge: "Business Growth",
     badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20"
   },
   {
     step: "04",
-    tier: "Diamond Club (L3+)",
-    title: "Luxury Furniture & Brand",
-    desc: "Deep pour river tables, wedding preservation bulk orders, client consultation frameworks, and corporate gift contracts.",
-    badge: "Mastery Tier",
+    tier: "Diamond Membership (L3)",
+    title: "Renaissance Certification",
+    desc: "Deep pour 50mm river tables, bespoke luxury furniture, corporate gift contracts, and signature offline workshop masterclasses.",
+    badge: "Pinnacle Mastery",
     badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20"
   }
 ];
@@ -669,10 +669,10 @@ export default function Home() {
             <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
               <div className="space-y-1 text-center md:text-left">
                 <h4 className="text-xl font-bold text-white flex items-center gap-2 justify-center md:justify-start">
-                  <Flame className="text-orange-500" /> Start at Level 0 for Free Today
+                  <Flame className="text-orange-500" /> Start with Fast Track (Level 0) Today
                 </h4>
                 <p className="text-slate-400 text-sm">
-                  Access 4 foundational video lessons, the home safety blueprint, and submit your first coaster mission.
+                  Join the free 90-minute live masterclass to unlock foundational chemistry, safety formulas, and the complete roadmap.
                 </p>
               </div>
               <Link
