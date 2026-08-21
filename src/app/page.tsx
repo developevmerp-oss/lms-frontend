@@ -355,7 +355,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto mb-16 relative rounded-3xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 bg-slate-950 aspect-video">
             <iframe
               loading="lazy"
-              src="https://www.canva.com/design/DAGLLOTrJNg/gPNZz92PZtdWyAsBesuM0g/view?embed"
+              src="https://www.canva.com/design/DAGLLOTrJNg/gPNZz92PZtdWyAsBesuM0g/view?autoplay=1&loop=1&embed"
               allow="fullscreen; autoplay"
               allowFullScreen
               className="w-full h-full border-0 absolute inset-0 rounded-3xl"
