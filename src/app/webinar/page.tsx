@@ -33,9 +33,9 @@ export default function WebinarPage() {
   const router = useRouter();
   const [activeWebinar, setActiveWebinar] = useState<any>(null);
   const [stats, setStats] = useState({
-    claimedSeats: 88,
-    percentFull: 82,
-    seatsRemaining: 12,
+    claimedSeats: 0,
+    percentFull: 0,
+    seatsRemaining: 500,
     totalSeats: 500,
   });
 
@@ -51,7 +51,7 @@ export default function WebinarPage() {
   const [error, setError] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Fetch dynamic scarcity stats from database
+  // Fetch dynamic scarcity stats directly from database
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -59,9 +59,9 @@ export default function WebinarPage() {
         const data = await res.json();
         if (data.success && data.data) {
           setStats({
-            claimedSeats: data.data.claimedSeats || 88,
-            percentFull: data.data.percentFull || 82,
-            seatsRemaining: data.data.seatsRemaining || 12,
+            claimedSeats: data.data.claimedSeats ?? 0,
+            percentFull: data.data.percentFull ?? 0,
+            seatsRemaining: data.data.seatsRemaining ?? (data.data.totalSeats || 500),
             totalSeats: data.data.totalSeats || 500,
           });
         }
@@ -219,7 +219,7 @@ export default function WebinarPage() {
               <div className="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
                 <div
                   className="bg-gradient-to-r from-orange-500 to-amber-400 h-full rounded-full transition-all duration-1000"
-                  style={{ width: `${stats.percentFull}%` }}
+                  style={{ width: `${Math.max(stats.claimedSeats > 0 ? 3 : 0, stats.percentFull)}%` }}
                 />
               </div>
             </div>

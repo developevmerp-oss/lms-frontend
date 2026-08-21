@@ -4,19 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 
-const DEFAULT_FALLBACKS = [
-  { name: 'Anil P.', city: 'Ahmedabad', time: '3 minutes ago' },
-  { name: 'Priya S.', city: 'Mumbai', time: '7 minutes ago' },
-  { name: 'Sneha K.', city: 'Bengaluru', time: '11 minutes ago' },
-  { name: 'Ritu M.', city: 'Pune', time: '14 minutes ago' },
-  { name: 'Kavita G.', city: 'Ahmedabad', time: '19 minutes ago' },
-  { name: 'Deepika T.', city: 'Hyderabad', time: '22 minutes ago' },
-  { name: 'Neha J.', city: 'Jaipur', time: '28 minutes ago' },
-  { name: 'Pooja V.', city: 'Surat', time: '34 minutes ago' },
-];
-
 export const SocialProofToaster = () => {
-  const [registrations, setRegistrations] = useState<any[]>(DEFAULT_FALLBACKS);
+  const [registrations, setRegistrations] = useState<any[]>([]);
   const [current, setCurrent] = useState<any>(null);
   const [visible, setVisible] = useState(false);
 
@@ -28,9 +17,11 @@ export const SocialProofToaster = () => {
         const data = await res.json();
         if (data.success && Array.isArray(data.data) && data.data.length > 0) {
           setRegistrations(data.data);
+        } else {
+          setRegistrations([]);
         }
       } catch (_) {
-        // Use default fallbacks
+        setRegistrations([]);
       }
     };
 
@@ -43,6 +34,7 @@ export const SocialProofToaster = () => {
     let index = 0;
 
     const showNext = () => {
+      if (!registrations || registrations.length === 0) return;
       setCurrent(registrations[index % registrations.length]);
       setVisible(true);
       index++;
@@ -53,11 +45,11 @@ export const SocialProofToaster = () => {
       }, 5500);
     };
 
-    // Initial popup after 2.5 seconds
-    const initialTimer = setTimeout(showNext, 2500);
+    // Initial popup after 2 seconds
+    const initialTimer = setTimeout(showNext, 2000);
 
-    // Repeat every 12 seconds
-    const interval = setInterval(showNext, 12000);
+    // Repeat every 10 seconds
+    const interval = setInterval(showNext, 10000);
 
     return () => {
       clearTimeout(initialTimer);
@@ -65,7 +57,7 @@ export const SocialProofToaster = () => {
     };
   }, [registrations]);
 
-  if (!current || !visible) return null;
+  if (!current || !visible || registrations.length === 0) return null;
 
   const initial = (current.name || 'A').charAt(0).toUpperCase();
 
@@ -78,9 +70,11 @@ export const SocialProofToaster = () => {
         <div className="flex-1 min-w-0 pr-1">
           <p className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap leading-tight">
             <span>{current.name}</span>
-            <span className="bg-orange-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
-              from {current.city}
-            </span>
+            {current.city && (
+              <span className="bg-orange-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                from {current.city}
+              </span>
+            )}
           </p>
           <p className="text-[11px] text-orange-400 font-medium flex items-center gap-1 mt-1">
             <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
