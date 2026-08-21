@@ -124,6 +124,8 @@ export default function StudentDashboard() {
                 progress={dynamicProgress} 
                 nextGoal={stats.nextGoal}
                 currentTier={stats.currentTier}
+                badges={stats.badges}
+                salesRecords={stats.salesRecords}
               />
             </div>
             <div className="lg:col-span-4 flex flex-col">

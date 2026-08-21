@@ -132,8 +132,12 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
             {/* User Avatar & Profile Trigger (desktop) */}
             <div className="hidden sm:flex items-center gap-3">
               <Link href="/student/profile" className="text-right hidden md:block group" title="View Profile & Achievements">
-                <p className="text-sm font-bold text-white leading-tight group-hover:text-orange-400 transition-colors">{user?.name || "Student"}</p>
-                <p className="text-[11px] text-slate-400">My Profile</p>
+                <p className="text-sm font-bold text-white leading-tight group-hover:text-orange-400 transition-colors">
+                  {user?.name || "Student"}
+                </p>
+                <p className="text-[11px] text-orange-400 font-semibold truncate max-w-[140px]">
+                  {level || "Explore Member"}
+                </p>
               </Link>
 
               <button
