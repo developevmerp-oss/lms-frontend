@@ -68,12 +68,12 @@ const ARTWORKS_ROW_1 = [
     badge: "Wall Art"
   },
   {
-    title: "Botanical Rose Petal Block",
-    artist: "Sanya D.",
-    type: "Floral Epoxy Preservation",
+    title: "Rose Quartz Jaimala Preservation",
+    artist: "Kavita D.",
+    type: "Floral Memory Block",
     level: "Gold Member",
-    price: "₹11,000 Sold",
-    gradient: "from-rose-600 via-pink-800 to-slate-900",
+    price: "₹18,000 Sold",
+    gradient: "from-rose-600 via-pink-800 to-purple-950",
     accent: "text-pink-300",
     badge: "Preservation"
   }
@@ -81,163 +81,157 @@ const ARTWORKS_ROW_1 = [
 
 const ARTWORKS_ROW_2 = [
   {
-    title: "Obsidian & Gold Vein Tray",
+    title: "Obsidian & Gold Flake Geode Set",
     artist: "Vikram R.",
-    type: "Marble Resin & Gold Leaf",
-    level: "Gold Member",
+    type: "Crushed Fire Glass & Pigment",
+    level: "Silver Member",
     price: "₹9,500 Sold",
-    gradient: "from-amber-700 via-neutral-900 to-stone-950",
+    gradient: "from-amber-600 via-orange-800 to-stone-950",
     accent: "text-amber-300",
-    badge: "Luxury Decor"
+    badge: "Coaster Suite"
   },
   {
-    title: "Deep Sea Mantarray Wall Panel",
+    title: "Santorini Coast Wall Canvas (3ft)",
     artist: "Ananya B.",
-    type: "Multi-Layer Resin Illusion",
+    type: "Multi-Layer Deep Cell Ocean",
     level: "Diamond Club",
     price: "₹34,000 Sold",
-    gradient: "from-sky-600 via-blue-900 to-indigo-950",
+    gradient: "from-sky-500 via-blue-700 to-indigo-950",
     accent: "text-sky-300",
-    badge: "3D Illusion"
+    badge: "Statement Piece"
   },
   {
-    title: "Turquoise Geode Coaster Set (6 pcs)",
-    artist: "Rahul T.",
-    type: "High-Gloss Silicone Casting",
-    level: "Fast Start (L0)",
-    price: "₹4,200 Sold",
-    gradient: "from-teal-600 via-cyan-800 to-slate-900",
-    accent: "text-teal-300",
-    badge: "Beginner First Sale"
-  },
-  {
-    title: "Aurora Borealis Resin Dome Lamp",
-    artist: "Kavita J.",
-    type: "Wood + Resin Turning",
+    title: "Kintsugi Gold Cracked Marble Platter",
+    artist: "Suresh P.",
+    type: "Japanese Epoxy Repair Style",
     level: "Gold Member",
-    price: "₹18,000 Sold",
-    gradient: "from-fuchsia-600 via-purple-900 to-slate-950",
-    accent: "text-fuchsia-300",
-    badge: "Illumination Art"
+    price: "₹11,200 Sold",
+    gradient: "from-slate-700 via-amber-800 to-stone-900",
+    accent: "text-amber-200",
+    badge: "Luxe Decor"
   },
   {
-    title: "Royal Ruby Inlay Mantra Frame",
-    artist: "Meera P.",
-    type: "Spiritual Sacred Resin",
+    title: "Nebula Galaxy Roman Numeral Clock",
+    artist: "Deepika T.",
+    type: "Color Shift & Mirror Gold Rim",
     level: "Silver Member",
-    price: "₹12,400 Sold",
-    gradient: "from-red-700 via-rose-900 to-slate-950",
-    accent: "text-rose-300",
-    badge: "Custom Order"
+    price: "₹12,800 Sold",
+    gradient: "from-fuchsia-700 via-purple-900 to-slate-950",
+    accent: "text-fuchsia-300",
+    badge: "Clockwork"
+  },
+  {
+    title: "Teakwood Coffee River Table (24in)",
+    artist: "Arjun N.",
+    type: "Kiln-Dried Hardwood Inlay",
+    level: "Diamond Club",
+    price: "₹45,000 Sold",
+    gradient: "from-teal-600 via-emerald-800 to-slate-950",
+    accent: "text-teal-300",
+    badge: "Wood Working"
   }
 ];
 
+// Interactive Technique Exploration System
 const ART_DISCIPLINES = [
   {
     id: "ocean",
-    title: "Ocean Waves & Lacing",
-    tag: "High Demand",
-    desc: "Master cell formation, white heat-gun blowing techniques, gradient sea blues, and authentic sandy beach shorelines.",
-    materials: ["Mica Powders", "White Cell Creator", "Heat Gun", "Raw Sand", "UV Stabilized Resin"],
-    earnings: "₹3,500 – ₹25,000 per artwork",
-    gradient: "from-cyan-500/20 via-blue-600/10 to-transparent",
-    border: "border-cyan-500/30",
-    accentBg: "bg-cyan-500",
-    icon: Compass
+    title: "Ocean & Coastal Resin",
+    tag: "Signature Technique",
+    desc: "Master realistic white cellular lacing, blowtorch beach waves, crushed real seashell inlays, and multi-depth Pacific blue gradient pours on live-edge timber.",
+    materials: ["Low-Viscosity Art Resin", "White Wave Paste", "Mica Luster Powders", "Heat Gun / Micro Torch"],
+    gradient: "from-cyan-500/20 via-teal-500/10 to-transparent",
+    border: "border-cyan-500/40",
+    icon: Compass,
+    accent: "text-cyan-400"
   },
   {
     id: "geode",
-    title: "3D Geode & Agate Art",
-    tag: "Luxury Decor",
-    desc: "Learn crystal inlays, crushed quartz layout, metallic lining pens, glitter veining, and organic freeform agate shaping.",
-    materials: ["Natural Quartz Crystals", "Glass Shards", "Gold Leafing", "Acrylic Jewels", "Liquid Gilding"],
-    earnings: "₹6,000 – ₹45,000 per artwork",
-    gradient: "from-purple-500/20 via-pink-600/10 to-transparent",
-    border: "border-purple-500/30",
-    accentBg: "bg-purple-500",
-    icon: Gem
-  },
-  {
-    id: "clocks",
-    title: "Resin Clocks & Wall Statement",
-    tag: "Best Selling",
-    desc: "Craft silent-sweep mechanical clocks, roman numeral resin casting, depth marble effects, and luxury mirror finishes.",
-    materials: ["High-Torque Machines", "Laser-cut Roman Acrylics", "12mm MDF Bases", "Resin Dyes", "Edge Foils"],
-    earnings: "₹5,000 – ₹22,000 per clock",
-    gradient: "from-amber-500/20 via-orange-600/10 to-transparent",
-    border: "border-amber-500/30",
-    accentBg: "bg-amber-500",
-    icon: Clock
+    title: "3D Crystal Geodes & Clocks",
+    tag: "High-Margin Decor",
+    desc: "Learn real quartz crystal embedding, raw glitter vein mapping, mirror gold leafing, and silent quartz Roman clock movements that retail for ₹6,000 to ₹25,000.",
+    materials: ["High-Viscosity Thick Resin", "Crushed Fire Glass", "Natural Quartz Points", "Metallic Acrylic Inks"],
+    gradient: "from-purple-500/20 via-pink-500/10 to-transparent",
+    border: "border-purple-500/40",
+    icon: Gem,
+    accent: "text-purple-400"
   },
   {
     id: "preservation",
-    title: "Floral & Memory Preservation",
-    tag: "Emotional Value",
-    desc: "Dry bridal bouquets without browning, bubble-free deep casting blocks, keepsake jewelry, and crystal-clear wedding frames.",
-    materials: ["Silica Gel Drying Kits", "Deep Pour 3:1 Epoxy", "Pressure/Torch Technique", "Silicone Cubes"],
-    earnings: "₹8,000 – ₹50,000 per wedding order",
-    gradient: "from-rose-500/20 via-pink-600/10 to-transparent",
-    border: "border-rose-500/30",
-    accentBg: "bg-rose-500",
-    icon: Heart
+    title: "Bridal Flower Preservation",
+    tag: "Emotional Keepsakes",
+    desc: "The fastest growing wedding industry art: chemical silica gel 3D drying of fresh bridal jaimalas, anti-bubble deep pour castings, and UV-resistant keepsake blocks.",
+    materials: ["Deep-Pour 3:1 Epoxy", "Silica Flower Drying Gel", "Silicone Block Molds", "Bubble Release Chamber"],
+    gradient: "from-rose-500/20 via-amber-500/10 to-transparent",
+    border: "border-rose-500/40",
+    icon: Heart,
+    accent: "text-rose-400"
+  },
+  {
+    id: "furniture",
+    title: "Live Edge River Furniture",
+    tag: "Diamond Mastery",
+    desc: "Step into ultra-luxury bespoke furniture. Master moisture-meter wood stabilization, leak-proof melamine formwork, 50mm single-pour crystal rivers, and satin buffer polishes.",
+    materials: ["Seasoned Teak / Acacia Slab", "Cast Pour Epoxy (50mm)", "Melamine Mold Box", "Orbital Buffer & Wax"],
+    gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
+    border: "border-emerald-500/40",
+    icon: Layers,
+    accent: "text-emerald-400"
   }
 ];
 
-const ART_JOURNEY = [
+// Transformation Roadmap Steps
+const ROADMAP_STEPS = [
   {
     step: "01",
-    level: "Fast Start (L0)",
-    title: "The Workshop Apprentice",
-    tagline: "Resin Chemistry, Safety & Basics",
-    desc: "Understand 2:1 and 3:1 epoxy ratios, curing temperatures, safety masks, pigment blending, and make your first 5 flawless items.",
-    outcomes: ["5 Completed Coaster Sets", "Zero Micro-Bubbles Mastery", "Color Harmony Certification"],
-    color: "from-slate-700 to-slate-800",
-    borderColor: "border-slate-700"
+    tier: "Fast Start (L0)",
+    title: "Resin Chemistry & Safety",
+    desc: "Understand 2:1 vs 3:1 mix ratios, ambient temperature control, bubble prevention without vacuums, and studio safety gear.",
+    badge: "Free Access",
+    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
   },
   {
     step: "02",
-    level: "Silver Member (L1)",
-    title: "The Signature Artisan",
-    tagline: "Complex Techniques & First Sales",
-    desc: "Move into 3D Geode inlays, ocean wave lacing, clock mounting, establishing your Instagram art gallery, and packing luxury parcels.",
-    outcomes: ["First Client Sale (₹5k–₹15k)", "Instagram Portfolio Launch", "Wholesale Raw Material Sourcing"],
-    color: "from-blue-900/60 to-slate-900",
-    borderColor: "border-blue-700/50"
+    tier: "Silver Member (L1)",
+    title: "Signature Decor Pieces",
+    desc: "Create flawless ocean coaster suites, bookmark sets, and initial keychains. Master bubble-free topcoats and mirror edge gilding.",
+    badge: "Core Mastery",
+    badgeColor: "bg-slate-700/50 text-slate-300 border-slate-600"
   },
   {
     step: "03",
-    level: "Gold Member (L2)",
-    title: "The Creative Studio Owner",
-    tagline: "Scaling to ₹50,000+/Month",
-    desc: "Deep-pour wood river tables, bridal bouquet preservation orders, client custom commissions, and high-margin pricing formulas.",
-    outcomes: ["Consistent ₹50K Monthly Orders", "Custom Wedding Preservation Orders", "Corporate Gifting Contracts"],
-    color: "from-amber-900/50 to-slate-900",
-    borderColor: "border-amber-500/50"
+    tier: "Gold Member (L2)",
+    title: "Statement Wall Art & Clocks",
+    desc: "Build 24-inch Roman numeral geode wall clocks and 3D floral blocks. Learn packaging, courier proofing, and pricing formulas.",
+    badge: "Business Tier",
+    badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20"
   },
   {
     step: "04",
-    level: "Diamond / Masters Club (L3)",
-    title: "The Master Artpreneur",
-    tagline: "Exhibitions & Studio Brand",
-    desc: "Build an art studio team, host offline resin workshops in your city, launch your own bespoke art collection, and scale beyond ₹1L/month.",
-    outcomes: ["Offline Workshop Hosting", "Featured Art Exhibitions", "₹1,00,000+ Monthly Revenue"],
-    color: "from-cyan-900/60 via-purple-950/60 to-slate-900",
-    borderColor: "border-cyan-400/50"
+    tier: "Diamond Club (L3+)",
+    title: "Luxury Furniture & Brand",
+    desc: "Deep pour river tables, wedding preservation bulk orders, client consultation frameworks, and corporate gift contracts.",
+    badge: "Mastery Tier",
+    badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20"
   }
 ];
 
 const FAQS = [
   {
-    q: "Do I need any previous drawing, painting or art background?",
-    a: "Absolutely not! Resin art is a flow-medium based on technique, ratios, color chemistry, and pouring methods rather than traditional sketch drawing. Over 85% of our successful alumni started with zero creative background."
+    q: "I have zero art experience. Can I really make gallery-grade resin pieces?",
+    a: "Absolutely. Resin is 70% science and technique, and 30% creativity. Our Level 0 and Level 1 curriculum takes you through exact gram-scale measurement formulas, color wheel theory, and guided video walkthroughs so you never waste expensive raw materials."
   },
   {
-    q: "How much investment do raw resin materials require to start?",
-    a: "You can start creating your first practice coasters and wall items with a beginner kit of ₹2,500 – ₹3,500. We teach you exactly where to buy certified wholesale raw materials without paying retail middleman markups."
+    q: "How does the Gamified LMS & Mentor Critique work?",
+    a: "Every lesson comes with a practical Action Mission. When you pour a piece, you upload 3 photos to your Student Dashboard. Vrajangna Patel and senior mentors critique your wave lacing, edges, and finish, award you XP, and unlock the next level!"
   },
   {
-    q: "How quickly do students start selling their resin artworks?",
-    a: "Students following our Daily Missions roadmap typically finish their first set in week 2 and land their first Instagram/Etsy client orders within 30 to 45 days."
+    q: "Where do I source raw materials, epoxy resin, and molds across India?",
+    a: "Inside the academy, you get our curated Raw Material Sourcing Directory with direct verified supplier contacts for crystal-clear epoxies, silicone molds, mica powders, crystals, and clock movements with exclusive student discounts."
+  },
+  {
+    q: "How does the Business & Monetization roadmap help me sell art?",
+    a: "We don't just teach art; we teach creative entrepreneurship. You'll learn how to price pieces with a 4x profit margin formula, shoot viral Instagram Reels, package for zero breakage during shipping, and close ₹10,000+ custom client commissions."
   },
   {
     q: "Is resin safe to work with from home or a small room?",
@@ -267,23 +261,12 @@ export default function Home() {
       {/* ─── LUXURY ARTISAN NAVBAR ─── */}
       <nav className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-2xl transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/10 group-hover:scale-105 transition-transform shadow-lg shadow-orange-500/20">
-              <img
-                src="/logo.jpeg"
-                alt="Ravishing Art Hub"
-                className="w-full"
-                style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
-              />
-            </div>
-            <div>
-              <span className="font-black text-xl tracking-tight text-white flex items-center gap-2">
-                Ravishing Art
-              </span>
-              <span className="text-[10px] tracking-widest text-orange-400 font-semibold uppercase block -mt-1">
-                by Vrajangna Patel
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <img
+              src="/logo.png"
+              alt="Ravishing Art Hub"
+              className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform"
+            />
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
@@ -372,7 +355,7 @@ export default function Home() {
               <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Student Sales Generated</p>
             </div>
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 mb-1">4.9★</p>
+              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 mb-1">4.9 ★</p>
               <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Artist Satisfaction</p>
             </div>
           </div>
@@ -413,7 +396,7 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="relative z-10">
-                    <p className={`text-lg font-black text-white drop-shadow-md`}>
+                    <p className="text-lg font-black text-white drop-shadow-md">
                       {art.title}
                     </p>
                     <p className="text-xs text-slate-200/90 font-medium">{art.type}</p>
@@ -512,8 +495,8 @@ export default function Home() {
                   key={d.id}
                   onClick={() => setActiveTab(d.id)}
                   className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative overflow-hidden ${isSelected
-                      ? "bg-slate-900 border-orange-500 shadow-xl shadow-orange-500/10 ring-1 ring-orange-500"
-                      : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
+                    ? "bg-slate-900 border-orange-500 shadow-xl shadow-orange-500/10 ring-1 ring-orange-500"
+                    : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
                     }`}
                 >
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isSelected ? "bg-orange-500 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
@@ -547,10 +530,9 @@ export default function Home() {
                   {selectedDiscipline.desc}
                 </p>
 
-                {/* Materials & Tools Provided */}
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-                    <Package size={14} className="text-orange-400" /> Key Raw Materials & Formulas:
+                <div className="space-y-3 pt-2">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Core Studio Materials & Chemicals:
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {selectedDiscipline.materials.map((mat, i) => (
@@ -561,64 +543,57 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Income Potential Tag */}
-                <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs text-slate-400 block">Art Market Sale Value</span>
-                    <span className="text-xl font-black text-emerald-400">{selectedDiscipline.earnings}</span>
-                  </div>
+                <div className="pt-4 flex flex-wrap gap-4">
                   <Link
                     href="/register"
-                    className="bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2"
+                    className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-orange-500/25 flex items-center gap-2"
                   >
-                    Learn This Medium <ArrowRight size={15} />
+                    Unlock Curriculum Free <ArrowRight size={15} />
                   </Link>
+                  <a
+                    href="#roadmap"
+                    className="px-6 py-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold rounded-xl text-sm transition-all flex items-center gap-2"
+                  >
+                    View All 4 Tiers
+                  </a>
                 </div>
               </div>
 
-              {/* Visual Preview Box */}
-              <div className="lg:col-span-5 bg-slate-950 border border-slate-800 rounded-2xl p-6 relative overflow-hidden shadow-2xl">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Masterclass Breakdown</span>
-                  <span className="text-[11px] font-bold text-orange-400 bg-orange-500/10 px-2.5 py-1 rounded-md border border-orange-500/20">
-                    Step-by-Step 4K
-                  </span>
-                </div>
+              {/* Right Side: Artwork Preview Visual */}
+              <div className="lg:col-span-5 relative">
+                <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl aspect-square flex flex-col justify-between p-6 bg-gradient-to-br from-slate-900 to-slate-950 text-white">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-widest text-orange-400">
+                      Module Preview
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-slate-400 bg-white/5 px-2.5 py-1 rounded-full backdrop-blur-md">
+                      <Clock size={12} /> 4.5 Hours HD
+                    </span>
+                  </div>
 
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
-                    <PlayCircle size={18} className="text-orange-400 shrink-0" />
-                    <div>
-                      <p className="font-bold text-white text-xs">Phase 1: Chemistry, Mix Ratios & Tinting</p>
-                      <p className="text-[11px] text-slate-400">Viscosity control & bubble-free degassing</p>
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 mb-4">
+                      <PlayCircle size={28} />
                     </div>
+                    <h4 className="text-xl font-bold text-white leading-snug">
+                      Complete Step-by-Step {selectedDiscipline.title} Masterclass
+                    </h4>
+                    <p className="text-xs text-slate-400">
+                      Includes PDF formula calculator, mold prep checklist & live critique pass.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
-                    <PlayCircle size={18} className="text-cyan-400 shrink-0" />
-                    <div>
-                      <p className="font-bold text-white text-xs">Phase 2: The Pour, Heat & Texture Inlay</p>
-                      <p className="text-[11px] text-slate-400">Blowtorch angle & cell formation techniques</p>
+
+                  <div className="space-y-1.5 pt-4 border-t border-white/10">
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>Course Difficulty</span>
+                      <span className="text-orange-400 font-semibold">Beginner to Pro</span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
-                    <PlayCircle size={18} className="text-emerald-400 shrink-0" />
-                    <div>
-                      <p className="font-bold text-white text-xs">Phase 3: Mirror Polishing & Edge Gilding</p>
-                      <p className="text-[11px] text-slate-400">Sanding grits, topcoat finish & gold foil</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
-                    <PlayCircle size={18} className="text-amber-400 shrink-0" />
-                    <div>
-                      <p className="font-bold text-white text-xs">Phase 4: Product Photography & Selling</p>
-                      <p className="text-[11px] text-slate-400">Instagram staging, client reels & packaging</p>
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>Certification</span>
+                      <span className="text-emerald-400 font-semibold">Included</span>
                     </div>
                   </div>
                 </div>
-
-                <p className="text-center text-xs text-slate-500 mt-4 italic">
-                  Complete kit supply lists included in every lesson.
-                </p>
               </div>
 
             </div>
@@ -632,67 +607,70 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Structured Growth</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Clear Progression Pathway</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              Your Clear Path From Hobbyist to Studio Brand
+              From Zero Knowledge to a Thriving Brand
             </h2>
             <p className="text-slate-400 text-base md:text-lg">
-              Gamified with Daily Missions, XP rewards, and milestone reviews by master mentors.
+              Our 4 structured levels ensure you never feel lost. Complete missions, earn XP, and scale your creative business.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {ART_JOURNEY.map((j, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {ROADMAP_STEPS.map((s, idx) => (
               <div
-                key={i}
-                className={`bg-slate-900/90 border ${j.borderColor} rounded-3xl p-8 flex flex-col justify-between hover:scale-[1.01] transition-all shadow-xl group`}
+                key={s.step}
+                className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 relative flex flex-col justify-between hover:border-slate-700 transition-all duration-300 hover:-translate-y-1 shadow-xl"
               >
                 <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-3xl font-black text-slate-700 group-hover:text-orange-500 transition-colors font-mono">
-                      {j.step}
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-4xl font-black text-slate-700">
+                      {s.step}
                     </span>
-                    <span className="text-xs font-bold bg-slate-800 text-orange-400 px-3.5 py-1 rounded-full border border-slate-700">
-                      {j.level}
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${s.badgeColor}`}>
+                      {s.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-2xl font-black text-white mb-1">{j.title}</h3>
-                  <p className="text-xs font-bold text-orange-400/90 uppercase tracking-wider mb-4">{j.tagline}</p>
-                  <p className="text-slate-300 text-sm leading-relaxed mb-6">{j.desc}</p>
+                  <span className="text-xs font-bold text-orange-400 uppercase tracking-wider block mb-1">
+                    {s.tier}
+                  </span>
+                  <h3 className="text-lg font-bold text-white mb-3 leading-snug">
+                    {s.title}
+                  </h3>
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    {s.desc}
+                  </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800/80">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Key Milestones Unlocked:</p>
-                  <ul className="space-y-1.5">
-                    {j.outcomes.map((out, oi) => (
-                      <li key={oi} className="text-xs font-semibold text-slate-200 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                        {out}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400 font-medium">Stage Mission:</span>
+                  <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                    <CheckCircle2 size={12} /> Verified XP
+                  </span>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Mentorship Guarantee */}
-          <div className="mt-12 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border border-orange-500/30 rounded-3xl p-6 md:p-8 text-center max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="text-left">
-              <h4 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                <ShieldCheck className="text-orange-400" /> 1-on-1 Mentor Feedback on Every Uploaded Project
-              </h4>
-              <p className="text-slate-400 text-xs md:text-sm">
-                Submit photos of your poured artworks on the platform and get detailed radar evaluations on resin thickness, color grading, and edge polish.
-              </p>
+          {/* Roadmap Detail Box */}
+          <div className="mt-12 bg-slate-900/60 border border-slate-800 rounded-3xl p-8 max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+              <div className="space-y-1 text-center md:text-left">
+                <h4 className="text-xl font-bold text-white flex items-center gap-2 justify-center md:justify-start">
+                  <Flame className="text-orange-500" /> Start at Level 0 for Free Today
+                </h4>
+                <p className="text-slate-400 text-sm">
+                  Access 4 foundational video lessons, the home safety blueprint, and submit your first coaster mission.
+                </p>
+              </div>
+              <Link
+                href="/register"
+                className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-orange-500/25 shrink-0"
+              >
+                Join Free
+              </Link>
             </div>
-            <Link
-              href="/register"
-              className="bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all shrink-0 whitespace-nowrap"
-            >
-              Get Mentored
-            </Link>
           </div>
 
         </div>
@@ -703,12 +681,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Student Testimonials</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              From Kitchen Counter to Thriving Art Business
+              Real Creators Building Real Businesses
             </h2>
             <p className="text-slate-400 text-base md:text-lg">
-              Hear directly from homemakers, designers, and students who turned resin art into their full-time passion.
+              Hear directly from homemakers, corporate professionals, and design students who turned resin into an income stream.
             </p>
           </div>
 
@@ -731,7 +709,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm">Priya Sharma</p>
-                  <p className="text-xs text-orange-400">Mumbai · Gold Member (₹55k Sales)</p>
+                  <p className="text-xs text-orange-400 font-semibold">Mumbai · Gold Member (₹55k Sales)</p>
                 </div>
               </div>
             </div>
@@ -753,7 +731,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm">Neha Gupta</p>
-                  <p className="text-xs text-cyan-400">Pune · Diamond Club (₹1.8L Sales)</p>
+                  <p className="text-xs text-cyan-400 font-semibold">Pune · Diamond Club (₹1.8L Sales)</p>
                 </div>
               </div>
             </div>
@@ -775,7 +753,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm">Amit Patel</p>
-                  <p className="text-xs text-amber-400">Ahmedabad · Silver Member</p>
+                  <p className="text-xs text-amber-400 font-semibold">Ahmedabad · Silver Member</p>
                 </div>
               </div>
             </div>
@@ -856,21 +834,12 @@ export default function Home() {
       <footer className="border-t border-slate-800/80 bg-slate-950 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10">
+            <div className="flex items-center shrink-0">
               <img
                 src="/logo.png"
                 alt="Ravishing Art Hub"
-                className="w-full"
-                style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
+                className="h-12 md:h-14 w-auto object-contain"
               />
-            </div>
-            <div>
-              <span className="font-black text-lg text-white tracking-tight block">
-                Ravishing Art
-              </span>
-              <span className="text-[10px] tracking-widest text-orange-400 font-semibold uppercase">
-                by Vrajangna Patel
-              </span>
             </div>
           </div>
 

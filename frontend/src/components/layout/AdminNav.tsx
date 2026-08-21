@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
@@ -125,20 +125,12 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
 
           {/* Left: Brand + Nav */}
           <div className="flex items-center gap-4 md:gap-8">
-            <Link href="/admin/dashboard" className="flex items-center gap-2 shrink-0">
-              {/* Logo icon: show only top portion of the circular logo (hides name text at bottom) */}
-              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10">
-                <img
-                  src="/logo.jpeg"
-                  alt="Ravishing Art Hub"
-                  className="w-full"
-                  style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
-                />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-black text-white tracking-tight">Ravishing Art</span>
-                <span className="text-[10px] font-medium text-orange-400 tracking-wider">by Vrajangna Patel</span>
-              </div>
+            <Link href="/admin/dashboard" className="flex items-center shrink-0">
+              <img
+                src="/logo.png"
+                alt="Ravishing Art Hub"
+                className="h-9 md:h-11 w-auto object-contain"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -181,7 +173,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
             >
               <div className="text-right hidden md:block">
                 <p className="text-sm font-bold text-white leading-tight group-hover:text-orange-400 transition-colors">{user?.name || "Admin"}</p>
-                <p className="text-[11px] text-slate-400">Edit Profile ⚙️</p>
+                <p className="text-[11px] text-slate-400">Edit Profile ⚙️</p>
               </div>
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-orange-500 shadow-lg shadow-orange-500/20 shrink-0 bg-slate-800 flex items-center justify-center text-sm font-bold text-white group-hover:scale-105 transition-transform">
                 {user?.avatarUrl ? (
@@ -235,7 +227,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-white text-sm truncate">{user?.name || "Admin"}</p>
-                <p className="text-xs text-orange-400 font-bold flex items-center gap-1">Edit Profile & Photo ⚙️</p>
+                <p className="text-xs text-orange-400 font-bold flex items-center gap-1">Edit Profile & Photo ⚙️</p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); logout?.(); }}
@@ -296,5 +288,6 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
     </>
   );
 };
+
 
 

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Sparkles, ArrowRight, Zap } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { API_BASE_URL } from "@/config/api";
 
 function LoginContent() {
@@ -12,15 +12,15 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [loading, setLoading] = useState(false);
   const [serverStatus, setServerStatus] = useState<'checking' | 'ready' | 'slow'>('checking');
   const { login } = useAuth();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
-      setSuccessMsg("Account created successfully! Please log in.");
+      setSuccessMsg("Account created! Please log in with your credentials.");
     }
   }, [searchParams]);
 
@@ -76,19 +76,12 @@ function LoginContent() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo area */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 shadow-2xl shadow-orange-500/20 border border-white/10">
-              <img
+          <div className="inline-flex items-center justify-center">
+            <img
                 src="/logo.png"
                 alt="Ravishing Art Hub"
-                className="w-full"
-                style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
+                className="h-16 md:h-20 w-auto object-contain drop-shadow-xl"
               />
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl font-black text-white tracking-tight">Ravishing Art</h1>
-              <p className="text-sm text-orange-400 font-medium">by Vrajangna Patel</p>
-            </div>
           </div>
           <p className="text-slate-400 mt-3 text-sm">Your creative transformation starts here.</p>
         </div>
@@ -105,13 +98,13 @@ function LoginContent() {
             </div>
           )}
 
-          {/* Server cold-start warning — only shows if server takes >3s to respond */}
+          {/* Server cold-start warning */}
           {serverStatus === 'slow' && (
             <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm flex items-center gap-3">
               <Zap size={16} className="shrink-0 animate-pulse" />
               <span>
-                <strong>Server is waking up…</strong> Free-tier servers sleep when idle.
-                This takes up to 60 seconds — you can fill the form in the meantime! ☕
+                <strong>Server is waking up...</strong> Free-tier servers sleep when idle.
+                This takes up to 60 seconds — you can fill the form in the meantime!
               </span>
             </div>
           )}
@@ -152,7 +145,7 @@ function LoginContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3.5 pr-12 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   required
                 />
                 <button
@@ -198,7 +191,6 @@ function LoginContent() {
     </div>
   );
 }
-
 
 export default function LoginPage() {
   return (
