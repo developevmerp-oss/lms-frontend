@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { API_BASE_URL } from "@/config/api";
 import {
   CheckCircle2,
   Calendar,
@@ -36,6 +37,9 @@ export default function ThankYouPage() {
   const whatsappSectionRef = useRef<HTMLDivElement>(null);
   const offerSectionRef = useRef<HTMLDivElement>(null);
 
+  const [prepVideoUrl, setPrepVideoUrl] = useState<string | null>(null);
+  const [whatsappGroupUrl, setWhatsappGroupUrl] = useState<string>("https://chat.whatsapp.com/sample-art-webinar-vip");
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("webinar_lead");
@@ -45,6 +49,25 @@ export default function ThankYouPage() {
         } catch (_) {}
       }
     }
+  }, []);
+
+  // Fetch the active webinar's prep video URL and WhatsApp group from backend
+  useEffect(() => {
+    const fetchWebinarConfig = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/webinar/next`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          if (data.data.prepVideoUrl) {
+            setPrepVideoUrl(data.data.prepVideoUrl);
+          }
+          if (data.data.whatsappGroupUrl) {
+            setWhatsappGroupUrl(data.data.whatsappGroupUrl);
+          }
+        }
+      } catch (_) {}
+    };
+    fetchWebinarConfig();
   }, []);
 
   // When video starts playing, trigger 10-second delay before revealing the 2 buttons
@@ -77,6 +100,26 @@ export default function ThankYouPage() {
       clearInterval(countdownInterval);
     };
   }, [videoStarted, showOfferButtons]);
+
+  /** Converts any YouTube watch/share URL to a youtube-nocookie embed URL */
+  const toYouTubeEmbed = (url: string): string => {
+    try {
+      // Handle youtu.be/ID
+      const shortMatch = url.match(/youtu\.be\/([\w-]+)/);
+      if (shortMatch) return `https://www.youtube-nocookie.com/embed/${shortMatch[1]}?autoplay=1`;
+      // Handle youtube.com/watch?v=ID
+      const watchMatch = url.match(/[?&]v=([\w-]+)/);
+      if (watchMatch) return `https://www.youtube-nocookie.com/embed/${watchMatch[1]}?autoplay=1`;
+      // Handle youtube.com/embed/ID (already embed)
+      if (url.includes('/embed/')) {
+        return url.includes('autoplay') ? url : `${url}?autoplay=1`;
+      }
+      // Fallback: return as-is
+      return url;
+    } catch (_) {
+      return url;
+    }
+  };
 
   const handleStartVideo = () => {
     setVideoStarted(true);
@@ -216,15 +259,15 @@ export default function ThankYouPage() {
 
           {/* Video Container */}
           <div className="relative rounded-2xl overflow-hidden border border-slate-800 aspect-video bg-slate-950 flex items-center justify-center shadow-inner group">
-            {videoStarted ? (
+            {videoStarted && prepVideoUrl ? (
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1"
+                src={toYouTubeEmbed(prepVideoUrl)}
                 title="Webinar Preparation Video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-            ) : (
+            ) : prepVideoUrl ? (
               <div
                 onClick={handleStartVideo}
                 className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-950 group-hover:bg-slate-900/80 transition-all p-6 text-center"
@@ -234,6 +277,12 @@ export default function ThankYouPage() {
                 </div>
                 <p className="text-lg font-bold text-white">Masterclass Preparation &amp; Roadmap Walkthrough</p>
                 <p className="text-xs text-orange-400 font-semibold mt-1">Duration: 3 mins · Click to Play</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-3 text-slate-500 p-8 text-center">
+                <Video size={36} className="text-slate-700" />
+                <p className="text-sm font-semibold text-slate-400">Preparation video will appear here</p>
+                <p className="text-xs text-slate-600">Admin can add the video URL in the Webinar Management panel.</p>
               </div>
             )}
           </div>

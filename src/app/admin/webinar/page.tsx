@@ -729,6 +729,23 @@ export default function AdminWebinarCRM() {
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  🎬 Prep Demo Video URL
+                  <span className="ml-1 text-orange-400 normal-case font-normal">(shown on Thank-You page)</span>
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  value={eventForm.prepVideoUrl}
+                  onChange={e => setEventForm(prev => ({ ...prev, prepVideoUrl: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-orange-500"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Paste the YouTube video link here. Students will see this on the thank-you page after registering.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
