@@ -39,7 +39,6 @@ export default function WebinarPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [curriculumUnlocked, setCurriculumUnlocked] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const update = (field: string, val: any) => setForm(f => ({ ...f, [field]: val }));
@@ -73,13 +72,13 @@ export default function WebinarPage() {
         sessionStorage.setItem("webinar_lead", JSON.stringify(data.data || form));
       }
 
-      router.push("/webinar/thank-you");
+      router.push("/thank-you");
     } catch (err: any) {
       // Fallback redirection even if network is slow
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(form));
       }
-      router.push("/webinar/thank-you");
+      router.push("/thank-you");
     } finally {
       setLoading(false);
     }
