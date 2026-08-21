@@ -72,6 +72,23 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   DUAL THEME LOGO SWITCHING
+───────────────────────────────────────────────────────────── */
+.brand-logo-dark {
+  display: block !important;
+}
+.brand-logo-light {
+  display: none !important;
+}
+
+.light .brand-logo-dark {
+  display: none !important;
+}
+.light .brand-logo-light {
+  display: block !important;
+}
+
 /* =========================================================================
    UNIVERSAL ACCENT COLOR ENGINE (WORKS IN BOTH DARK & LIGHT THEMES)
    ========================================================================= */
