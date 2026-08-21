@@ -253,13 +253,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative">
-      
+
       {/* ─── FLUID RESIN AMBIENT BLOBS ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-[15%] -left-[10%] w-[650px] h-[650px] bg-gradient-to-tr from-orange-600/15 via-rose-600/10 to-amber-500/10 rounded-full blur-[140px] animate-blob-morph" />
         <div className="absolute top-[40%] -right-[15%] w-[600px] h-[600px] bg-gradient-to-bl from-cyan-600/15 via-teal-700/10 to-blue-800/10 rounded-full blur-[150px] animate-blob-morph-delayed" />
         <div className="absolute -bottom-[10%] left-[25%] w-[550px] h-[550px] bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-transparent rounded-full blur-[160px] animate-blob-morph" />
-        
+
         {/* Subtle Canvas Grain Grid */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(249,115,22,0.06)_1px,transparent_1px)] bg-[size:32px_32px] opacity-70" />
       </div>
@@ -270,7 +270,7 @@ export default function Home() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/10 group-hover:scale-105 transition-transform shadow-lg shadow-orange-500/20">
               <img
-                src="/logo.png"
+                src="/logo.jpeg"
                 alt="Ravishing Art Hub"
                 className="w-full"
                 style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
@@ -313,7 +313,7 @@ export default function Home() {
       {/* ─── HERO SECTION: ART STUDIO ATMOSPHERE ─── */}
       <section className="relative pt-20 pb-16 px-6 z-10">
         <div className="max-w-6xl mx-auto text-center">
-          
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2.5 bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-full mb-8 backdrop-blur-md shadow-inner">
             <Sparkles size={14} className="text-orange-400 animate-pulse" />
@@ -491,7 +491,7 @@ export default function Home() {
       {/* ─── SECTION 3: INTERACTIVE ART MEDIUM & TECHNIQUE EXPLORER ─── */}
       <section id="techniques" className="py-24 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Techniques You Will Master</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
@@ -511,11 +511,10 @@ export default function Home() {
                 <button
                   key={d.id}
                   onClick={() => setActiveTab(d.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative overflow-hidden ${
-                    isSelected
+                  className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative overflow-hidden ${isSelected
                       ? "bg-slate-900 border-orange-500 shadow-xl shadow-orange-500/10 ring-1 ring-orange-500"
                       : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
-                  }`}
+                    }`}
                 >
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isSelected ? "bg-orange-500 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
                     <Icon size={18} />
@@ -532,18 +531,18 @@ export default function Home() {
           {/* Active Medium Spotlight Display */}
           <div className={`bg-slate-900/90 border ${selectedDiscipline.border} rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden backdrop-blur-xl transition-all duration-300`}>
             <div className={`absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl ${selectedDiscipline.gradient} rounded-full blur-3xl pointer-events-none`} />
-            
+
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              
+
               <div className="lg:col-span-7 space-y-6">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-orange-400">
                   <Sparkles size={13} /> {selectedDiscipline.tag} Module
                 </div>
-                
+
                 <h3 className="text-3xl md:text-4xl font-black text-white">
                   {selectedDiscipline.title}
                 </h3>
-                
+
                 <p className="text-slate-300 text-base md:text-lg leading-relaxed">
                   {selectedDiscipline.desc}
                 </p>
@@ -631,7 +630,7 @@ export default function Home() {
       {/* ─── SECTION 4: THE 4-STAGE ARTIST TRANSFORMATION ROADMAP ─── */}
       <section id="roadmap" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/60 relative">
         <div className="max-w-6xl mx-auto">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Structured Growth</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
@@ -702,7 +701,7 @@ export default function Home() {
       {/* ─── SECTION 5: REAL ARTIST SUCCESS STORIES ─── */}
       <section id="stories" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
@@ -714,7 +713,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl">
               <div>
                 <div className="flex gap-1 mb-4">
@@ -824,7 +823,7 @@ export default function Home() {
       <section className="py-24 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          
+
           <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/40">
             <Palette size={32} className="text-slate-950 stroke-[2.5]" />
           </div>

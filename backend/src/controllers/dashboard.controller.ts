@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import db from '../models';
 import { AuthRequest } from '../middleware/auth.middleware';
 
@@ -17,11 +17,11 @@ async function getLevelTiers() {
   let tiers = await db.LevelTier.findAll({ order: [['minPoints', 'ASC'], ['order', 'ASC']] });
   if (!tiers || tiers.length === 0) {
     const DEFAULT_LEVELS = [
-      { code: 'L0', name: 'Fast Start', minPoints: 0, maxPoints: 499, icon: '?', badgeColor: 'emerald', order: 0, description: 'Resin basics and first 5 creations' },
-      { code: 'L1', name: 'Silver Member', minPoints: 500, maxPoints: 4999, icon: '??', badgeColor: 'slate', order: 1, description: 'Core techniques and first client sale' },
-      { code: 'L2', name: 'Gold Member', minPoints: 5000, maxPoints: 9999, icon: '??', badgeColor: 'amber', order: 2, description: '?25K�?50K monthly revenue and custom orders' },
-      { code: 'L3', name: 'Diamond Club', minPoints: 10000, maxPoints: 49999, icon: '??', badgeColor: 'cyan', order: 3, description: 'Scale beyond ?50K/month and corporate contracts' },
-      { code: 'L3+', name: 'Masters Club', minPoints: 50000, maxPoints: null, icon: '??', badgeColor: 'purple', order: 4, description: 'Offline city workshops and signature brand empire' },
+      { code: 'L0', name: 'Fast Start', minPoints: 0, maxPoints: 499, icon: '⚡', badgeColor: 'emerald', order: 0, description: 'Resin basics and first 5 creations' },
+      { code: 'L1', name: 'Silver Member', minPoints: 500, maxPoints: 4999, icon: '🥈', badgeColor: 'slate', order: 1, description: 'Core techniques and first client sale' },
+      { code: 'L2', name: 'Gold Member', minPoints: 5000, maxPoints: 9999, icon: '🏆', badgeColor: 'amber', order: 2, description: '₹25K–₹50K monthly revenue and custom orders' },
+      { code: 'L3', name: 'Diamond Club', minPoints: 10000, maxPoints: 49999, icon: '💎', badgeColor: 'cyan', order: 3, description: 'Scale beyond ₹50K/month and corporate contracts' },
+      { code: 'L3+', name: 'Masters Club', minPoints: 50000, maxPoints: null, icon: '👑', badgeColor: 'purple', order: 4, description: 'Offline city workshops and signature brand empire' },
     ];
     await db.LevelTier.bulkCreate(DEFAULT_LEVELS);
     tiers = await db.LevelTier.findAll({ order: [['minPoints', 'ASC'], ['order', 'ASC']] });
@@ -58,13 +58,13 @@ export const getStudentStats = async (req: AuthRequest, res: Response): Promise<
           { model: Skill, as: 'skills' },
           { model: Badge, as: 'badges' },
           { model: Portfolio, as: 'portfolios', attributes: ['id', 'title', 'technique', 'imageUrl', 'feedback', 'createdAt'] },
-          { model: Milestone, as: 'milestones', attributes: ['id', 'name', 'description', 'completed', 'completedAt'] },
-          { model: SalesRecord, as: 'salesRecords', attributes: ['id', 'amount', 'description', 'date'] },
+          { model: Milestone, as: 'milestones', attributes: ['id', 'name', 'completed', 'completedAt', 'order'] },
+          { model: SalesRecord, as: 'salesRecords', attributes: ['id', 'amount', 'productName', 'date'] },
           { model: Course, as: 'courses', attributes: ['id', 'title', 'description'] },
-          { model: Notification, as: 'notifications', attributes: ['id', 'message', 'read', 'createdAt'] },
+          { model: Notification, as: 'notifications', attributes: ['id', 'title', 'message', 'isRead', 'createdAt'] },
         ]
       }),
-      Course.findAll({ attributes: ['id', 'title', 'description', 'level'] }),
+      Course.findAll({ attributes: ['id', 'title', 'description', 'image'] }),
       db.CommunityWin.findAll({ order: [['createdAt', 'DESC']], limit: 5 }),
       getLevelTiers(),
     ]);

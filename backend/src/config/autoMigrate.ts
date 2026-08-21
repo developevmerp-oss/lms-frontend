@@ -36,6 +36,9 @@ export const runAutoMigrations = async (sequelize: Sequelize) => {
     `ALTER TABLE "Badges" ADD COLUMN IF NOT EXISTS "description" TEXT;`,
     `ALTER TABLE "Badges" ADD COLUMN IF NOT EXISTS "pointsRequired" INTEGER DEFAULT 0;`,
 
+    // --- MILESTONES TABLE ---
+    `ALTER TABLE "Milestones" ADD COLUMN IF NOT EXISTS "description" TEXT;`,
+
     // --- LEVEL TIERS TABLE ---
     `ALTER TABLE "LevelTiers" ADD COLUMN IF NOT EXISTS "description" TEXT;`,
     `ALTER TABLE "LevelTiers" ADD COLUMN IF NOT EXISTS "icon" VARCHAR(255);`,
@@ -53,11 +56,16 @@ export const runAutoMigrations = async (sequelize: Sequelize) => {
     `CREATE INDEX IF NOT EXISTS "idx_notifications_userid" ON "Notifications" ("userId");`,
   ];
 
-  for (const query of migrationQueries) {
-    try {
-      await sequelize.query(query);
-    } catch (err: any) {
-      // Ignore if table does not exist yet (Sequelize sync will create it)
+  try {
+    // Run all migrations in a single batch for lightning-fast startup
+    const combinedSql = migrationQueries.join('\n');
+    await sequelize.query(combinedSql);
+  } catch (err: any) {
+    // If batch has table-not-found, fallback individually
+    for (const query of migrationQueries) {
+      try {
+        await sequelize.query(query);
+      } catch (_) {}
     }
   }
 
