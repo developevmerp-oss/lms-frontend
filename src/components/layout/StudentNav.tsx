@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import React, { useState, useEffect, useRef } from 'react';
@@ -29,6 +29,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
     { name: 'Daily Tasks', path: '/student/tasks' },
     { name: 'Leaderboard', path: '/student/leaderboard' },
     { name: 'Rewards Store', path: '/student/rewards' },
+    { name: 'Affiliate 20%', path: '/student/affiliate' },
   ];
 
   // Close notification dropdown when clicking outside

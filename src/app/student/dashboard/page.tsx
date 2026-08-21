@@ -13,6 +13,8 @@ import { BusinessMilestones } from "@/components/dashboard/BusinessMilestones";
 import { SalesAndCommunity } from "@/components/dashboard/SalesAndCommunity";
 import { AiMentor } from "@/components/dashboard/AiMentor";
 import { RewardsStore } from "@/components/dashboard/RewardsStore";
+import { WinWall } from "@/components/dashboard/WinWall";
+import { DailyRoutineChecklist } from "@/components/dashboard/DailyRoutineChecklist";
 import { DashboardSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
@@ -111,15 +113,32 @@ export default function StudentDashboard() {
         {isLoading ? (
           <DashboardSkeleton />
         ) : (<>
-          <WelcomeHeader 
-            user={user} 
-            level={getLevelName(stats.points)} 
-            xp={stats.points} 
-            streak={stats.streak} 
-            progress={dynamicProgress} 
-            nextGoal={stats.nextGoal}
-            currentTier={stats.currentTier}
-          />
+          {/* Header & Win Wall Grid (Point 5: Win wall visible on right side immediately after header) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-stretch">
+            <div className="lg:col-span-8 flex flex-col">
+              <WelcomeHeader 
+                user={user} 
+                level={getLevelName(stats.points)} 
+                xp={stats.points} 
+                streak={stats.streak} 
+                progress={dynamicProgress} 
+                nextGoal={stats.nextGoal}
+                currentTier={stats.currentTier}
+              />
+            </div>
+            <div className="lg:col-span-4 flex flex-col">
+              <WinWall 
+                communityWins={stats.communityWins} 
+                onShareWin={() => {
+                  const el = document.getElementById('community-sales');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+              />
+            </div>
+          </div>
+
+          {/* Today's Focus: 6-Step Daily Habits & Routine (Point 11 & 12) */}
+          <DailyRoutineChecklist streak={stats.streak} onCompleteRoutine={fetchStats} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <div className="lg:col-span-2">
@@ -137,7 +156,9 @@ export default function StudentDashboard() {
             <BusinessMilestones milestones={stats.milestones} />
           </div>
 
-          <SalesAndCommunity sales={stats.salesRecords} communityWins={stats.communityWins} onInteract={fetchStats} />
+          <div id="community-sales">
+            <SalesAndCommunity sales={stats.salesRecords} communityWins={stats.communityWins} onInteract={fetchStats} />
+          </div>
           
           <RewardsStore currentPoints={stats.points} onRedeem={fetchStats} />
 
