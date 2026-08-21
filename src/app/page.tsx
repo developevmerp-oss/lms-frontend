@@ -512,8 +512,8 @@ export default function Home() {
                   key={d.id}
                   onClick={() => setActiveTab(d.id)}
                   className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative overflow-hidden ${isSelected
-                      ? "bg-slate-900 border-orange-500 shadow-xl shadow-orange-500/10 ring-1 ring-orange-500"
-                      : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
+                    ? "bg-slate-900 border-orange-500 shadow-xl shadow-orange-500/10 ring-1 ring-orange-500"
+                    : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
                     }`}
                 >
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isSelected ? "bg-orange-500 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
@@ -858,7 +858,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10">
               <img
-                src="/logo.png"
+                src="/logo.jpeg"
                 alt="Ravishing Art Hub"
                 className="w-full"
                 style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
