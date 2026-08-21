@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import {
   CheckCircle2,
@@ -21,14 +22,19 @@ import {
   Zap,
   BookOpen,
   Trophy,
-  ArrowDown
+  ArrowDown,
+  CreditCard
 } from "lucide-react";
 
 export default function ThankYouPage() {
+  const router = useRouter();
   const [lead, setLead] = useState<any>(null);
   const [videoStarted, setVideoStarted] = useState(false);
+  const [showOfferButtons, setShowOfferButtons] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(10);
   const [webinarStatusMsg, setWebinarStatusMsg] = useState("");
   const whatsappSectionRef = useRef<HTMLDivElement>(null);
+  const offerSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -41,20 +47,83 @@ export default function ThankYouPage() {
     }
   }, []);
 
+  // When video starts playing, trigger 10-second delay before revealing the 2 buttons
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    let countdownInterval: NodeJS.Timeout;
+
+    if (videoStarted && !showOfferButtons) {
+      countdownInterval = setInterval(() => {
+        setSecondsRemaining((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      timer = setTimeout(() => {
+        setShowOfferButtons(true);
+        // Smooth scroll slightly down to make sure buttons are visible
+        setTimeout(() => {
+          offerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 200);
+      }, 10000); // 10 seconds delay
+    }
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(countdownInterval);
+    };
+  }, [videoStarted, showOfferButtons]);
+
+  const handleStartVideo = () => {
+    setVideoStarted(true);
+    setSecondsRemaining(10);
+  };
+
   const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
     "Resin Mastery Masterclass with Vrajangna Patel"
   )}&dates=20260823T143000Z/20260823T160000Z&details=${encodeURIComponent(
     "Live Resin Mastery Masterclass: 3 Secrets to Building a ₹3L/Mo Resin Art Business. Check your email for Zoom link!"
   )}&location=${encodeURIComponent("Zoom Live")}`;
 
-  const fastStartRegisterUrl = `/register?bundle=fast-start${
-    lead?.name ? `&name=${encodeURIComponent(lead.name)}` : ""
-  }${lead?.email ? `&email=${encodeURIComponent(lead.email)}` : ""}${
-    lead?.phone ? `&phone=${encodeURIComponent(lead.phone)}` : ""
-  }`;
+  /**
+   * Fast Start (Level 0) Checkout / Enrollment Handler
+   * Designed with Razorpay payment gateway placeholder for future seamless activation.
+   */
+  const handleFastStartCheckout = () => {
+    // --- FUTURE RAZORPAY PAYMENT GATEWAY INTEGRATION HOOK ---
+    // When Razorpay credentials are ready in the future:
+    // const options = {
+    //   key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || "rzp_test_xxxx",
+    //   amount: 99900, // in paise (₹999)
+    //   currency: "INR",
+    //   name: "Ravishing Art Hub",
+    //   description: "Resin Art Fast Start (Level 0) Bundle",
+    //   image: "/logo-dark.png",
+    //   prefill: { name: lead?.name || "", email: lead?.email || "", contact: lead?.phone || "" },
+    //   handler: function (response: any) { ... }
+    // };
+    // const rzp = new (window as any).Razorpay(options);
+    // rzp.open();
+    // --------------------------------------------------------
+
+    // For now: Direct instant registration & auto-enrollment in Level 0 Fast Start
+    const queryParams = new URLSearchParams({
+      bundle: "fast-start",
+      course: "l0",
+      ...(lead?.name && { name: lead.name }),
+      ...(lead?.email && { email: lead.email }),
+      ...(lead?.phone && { phone: lead.phone }),
+    });
+
+    router.push(`/register?${queryParams.toString()}`);
+  };
 
   const handleContinueWithWebinar = () => {
-    setWebinarStatusMsg("Awesome! Make sure to complete the WhatsApp group and Calendar steps below to get your live Zoom link.");
+    setWebinarStatusMsg("Awesome choice! Join the VIP WhatsApp group below to receive your live Zoom link & prep worksheets.");
     if (whatsappSectionRef.current) {
       whatsappSectionRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -131,11 +200,11 @@ export default function ThankYouPage() {
           </div>
         </div>
 
-        {/* ─── SECTION: WATCH THIS BEFORE YOU JOIN + DUAL ACTION BUTTONS ─── */}
+        {/* ─── SECTION: WATCH THIS BEFORE YOU JOIN ─── */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl space-y-6">
           <div className="space-y-2 text-center md:text-left">
             <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-orange-400 bg-orange-500/10 px-3.5 py-1 rounded-full border border-orange-500/30">
-              <Video size={14} /> Masterclass Prep &amp; Fast-Track
+              <Video size={14} /> Masterclass Prep Video
             </div>
             <h2 className="text-2xl md:text-3xl font-black text-white flex items-center justify-center md:justify-start gap-2">
               Watch this before you join
@@ -157,7 +226,7 @@ export default function ThankYouPage() {
               />
             ) : (
               <div
-                onClick={() => setVideoStarted(true)}
+                onClick={handleStartVideo}
                 className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-950 group-hover:bg-slate-900/80 transition-all p-6 text-center"
               >
                 <div className="w-20 h-20 rounded-full bg-orange-500/20 border-2 border-orange-500/50 flex items-center justify-center text-orange-400 mb-4 group-hover:scale-110 transition-transform shadow-2xl shadow-orange-500/30">
@@ -169,82 +238,111 @@ export default function ThankYouPage() {
             )}
           </div>
 
-          {/* ─── DUAL ACTION DECISION BOX (TRIGGERED OR DISPLAYED BELOW VIDEO) ─── */}
-          <div className="bg-slate-950/80 border-2 border-orange-500/30 rounded-2xl p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-orange-400 flex items-center gap-1.5">
-                  <Flame size={14} /> Ready to take action?
-                </p>
-                <h3 className="text-base sm:text-lg font-bold text-white">
-                  Choose your next step:
-                </h3>
-              </div>
-              <span className="text-[11px] text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
-                2 Available Pathways
-              </span>
+          {/* Subtle indicator while watching before 10s */}
+          {videoStarted && !showOfferButtons && (
+            <div className="flex items-center justify-center gap-2 text-xs text-slate-400 pt-2 animate-pulse">
+              <Clock size={13} className="text-orange-400" />
+              <span>Special fast-track options revealing in {secondsRemaining}s...</span>
             </div>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-              {/* Option 1: Resin Art Fast Start Bundle */}
-              <Link
-                href={fastStartRegisterUrl}
-                className="p-5 rounded-2xl bg-gradient-to-br from-orange-500/20 via-amber-500/10 to-slate-900 border-2 border-orange-500 hover:border-orange-400 transition-all flex flex-col justify-between group shadow-xl shadow-orange-500/10 hover:scale-[1.02] cursor-pointer"
-              >
+          {/* ─── DUAL ACTION DECISION BOX (APPEARS AFTER 10 SECONDS OF STARTING VIDEO) ─── */}
+          {showOfferButtons && (
+            <div
+              ref={offerSectionRef}
+              className="bg-slate-950/90 border-2 border-orange-500 rounded-3xl p-6 md:p-8 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-2xl shadow-orange-500/20"
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-4">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-black uppercase tracking-wider text-orange-400 bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/30">
-                      Option 1 · Instant Access
-                    </span>
-                    <Sparkles size={16} className="text-orange-400 group-hover:rotate-12 transition-transform" />
+                  <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-400 text-slate-950 text-[11px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full mb-1">
+                    <Flame size={12} className="fill-slate-950" /> Fast-Track Unlocked
                   </div>
-                  <h4 className="text-lg font-black text-white mb-1 group-hover:text-orange-300 transition-colors">
-                    1. Resin Art Fast Start Bundle
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed mb-3">
-                    Don't want to wait for the webinar? Start Level 0 now! Get 4 foundational video lessons, formula calculator &amp; direct student dashboard access.
+                  <h3 className="text-xl md:text-2xl font-black text-white">
+                    Ready to Start Your Art Journey Today?
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Choose whether to start learning immediately or wait for the live webinar:
                   </p>
                 </div>
-                <div className="pt-2 border-t border-orange-500/20 flex items-center justify-between text-xs font-bold text-orange-400">
-                  <span>Join Level 0 Fast Start</span>
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-
-              {/* Option 2: Continue with Webinar */}
-              <button
-                type="button"
-                onClick={handleContinueWithWebinar}
-                className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group text-left shadow-lg hover:scale-[1.02] cursor-pointer"
-              >
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                      Option 2 · Live Experience
-                    </span>
-                    <Clock size={16} className="text-emerald-400" />
-                  </div>
-                  <h4 className="text-lg font-black text-white mb-1 group-hover:text-emerald-300 transition-colors">
-                    2. Continue with Webinar
-                  </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-3">
-                    Attend the live 90-minute Masterclass this Sunday at 8:00 PM IST with Vrajangna Patel, live Q&amp;A, and free Clarity Kit.
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-slate-300">
-                  <span>Keep My Free Live Seat</span>
-                  <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
-                </div>
-              </button>
-            </div>
-
-            {webinarStatusMsg && (
-              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2 animate-in fade-in duration-300">
-                <CheckCircle2 size={16} className="shrink-0" />
-                <span>{webinarStatusMsg}</span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full shrink-0">
+                  ⚡ 2 Available Options
+                </span>
               </div>
-            )}
-          </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 1. Resin Art Fast Start Bundle */}
+                <button
+                  type="button"
+                  onClick={handleFastStartCheckout}
+                  className="p-6 rounded-2xl bg-gradient-to-br from-orange-500/25 via-amber-500/15 to-slate-900 border-2 border-orange-500 hover:border-orange-400 transition-all flex flex-col justify-between group text-left shadow-2xl shadow-orange-500/20 hover:scale-[1.02] cursor-pointer relative overflow-hidden"
+                >
+                  <div className="absolute top-3 right-3">
+                    <span className="bg-orange-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md">
+                      Instant Access
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                      <Sparkles size={14} /> Option 1 (Skip The Wait)
+                    </div>
+                    <h4 className="text-lg md:text-xl font-black text-white mb-2 group-hover:text-orange-300 transition-colors">
+                      1. Resin Art Fast Start Bundle
+                    </h4>
+                    <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                      Don't want to wait 2 days for the webinar? Start Level 0 now! Unlock 4 foundational video lessons, formula calculator &amp; student dashboard access immediately.
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-orange-500/30 flex items-center justify-between text-xs font-black text-orange-400">
+                    <span className="flex items-center gap-1.5">
+                      <Zap size={14} className="text-orange-400" /> Unlock Level 0 &amp; Join Course
+                    </span>
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </button>
+
+                {/* 2. Continue with Webinar */}
+                <button
+                  type="button"
+                  onClick={handleContinueWithWebinar}
+                  className="p-6 rounded-2xl bg-slate-900/90 border-2 border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group text-left shadow-lg hover:scale-[1.02] cursor-pointer relative overflow-hidden"
+                >
+                  <div className="absolute top-3 right-3">
+                    <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      100% Free
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      <Clock size={14} className="text-emerald-400" /> Option 2 (Live Session)
+                    </div>
+                    <h4 className="text-lg md:text-xl font-black text-white mb-2 group-hover:text-emerald-300 transition-colors">
+                      2. Continue with Webinar
+                    </h4>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                      Attend the live 90-minute Masterclass this Sunday at 8:00 PM IST with Vrajangna Patel, live Q&amp;A, and free Clarity Kit.
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <MessageCircle size={14} className="text-emerald-400" /> Keep My Free Seat &amp; Join Group
+                    </span>
+                    <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                  </div>
+                </button>
+              </div>
+
+              {webinarStatusMsg && (
+                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2 animate-in fade-in duration-300">
+                  <CheckCircle2 size={16} className="shrink-0" />
+                  <span>{webinarStatusMsg}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ─── SECTION: JOIN THE OFFICIAL WHATSAPP GROUP ─── */}
