@@ -1,12 +1,21 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { Eye, EyeOff, Sparkles, ArrowRight, CheckCircle2, Trophy, Users, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, Palette, CheckCircle2 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+const PERKS = [
+  { icon: <BookOpen size={18} className="text-orange-400" />, title: "Structured Curriculum", desc: "4 progressive tiers from beginner to mastery" },
+  { icon: <Trophy size={18} className="text-amber-400" />, title: "Real Business Goals", desc: "Monetize your resin art — aim for ₹50k/mo" },
+  { icon: <Users size={18} className="text-purple-400" />, title: "1-on-1 Mentor Critiques", desc: "Direct feedback from Vrajangna Patel" },
+];
+
 export default function RegisterPage() {
+  const router = useRouter();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -18,9 +27,8 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  const update = (key: string, val: string) => setForm(f => ({ ...f, [key]: val }));
+  const update = (field: string, val: string) => setForm(f => ({ ...f, [field]: val }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,16 +39,21 @@ export default function RegisterPage() {
       const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, role: "student" }),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to register");
+        throw new Error(data.message || "Registration failed");
       }
 
-      router.push("/login?registered=true");
+      if (data.token) {
+        login(data.token, data.user);
+        router.push("/student/dashboard");
+      } else {
+        router.push("/login?registered=true");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -48,49 +61,52 @@ export default function RegisterPage() {
     }
   };
 
-  const perks = [
-    "Access to all resin art courses",
-    "Daily missions & XP tracking",
-    "Community Win Wall & Leaderboard",
-    "Earn certificates & rewards",
-  ];
-
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-orange-500/8 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/8 rounded-full blur-[120px]" />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
+      {/* Background glow blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Grid overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        
-        {/* Left: Branding */}
-        <div className="hidden lg:flex flex-col justify-center p-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-2xl shadow-orange-500/30 mb-6">
-            <Palette size={32} className="text-white" />
+        {/* Left: Branding & Perks */}
+        <div className="hidden lg:block space-y-6 pr-4">
+          <div className="flex items-center gap-3 mb-2">
+            <img
+                src="/logo.png"
+                alt="Ravishing Art Hub"
+                className="h-12 md:h-14 w-auto object-contain"
+              />
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tight leading-tight mb-4">
-            Join Ravishing<br />Art Hub Today
+
+          <h1 className="text-3xl font-black text-white leading-tight">
+            Transform from Beginner to a Profitable Resin Artist
           </h1>
-          <p className="text-slate-400 text-base mb-8 leading-relaxed">
-            Transform from a beginner into a confident resin artist, entrepreneur, and mentor â€” all in one structured journey.
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Join thousands of creators learning the science, art, and business of resin craftsmanship.
           </p>
-          <div className="space-y-3">
-            {perks.map((perk, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 size={14} className="text-orange-400" />
+
+          <div className="space-y-4 pt-2">
+            {PERKS.map((perk, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 shrink-0 mt-0.5">
+                  {perk.icon}
                 </div>
-                <span className="text-slate-300 text-sm font-medium">{perk}</span>
+                <div>
+                  <h3 className="text-white font-bold text-sm">{perk.title}</h3>
+                  <p className="text-slate-400 text-xs mt-0.5">{perk.desc}</p>
+                </div>
               </div>
             ))}
           </div>
           <div className="mt-10 p-5 rounded-2xl bg-slate-900 border border-slate-800">
             <div className="flex gap-3 items-start">
-              <div className="text-3xl shrink-0">ðŸŽ¨</div>
+              <div className="text-3xl shrink-0">💬</div>
               <div>
-                <p className="text-white font-bold text-sm">"My first â‚¹50,000 sale happened within 3 months of joining!"</p>
-                <p className="text-slate-500 text-xs mt-1">â€” Priya S., Diamond Club Member</p>
+                <p className="text-white font-bold text-sm">"My first ₹50,000 sale happened within 3 months of joining!"</p>
+                <p className="text-slate-500 text-xs mt-1">— Priya S., Diamond Club Member</p>
               </div>
             </div>
           </div>
@@ -100,24 +116,17 @@ export default function RegisterPage() {
         <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 shadow-2xl shadow-black/50">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-6">
-            <div className="inline-flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/10">
-                <img
-                  src="/logo.jpeg"
+            <div className="inline-flex items-center justify-center">
+              <img
+                  src="/logo.png"
                   alt="Ravishing Art Hub"
-                  className="w-full"
-                  style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
+                  className="h-12 md:h-14 w-auto object-contain"
                 />
-              </div>
-              <div className="text-left">
-                <h2 className="text-lg font-black text-white">Ravishing Art</h2>
-                <p className="text-xs text-orange-400">by Vrajangna Patel</p>
-              </div>
             </div>
           </div>
 
           <h2 className="text-xl font-bold text-white mb-1">Create your account</h2>
-          <p className="text-slate-400 text-sm mb-7">Start your resin art journey today â€” it's free.</p>
+          <p className="text-slate-400 text-sm mb-7">Start your resin art journey today — it's free.</p>
 
           {error && (
             <div className="mb-5 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
@@ -238,7 +247,7 @@ export default function RegisterPage() {
           <p className="mt-6 text-center text-sm text-slate-400">
             Already have an account?{" "}
             <Link href="/login" className="font-bold text-orange-400 hover:text-orange-300 transition-colors">
-              Log in here â†’
+              Log in here →
             </Link>
           </p>
         </div>
@@ -246,4 +255,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

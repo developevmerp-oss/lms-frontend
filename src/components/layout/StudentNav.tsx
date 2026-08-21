@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -56,20 +56,12 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
 
           {/* Left: Logo */}
           <div className="flex items-center gap-4 md:gap-12">
-            <Link href="/student/dashboard" className="flex items-center gap-2 shrink-0">
-              {/* Logo icon: show only top portion of the circular logo (hides name text at bottom) */}
-              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10">
-                <img
-                  src="/logo.jpeg"
-                  alt="Ravishing Art Hub"
-                  className="w-full"
-                  style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
-                />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-black text-white tracking-tight">Ravishing Art</span>
-                <span className="text-[10px] font-medium text-orange-400 tracking-wider">by Vrajangna Patel</span>
-              </div>
+            <Link href="/student/dashboard" className="flex items-center shrink-0">
+              <img
+                src="/logo.png"
+                alt="Ravishing Art Hub"
+                className="h-9 md:h-11 w-auto object-contain"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -81,8 +73,8 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
                     key={link.name}
                     href={link.path}
                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${isActive
-                        ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent'
+                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
                       }`}
                   >
                     {link.name}
@@ -109,7 +101,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
             <div className="relative" ref={notifRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-orange-500/30 text-slate-400 hover:text-white flex items-center justify-center transition-colors relative"
+                className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-orange-500/30 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors relative"
               >
                 <Bell size={17} />
                 {unreadCount > 0 && (
@@ -168,7 +160,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
             {/* Logout (desktop) */}
             <button
               onClick={logout}
-              className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-800 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/30 text-slate-400 hover:text-red-400 items-center justify-center transition-colors"
+              className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-red-500/20 border border-slate-200 dark:border-slate-700 hover:border-red-500/30 text-slate-600 dark:text-slate-400 hover:text-red-500 items-center justify-center transition-colors"
               title="Sign Out"
             >
               <LogOut size={17} />
@@ -205,7 +197,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-white text-sm truncate">{user?.name || "Student"}</p>
-                <p className="text-xs text-orange-400 font-bold">Edit Profile & Photo ⚙️</p>
+                <p className="text-xs text-orange-400 font-bold">Edit Profile & Photo ⚙️</p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); logout?.(); }}
@@ -240,3 +232,5 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
     </>
   );
 };
+
+
