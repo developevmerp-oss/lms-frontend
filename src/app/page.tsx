@@ -800,84 +800,183 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
 
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Student Testimonials</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Verified Google Play Reviews</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              Real Creators Building Real Businesses
+              What Real Students Are Saying
             </h2>
             <p className="text-slate-400 text-base md:text-lg">
-              Hear directly from homemakers, corporate professionals, and design students who turned resin into an income stream.
+              100% real reviews from the Ravishing Art app on Google Play · Rated <span className="text-amber-400 font-bold">5.0 ★</span>
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl">
+            {/* Review 1 - Krupali Shah */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/30 transition-all shadow-xl">
               <div>
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={15} className="text-amber-400 fill-amber-400" />
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 18 Feb 2023</span>
                 </div>
                 <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "I was completely intimidated by epoxy chemistry and micro-bubbles. The Level 0 formula sheets simplified everything. Within 60 days, I sold 14 geode clocks through Instagram DMs!"
+                  "Easy to access, easy to connect and best part always support is there so you never feel stuck anywhere. The best part is all course introductions are open for all to know the course details and see our mentor too 👍"
                 </p>
               </div>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center font-black text-slate-950 text-sm">
-                  P
-                </div>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-cyan-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">K</div>
                 <div>
-                  <p className="font-bold text-white text-sm">Priya Sharma</p>
-                  <p className="text-xs text-orange-400 font-semibold">Mumbai · Gold Member (₹55k Sales)</p>
+                  <p className="font-bold text-white text-sm">Krupali Shah</p>
+                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl">
+            {/* Review 2 - Sonal */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/30 transition-all shadow-xl">
               <div>
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={15} className="text-amber-400 fill-amber-400" />
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 21 May 2024</span>
                 </div>
                 <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "The wedding preservation module alone paid for everything 10x over. I now preserve bridal jaimalas and bouquets in crystal epoxy blocks charging ₹12,000 per piece."
+                  "Ravishing Art is a wonderful app to learn resin art. It has different courses and easy steps in video form. Vrajangna miss encourages us to try new thoughts and designs. Very much helpful for art lovers. Very happy to join Ravishing Art!"
                 </p>
               </div>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center font-black text-slate-950 text-sm">
-                  N
-                </div>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">S</div>
                 <div>
-                  <p className="font-bold text-white text-sm">Neha Gupta</p>
-                  <p className="text-xs text-cyan-400 font-semibold">Pune · Diamond Club (₹1.8L Sales)</p>
+                  <p className="font-bold text-white text-sm">Sonal</p>
+                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl">
+            {/* Review 3 - Drashti Gosai */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/30 transition-all shadow-xl">
               <div>
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={15} className="text-amber-400 fill-amber-400" />
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 19 Oct 2023</span>
                 </div>
                 <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "The Daily Missions gamification is addictive. Uploading tasks, earning XP, and getting instant mentor grading gave me the confidence to host my first offline workshop with 18 attendees!"
+                  "Absolutely love this app. The user-friendly interface makes it easy to experiment with different techniques. I also appreciate Vrajangna mam for being a motivational figure in my art journey."
                 </p>
               </div>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center font-black text-slate-950 text-sm">
-                  A
-                </div>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">D</div>
                 <div>
-                  <p className="font-bold text-white text-sm">Amit Patel</p>
-                  <p className="text-xs text-amber-400 font-semibold">Ahmedabad · Silver Member</p>
+                  <p className="font-bold text-white text-sm">Drashti Gosai</p>
+                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 4 - Hina Bhardwaj */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/30 transition-all shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 19 Oct 2023</span>
+                </div>
+                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
+                  "I first saw Vrajangna Ma'am on an Instagram Live. The way she explained resin art — whether the learner is from a well-to-do family or a simple housewife, anyone can learn with minimum investment. One day she shared a reel about the courses and I immediately enrolled myself. My learning started a new journey."
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-500 to-slate-400 flex items-center justify-center font-black text-white text-sm shrink-0">H</div>
+                <div>
+                  <p className="font-bold text-white text-sm">Hina Bhardwaj</p>
+                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 5 - Manisha Dedhia */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/30 transition-all shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 3 Jun 2025</span>
+                </div>
+                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
+                  "Amazing experience with Vrajangana ma'am for teaching resin art. Her videos are very easy to understand for a newcomer like me. Within a month I got confidence to make different resin items. Thanks a lot ma'am for your guidance. Thank you!"
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">M</div>
+                <div>
+                  <p className="font-bold text-white text-sm">Manisha Dedhia</p>
+                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 6 - Tamanna Bhanushali */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/30 transition-all shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 15 Apr 2024</span>
+                </div>
+                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
+                  "Learning is very easy with this app. Someone is always available for solving queries. Boosted my confidence by giving tasks and helping to complete them. Best resin art learning platform!"
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">T</div>
+                <div>
+                  <p className="font-bold text-white text-sm">Tamanna Bhanushali</p>
+                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
                 </div>
               </div>
             </div>
 
           </div>
+
+          {/* Google Play Rating Badge */}
+          <div className="mt-10 flex justify-center">
+            <div className="inline-flex items-center gap-4 bg-slate-900/80 border border-slate-800 rounded-2xl px-6 py-4 shadow-xl">
+              <div className="text-center">
+                <p className="text-4xl font-black text-white">5.0</p>
+                <div className="flex gap-0.5 mt-1 justify-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+              </div>
+              <div className="w-px h-12 bg-slate-700" />
+              <div>
+                <p className="text-sm font-bold text-white">Ravishing Art App</p>
+                <p className="text-xs text-slate-400">Google Play Store · Verified Reviews</p>
+                <p className="text-xs text-emerald-400 font-semibold mt-0.5">All ratings from real students</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
