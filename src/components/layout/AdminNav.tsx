@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -125,13 +126,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
 
           {/* Left: Brand + Nav */}
           <div className="flex items-center gap-4 md:gap-8">
-            <Link href="/admin/dashboard" className="flex items-center shrink-0">
-              <img
-                src="/logo.png"
-                alt="Ravishing Art Hub"
-                className="h-9 md:h-11 w-auto object-contain"
-              />
-            </Link>
+            <BrandLogo href="/admin/dashboard" size="sm" />
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-1">

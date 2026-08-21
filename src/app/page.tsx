@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import {
   ArrowRight,
   Palette,
@@ -261,13 +262,7 @@ export default function Home() {
       {/* ─── LUXURY ARTISAN NAVBAR ─── */}
       <nav className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-2xl transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center group">
-            <img
-              src="/logo.png"
-              alt="Ravishing Art Hub"
-              className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform"
-            />
-          </Link>
+          <BrandLogo href="/" size="md" />
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#masterpieces" className="hover:text-orange-400 transition-colors">Art Gallery</a>
@@ -834,13 +829,7 @@ export default function Home() {
       <footer className="border-t border-slate-800/80 bg-slate-950 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-3">
-            <div className="flex items-center shrink-0">
-              <img
-                src="/logo.png"
-                alt="Ravishing Art Hub"
-                className="h-12 md:h-14 w-auto object-contain"
-              />
-            </div>
+            <BrandLogo href="/" size="md" />
           </div>
 
           <p className="text-slate-500 text-xs text-center md:text-left">

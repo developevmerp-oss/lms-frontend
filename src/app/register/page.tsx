@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, Sparkles, ArrowRight, CheckCircle2, Trophy, Users, BookOpen } from "lucide-react";
 import Link from "next/link";
@@ -73,12 +74,8 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         {/* Left: Branding & Perks */}
         <div className="hidden lg:block space-y-6 pr-4">
-          <div className="flex items-center gap-3 mb-2">
-            <img
-                src="/logo.png"
-                alt="Ravishing Art Hub"
-                className="h-12 md:h-14 w-auto object-contain"
-              />
+          <div className="mb-4">
+            <BrandLogo href="/" size="lg" />
           </div>
 
           <h1 className="text-3xl font-black text-white leading-tight">
@@ -116,13 +113,7 @@ export default function RegisterPage() {
         <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 shadow-2xl shadow-black/50">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-6">
-            <div className="inline-flex items-center justify-center">
-              <img
-                  src="/logo.png"
-                  alt="Ravishing Art Hub"
-                  className="h-12 md:h-14 w-auto object-contain"
-                />
-            </div>
+            <BrandLogo href="/" size="md" />
           </div>
 
           <h2 className="text-xl font-bold text-white mb-1">Create your account</h2>

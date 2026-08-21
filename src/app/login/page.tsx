@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, Sparkles, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
@@ -76,12 +77,8 @@ function LoginContent() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo area */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center">
-            <img
-                src="/logo.png"
-                alt="Ravishing Art Hub"
-                className="h-16 md:h-20 w-auto object-contain drop-shadow-xl"
-              />
+          <div className="inline-flex items-center justify-center mb-2">
+            <BrandLogo href="/" size="lg" />
           </div>
           <p className="text-slate-400 mt-3 text-sm">Your creative transformation starts here.</p>
         </div>
