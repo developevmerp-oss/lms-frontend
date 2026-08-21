@@ -1,8 +1,8 @@
 "use client";
 
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import Link from "next/link";
 import React, { useState } from "react";
-import { BrandLogo } from "@/components/ui/BrandLogo";
 import {
   ArrowRight,
   Palette,
@@ -249,6 +249,19 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative">
 
+      {/* ─── TOP WEBINAR PROMO ANNOUNCEMENT ─── */}
+      <div className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 text-white py-2 px-4 text-center text-xs md:text-sm font-bold shadow-md flex items-center justify-center gap-3">
+        <span className="flex items-center gap-1.5 animate-pulse">
+          <Flame size={15} className="text-amber-200" /> FREE 90-MIN LIVE MASTERCLASS: "₹3L/MO RESIN BUSINESS"
+        </span>
+        <Link
+          href="/webinar"
+          className="bg-white text-orange-600 text-xs px-3 py-1 rounded-lg font-black hover:bg-orange-50 transition-colors shadow-sm ml-1"
+        >
+          Claim Free Seat →
+        </Link>
+      </div>
+
       {/* ─── FLUID RESIN AMBIENT BLOBS ─── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-[15%] -left-[10%] w-[650px] h-[650px] bg-gradient-to-tr from-orange-600/15 via-rose-600/10 to-amber-500/10 rounded-full blur-[140px] animate-blob-morph" />
@@ -264,7 +277,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <BrandLogo href="/" size="md" />
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+          <div className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+            <Link href="/webinar" className="text-orange-400 font-bold hover:text-orange-300 transition-colors flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-xl">
+              <Sparkles size={14} /> Free Masterclass
+            </Link>
             <a href="#masterpieces" className="hover:text-orange-400 transition-colors">Art Gallery</a>
             <a href="#techniques" className="hover:text-orange-400 transition-colors">Techniques</a>
             <a href="#roadmap" className="hover:text-orange-400 transition-colors">Artist Journey</a>
@@ -320,19 +336,19 @@ export default function Home() {
           {/* Call to Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <Link
-              href="/register"
+              href="/webinar"
               className="px-8 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 w-full sm:w-auto justify-center hover:scale-[1.02]"
             >
-              <Brush size={20} />
-              Start Your Art Journey Free
+              <Sparkles size={20} />
+              Join Free Live Masterclass
             </Link>
-            <a
-              href="#masterpieces"
+            <Link
+              href="/register"
               className="px-8 py-4 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 font-bold rounded-2xl text-lg transition-all w-full sm:w-auto justify-center flex items-center gap-2 hover:border-orange-500/40"
             >
-              <Eye size={20} className="text-orange-400" />
-              Explore Student Art Gallery
-            </a>
+              <Brush size={20} className="text-orange-400" />
+              Explore Academy Portal
+            </Link>
           </div>
 
           {/* Quick Studio Stats */}
@@ -489,7 +505,7 @@ export default function Home() {
                 <button
                   key={d.id}
                   onClick={() => setActiveTab(d.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative overflow-hidden ${isSelected
+                  className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative overflow-hidden cursor-pointer ${isSelected
                     ? "bg-slate-900 border-orange-500 shadow-xl shadow-orange-500/10 ring-1 ring-orange-500"
                     : "bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
                     }`}
@@ -540,10 +556,10 @@ export default function Home() {
 
                 <div className="pt-4 flex flex-wrap gap-4">
                   <Link
-                    href="/register"
+                    href="/webinar"
                     className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-orange-500/25 flex items-center gap-2"
                   >
-                    Unlock Curriculum Free <ArrowRight size={15} />
+                    Attend Free Masterclass <ArrowRight size={15} />
                   </Link>
                   <a
                     href="#roadmap"
@@ -660,10 +676,10 @@ export default function Home() {
                 </p>
               </div>
               <Link
-                href="/register"
+                href="/webinar"
                 className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-orange-500/25 shrink-0"
               >
-                Join Free
+                Join Free Masterclass
               </Link>
             </div>
           </div>
@@ -812,10 +828,10 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/register"
+              href="/webinar"
               className="px-10 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-3 w-full sm:w-auto justify-center hover:scale-105"
             >
-              Join Ravishing Art Hub Free <ArrowRight size={22} />
+              Join Free Live Masterclass <ArrowRight size={22} />
             </Link>
           </div>
 
@@ -837,6 +853,7 @@ export default function Home() {
           </p>
 
           <div className="flex gap-6 text-sm text-slate-400 font-semibold">
+            <Link href="/webinar" className="text-orange-400 hover:underline">Free Masterclass</Link>
             <Link href="/login" className="hover:text-orange-400 transition-colors">Sign In</Link>
             <Link href="/register" className="hover:text-orange-400 transition-colors">Join Academy</Link>
           </div>

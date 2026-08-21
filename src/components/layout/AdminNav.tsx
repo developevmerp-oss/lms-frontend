@@ -1,10 +1,27 @@
-﻿"use client";
+'use client';
 
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, ShieldAlert, ChevronDown, ChevronRight, Users, BookOpen, Target, IndianRupee, Trophy, Award, Star, Video, ClipboardList, Menu, X } from 'lucide-react';
+import {
+  LogOut,
+  ShieldAlert,
+  ChevronDown,
+  ChevronRight,
+  Users,
+  BookOpen,
+  Target,
+  IndianRupee,
+  Trophy,
+  Award,
+  Star,
+  Video,
+  ClipboardList,
+  Menu,
+  X,
+  Sparkles
+} from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
 interface AdminNavProps {
@@ -20,10 +37,11 @@ const NAV_GROUPS = [
     single: true,
   },
   {
-    label: 'Students',
+    label: 'Students & CRM',
     icon: <Users size={15} />,
     children: [
       { name: 'All Students', path: '/admin/students', icon: <Users size={14} /> },
+      { name: 'Webinar Leads', path: '/admin/webinar', icon: <Sparkles size={14} /> },
       { name: 'Level Settings', path: '/admin/levels', icon: <Trophy size={14} /> },
       { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },
       { name: 'Sales Records', path: '/admin/sales', icon: <IndianRupee size={14} /> },
@@ -70,31 +88,39 @@ function NavDropdown({ group, active, pathname }: { group: any; active: boolean;
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(prev => !prev)}
-        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${active
+        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+          active
             ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
             : 'text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent'
-          }`}
+        }`}
       >
         {group.icon}
-        {group.label}
-        <ChevronDown size={14} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <span>{group.label}</span>
+        <ChevronDown
+          size={13}
+          className={`transition-transform duration-200 opacity-60 ${open ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden z-[9999]">
-          {group.children?.map((item: any) => (
-            <Link
-              key={item.path}
-              href={item.path}
-              onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${pathname === item.path
-                  ? 'bg-orange-500/10 text-orange-500 border-l-2 border-orange-500'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+        <div className="absolute top-full left-0 mt-2 w-52 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+          {group.children?.map((item: any) => {
+            const isItemActive = pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                  isItemActive
+                    ? 'text-orange-400 bg-orange-500/10 font-bold'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/70 font-medium'
                 }`}
-            >
-              {item.icon} {item.name}
-            </Link>
-          ))}
+              >
+                <span className={isItemActive ? 'text-orange-400' : 'text-slate-400'}>{item.icon}</span>
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -107,23 +133,24 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  const isGroupActive = (group: typeof NAV_GROUPS[0]) => {
-    if (group.single && group.path) return pathname.startsWith(group.path);
-    if (group.children) return group.children.some(c => pathname.startsWith(c.path));
-    return false;
-  };
-
-
+  // Close mobile menu on page change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  const isGroupActive = (group: any) => {
+    if (group.single) return pathname === group.path;
+    return group.children?.some((child: any) => pathname === child.path);
+  };
+
   return (
     <>
-      <ProfileUpdateModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
-      <nav className="w-full bg-slate-900 border-b border-slate-800 shadow-xl sticky top-0 z-40">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-
+      <ProfileUpdateModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
+      <nav className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Left: Brand + Nav */}
           <div className="flex items-center gap-4 md:gap-8">
             <BrandLogo href="/admin/dashboard" size="sm" />
@@ -137,10 +164,11 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
                     <Link
                       key={group.label}
                       href={group.path!}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${active
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                        active
                           ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent'
-                        }`}
+                      }`}
                     >
                       {group.icon} {group.label}
                     </Link>
@@ -163,12 +191,12 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
             {/* Admin Avatar & Edit Profile Trigger */}
             <button
               onClick={() => setIsProfileModalOpen(true)}
-              className="hidden sm:flex items-center gap-3 group text-left p-1 rounded-2xl hover:bg-slate-800/60 transition-colors"
+              className="hidden sm:flex items-center gap-3 group text-left p-1 rounded-2xl hover:bg-slate-800/60 transition-colors cursor-pointer"
               title="Click to edit profile & photo"
             >
               <div className="text-right hidden md:block">
                 <p className="text-sm font-bold text-white leading-tight group-hover:text-orange-400 transition-colors">{user?.name || "Admin"}</p>
-                <p className="text-[11px] text-slate-400">Edit Profile ⚙️</p>
+                <p className="text-[11px] text-slate-400">Edit Profile →</p>
               </div>
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-orange-500 shadow-lg shadow-orange-500/20 shrink-0 bg-slate-800 flex items-center justify-center text-sm font-bold text-white group-hover:scale-105 transition-transform">
                 {user?.avatarUrl ? (
@@ -185,7 +213,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
 
             <button
               onClick={logout}
-              className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-800 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/30 text-slate-400 hover:text-red-400 items-center justify-center transition-colors"
+              className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-800 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/30 text-slate-400 hover:text-red-400 items-center justify-center transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut size={16} />
@@ -194,7 +222,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
             {/* Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+              className="lg:hidden w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -222,7 +250,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-white text-sm truncate">{user?.name || "Admin"}</p>
-                <p className="text-xs text-orange-400 font-bold flex items-center gap-1">Edit Profile & Photo ⚙️</p>
+                <p className="text-xs text-orange-400 font-bold flex items-center gap-1">Edit Profile & Photo →</p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); logout?.(); }}
@@ -241,8 +269,9 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
                     <Link
                       key={group.label}
                       href={group.path!}
-                      className={`flex items-center justify-between px-4 py-3.5 rounded-xl mb-1 text-sm font-bold transition-all ${active ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                        }`}
+                      className={`flex items-center justify-between px-4 py-3.5 rounded-xl mb-1 text-sm font-bold transition-all ${
+                        active ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                      }`}
                     >
                       <span className="flex items-center gap-2">{group.icon} {group.label}</span>
                       <ChevronRight size={16} className="text-slate-500" />
@@ -253,8 +282,9 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
                   <div key={group.label}>
                     <button
                       onClick={() => setMobileExpanded(mobileExpanded === group.label ? null : group.label)}
-                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl mb-1 text-sm font-bold transition-all ${active ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                        }`}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl mb-1 text-sm font-bold transition-all ${
+                        active ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                      }`}
                     >
                       <span className="flex items-center gap-2">{group.icon} {group.label}</span>
                       <ChevronDown size={16} className={`text-slate-500 transition-transform ${mobileExpanded === group.label ? 'rotate-180' : ''}`} />
@@ -265,8 +295,9 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
                           <Link
                             key={item.path}
                             href={item.path}
-                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === item.path ? 'bg-orange-500/10 text-orange-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                              }`}
+                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                              pathname === item.path ? 'bg-orange-500/10 text-orange-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                            }`}
                           >
                             {item.icon} {item.name}
                           </Link>
@@ -283,6 +314,3 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
     </>
   );
 };
-
-
-
