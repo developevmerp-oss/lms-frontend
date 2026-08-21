@@ -334,7 +334,7 @@ export default function Home() {
           </p>
 
           {/* Call to Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Link
               href="/webinar"
               className="px-8 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 w-full sm:w-auto justify-center hover:scale-[1.02]"
@@ -349,6 +349,39 @@ export default function Home() {
               <Brush size={20} className="text-orange-400" />
               Explore Academy Portal
             </Link>
+          </div>
+
+          {/* ─── HERO VIDEO SHOWCASE (Canva Studio Walkthrough) ─── */}
+          <div className="max-w-4xl mx-auto mb-16 relative rounded-3xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 group bg-slate-950 aspect-video flex items-center justify-center">
+            <video
+              src="/videos/canva-presentation.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
+
+            {/* Video Floating Info Bar */}
+            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-left">
+                <div className="w-10 h-10 rounded-2xl bg-orange-500 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-orange-500/30 shrink-0">
+                  <PlayCircle size={22} className="fill-slate-950 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white leading-tight">Masterclass Preview &amp; Artistry Roadmap</p>
+                  <p className="text-xs text-orange-400 font-semibold">Studio walkthrough &amp; technique preview</p>
+                </div>
+              </div>
+
+              <Link
+                href="/webinar"
+                className="bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-orange-500/25 flex items-center gap-1.5 shrink-0"
+              >
+                Attend Live Masterclass <ArrowRight size={13} />
+              </Link>
+            </div>
           </div>
 
           {/* Quick Studio Stats */}
