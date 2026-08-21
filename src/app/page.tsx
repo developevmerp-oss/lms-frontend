@@ -687,6 +687,102 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── SECTION 4.5: MEET THE MASTER MENTOR ─── */}
+      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+        <div className="max-w-6xl mx-auto space-y-12">
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-14 shadow-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-4 text-center">
+                <div className="relative w-44 h-44 sm:w-56 sm:h-56 mx-auto mb-4 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl shadow-orange-500/30 group">
+                  <img
+                    src="/images/mentor/vrajangna-patel.jpg"
+                    alt="Vrajangna Patel - Master Resin Artist & Mentor"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                </div>
+                <h3 className="text-2xl font-black text-white">Vrajangna Patel</h3>
+                <p className="text-xs text-orange-400 font-bold mt-1 uppercase tracking-wider">
+                  Founder &amp; Master Artist · Ravishing Art Hub
+                </p>
+              </div>
+
+              <div className="lg:col-span-8 space-y-5">
+                <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
+                  <Sparkles size={13} /> 10+ Years of Craftsmanship &amp; Mentorship
+                </div>
+
+                <h3 className="text-2xl md:text-4xl font-black text-white leading-tight">
+                  "Resin is chemistry, artistry, and freedom. I help you master all three."
+                </h3>
+
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                  Over a decade, I've guided over 54,000 artists and entrepreneurs from complete novices into confident creators and studio owners. At Ravishing Art Hub, you don't just watch videos—you receive structured formulas, daily mission feedback, and a proven roadmap to build a profitable art brand.
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center">
+                    <p className="text-xl font-black text-orange-400">🏆 2022</p>
+                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Hall of Fame Award</p>
+                  </div>
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center">
+                    <p className="text-xl font-black text-amber-400">📖 Best Seller</p>
+                    <p className="text-xs text-slate-400 font-semibold mt-0.5">I Can Coach Author</p>
+                  </div>
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center col-span-2 sm:col-span-1">
+                    <p className="text-xl font-black text-emerald-400">54,000+</p>
+                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Creators Mentored</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Showcase Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/40 transition-all">
+              <div className="h-72 overflow-hidden relative">
+                <img
+                  src="/images/mentor/studio-artwork.jpg"
+                  alt="Studio Artwork & Geode Creations"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <span className="absolute top-4 left-4 bg-orange-500/90 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                  Studio Creations
+                </span>
+              </div>
+              <div className="p-6 space-y-2">
+                <h4 className="text-lg font-bold text-white">Precision Formulas &amp; Cell Lacing Chemistry</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Every technique from resin viscosity to geode crystal embedding is broken down step-by-step with material measurement guides.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-emerald-500/40 transition-all">
+              <div className="h-72 overflow-hidden relative">
+                <img
+                  src="/images/mentor/live-workshop.jpg"
+                  alt="Live Mentoring & Student Guidance"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <span className="absolute top-4 left-4 bg-emerald-500/90 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                  Live Action Mentorship
+                </span>
+              </div>
+              <div className="p-6 space-y-2">
+                <h4 className="text-lg font-bold text-white">Direct Critiques &amp; Daily Action Missions</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Upload your artwork pours directly to your student dashboard and receive personalized feedback and leveling XP from certified mentors.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── SECTION 5: REAL ARTIST SUCCESS STORIES ─── */}
       <section id="stories" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">

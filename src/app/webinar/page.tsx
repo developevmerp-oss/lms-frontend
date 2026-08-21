@@ -235,9 +235,11 @@ export default function WebinarPage() {
             {/* Mentor Badge */}
             <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 border-t border-slate-800/80">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center font-black text-slate-950 text-lg shadow-md">
-                  V
-                </div>
+                <img
+                  src="/images/mentor/vrajangna-patel.jpg"
+                  alt="Vrajangna Patel"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-orange-500/60 shadow-lg shadow-orange-500/20"
+                />
                 <div className="text-left">
                   <p className="text-sm font-bold text-white leading-tight">Vrajangna Patel</p>
                   <p className="text-xs text-orange-400 font-semibold">54,000+ Artists Mentored · Hall of Fame Awardee</p>
@@ -547,37 +549,87 @@ export default function WebinarPage() {
 
       {/* ─── SECTION 5: MENTOR AUTHORITY SHOWCASE ─── */}
       <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto bg-slate-900/80 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            <div className="md:col-span-4 text-center">
-              <div className="w-36 h-36 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center font-black text-slate-950 text-6xl mx-auto mb-4 shadow-2xl shadow-orange-500/30">
-                V
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              <div className="md:col-span-4 text-center">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto mb-4 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl shadow-orange-500/30 group">
+                  <img
+                    src="/images/mentor/vrajangna-patel.jpg"
+                    alt="Vrajangna Patel - Master Resin Artist & Mentor"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+                </div>
+                <h3 className="text-xl font-black text-white">Vrajangna Patel</h3>
+                <p className="text-xs text-orange-400 font-bold mt-0.5">Master Resin Artist &amp; Mentor</p>
               </div>
-              <h3 className="text-xl font-black text-white">Vrajangna Patel</h3>
-              <p className="text-xs text-orange-400 font-bold mt-0.5">Master Resin Artist &amp; Mentor</p>
+
+              <div className="md:col-span-8 space-y-4">
+                <h4 className="text-2xl font-black text-white leading-tight">
+                  "Don't just learn resin. Learn how to make your art skills matter in the market."
+                </h4>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Over the past 10 years, I've guided more than 54,000 students from complete beginners to independent studio owners selling clocks, dining tables, and wedding keepsakes. My mission is to empower women and creators with real creative independence.
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3">
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
+                    <p className="text-lg font-black text-orange-400">🏆 2022</p>
+                    <p className="text-[11px] text-slate-400 font-semibold">Hall of Fame Award</p>
+                  </div>
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
+                    <p className="text-lg font-black text-amber-400">📖 Best Seller</p>
+                    <p className="text-[11px] text-slate-400 font-semibold">I Can Coach Author</p>
+                  </div>
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center col-span-2 sm:col-span-1">
+                    <p className="text-lg font-black text-emerald-400">54,000+</p>
+                    <p className="text-[11px] text-slate-400 font-semibold">Students Mentored</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Studio & Live Mentorship Visual Proof Showcase */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/40 transition-colors">
+              <div className="h-64 overflow-hidden relative">
+                <img
+                  src="/images/mentor/studio-artwork.jpg"
+                  alt="Resin Art Masterclass Studio Pieces"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <span className="absolute top-4 left-4 bg-orange-500/90 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                  Studio Craftsmanship
+                </span>
+              </div>
+              <div className="p-6 space-y-1.5">
+                <h4 className="text-base font-bold text-white">Gallery-Grade Ocean &amp; Geode Formulations</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Learn how crystal clear zero-bubble pours and multilayer cellular structures are made with professional formulas.
+                </p>
+              </div>
             </div>
 
-            <div className="md:col-span-8 space-y-4">
-              <h4 className="text-2xl font-black text-white leading-tight">
-                "Don't just learn resin. Learn how to make your art skills matter in the market."
-              </h4>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Over the past 10 years, I've guided more than 54,000 students from complete beginners to independent studio owners selling clocks, dining tables, and wedding keepsakes. My mission is to empower women and creators with real creative independence.
-              </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3">
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
-                  <p className="text-lg font-black text-orange-400">🏆 2022</p>
-                  <p className="text-[11px] text-slate-400 font-semibold">Hall of Fame Award</p>
-                </div>
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
-                  <p className="text-lg font-black text-amber-400">📖 Best Seller</p>
-                  <p className="text-[11px] text-slate-400 font-semibold">I Can Coach Author</p>
-                </div>
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center col-span-2 sm:col-span-1">
-                  <p className="text-lg font-black text-emerald-400">54,000+</p>
-                  <p className="text-[11px] text-slate-400 font-semibold">Students Mentored</p>
-                </div>
+            <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-emerald-500/40 transition-colors">
+              <div className="h-64 overflow-hidden relative">
+                <img
+                  src="/images/mentor/live-workshop.jpg"
+                  alt="Live Mentorship & Student Guidance"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <span className="absolute top-4 left-4 bg-emerald-500/90 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                  Hands-On Mentoring
+                </span>
+              </div>
+              <div className="p-6 space-y-1.5">
+                <h4 className="text-base font-bold text-white">Live Interactive Workshop &amp; Daily Guidance</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Direct critiques on your resin projects, troubleshooting common pitfalls, and personalized business roadmaps.
+                </p>
               </div>
             </div>
           </div>
