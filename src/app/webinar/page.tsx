@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
@@ -32,6 +32,13 @@ import {
 export default function WebinarPage() {
   const router = useRouter();
   const [activeWebinar, setActiveWebinar] = useState<any>(null);
+  const [stats, setStats] = useState({
+    claimedSeats: 88,
+    percentFull: 82,
+    seatsRemaining: 12,
+    totalSeats: 500,
+  });
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -43,6 +50,26 @@ export default function WebinarPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // Fetch dynamic scarcity stats from database
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/webinar/stats`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          setStats({
+            claimedSeats: data.data.claimedSeats || 88,
+            percentFull: data.data.percentFull || 82,
+            seatsRemaining: data.data.seatsRemaining || 12,
+            totalSeats: data.data.totalSeats || 500,
+          });
+        }
+      } catch (_) {}
+    };
+
+    fetchStats();
+  }, []);
 
   const update = (field: string, val: any) => setForm(f => ({ ...f, [field]: val }));
 
@@ -135,7 +162,7 @@ export default function WebinarPage() {
           <Flame size={16} className="text-amber-200" /> LIVE MASTERCLASS: {sessionDisplayDate.toUpperCase()}
         </span>
         <span className="hidden sm:inline bg-black/20 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-white/20">
-          Only 12 Free Seats Left
+          Only {stats.seatsRemaining} Free Seats Left
         </span>
         <button
           onClick={scrollToRegister}
@@ -181,18 +208,18 @@ export default function WebinarPage() {
               Without random YouTube tutorials, sticky resin ruins, self-doubt, or market guesswork. Discover the proven 3-pillar blueprint to craft gallery-worthy art and scale your brand.
             </p>
 
-            {/* Scarcity Progress Bar */}
+            {/* ─── DYNAMIC SCARCITY PROGRESS BAR ─── */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 max-w-lg mx-auto lg:mx-0 shadow-lg">
               <div className="flex justify-between text-xs font-bold mb-2">
                 <span className="text-orange-400 flex items-center gap-1.5">
-                  <Flame size={14} /> 88 Live Seats Claimed
+                  <Flame size={14} /> {stats.claimedSeats} Live Seats Claimed
                 </span>
-                <span className="text-emerald-400">82% Room Full</span>
+                <span className="text-emerald-400">{stats.percentFull}% Room Full</span>
               </div>
               <div className="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
                 <div
                   className="bg-gradient-to-r from-orange-500 to-amber-400 h-full rounded-full transition-all duration-1000"
-                  style={{ width: "82%" }}
+                  style={{ width: `${stats.percentFull}%` }}
                 />
               </div>
             </div>
