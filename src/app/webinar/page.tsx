@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
 import { SocialProofToaster } from "@/components/webinar/SocialProofToaster";
+import { ExitIntentModal } from "@/components/webinar/ExitIntentModal";
 import { API_BASE_URL } from "@/config/api";
 import {
   Sparkles,
@@ -113,6 +114,7 @@ export default function WebinarPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative">
       <SocialProofToaster />
+      <ExitIntentModal onClaimSeat={scrollToRegister} />
 
       {/* ─── TOP ANNOUNCEMENT URGENCY BANNER ─── */}
       <div className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 text-white py-2.5 px-4 text-center text-xs md:text-sm font-bold shadow-md sticky top-0 z-50 flex items-center justify-center gap-3">
@@ -124,7 +126,7 @@ export default function WebinarPage() {
         </span>
         <button
           onClick={scrollToRegister}
-          className="bg-white text-orange-600 text-xs px-3 py-1 rounded-lg font-black hover:bg-orange-50 transition-colors shadow-sm ml-1"
+          className="bg-white text-orange-600 text-xs px-3 py-1 rounded-lg font-black hover:bg-orange-50 transition-colors shadow-sm ml-1 cursor-pointer"
         >
           Claim Seat →
         </button>
@@ -136,7 +138,7 @@ export default function WebinarPage() {
           <BrandLogo href="/" size="md" />
           <button
             onClick={scrollToRegister}
-            className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs md:text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center gap-1.5"
+            className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs md:text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center gap-1.5 cursor-pointer"
           >
             Reserve My Free Seat <ArrowRight size={14} />
           </button>
@@ -213,7 +215,7 @@ export default function WebinarPage() {
 
               <h2 className="text-2xl font-black text-white mb-1">Reserve Your Free Seat</h2>
               <p className="text-slate-400 text-xs mb-6">
-                Where should we send your Zoom joining link & Clarity Kit?
+                Where should we send your Zoom joining link &amp; Clarity Kit?
               </p>
 
               {error && (
@@ -253,7 +255,7 @@ export default function WebinarPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    WhatsApp Number * <span className="text-orange-400 lowercase font-normal">(for VIP link & updates)</span>
+                    WhatsApp Number * <span className="text-orange-400 lowercase font-normal">(for VIP link &amp; updates)</span>
                   </label>
                   <input
                     type="tel"
@@ -287,7 +289,7 @@ export default function WebinarPage() {
                     className="mt-1 w-4 h-4 rounded border-slate-800 bg-slate-950 text-orange-500 focus:ring-0 cursor-pointer"
                   />
                   <label htmlFor="consent" className="text-[11px] text-slate-400 leading-tight cursor-pointer">
-                    I agree to receive Masterclass reminders & Zoom details on WhatsApp and Email. Never spam.
+                    I agree to receive Masterclass reminders &amp; Zoom details on WhatsApp and Email. Never spam.
                   </label>
                 </div>
 
@@ -348,14 +350,14 @@ export default function WebinarPage() {
                 <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 font-black text-lg">
                   02
                 </div>
-                <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block mb-1">Secret #2 · Mindset & Artistry</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block mb-1">Secret #2 · Mindset &amp; Artistry</span>
                 <h3 className="text-xl font-bold text-white mb-3">The High-Margin Signature Portfolio</h3>
                 <p className="text-slate-300 text-sm leading-relaxed mb-4">
                   Stop competing on ₹500 keychains. Learn to craft high-ticket 3D crystal geode clocks (₹8k–₹15k) and bridal flower preservation keepsakes (₹12k–₹25k).
                 </p>
               </div>
               <ul className="space-y-2 pt-4 border-t border-slate-800 text-xs text-slate-400">
-                <li className="flex items-center gap-2">✓ Real quartz & gold veining mastery</li>
+                <li className="flex items-center gap-2">✓ Real quartz &amp; gold veining mastery</li>
                 <li className="flex items-center gap-2">✓ Anti-yellowing preservation science</li>
               </ul>
             </div>
@@ -395,7 +397,7 @@ export default function WebinarPage() {
             {/* The Old Way */}
             <div className="bg-red-500/5 border border-red-500/20 rounded-3xl p-8 space-y-4">
               <h3 className="text-lg font-black text-red-400 flex items-center gap-2">
-                ❌ The Old Way (Guesswork & Frustration)
+                ❌ The Old Way (Guesswork &amp; Frustration)
               </h3>
               <ul className="space-y-3 text-sm text-slate-300">
                 <li className="flex items-start gap-2.5">
@@ -462,19 +464,19 @@ export default function WebinarPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-12">
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
               <span className="text-2xl mb-3 block">📊</span>
-              <h4 className="font-bold text-white text-base mb-1">Resin Chemistry & Gram Formula Calculator</h4>
+              <h4 className="font-bold text-white text-base mb-1">Resin Chemistry &amp; Gram Formula Calculator</h4>
               <p className="text-slate-400 text-xs leading-relaxed">Exact mix ratios for coasters, deep pours, clocks, and topcoats with zero bubbles.</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
               <span className="text-2xl mb-3 block">📦</span>
               <h4 className="font-bold text-white text-base mb-1">Verified Pan-India Supplier Directory</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">Direct contacts for crystal-clear epoxies, silicone molds, mica luster & pigments at student rates.</p>
+              <p className="text-slate-400 text-xs leading-relaxed">Direct contacts for crystal-clear epoxies, silicone molds, mica luster &amp; pigments at student rates.</p>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
               <span className="text-2xl mb-3 block">💰</span>
-              <h4 className="font-bold text-white text-base mb-1">Instagram Art Pricing & Profit Formula</h4>
+              <h4 className="font-bold text-white text-base mb-1">Instagram Art Pricing &amp; Profit Formula</h4>
               <p className="text-slate-400 text-xs leading-relaxed">How to price your pieces with 4x markup and close high-ticket custom client orders.</p>
             </div>
           </div>
@@ -483,7 +485,7 @@ export default function WebinarPage() {
             onClick={scrollToRegister}
             className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-2xl text-base transition-all shadow-xl shadow-orange-500/25 inline-flex items-center gap-2 cursor-pointer"
           >
-            Claim Clarity Kit & Free Seat <ArrowRight size={18} />
+            Claim Clarity Kit &amp; Free Seat <ArrowRight size={18} />
           </button>
         </div>
       </section>
@@ -497,7 +499,7 @@ export default function WebinarPage() {
                 V
               </div>
               <h3 className="text-xl font-black text-white">Vrajangna Patel</h3>
-              <p className="text-xs text-orange-400 font-bold mt-0.5">Master Resin Artist & Mentor</p>
+              <p className="text-xs text-orange-400 font-bold mt-0.5">Master Resin Artist &amp; Mentor</p>
             </div>
 
             <div className="md:col-span-8 space-y-4">
