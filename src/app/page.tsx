@@ -1,7 +1,6 @@
 "use client";
 
 import { BrandLogo } from "@/components/ui/BrandLogo";
-import CanvaPresentation from "@/components/landing/CanvaPresentation";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
@@ -352,9 +351,16 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* ─── HERO VIDEO SHOWCASE (Cinematic Animated Studio Presentation) ─── */}
-          <div className="max-w-4xl mx-auto mb-16 relative">
-            <CanvaPresentation />
+          {/* ─── HERO VIDEO SHOWCASE (Canva Video Presentation) ─── */}
+          <div className="max-w-5xl mx-auto mb-16 relative rounded-3xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 bg-slate-950 aspect-video">
+            <iframe
+              loading="lazy"
+              src="https://www.canva.com/design/DAGLLOTrJNg/gPNZz92PZtdWyAsBesuM0g/view?embed"
+              allow="fullscreen; autoplay; clipboard-write"
+              allowFullScreen
+              className="w-full h-full border-0 absolute inset-0 rounded-3xl"
+              title="Ravishing Art Resin Masterclass Canva Video"
+            />
           </div>
 
           {/* Quick Studio Stats */}
