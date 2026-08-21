@@ -11,6 +11,8 @@ export default function AdminMentoring() {
   const { user, token, logout } = useAuth();
   const [portfolios, setPortfolios] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   
   const [scores, setScores] = useState({
     resinBasics: 0,
@@ -26,15 +28,18 @@ export default function AdminMentoring() {
   const fetchPending = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/portfolios/pending`, {
+      const res = await fetch(`${API_BASE_URL}/portfolio/pending`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (Array.isArray(data)) setPortfolios(data);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) setPortfolios(data);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching mentoring portfolios:", err);
     }
   };
+
 
   useEffect(() => {
     fetchPending();
@@ -43,6 +48,7 @@ export default function AdminMentoring() {
   const handleSubmitReview = async () => {
     if (!token || !selectedItem) return;
     setIsSubmitting(true);
+    setErrorMsg("");
     try {
       const res = await fetch(`${API_BASE_URL}/portfolios/${selectedItem.id}/review`, {
         method: 'PUT',
@@ -51,12 +57,15 @@ export default function AdminMentoring() {
           Authorization: `Bearer ${token}` 
         },
         body: JSON.stringify({
-          feedback,
+          feedback: feedback || 'Artwork reviewed & approved by mentor.',
+          scores,
           skills: scores
         })
       });
       
+      const data = await res.json();
       if (res.ok) {
+        setSuccessMsg(`✅ Review submitted! Student awarded 500 XP.`);
         setSelectedItem(null);
         setFeedback("");
         setScores({
@@ -68,9 +77,13 @@ export default function AdminMentoring() {
           professionalQuality: 0
         });
         fetchPending();
+        setTimeout(() => setSuccessMsg(""), 4000);
+      } else {
+        setErrorMsg(data?.message || 'Failed to submit review. Please try again.');
       }
     } catch (err) {
       console.error(err);
+      setErrorMsg('Network error. Please check your connection.');
     } finally {
       setIsSubmitting(false);
     }
@@ -85,10 +98,18 @@ export default function AdminMentoring() {
       <AdminNav user={user} logout={logout} />
 
       <main className="max-w-[1400px] mx-auto p-8">
-        <header className="mb-12">
+        <header className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Mentoring Center</h1>
           <p className="text-slate-400">Review student portfolios, assign skills, and give feedback.</p>
         </header>
+
+        {/* Toast Messages */}
+        {successMsg && (
+          <div className="mb-6 bg-green-500/20 border border-green-500/50 text-green-300 px-6 py-4 rounded-2xl font-semibold">{successMsg}</div>
+        )}
+        {errorMsg && (
+          <div className="mb-6 bg-red-500/20 border border-red-500/50 text-red-300 px-6 py-4 rounded-2xl font-semibold">{errorMsg}</div>
+        )}
 
         <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl min-h-[60vh] shadow-xl">
           <div className="flex items-center gap-3 mb-8">
@@ -112,10 +133,14 @@ export default function AdminMentoring() {
                     <h3 className="text-lg font-bold text-white truncate">{item.title}</h3>
                     <p className="text-sm text-orange-400 mb-2">{item.technique}</p>
                     <div className="flex items-center gap-2 text-xs text-slate-400">
-                      <div className="w-5 h-5 rounded-full bg-slate-700 overflow-hidden border border-slate-600">
-                        <img src={item.User?.avatarUrl || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop"} alt="User" />
+                      <div className="w-6 h-6 rounded-full bg-slate-700 overflow-hidden border border-slate-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                        {item.User?.avatarUrl ? (
+                          <img src={item.User.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{item.User?.name?.charAt(0).toUpperCase() || 'S'}</span>
+                        )}
                       </div>
-                      {item.User?.name || 'Unknown Student'}
+                      <span className="font-semibold text-slate-300">{item.User?.name || 'Unknown Student'}</span>
                     </div>
                   </div>
                 </div>
@@ -187,10 +212,13 @@ export default function AdminMentoring() {
                   ></textarea>
                 </div>
 
+                {errorMsg && (
+                  <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-3 rounded-xl text-sm">{errorMsg}</div>
+                )}
                 <button 
                   onClick={handleSubmitReview}
-                  disabled={isSubmitting || !feedback}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:hover:bg-orange-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-colors flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? 'Submitting Review...' : 'Approve & Award XP'}
                   {!isSubmitting && <Check size={20} />}

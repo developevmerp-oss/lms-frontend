@@ -3,7 +3,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-interface User {
+import { API_BASE_URL } from "@/config/api";
+
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -11,6 +13,10 @@ interface User {
   points?: number;
   streak?: number;
   avatarUrl?: string;
+  city?: string;
+  phone?: string;
+  bio?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -18,6 +24,8 @@ interface AuthContextType {
   token: string | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (updatedUser: Partial<User>) => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -28,6 +36,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
+  const refreshUser = async () => {
+    const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    if (!currentToken) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      if (res.ok) {
+        const freshUser = await res.json();
+        setUser(freshUser);
+        localStorage.setItem("user", JSON.stringify(freshUser));
+      }
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
+    }
+  };
+
   useEffect(() => {
     // Check local storage on initial load
     const storedToken = localStorage.getItem("token");
@@ -35,7 +61,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error(e);
+      }
+      // Silently fetch fresh user profile from DB to sync avatar and details
+      fetch(`${API_BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${storedToken}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(freshUser => {
+          if (freshUser) {
+            setUser(freshUser);
+            localStorage.setItem("user", JSON.stringify(freshUser));
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -52,6 +94,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateUser = (updatedFields: Partial<User>) => {
+    if (!user) return;
+    const merged = { ...user, ...updatedFields };
+    setUser(merged);
+    localStorage.setItem("user", JSON.stringify(merged));
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -61,11 +110,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, refreshUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

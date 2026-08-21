@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus } from "lucide-react";
+import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -29,26 +30,28 @@ export default function AdminDashboard() {
   const [postingWin, setPostingWin] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'notifications' | 'wins'>('overview');
 
+  const [isLoading, setIsLoading] = useState(true);
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
   useEffect(() => {
     if (!token) return;
+    setIsLoading(true);
 
-    fetch(`${API}/dashboard/admin`, { headers })
-      .then(r => r.json())
-      .then(d => { if (d && !d.message) setStats(d); });
-
-    fetch(`${API}/admin/students`, { headers })
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setStudents(d); });
-
-    fetch(`${API}/admin/community-wins`, { headers })
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setWins(d); });
-
-    fetch(`${API}/admin/notifications`, { headers })
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setNotifications(d); });
+    // Fire all 4 fetches in parallel
+    Promise.all([
+      fetch(`${API}/dashboard/admin`, { headers }).then(r => r.json()),
+      fetch(`${API}/admin/students`, { headers }).then(r => r.json()),
+      fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json()),
+      fetch(`${API}/admin/notifications`, { headers }).then(r => r.json()),
+    ])
+      .then(([statsData, studentsData, winsData, notifsData]) => {
+        if (statsData && !statsData.message) setStats(statsData);
+        if (Array.isArray(studentsData)) setStudents(studentsData);
+        if (Array.isArray(winsData)) setWins(winsData);
+        if (Array.isArray(notifsData)) setNotifications(notifsData);
+      })
+      .catch(err => console.error('Admin dashboard fetch error:', err))
+      .finally(() => setIsLoading(false));
   }, [token]);
 
   const handleSendNotification = async () => {
@@ -116,12 +119,21 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          {statCards.map((c, i) => (
-            <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
-              <div className="flex items-center gap-2 mb-2">{c.icon}<span className="text-slate-400 text-xs md:text-sm">{c.label}</span></div>
-              <p className={`text-2xl md:text-3xl font-black ${c.color}`}>{c.value}</p>
-            </div>
-          ))}
+          {isLoading ? (
+            <>
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </>
+          ) : (
+            statCards.map((c, i) => (
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
+                <div className="flex items-center gap-2 mb-2">{c.icon}<span className="text-slate-400 text-xs md:text-sm">{c.label}</span></div>
+                <p className={`text-2xl md:text-3xl font-black ${c.color}`}>{c.value}</p>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Tabs */}
@@ -139,53 +151,57 @@ export default function AdminDashboard() {
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users size={20} className="text-blue-400" /> All Students</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-800">
-                    <th className="text-left text-slate-400 pb-3 font-semibold">Student</th>
-                    <th className="text-left text-slate-400 pb-3 font-semibold">Level</th>
-                    <th className="text-left text-slate-400 pb-3 font-semibold">XP</th>
-                    <th className="text-left text-slate-400 pb-3 font-semibold">Streak</th>
-                    <th className="text-left text-slate-400 pb-3 font-semibold">Courses</th>
-                    <th className="text-left text-slate-400 pb-3 font-semibold">Milestones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map((s, i) => (
-                    <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                      <td className="py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold text-white">
-                            {s.name?.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="text-white font-medium">{s.name}</p>
-                            <p className="text-slate-500 text-xs">{s.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3"><span className="text-orange-400 font-bold text-xs bg-orange-500/10 px-2 py-1 rounded-lg">{s.membershipLevel || 'L0'}</span></td>
-                      <td className="py-3 text-yellow-400 font-bold">{(s.points || 0).toLocaleString()}</td>
-                      <td className="py-3 text-orange-400 font-bold">🔥 {s.streak || 0}d</td>
-                      <td className="py-3 text-slate-300">{s.courses?.length || 0}</td>
-                      <td className="py-3">
-                        <div className="flex items-center gap-1">
-                          <span className="text-green-400 text-xs">{s.milestones?.filter((m: any) => m.completed).length || 0} done</span>
-                          <span className="text-slate-600 text-xs">/ {s.milestones?.length || 0}</span>
-                        </div>
-                      </td>
+          isLoading ? (
+            <AdminTableSkeleton rows={6} cols={6} />
+          ) : (
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users size={20} className="text-blue-400" /> All Students</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-800">
+                      <th className="text-left text-slate-400 pb-3 font-semibold">Student</th>
+                      <th className="text-left text-slate-400 pb-3 font-semibold">Level</th>
+                      <th className="text-left text-slate-400 pb-3 font-semibold">XP</th>
+                      <th className="text-left text-slate-400 pb-3 font-semibold">Streak</th>
+                      <th className="text-left text-slate-400 pb-3 font-semibold">Courses</th>
+                      <th className="text-left text-slate-400 pb-3 font-semibold">Milestones</th>
                     </tr>
-                  ))}
-                  {students.length === 0 && (
-                    <tr><td colSpan={6} className="py-8 text-center text-slate-500">No students found</td></tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {students.map((s, i) => (
+                      <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                        <td className="py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold text-white">
+                              {s.name?.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="text-white font-medium">{s.name}</p>
+                              <p className="text-slate-500 text-xs">{s.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3"><span className="text-orange-400 font-bold text-xs bg-orange-500/10 px-2 py-1 rounded-lg">{s.membershipLevel || 'L0'}</span></td>
+                        <td className="py-3 text-yellow-400 font-bold">{(s.points || 0).toLocaleString()}</td>
+                        <td className="py-3 text-orange-400 font-bold">🔥 {s.streak || 0}d</td>
+                        <td className="py-3 text-slate-300">{s.courses?.length || 0}</td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-1">
+                            <span className="text-green-400 text-xs">{s.milestones?.filter((m: any) => m.completed).length || 0} done</span>
+                            <span className="text-slate-600 text-xs">/ {s.milestones?.length || 0}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {students.length === 0 && (
+                      <tr><td colSpan={6} className="py-8 text-center text-slate-500">No students found</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )
         )}
 
         {/* Notifications Tab */}

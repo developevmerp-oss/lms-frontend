@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogOut, ShieldAlert, ChevronDown, ChevronRight, Users, BookOpen, Target, IndianRupee, Trophy, Award, Star, Video, ClipboardList, Menu, X } from 'lucide-react';
+import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
 interface AdminNavProps {
   user: any;
@@ -22,6 +23,7 @@ const NAV_GROUPS = [
     icon: <Users size={15} />,
     children: [
       { name: 'All Students', path: '/admin/students', icon: <Users size={14} /> },
+      { name: 'Level Settings', path: '/admin/levels', icon: <Trophy size={14} /> },
       { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },
       { name: 'Sales Records', path: '/admin/sales', icon: <IndianRupee size={14} /> },
     ]
@@ -104,30 +106,44 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  const isGroupActive = (group: any) => {
-    if (group.single) return pathname === group.path;
-    return group.children?.some((c: any) => pathname === c.path);
+  const isGroupActive = (group: typeof NAV_GROUPS[0]) => {
+    if (group.single && group.path) return pathname.startsWith(group.path);
+    if (group.children) return group.children.some(c => pathname.startsWith(c.path));
+    return false;
   };
+
 
   useEffect(() => {
     setMobileMenuOpen(false);
-    setMobileExpanded(null);
   }, [pathname]);
 
   return (
-    <nav className="w-full bg-slate-900 border-b border-slate-800 shadow-xl sticky top-0 z-50">
-      <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+    <>
+    <ProfileUpdateModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
+    <nav className="w-full bg-slate-900 border-b border-slate-800 shadow-xl sticky top-0 z-40">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
 
-        {/* Left: Logo & Navigation */}
+        {/* Left: Brand + Nav */}
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/admin/dashboard" className="flex items-center gap-2 shrink-0">
-            <h2 className="text-lg md:text-xl font-black text-white tracking-tight">
-              Ravishing <span className="text-orange-500">Art Hub</span> <span className="hidden sm:inline text-slate-400 font-semibold text-sm">Admin</span>
-            </h2>
+            {/* Logo icon: show only top portion of the circular logo (hides name text at bottom) */}
+            <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10">
+              <img
+                src="/logo.png"
+                alt="Ravishing Art Hub"
+                className="w-full"
+                style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
+              />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-black text-white tracking-tight">Ravishing Art</span>
+              <span className="text-[10px] font-medium text-orange-400 tracking-wider">by Vrajangna Patel</span>
+            </div>
           </Link>
 
-          {/* Desktop Nav */}
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
             {NAV_GROUPS.map((group) => {
               const active = isGroupActive(group);
@@ -160,19 +176,28 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
             <span className="text-xs font-bold uppercase tracking-wider">Admin</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-3">
+          {/* Admin Avatar & Edit Profile Trigger */}
+          <button
+            onClick={() => setIsProfileModalOpen(true)}
+            className="hidden sm:flex items-center gap-3 group text-left p-1 rounded-2xl hover:bg-slate-800/60 transition-colors"
+            title="Click to edit profile & photo"
+          >
             <div className="text-right hidden md:block">
-              <p className="text-sm font-bold text-white leading-tight">{user?.name || "Admin"}</p>
-              <p className="text-xs text-slate-500">Administrator</p>
+              <p className="text-sm font-bold text-white leading-tight group-hover:text-orange-400 transition-colors">{user?.name || "Admin"}</p>
+              <p className="text-[11px] text-slate-400">Edit Profile ⚙️</p>
             </div>
-            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-red-500 shadow-lg shrink-0">
-              <img
-                src={user?.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150&auto=format&fit=crop"}
-                alt="Admin"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-orange-500 shadow-lg shadow-orange-500/20 shrink-0 bg-slate-800 flex items-center justify-center text-sm font-bold text-white group-hover:scale-105 transition-transform">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user?.name || "Admin"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{user?.name?.charAt(0).toUpperCase() || "A"}</span>
+              )}
             </div>
-          </div>
+          </button>
 
           <button
             onClick={logout}
@@ -196,20 +221,27 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-slate-900 border-t border-slate-800 shadow-2xl">
           {/* Admin user row */}
-          <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-800 bg-slate-950/50">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-red-500 shrink-0">
-              <img
-                src={user?.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150&auto=format&fit=crop"}
-                alt="Admin"
-                className="w-full h-full object-cover"
-              />
+          <div
+            onClick={() => { setIsProfileModalOpen(true); setMobileMenuOpen(false); }}
+            className="flex items-center gap-3 px-4 py-4 border-b border-slate-800 bg-slate-950/50 cursor-pointer hover:bg-slate-800/40 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-orange-500 shrink-0 bg-slate-800 flex items-center justify-center font-bold text-white">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user?.name || "Admin"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{user?.name?.charAt(0).toUpperCase() || "A"}</span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-white text-sm truncate">{user?.name || "Admin"}</p>
-              <p className="text-xs text-red-400 font-bold flex items-center gap-1"><ShieldAlert size={10} /> Administrator</p>
+              <p className="text-xs text-orange-400 font-bold flex items-center gap-1">Edit Profile & Photo ⚙️</p>
             </div>
             <button
-              onClick={logout}
+              onClick={(e) => { e.stopPropagation(); logout?.(); }}
               className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/30 text-slate-400 hover:text-red-400 flex items-center justify-center transition-colors shrink-0"
             >
               <LogOut size={16} />
@@ -267,5 +299,8 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
         </div>
       )}
     </nav>
+    </>
   );
 };
+
+

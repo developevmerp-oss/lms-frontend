@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Sparkles, ArrowRight, Palette } from "lucide-react";
+import { Eye, EyeOff, Sparkles, ArrowRight, Zap } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [serverStatus, setServerStatus] = useState<'checking' | 'ready' | 'slow'>('checking');
   const { login } = useAuth();
   const searchParams = useSearchParams();
 
@@ -22,6 +23,18 @@ export default function LoginPage() {
       setSuccessMsg("Account created successfully! Please log in.");
     }
   }, [searchParams]);
+
+  // Pre-warm the backend on page load to prevent cold start during login
+  useEffect(() => {
+    const slowTimer = setTimeout(() => setServerStatus('slow'), 3000);
+    const controller = new AbortController();
+    
+    fetch(`${API_BASE_URL}/health`, { signal: controller.signal })
+      .then((r) => { if (r.ok) { clearTimeout(slowTimer); setServerStatus('ready'); } })
+      .catch(() => { clearTimeout(slowTimer); setServerStatus('ready'); });
+
+    return () => { controller.abort(); clearTimeout(slowTimer); };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,13 +76,21 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo area */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-2xl shadow-orange-500/30 mb-4">
-            <Palette size={32} className="text-white" />
+          <div className="inline-flex items-center gap-3 mb-2">
+            <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 shadow-2xl shadow-orange-500/20 border border-white/10">
+              <img
+                src="/logo.png"
+                alt="Ravishing Art Hub"
+                className="w-full"
+                style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
+              />
+            </div>
+            <div className="text-left">
+              <h1 className="text-2xl font-black text-white tracking-tight">Ravishing Art</h1>
+              <p className="text-sm text-orange-400 font-medium">by Vrajangna Patel</p>
+            </div>
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">
-            Ravishing Art Hub
-          </h1>
-          <p className="text-slate-400 mt-1 text-sm">Your creative transformation starts here.</p>
+          <p className="text-slate-400 mt-3 text-sm">Your creative transformation starts here.</p>
         </div>
 
         {/* Card */}
@@ -81,6 +102,17 @@ export default function LoginPage() {
             <div className="mb-6 p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-3">
               <Sparkles size={16} className="shrink-0" />
               {successMsg}
+            </div>
+          )}
+
+          {/* Server cold-start warning — only shows if server takes >3s to respond */}
+          {serverStatus === 'slow' && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm flex items-center gap-3">
+              <Zap size={16} className="shrink-0 animate-pulse" />
+              <span>
+                <strong>Server is waking up…</strong> Free-tier servers sleep when idle.
+                This takes up to 60 seconds — you can fill the form in the meantime! ☕
+              </span>
             </div>
           )}
 
@@ -164,5 +196,18 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
