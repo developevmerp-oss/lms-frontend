@@ -30,7 +30,7 @@ export default function AdminStudents() {
   const { token, user, logout } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'milestones' | 'sales' | 'skills' | 'courses'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'milestones' | 'sales' | 'skills' | 'courses' | 'badges'>('profile');
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -49,6 +49,7 @@ export default function AdminStudents() {
   const [newSale, setNewSale] = useState({ amount: "", productName: "", date: "" });
   const [skillsForm, setSkillsForm] = useState<any>({});
   const [allCourses, setAllCourses] = useState<any[]>([]);
+  const [allBadges, setAllBadges] = useState<any[]>([]);
 
   const API = API_BASE_URL;
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -71,9 +72,18 @@ export default function AdminStudents() {
     } catch (err) { console.error(err); }
   };
 
+  const fetchAllBadges = async () => {
+    try {
+      const res = await fetch(`${API}/admin/badges`, { headers });
+      const data = await res.json();
+      if (Array.isArray(data)) setAllBadges(data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
-    if (token) { fetchStudents(); fetchAllCourses(); }
+    if (token) { fetchStudents(); fetchAllCourses(); fetchAllBadges(); }
   }, [token]);
+
 
   const handleAddStudent = async () => {
     if (!addForm.name || !addForm.email || !addForm.password) {
@@ -211,6 +221,29 @@ export default function AdminStudents() {
     showSuccess("Student enrolled!");
   };
 
+  // Award badge to student
+  const awardBadgeToStudent = async (badgeId: string) => {
+    if (!selectedStudent) return;
+    const res = await fetch(`${API}/admin/students/${selectedStudent.id}/badges`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ badgeId })
+    });
+    const data = await res.json();
+    if (res.status === 409) { showSuccess('Badge already awarded!'); return; }
+    await refreshStudent(selectedStudent.id);
+    showSuccess('Badge awarded! 🎖️');
+  };
+
+  // Revoke badge from student
+  const revokeBadgeFromStudent = async (badgeId: string) => {
+    if (!selectedStudent) return;
+    await fetch(`${API}/admin/students/${selectedStudent.id}/badges/${badgeId}`, {
+      method: 'DELETE', headers
+    });
+    await refreshStudent(selectedStudent.id);
+    showSuccess('Badge removed.');
+  };
+
   const filteredStudents = students.filter(s =>
     s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.email?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -222,6 +255,7 @@ export default function AdminStudents() {
     { key: 'sales', label: 'Sales Records' },
     { key: 'skills', label: 'Skills' },
     { key: 'courses', label: 'Courses' },
+    { key: 'badges', label: '🎖️ Badges' },
   ];
 
   const skillKeys = ['resinBasics', 'mixing', 'colourTheory', 'finishing', 'creativity', 'professionalQuality'];
@@ -560,6 +594,78 @@ export default function AdminStudents() {
                         {allCourses.filter(c => !(selectedStudent.courses || []).find((sc: any) => sc.id === c.id)).length === 0 && (
                           <p className="text-slate-500 text-sm col-span-2">Student is enrolled in all available courses!</p>
                         )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ===== BADGES TAB ===== */}
+                  {activeTab === 'badges' && (
+                    <div className="space-y-6">
+                      {/* Earned Badges */}
+                      <div>
+                        <h3 className="text-slate-300 font-bold text-base mb-3 flex items-center gap-2">
+                          🎖️ Badges Earned
+                          <span className="ml-1 text-xs font-normal bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full">
+                            {(selectedStudent.badges || []).length} badge{(selectedStudent.badges || []).length !== 1 ? 's' : ''}
+                          </span>
+                        </h3>
+                        {(selectedStudent.badges || []).length === 0 ? (
+                          <div className="p-6 bg-slate-950/50 border border-slate-800 rounded-2xl text-center">
+                            <p className="text-slate-500 text-sm">No badges awarded yet.</p>
+                            <p className="text-slate-600 text-xs mt-1">Award badges from the list below.</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {(selectedStudent.badges || []).map((badge: any) => (
+                              <div
+                                key={badge.id}
+                                className="flex flex-col items-center p-4 bg-orange-500/10 border border-orange-500/30 rounded-2xl text-center relative group"
+                              >
+                                <span className="text-3xl mb-2">{badge.icon || '🏅'}</span>
+                                <p className="text-white text-xs font-bold leading-tight">{badge.name}</p>
+                                {badge.description && (
+                                  <p className="text-slate-400 text-[10px] mt-1 leading-snug">{badge.description}</p>
+                                )}
+                                <button
+                                  onClick={() => revokeBadgeFromStudent(badge.id)}
+                                  className="mt-3 text-[10px] px-2.5 py-1 bg-slate-900 border border-rose-500/30 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                >
+                                  Revoke
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Award Badges */}
+                      <div>
+                        <h3 className="text-slate-300 font-bold text-base mb-3 flex items-center gap-2">
+                          ➕ Award a Badge
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {allBadges
+                            .filter(b => !(selectedStudent.badges || []).find((sb: any) => sb.id === b.id))
+                            .map((badge: any) => (
+                              <button
+                                key={badge.id}
+                                onClick={() => awardBadgeToStudent(badge.id)}
+                                className="flex flex-col items-center p-4 bg-slate-800/50 border border-slate-700 hover:border-orange-500/40 hover:bg-orange-500/5 rounded-2xl text-center transition-all group"
+                              >
+                                <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">{badge.icon || '🏅'}</span>
+                                <p className="text-slate-300 text-xs font-bold leading-tight group-hover:text-white transition-colors">{badge.name}</p>
+                                {badge.description && (
+                                  <p className="text-slate-500 text-[10px] mt-1 leading-snug">{badge.description}</p>
+                                )}
+                                <span className="mt-2 text-[10px] px-2 py-0.5 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                  Click to Award
+                                </span>
+                              </button>
+                            ))}
+                          {allBadges.filter(b => !(selectedStudent.badges || []).find((sb: any) => sb.id === b.id)).length === 0 && (
+                            <p className="text-slate-500 text-sm col-span-3">🎉 Student has all available badges!</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}

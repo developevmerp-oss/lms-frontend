@@ -13,13 +13,17 @@ import { BusinessMilestones } from "@/components/dashboard/BusinessMilestones";
 import { SalesAndCommunity } from "@/components/dashboard/SalesAndCommunity";
 import { AiMentor } from "@/components/dashboard/AiMentor";
 import { RewardsStore } from "@/components/dashboard/RewardsStore";
+import { DashboardSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
 
+const CACHE_KEY = 'student_dashboard_cache';
+const CACHE_TTL = 30 * 1000; // 30 seconds
+
 export default function StudentDashboard() {
   const { user, token, logout } = useAuth();
-  const [stats, setStats] = useState<any>({ 
-    points: 0, 
+  const [stats, setStats] = useState<any>({
+    points: 0,
     streak: 0,
     skills: null,
     badges: [],
@@ -28,9 +32,11 @@ export default function StudentDashboard() {
     salesRecords: [],
     courses: []
   });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchStats = () => {
+  const fetchStats = (silent = false) => {
     if (!token) return;
+    if (!silent) setIsLoading(true);
     fetch(`${API_BASE_URL}/dashboard/student`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -38,16 +44,47 @@ export default function StudentDashboard() {
       .then(data => {
         if (data && !data.message) {
           setStats(data);
+          // Cache in sessionStorage for instant re-loads
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+          } catch (_) {}
         }
       })
-      .catch(err => console.error("Error fetching student stats:", err));
+      .catch(err => console.error("Error fetching student stats:", err))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
+    if (!token) return;
+    // Try to load from cache first for instant display
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, ts } = JSON.parse(cached);
+        if (Date.now() - ts < CACHE_TTL) {
+          setStats(data);
+          setIsLoading(false);
+          fetchStats(true); // silent background refresh
+          return;
+        }
+      }
+    } catch (_) {}
     fetchStats();
   }, [token]);
 
   const getLevelName = (points: number) => {
+    if (stats.currentTier?.name) {
+      return `${stats.currentTier.name} (${stats.currentTier.code})`;
+    }
+    if (Array.isArray(stats.levelTiers) && stats.levelTiers.length > 0) {
+      let current = stats.levelTiers[0];
+      for (const tier of stats.levelTiers) {
+        if (points >= tier.minPoints) {
+          current = tier;
+        }
+      }
+      return `${current.name} (${current.code})`;
+    }
     if (points < 500) return "Fast Start (L0)";
     if (points < 5000) return "Silver Member (L1)";
     if (points < 10000) return "Gold Member (L2)";
@@ -71,7 +108,9 @@ export default function StudentDashboard() {
       />
 
       <main className="max-w-[1400px] mx-auto p-3 md:p-4 lg:p-8 space-y-4 md:space-y-6">
-          
+        {isLoading ? (
+          <DashboardSkeleton />
+        ) : (<>
           <WelcomeHeader 
             user={user} 
             level={getLevelName(stats.points)} 
@@ -79,6 +118,7 @@ export default function StudentDashboard() {
             streak={stats.streak} 
             progress={dynamicProgress} 
             nextGoal={stats.nextGoal}
+            currentTier={stats.currentTier}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
@@ -102,7 +142,7 @@ export default function StudentDashboard() {
           <RewardsStore currentPoints={stats.points} onRedeem={fetchStats} />
 
           <AiMentor skills={stats.skills} />
-
+        </>)}
         </main>
     </div>
   );

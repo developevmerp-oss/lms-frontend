@@ -108,35 +108,64 @@ export const CoursesAndBadges = ({ badges, courses, allCourses = [] }: CoursesAn
         transition={{ delay: 0.4 }}
         className="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col shadow-xl"
       >
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
           <Medal className="text-yellow-400" /> Badges Earned
         </h2>
+        <p className="text-slate-500 text-xs mb-4">
+          {displayedBadges.length} badge{displayedBadges.length !== 1 ? 's' : ''} collected
+        </p>
         
-        <div className="grid grid-cols-2 gap-4 flex-1">
+        <div className="grid grid-cols-2 gap-3 flex-1 overflow-y-auto max-h-[360px] pr-1">
+          {/* Earned Badges */}
           {displayedBadges.map((badge, i) => (
-            <div key={i} className={`flex flex-col items-center justify-center p-4 rounded-2xl border border-orange-500/50 bg-orange-500/10 text-center hover:scale-105 transition-transform cursor-pointer`}>
-              <div className="w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center mb-2 shadow-lg">
-                <Trophy className="text-orange-400" /> 
-              </div>
-              <span className="text-white text-sm font-bold">{badge.name || 'Achievement'}</span>
-            </div>
+            <motion.div
+              key={i}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 * i }}
+              className="flex flex-col items-center justify-center p-4 rounded-2xl border border-orange-500/40 bg-gradient-to-b from-orange-500/10 to-amber-500/5 text-center hover:scale-105 transition-transform cursor-pointer shadow-md"
+            >
+              <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
+              <span className="text-white text-xs font-bold leading-tight">{badge.name || 'Achievement'}</span>
+              {badge.description && (
+                <span className="text-slate-400 text-[10px] mt-1 leading-snug line-clamp-2">{badge.description}</span>
+              )}
+              <span className="mt-2 text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full">
+                ✓ Earned
+              </span>
+            </motion.div>
           ))}
           
+          {/* Empty state */}
           {displayedBadges.length === 0 && (
              <div className="col-span-2 flex flex-col items-center justify-center p-8 text-center">
                 <Trophy size={32} className="text-slate-700 mb-2" />
-                <p className="text-slate-400">Complete missions to earn badges!</p>
+                <p className="text-slate-400 text-sm font-medium">No badges yet</p>
+                <p className="text-slate-600 text-xs mt-1">Complete missions to earn your first badge!</p>
              </div>
           )}
 
-          {/* Locked badge placeholder */}
-          <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-800 bg-slate-900/50 text-center opacity-50">
-            <div className="w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center mb-2">
-              <Lock className="text-slate-600" />
-            </div>
-            <span className="text-slate-400 text-sm font-bold">Hall of Fame</span>
-          </div>
-          
+          {/* Locked badge placeholders — show un-earned ones from the static list */}
+          {[
+            { icon: '🎨', name: 'First Resin Pour' },
+            { icon: '💰', name: 'First Client Sale' },
+            { icon: '💎', name: 'Geode Master' },
+            { icon: '⏰', name: 'Clock Artisan' },
+            { icon: '🔥', name: 'Streak Champion' },
+            { icon: '🌊', name: 'Ocean Waves Specialist' },
+            { icon: '💐', name: 'Bridal Preservationist' },
+            { icon: '👑', name: 'Hall of Fame Creator' },
+          ]
+            .filter(locked => !displayedBadges.find((b: any) => b.name === locked.name))
+            .slice(0, 4)
+            .map((locked, i) => (
+              <div key={`locked-${i}`} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-800 bg-slate-900/30 text-center opacity-40">
+                <div className="text-2xl mb-2 grayscale">{locked.icon}</div>
+                <span className="text-slate-500 text-xs font-bold leading-tight">{locked.name}</span>
+                <span className="mt-2 text-[10px] text-slate-600">🔒 Locked</span>
+              </div>
+            ))
+          }
         </div>
       </motion.div>
     </div>
