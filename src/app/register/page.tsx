@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -73,7 +73,7 @@ export default function RegisterPage() {
             Join Ravishing<br />Art Hub Today
           </h1>
           <p className="text-slate-400 text-base mb-8 leading-relaxed">
-            Transform from a beginner into a confident resin artist, entrepreneur, and mentor — all in one structured journey.
+            Transform from a beginner into a confident resin artist, entrepreneur, and mentor â€” all in one structured journey.
           </p>
           <div className="space-y-3">
             {perks.map((perk, i) => (
@@ -87,10 +87,10 @@ export default function RegisterPage() {
           </div>
           <div className="mt-10 p-5 rounded-2xl bg-slate-900 border border-slate-800">
             <div className="flex gap-3 items-start">
-              <div className="text-3xl shrink-0">🎨</div>
+              <div className="text-3xl shrink-0">ðŸŽ¨</div>
               <div>
-                <p className="text-white font-bold text-sm">"My first ₹50,000 sale happened within 3 months of joining!"</p>
-                <p className="text-slate-500 text-xs mt-1">— Priya S., Diamond Club Member</p>
+                <p className="text-white font-bold text-sm">"My first â‚¹50,000 sale happened within 3 months of joining!"</p>
+                <p className="text-slate-500 text-xs mt-1">â€” Priya S., Diamond Club Member</p>
               </div>
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
             <div className="inline-flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/10">
                 <img
-                  src="/logo.png"
+                  src="/logo.jpeg"
                   alt="Ravishing Art Hub"
                   className="w-full"
                   style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
@@ -117,7 +117,7 @@ export default function RegisterPage() {
           </div>
 
           <h2 className="text-xl font-bold text-white mb-1">Create your account</h2>
-          <p className="text-slate-400 text-sm mb-7">Start your resin art journey today — it's free.</p>
+          <p className="text-slate-400 text-sm mb-7">Start your resin art journey today â€” it's free.</p>
 
           {error && (
             <div className="mb-5 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
@@ -238,7 +238,7 @@ export default function RegisterPage() {
           <p className="mt-6 text-center text-sm text-slate-400">
             Already have an account?{" "}
             <Link href="/login" className="font-bold text-orange-400 hover:text-orange-300 transition-colors">
-              Log in here →
+              Log in here â†’
             </Link>
           </p>
         </div>
@@ -246,3 +246,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

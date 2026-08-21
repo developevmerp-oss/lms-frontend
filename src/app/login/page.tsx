@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
@@ -79,7 +79,7 @@ function LoginContent() {
           <div className="inline-flex items-center gap-3 mb-2">
             <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 shadow-2xl shadow-orange-500/20 border border-white/10">
               <img
-                src="/logo.png"
+                src="/logo.jpeg"
                 alt="Ravishing Art Hub"
                 className="w-full"
                 style={{ marginTop: '-2%', height: '110%', objectFit: 'cover', objectPosition: 'top' }}
@@ -95,7 +95,7 @@ function LoginContent() {
 
         {/* Card */}
         <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-8 shadow-2xl shadow-black/50">
-          <h2 className="text-xl font-bold text-white mb-1">Welcome back 👋</h2>
+          <h2 className="text-xl font-bold text-white mb-1">Welcome back ðŸ‘‹</h2>
           <p className="text-slate-400 text-sm mb-8">Log in to continue your art journey.</p>
 
           {successMsg && (
@@ -105,13 +105,13 @@ function LoginContent() {
             </div>
           )}
 
-          {/* Server cold-start warning — only shows if server takes >3s to respond */}
+          {/* Server cold-start warning â€” only shows if server takes >3s to respond */}
           {serverStatus === 'slow' && (
             <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm flex items-center gap-3">
               <Zap size={16} className="shrink-0 animate-pulse" />
               <span>
-                <strong>Server is waking up…</strong> Free-tier servers sleep when idle.
-                This takes up to 60 seconds — you can fill the form in the meantime! ☕
+                <strong>Server is waking upâ€¦</strong> Free-tier servers sleep when idle.
+                This takes up to 60 seconds â€” you can fill the form in the meantime! â˜•
               </span>
             </div>
           )}
@@ -152,7 +152,7 @@ function LoginContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3.5 pr-12 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   required
                 />
                 <button
@@ -191,7 +191,7 @@ function LoginContent() {
         <p className="mt-6 text-center text-sm text-slate-400">
           Don't have an account?{" "}
           <Link href="/register" className="font-bold text-orange-400 hover:text-orange-300 transition-colors">
-            Start your journey →
+            Start your journey â†’
           </Link>
         </p>
       </div>
@@ -211,3 +211,4 @@ export default function LoginPage() {
     </Suspense>
   );
 }
+
