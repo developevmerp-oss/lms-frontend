@@ -31,10 +31,12 @@ import {
 
 export default function WebinarPage() {
   const router = useRouter();
+  const [activeWebinar, setActiveWebinar] = useState<any>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
+    city: "",
     challenge: "",
     consent: true,
   });
@@ -59,7 +61,10 @@ export default function WebinarPage() {
       const res = await fetch(`${API_BASE_URL}/webinar/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          webinarEventId: activeWebinar?.id || null,
+        }),
       });
 
       const data = await res.json();
@@ -68,14 +73,12 @@ export default function WebinarPage() {
         throw new Error(data.message || "Failed to register");
       }
 
-      // Store lead info in sessionStorage for thank you page personalization
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(data.data || form));
       }
 
       router.push("/thank-you");
     } catch (err: any) {
-      // Fallback redirection even if network is slow
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(form));
       }
@@ -91,6 +94,16 @@ export default function WebinarPage() {
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const sessionDisplayDate = activeWebinar?.scheduledAt
+    ? new Date(activeWebinar.scheduledAt).toLocaleDateString("en-IN", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "THIS SUNDAY · 8:00 PM IST";
 
   const FAQS = [
     {
@@ -119,7 +132,7 @@ export default function WebinarPage() {
       {/* ─── TOP ANNOUNCEMENT URGENCY BANNER ─── */}
       <div className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 text-white py-2.5 px-4 text-center text-xs md:text-sm font-bold shadow-md sticky top-0 z-50 flex items-center justify-center gap-3">
         <span className="flex items-center gap-1.5 animate-pulse">
-          <Flame size={16} className="text-amber-200" /> LIVE MASTERCLASS THIS SUNDAY · 8:00 PM IST
+          <Flame size={16} className="text-amber-200" /> LIVE MASTERCLASS: {sessionDisplayDate.toUpperCase()}
         </span>
         <span className="hidden sm:inline bg-black/20 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-white/20">
           Only 12 Free Seats Left
@@ -184,12 +197,12 @@ export default function WebinarPage() {
               </div>
             </div>
 
-            {/* Countdown Box */}
+            {/* Dynamic Countdown Box */}
             <div className="pt-2">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
                 Live Class Starts In:
               </p>
-              <WebinarCountdown />
+              <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
             </div>
 
             {/* Mentor Badge */}
@@ -239,18 +252,33 @@ export default function WebinarPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => update("email", e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all text-sm"
-                    placeholder="jane@example.com"
-                    required
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={e => update("email", e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all text-sm"
+                      placeholder="jane@example.com"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                      City / Location
+                    </label>
+                    <input
+                      type="text"
+                      value={form.city}
+                      onChange={e => update("city", e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all text-sm"
+                      placeholder="e.g. Ahmedabad"
+                    />
+                  </div>
                 </div>
 
                 <div>
