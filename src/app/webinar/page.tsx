@@ -1516,12 +1516,13 @@ export default function WebinarPage() {
         }`}
       >
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="text-sm font-semibold text-white">Resin Mastery Masterclass</span>
+            <WebinarCountdown compact={true} targetDateStr={activeWebinar?.scheduledAt} />
           </div>
           <button
             onClick={scrollToRegister}
-            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold shadow-md h-8 rounded-md px-3 text-xs transition-all cursor-pointer hover:scale-105"
+            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold shadow-md h-8 rounded-md px-4 text-xs transition-all cursor-pointer hover:scale-105"
           >
             Get my free seat
             <ArrowRight size={13} />

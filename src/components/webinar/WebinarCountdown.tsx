@@ -2,13 +2,19 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '@/config/api';
+import { Clock } from 'lucide-react';
 
 interface WebinarCountdownProps {
   targetDateStr?: string;
   onWebinarLoaded?: (webinar: any) => void;
+  compact?: boolean;
 }
 
-export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCountdownProps) => {
+export const WebinarCountdown = ({
+  targetDateStr,
+  onWebinarLoaded,
+  compact = false,
+}: WebinarCountdownProps) => {
   const [targetTimestamp, setTargetTimestamp] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -39,7 +45,7 @@ export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCoun
           return;
         }
       }
-      // If DB date is in the past or missing, advance to next upcoming slot
+      // Fallback
       const fallback = getFallbackDate();
       setTargetTimestamp(fallback);
       if (onWebinarLoaded) {
@@ -79,7 +85,6 @@ export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCoun
         const seconds = Math.floor((difference / 1000) % 60);
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        // If expired right now, auto-fetch the next upcoming webinar
         fetchNextWebinar();
       }
     };
@@ -89,6 +94,18 @@ export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCoun
 
     return () => clearInterval(interval);
   }, [targetTimestamp, fetchNextWebinar]);
+
+  if (compact) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold tabular-nums text-slate-300">
+        <Clock className="size-3.5 text-orange-400" />
+        {timeLeft.days > 0 && `${timeLeft.days}d `}
+        {String(timeLeft.hours).padStart(2, '0')}:
+        {String(timeLeft.minutes).padStart(2, '0')}:
+        {String(timeLeft.seconds).padStart(2, '0')}
+      </span>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center gap-2 md:gap-3">
