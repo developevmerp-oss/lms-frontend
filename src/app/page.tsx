@@ -284,78 +284,42 @@ export default function HomePage() {
       </nav>
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
-      <section className="relative pt-16 pb-20 px-6 z-10">
-        <div className="max-w-6xl mx-auto text-center">
-
-          {/* Tagline Pill */}
-          <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-full mb-8 backdrop-blur-md shadow-inner">
-            <Sparkles size={14} className="text-orange-400 animate-pulse" />
-            <span>Join a community of women transforming creativity into freedom</span>
-          </div>
+      <section className="relative pt-20 pb-16 px-6 z-10">
+        <div className="max-w-5xl mx-auto text-center">
 
           {/* Hero Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.1] mb-6">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.15] mb-6 text-white">
             Turn Your Resin Art Passion Into{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">
-              Skill, Identity &amp; Financial Freedom.
+              Skill, Identity &amp; Financial Freedom
             </span>
           </h1>
 
           {/* Hero Subtitle */}
-          <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed font-normal">
+          <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-6 leading-relaxed">
             You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
           </p>
 
-          {/* Value Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-10 max-w-3xl mx-auto">
-            {["Learn Resin Art", "Build Your Signature Style", "Create Your Identity", "Build Your Income"].map((pill, idx) => (
-              <div key={idx} className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-bold text-slate-200">
-                <CheckCircle2 size={13} className="text-orange-400" />
-                {pill}
-              </div>
-            ))}
-          </div>
+          <p className="text-orange-400 font-bold text-base md:text-lg mb-4">
+            Learn Resin Art. Build Your Signature Style. Create Your Identity. Build Your Income.
+          </p>
 
-          {/* Hero CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-10 leading-relaxed">
+            Join a community of women who are transforming their creativity into something much bigger than a hobby.
+          </p>
+
+          {/* Hero CTA */}
+          <div className="flex justify-center items-center mb-14">
             <Link
               href="/webinar"
-              className="px-9 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 w-full sm:w-auto justify-center hover:scale-105"
+              className="px-10 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 hover:scale-105"
             >
-              <Sparkles size={20} />
-              Start My Resin Journey
-            </Link>
-            <Link
-              href="/register"
-              className="px-8 py-4 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 font-bold rounded-2xl text-lg transition-all w-full sm:w-auto justify-center flex items-center gap-2 hover:border-orange-500/40"
-            >
-              <Brush size={20} className="text-orange-400" />
-              Explore Academy Portal
+              Start My Resin Journey <ArrowRight size={18} />
             </Link>
           </div>
 
           {/* ─── HERO VIDEO SHOWCASE (Real Masterclass Video) ─── */}
           <HeroVideoPlayer />
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-800/80">
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300 mb-1">52K+</p>
-              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Students Taught</p>
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300 mb-1">8K+</p>
-              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Orders Completed</p>
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-300 mb-1">5.0 ★</p>
-              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Google Play Rating</p>
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 mb-1">1140+</p>
-              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Community</p>
-            </div>
-          </div>
 
         </div>
       </section>
