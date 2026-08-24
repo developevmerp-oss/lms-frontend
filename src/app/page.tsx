@@ -39,90 +39,118 @@ import {
   AlertCircle
 } from "lucide-react";
 
-// Student Artworks for Exhibition Showcase
+// Real Student Artworks for Live Exhibition Showcase
 const ARTWORKS_ROW_1 = [
   {
-    title: "Caribbean Ocean Wave Board",
+    title: "Botanical Floral Resin Coaster Set",
     artist: "Priya S.",
-    type: "Ocean Lacing & Resin Wave",
+    type: "Real Flower Preservation",
     level: "Gold Member",
-    price: "₹14,500 Sold",
-    gradient: "from-cyan-600 via-teal-700 to-blue-900",
-    accent: "text-cyan-300",
-    badge: "Ocean Art"
+    price: "₹4,500 Sold",
+    image: "/images/student-art/art-1.jpg",
+    badge: "Floral Art"
   },
   {
-    title: "Amethyst Crystal Agate Clock",
+    title: "Black Obsidian & Gold Leaf Geode Coasters",
     artist: "Aarav K.",
-    type: "3D Geode & Crushed Glass",
+    type: "3D Geode & Metallic Edge",
     level: "Silver Member",
-    price: "₹8,900 Sold",
-    gradient: "from-purple-700 via-indigo-800 to-slate-900",
-    accent: "text-purple-300",
+    price: "₹6,900 Sold",
+    image: "/images/student-art/art-3.jpg",
     badge: "Geode Inlay"
   },
   {
-    title: "Emerald Gold Leaf Dining River",
+    title: "Emerald Crystal Butterfly Sculpt",
     artist: "Neha & Team",
-    type: "Deep Pour Furniture",
+    type: "Cellular Texture Pour",
     level: "Diamond Club",
-    price: "₹68,000 Sold",
-    gradient: "from-emerald-700 via-teal-900 to-slate-950",
-    accent: "text-emerald-300",
-    badge: "Master Furniture"
+    price: "₹12,000 Sold",
+    image: "/images/student-art/art-6.jpg",
+    badge: "3D Sculpt"
   },
   {
-    title: "Celestial Moon Phase Mirror",
+    title: "Global Ocean Wave World Map Wall Art",
     artist: "Tanvi R.",
-    type: "Pigment Layering",
+    type: "Multi-Layer Ocean Lacing",
+    level: "Diamond Club",
+    price: "₹48,000 Sold",
+    image: "/images/student-art/art-15.jpg",
+    badge: "Statement Decor"
+  },
+  {
+    title: "Pressed Petals Serving Platter",
+    artist: "Sonia G.",
+    type: "Crystal Clear Epoxy Layering",
     level: "Gold Member",
-    price: "₹11,200 Sold",
-    gradient: "from-slate-700 via-indigo-950 to-black",
-    accent: "text-indigo-300",
-    badge: "Home Decor"
+    price: "₹8,500 Sold",
+    image: "/images/student-art/art-5.jpg",
+    badge: "Tableware"
+  },
+  {
+    title: "Midnight Agate Ring Coaster Duo",
+    artist: "Pooja V.",
+    type: "Gold Trim Geode Pour",
+    level: "Silver Member",
+    price: "₹5,200 Sold",
+    image: "/images/student-art/art-2.jpg",
+    badge: "Luxury Coasters"
   }
 ];
 
 const ARTWORKS_ROW_2 = [
   {
-    title: "Preserved Bridal Jaimala Block",
+    title: "Vintage Botanical Bloom Clock",
     artist: "Ritu M.",
-    type: "Crystal Floral Preservation",
+    type: "Floral Preservation Wall Art",
     level: "Diamond Club",
-    price: "₹22,000 Sold",
-    gradient: "from-rose-600 via-pink-800 to-slate-900",
-    accent: "text-rose-300",
+    price: "₹18,500 Sold",
+    image: "/images/student-art/art-4.jpg",
     badge: "Preservation"
   },
   {
-    title: "Maldives Shore Coffee Table",
+    title: "Sapphire Ocean Resin Desk Organizer",
     artist: "Vikram P.",
     type: "3-Tier Resin Wave Pour",
-    level: "Diamond Club",
-    price: "₹42,000 Sold",
-    gradient: "from-sky-500 via-blue-700 to-indigo-950",
-    accent: "text-sky-300",
-    badge: "Furniture"
+    level: "Gold Member",
+    price: "₹9,800 Sold",
+    image: "/images/student-art/art-12.jpg",
+    badge: "Ocean Art"
   },
   {
-    title: "Rose Quartz Resin Tray Set",
+    title: "Rose Quartz Gold Foil Tray Set",
     artist: "Ananya D.",
-    type: "Metallic Edge Accents",
+    type: "Hand-Gilded Metallic Trim",
     level: "Silver Member",
-    price: "₹6,500 Sold",
-    gradient: "from-pink-600 via-amber-800 to-slate-950",
-    accent: "text-pink-300",
+    price: "₹7,500 Sold",
+    image: "/images/student-art/art-7.jpg",
     badge: "Tableware"
   },
   {
-    title: "Midnight Nebula Wall Canvas",
-    artist: "Sonia G.",
-    type: "Multi-Pigment Fluid Pour",
+    title: "Caribbean Coral Lacing Wall Canvas",
+    artist: "Meera K.",
+    type: "Cell Lacing Masterpiece",
     level: "Gold Member",
-    price: "₹18,000 Sold",
-    gradient: "from-violet-600 via-fuchsia-900 to-slate-950",
-    accent: "text-violet-300",
+    price: "₹24,000 Sold",
+    image: "/images/student-art/art-14.jpg",
     badge: "Fine Art"
+  },
+  {
+    title: "Sunburst Agate Geode Serving Board",
+    artist: "Kiran J.",
+    type: "Gold Vein & Crystal Inlay",
+    level: "Gold Member",
+    price: "₹11,500 Sold",
+    image: "/images/student-art/art-10.jpg",
+    badge: "Geode Inlay"
+  },
+  {
+    title: "Deep Sea Coastal Resin Platter",
+    artist: "Divya N.",
+    type: "Wave Foam Pour",
+    level: "Silver Member",
+    price: "₹6,800 Sold",
+    image: "/images/student-art/art-8.jpg",
+    badge: "Ocean Wave"
   }
 ];
 
@@ -802,20 +830,32 @@ export default function HomePage() {
                 key={`r1-${idx}`}
                 className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all duration-300 shadow-xl group"
               >
-                <div className={`h-48 rounded-2xl bg-gradient-to-br ${art.gradient} p-4 flex flex-col justify-between relative overflow-hidden shadow-inner`}>
-                  <div className="relative z-10 flex justify-between items-center">
-                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/60 text-white px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                {/* Real Artwork Photo with smooth zoom */}
+                <div className="h-52 rounded-2xl relative overflow-hidden shadow-inner bg-slate-950">
+                  <img
+                    src={art.image}
+                    alt={art.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                  
+                  <div className="absolute top-3 inset-x-3 flex justify-between items-center z-10">
+                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/80 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30 backdrop-blur-md">
                       {art.badge}
                     </span>
-                    <span className="text-xs font-black bg-emerald-500/90 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
+                    <span className="text-xs font-black bg-emerald-500 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
                       {art.price}
                     </span>
                   </div>
-                  <div className="relative z-10">
-                    <p className="text-lg font-black text-white drop-shadow-md">{art.title}</p>
-                    <p className="text-xs text-slate-200/90 font-medium">{art.type}</p>
+
+                  <div className="absolute bottom-3 inset-x-3 z-10">
+                    <p className="text-base font-black text-white drop-shadow-md leading-tight">
+                      {art.title}
+                    </p>
+                    <p className="text-xs text-slate-300 font-medium mt-0.5">{art.type}</p>
                   </div>
                 </div>
+
                 <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-xs font-black text-slate-950">
@@ -841,22 +881,34 @@ export default function HomePage() {
             {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
               <div
                 key={`r2-${idx}`}
-                className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all duration-300 shadow-xl group"
+                className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-cyan-500/50 transition-all duration-300 shadow-xl group"
               >
-                <div className={`h-48 rounded-2xl bg-gradient-to-br ${art.gradient} p-4 flex flex-col justify-between relative overflow-hidden shadow-inner`}>
-                  <div className="relative z-10 flex justify-between items-center">
-                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/60 text-white px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                {/* Real Artwork Photo with smooth zoom */}
+                <div className="h-52 rounded-2xl relative overflow-hidden shadow-inner bg-slate-950">
+                  <img
+                    src={art.image}
+                    alt={art.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
+                  
+                  <div className="absolute top-3 inset-x-3 flex justify-between items-center z-10">
+                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/80 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 backdrop-blur-md">
                       {art.badge}
                     </span>
-                    <span className="text-xs font-black bg-emerald-500/90 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
+                    <span className="text-xs font-black bg-emerald-500 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
                       {art.price}
                     </span>
                   </div>
-                  <div className="relative z-10">
-                    <p className="text-lg font-black text-white drop-shadow-md">{art.title}</p>
-                    <p className="text-xs text-slate-200/90 font-medium">{art.type}</p>
+
+                  <div className="absolute bottom-3 inset-x-3 z-10">
+                    <p className="text-base font-black text-white drop-shadow-md leading-tight">
+                      {art.title}
+                    </p>
+                    <p className="text-xs text-slate-300 font-medium mt-0.5">{art.type}</p>
                   </div>
                 </div>
+
                 <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-xs font-black text-slate-950">
