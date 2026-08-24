@@ -244,17 +244,7 @@ export default function HomePage() {
       {/* ─── NAVIGATION BAR ─── */}
       <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <BrandLogo size="md" />
-            <div>
-              <span className="text-xl font-black tracking-tight text-white block leading-none">
-                RAVISHING<span className="text-orange-400">.ART</span>
-              </span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block mt-0.5">
-                Academy &amp; Business Hub
-              </span>
-            </div>
-          </Link>
+          <BrandLogo size="md" />
 
           <div className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300">
             <a href="#problem" className="hover:text-orange-400 transition-colors">The Journey</a>
@@ -1279,11 +1269,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pb-12 border-b border-slate-800/80">
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
+              <div className="mb-2">
                 <BrandLogo size="md" />
-                <span className="text-2xl font-black text-white tracking-tight">
-                  RAVISHING<span className="text-orange-400">.ART</span>
-                </span>
               </div>
               <h3 className="text-xl font-bold text-white">Create. Connect. Grow. Become Ravishing.</h3>
               <p className="text-sm text-slate-400 max-w-lg leading-relaxed">
