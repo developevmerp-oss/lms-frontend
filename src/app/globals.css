@@ -610,3 +610,26 @@ body {
   background-clip: text;
   animation: shimmer-gold 6s linear infinite;
 }
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(1.05); }
+}
+
+.animate-float {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-slow 5s ease-in-out 1.5s infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 6s ease-in-out infinite;
+}
+

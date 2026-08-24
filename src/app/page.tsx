@@ -213,14 +213,13 @@ const VERIFIED_REVIEWS = [
 ];
 
 export default function HomePage() {
-  const [activeDimension, setActiveDimension] = useState(0);
-
   const sixDimensions = [
     {
       title: "Skill",
       icon: Brush,
       color: "from-orange-500 to-amber-500",
       border: "border-orange-500/40",
+      hoverBorder: "hover:border-orange-500",
       desc: "How confidently and consistently you can create quality Resin Art."
     },
     {
@@ -228,6 +227,7 @@ export default function HomePage() {
       icon: Palette,
       color: "from-purple-500 to-pink-500",
       border: "border-purple-500/40",
+      hoverBorder: "hover:border-purple-500",
       desc: "How effectively you experiment, innovate and develop your own artistic expression."
     },
     {
@@ -235,6 +235,7 @@ export default function HomePage() {
       icon: Crown,
       color: "from-cyan-500 to-blue-500",
       border: "border-cyan-500/40",
+      hoverBorder: "hover:border-cyan-500",
       desc: "How clearly you develop your personal style, portfolio and recognition as an artist."
     },
     {
@@ -242,6 +243,7 @@ export default function HomePage() {
       icon: Briefcase,
       color: "from-emerald-500 to-teal-500",
       border: "border-emerald-500/40",
+      hoverBorder: "hover:border-emerald-500",
       desc: "How effectively you turn your skill and creations into products, customers and opportunities."
     },
     {
@@ -249,6 +251,7 @@ export default function HomePage() {
       icon: Globe,
       color: "from-rose-500 to-red-500",
       border: "border-rose-500/40",
+      hoverBorder: "hover:border-rose-500",
       desc: "How your knowledge, creations and journey create value for customers and inspire others."
     },
     {
@@ -256,17 +259,18 @@ export default function HomePage() {
       icon: Sparkles,
       color: "from-amber-400 to-yellow-500",
       border: "border-amber-400/40",
+      hoverBorder: "hover:border-amber-400",
       desc: "How much you grow in confidence, discipline, leadership and belief in yourself."
     }
   ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-slate-950 relative overflow-hidden font-sans">
-      {/* Dynamic Ambient Background Elements */}
+      {/* Dynamic Ambient Background Glowing Art Orbs */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-orange-600/15 via-amber-600/10 to-transparent blur-[120px] rounded-full" />
-        <div className="absolute top-[30%] -left-40 w-[600px] h-[600px] bg-purple-600/10 blur-[140px] rounded-full" />
-        <div className="absolute top-[65%] -right-40 w-[600px] h-[600px] bg-orange-600/10 blur-[140px] rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-orange-600/15 via-amber-600/10 to-transparent blur-[120px] rounded-full animate-pulse-glow" />
+        <div className="absolute top-[25%] -left-40 w-[600px] h-[600px] bg-purple-600/10 blur-[140px] rounded-full animate-pulse-glow" />
+        <div className="absolute top-[60%] -right-40 w-[600px] h-[600px] bg-orange-600/10 blur-[140px] rounded-full animate-pulse-glow" />
       </div>
 
       {/* ─── NAVIGATION BAR ─── */}
@@ -293,7 +297,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/webinar"
-              className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2"
+              className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 hover:scale-105"
             >
               Free Masterclass <ArrowRight size={15} />
             </Link>
@@ -357,7 +361,7 @@ export default function HomePage() {
 
           <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl space-y-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <AlertCircle className="text-amber-400" size={22} />
+              <AlertCircle className="text-amber-400 animate-pulse" size={22} />
               You may still be wondering:
             </h3>
 
@@ -370,7 +374,10 @@ export default function HomePage() {
                 "How to get consistent, high-paying orders",
                 "How to turn your creative skill into predictable income"
               ].map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4">
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 hover:border-red-500/40 hover:-translate-y-1 transition-all duration-300 shadow-md"
+                >
                   <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-xs font-bold shrink-0 mt-0.5">
                     ?
                   </div>
@@ -379,7 +386,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <div className="mt-8 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border-l-4 border-orange-500 rounded-r-2xl p-6">
+            <div className="mt-8 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border-l-4 border-orange-500 rounded-r-2xl p-6 shadow-inner">
               <p className="text-base md:text-lg font-bold text-white leading-relaxed">
                 The problem isn't your talent. <span className="text-orange-400">The problem is that nobody gave you a clear path.</span>
               </p>
@@ -403,15 +410,18 @@ export default function HomePage() {
           <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl mb-12">
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3 items-center">
               {[
-                { title: "Passion", desc: "Creative spark", icon: Flame, color: "text-orange-400" },
-                { title: "Skill", desc: "Technique mastery", icon: Brush, color: "text-amber-400" },
-                { title: "Signature", desc: "Unique style", icon: Sparkles, color: "text-yellow-400" },
-                { title: "Portfolio", desc: "Showcase proof", icon: Layers, color: "text-emerald-400" },
-                { title: "Income", desc: "Monetization", icon: DollarSign, color: "text-cyan-400" },
-                { title: "Freedom", desc: "Self-identity", icon: Trophy, color: "text-purple-400" }
+                { title: "Passion", desc: "Creative spark", icon: Flame, color: "text-orange-400", hoverColor: "hover:border-orange-500/60" },
+                { title: "Skill", desc: "Technique mastery", icon: Brush, color: "text-amber-400", hoverColor: "hover:border-amber-500/60" },
+                { title: "Signature", desc: "Unique style", icon: Sparkles, color: "text-yellow-400", hoverColor: "hover:border-yellow-500/60" },
+                { title: "Portfolio", desc: "Showcase proof", icon: Layers, color: "text-emerald-400", hoverColor: "hover:border-emerald-500/60" },
+                { title: "Income", desc: "Monetization", icon: DollarSign, color: "text-cyan-400", hoverColor: "hover:border-cyan-500/60" },
+                { title: "Freedom", desc: "Self-identity", icon: Trophy, color: "text-purple-400", hoverColor: "hover:border-purple-500/60" }
               ].map((step, idx) => (
-                <div key={idx} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center group hover:border-orange-500/50 transition-all">
-                  <div className={`w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mx-auto mb-2 ${step.color}`}>
+                <div
+                  key={idx}
+                  className={`bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center group ${step.hoverColor} hover:-translate-y-1.5 transition-all duration-300 shadow-md`}
+                >
+                  <div className={`w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mx-auto mb-2 ${step.color} group-hover:scale-110 transition-transform duration-300`}>
                     <step.icon size={20} />
                   </div>
                   <p className="font-bold text-white text-sm">{step.title}</p>
@@ -441,15 +451,15 @@ export default function HomePage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg">
               <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
               <p className="text-sm text-slate-300">You don't need to be an expert to begin.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg">
               <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
               <p className="text-sm text-slate-300">You don't need an expensive or perfect setup.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg">
               <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
               <p className="text-sm text-slate-300">You don't need thousands of social media followers.</p>
             </div>
@@ -486,9 +496,9 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {/* Card 1 */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/40 transition-all shadow-xl flex flex-col justify-between">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
                   1
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
@@ -501,9 +511,9 @@ export default function HomePage() {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-amber-500/40 transition-all shadow-xl flex flex-col justify-between">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl mb-6 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-300">
                   2
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
@@ -516,9 +526,9 @@ export default function HomePage() {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-yellow-500/40 transition-all shadow-xl flex flex-col justify-between">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-yellow-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-black text-xl mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-black text-xl mb-6 group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-slate-950 transition-all duration-300">
                   3
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
@@ -531,7 +541,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="text-center bg-slate-900/60 border border-slate-800 rounded-2xl p-6 max-w-2xl mx-auto">
+          <div className="text-center bg-slate-900/60 border border-slate-800 rounded-2xl p-6 max-w-2xl mx-auto shadow-lg">
             <p className="text-base font-bold text-orange-400">
               ✨ If you see yourself in any of these, you're in the right place.
             </p>
@@ -554,10 +564,10 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Step 1 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group">
               <div>
                 <span className="text-xs font-black text-orange-400 uppercase tracking-widest block mb-2">Stage 01</span>
-                <h3 className="text-lg font-black text-white mb-3">Skill → Creation</h3>
+                <h3 className="text-lg font-black text-white mb-3 group-hover:text-orange-300 transition-colors">Skill → Creation</h3>
                 <p className="text-slate-300 text-xs leading-relaxed">
                   Learn the right techniques and develop the confidence to create professional-grade resin art from zero.
                 </p>
@@ -565,10 +575,10 @@ export default function HomePage() {
             </div>
 
             {/* Step 2 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl group">
               <div>
                 <span className="text-xs font-black text-amber-400 uppercase tracking-widest block mb-2">Stage 02</span>
-                <h3 className="text-lg font-black text-white mb-3">Creation → Signature</h3>
+                <h3 className="text-lg font-black text-white mb-3 group-hover:text-amber-300 transition-colors">Creation → Signature</h3>
                 <p className="text-slate-300 text-xs leading-relaxed">
                   Discover your creative strengths and develop a distinct style that feels uniquely and unmistakably yours.
                 </p>
@@ -576,10 +586,10 @@ export default function HomePage() {
             </div>
 
             {/* Step 3 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-yellow-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-yellow-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 shadow-xl group">
               <div>
                 <span className="text-xs font-black text-yellow-400 uppercase tracking-widest block mb-2">Stage 03</span>
-                <h3 className="text-lg font-black text-white mb-3">Signature → Portfolio</h3>
+                <h3 className="text-lg font-black text-white mb-3 group-hover:text-yellow-300 transition-colors">Signature → Portfolio</h3>
                 <p className="text-slate-300 text-xs leading-relaxed">
                   Build a collection of creations that represents your skills and helps you showcase your work with total confidence.
                 </p>
@@ -587,10 +597,10 @@ export default function HomePage() {
             </div>
 
             {/* Step 4 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-emerald-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-emerald-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group">
               <div>
                 <span className="text-xs font-black text-emerald-400 uppercase tracking-widest block mb-2">Stage 04</span>
-                <h3 className="text-lg font-black text-white mb-3">Portfolio → Income</h3>
+                <h3 className="text-lg font-black text-white mb-3 group-hover:text-emerald-300 transition-colors">Portfolio → Income</h3>
                 <p className="text-slate-300 text-xs leading-relaxed">
                   Learn how to position, present and monetize your creations so your skill becomes an income-generating business.
                 </p>
@@ -615,44 +625,44 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Pillar 1 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
                 <Brush size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Master Resin Art Techniques</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-orange-300 transition-colors">Master Resin Art Techniques</h3>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.
               </p>
             </div>
 
             {/* Pillar 2 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-purple-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-purple-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-slate-950 transition-all duration-300">
                 <Palette size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Develop Your Signature Style</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">Develop Your Signature Style</h3>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.
               </p>
             </div>
 
             {/* Pillar 3 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-cyan-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-cyan-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all duration-300">
                 <Layers size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Build a Portfolio You Are Proud Of</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">Build a Portfolio You Are Proud Of</h3>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.
               </p>
             </div>
 
             {/* Pillar 4 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-emerald-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-emerald-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300">
                 <TrendingUp size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Learn How To Monetize Your Skill</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">Learn How To Monetize Your Skill</h3>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.
               </p>
@@ -678,10 +688,10 @@ export default function HomePage() {
             {sixDimensions.map((dim, idx) => (
               <div
                 key={idx}
-                className={`bg-slate-900/90 border ${dim.border} rounded-3xl p-7 flex flex-col justify-between hover:scale-[1.02] transition-all shadow-xl`}
+                className={`bg-slate-900/90 border ${dim.border} ${dim.hoverBorder} rounded-3xl p-7 flex flex-col justify-between hover:scale-[1.03] hover:-translate-y-1.5 transition-all duration-300 shadow-xl group`}
               >
                 <div>
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${dim.color} flex items-center justify-center text-slate-950 font-black mb-6`}>
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${dim.color} flex items-center justify-center text-slate-950 font-black mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                     <dim.icon size={22} />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{dim.title}</h3>
@@ -716,12 +726,12 @@ export default function HomePage() {
                 { title: "Earn Recognition", icon: Crown }
               ].map((step, idx) => (
                 <React.Fragment key={idx}>
-                  <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">
+                  <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 hover:border-orange-500/50 hover:-translate-y-1 transition-all duration-300 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">
                     <step.icon size={16} className="text-orange-400" />
                     {step.title}
                   </div>
                   {idx < 5 && (
-                    <ChevronRight size={18} className="text-slate-600 hidden sm:block" />
+                    <ChevronRight size={18} className="text-slate-600 hidden sm:block animate-pulse" />
                   )}
                 </React.Fragment>
               ))}
@@ -737,7 +747,7 @@ export default function HomePage() {
       {/* ─── SECTION 10: ART-O-THON ─── */}
       <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/40 rounded-3xl p-8 md:p-14 shadow-2xl">
+          <div className="bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/40 rounded-3xl p-8 md:p-14 shadow-2xl hover:border-orange-500/60 transition-colors">
             <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
               <div className="space-y-4 max-w-2xl">
                 <span className="text-orange-400 text-xs font-black uppercase tracking-widest block">Action-First Learning</span>
@@ -752,13 +762,13 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 text-center shrink-0 w-full md:w-64 space-y-3">
+              <div className="bg-slate-950 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-6 text-center shrink-0 w-full md:w-64 space-y-3 shadow-xl hover:-translate-y-1.5 transition-all duration-300">
                 <Flame size={40} className="text-orange-500 mx-auto animate-bounce" />
                 <p className="text-2xl font-black text-white">30-Day</p>
                 <p className="text-xs text-orange-400 font-bold uppercase tracking-wider">Creation Sprint</p>
                 <Link
                   href="/webinar"
-                  className="block w-full py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all"
+                  className="block w-full py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 hover:scale-105"
                 >
                   Join Challenge
                 </Link>
@@ -789,8 +799,11 @@ export default function HomePage() {
               { title: "Celebrate Milestones", desc: "Cheer each other's wins", icon: Trophy },
               { title: "Learn Together", desc: "Collaborate with peers", icon: Users }
             ].map((item, idx) => (
-              <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-orange-500/40 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center mx-auto mb-3">
+              <div
+                key={idx}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-orange-500/50 hover:-translate-y-1.5 transition-all duration-300 shadow-lg group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
                   <item.icon size={20} />
                 </div>
                 <p className="font-bold text-white text-sm">{item.title}</p>
@@ -946,13 +959,13 @@ export default function HomePage() {
             {VERIFIED_REVIEWS.map((rev, idx) => (
               <div
                 key={idx}
-                className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl"
+                className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex gap-1">
                       {[...Array(rev.rating)].map((_, i) => (
-                        <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                        <Star key={i} size={14} className="text-amber-400 fill-amber-400 group-hover:scale-110 transition-transform" />
                       ))}
                     </div>
                     <span className="text-[10px] text-slate-500 font-medium">Google Play · {rev.date}</span>
@@ -962,7 +975,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${rev.avatarBg} flex items-center justify-center font-black text-slate-950 text-sm shrink-0`}>
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${rev.avatarBg} flex items-center justify-center font-black text-slate-950 text-sm shrink-0 shadow-md group-hover:scale-110 transition-transform`}>
                     {rev.name[0]}
                   </div>
                   <div>
@@ -976,7 +989,7 @@ export default function HomePage() {
 
           {/* Google Play Rating Badge */}
           <div className="flex justify-center">
-            <div className="inline-flex items-center gap-4 bg-slate-900/80 border border-slate-800 rounded-2xl px-6 py-4 shadow-xl">
+            <div className="inline-flex items-center gap-4 bg-slate-900/80 border border-slate-800 hover:border-orange-500/40 rounded-2xl px-6 py-4 shadow-xl hover:scale-105 transition-transform duration-300">
               <div className="text-center">
                 <p className="text-4xl font-black text-white">5.0</p>
                 <div className="flex gap-0.5 mt-1 justify-center">
@@ -1016,7 +1029,7 @@ export default function HomePage() {
 
               <div className="lg:col-span-8 space-y-5">
                 <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
-                  <Sparkles size={13} /> Meet Your Mentor &amp; Coach
+                  <Sparkles size={13} className="animate-pulse" /> Meet Your Mentor &amp; Coach
                 </div>
 
                 <h3 className="text-2xl md:text-4xl font-black text-white leading-tight">
@@ -1040,12 +1053,12 @@ export default function HomePage() {
 
           {/* Real Mentor Recognition Photos Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/40 transition-all">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/50 hover:-translate-y-1.5 transition-all duration-300">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src="/images/mentor/hall-of-fame-award.jpg"
                   alt="Vrajangna Patel Hall of Fame Award"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                 <span className="absolute top-4 left-4 bg-orange-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
@@ -1058,12 +1071,12 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-cyan-500/40 transition-all">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-cyan-500/50 hover:-translate-y-1.5 transition-all duration-300">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src="/images/mentor/diamond-award.jpg"
                   alt="Vrajangna Patel Diamond Awards"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                 <span className="absolute top-4 left-4 bg-cyan-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
@@ -1076,12 +1089,12 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-purple-500/40 transition-all">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-purple-500/50 hover:-translate-y-1.5 transition-all duration-300">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src="/images/mentor/author-feature.jpg"
                   alt="Vrajangna Patel Published Author"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                 <span className="absolute top-4 left-4 bg-purple-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
@@ -1112,7 +1125,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* L0: START */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl">
               <div>
                 <span className="text-[10px] font-black bg-orange-500/10 text-orange-400 border border-orange-500/30 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 0 · START
@@ -1142,7 +1155,7 @@ export default function HomePage() {
             </div>
 
             {/* L1: GROW */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl">
               <div>
                 <span className="text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 1 · GROW
@@ -1172,7 +1185,7 @@ export default function HomePage() {
             </div>
 
             {/* L2: MASTER */}
-            <div className="bg-slate-900/90 border-2 border-orange-500/60 rounded-3xl p-7 flex flex-col justify-between shadow-2xl relative">
+            <div className="bg-slate-900/90 border-2 border-orange-500/70 rounded-3xl p-7 flex flex-col justify-between shadow-2xl relative hover:-translate-y-2 hover:shadow-orange-500/20 transition-all duration-300">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md">
                 Most Popular
               </span>
@@ -1198,14 +1211,14 @@ export default function HomePage() {
               </div>
               <Link
                 href="/webinar"
-                className="mt-8 w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-xs text-center block transition-all shadow-lg"
+                className="mt-8 w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center block transition-all shadow-lg hover:scale-105"
               >
                 Apply for Master
               </Link>
             </div>
 
             {/* L3: CERTIFY */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-cyan-500/50 transition-all shadow-xl">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-cyan-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 shadow-xl">
               <div>
                 <span className="text-[10px] font-black bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 3 · CERTIFY
@@ -1248,7 +1261,7 @@ export default function HomePage() {
             Join my FREE Resin Mastery Masterclass and discover the three essential shifts that can help you move from simply learning Resin Art to confidently building something of your own.
           </p>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl mx-auto text-left mb-10 space-y-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl mx-auto text-left mb-10 space-y-4 shadow-2xl">
             <div className="flex items-start gap-3">
               <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
               <p className="text-sm text-slate-200">Understand what it really takes to develop professional-level resin skills from home.</p>
@@ -1270,7 +1283,7 @@ export default function HomePage() {
             href="/webinar"
             className="px-10 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 inline-flex items-center gap-3 hover:scale-105"
           >
-            <Sparkles size={22} />
+            <Sparkles size={22} className="animate-pulse" />
             Join The Free Masterclass
           </Link>
         </div>
@@ -1280,7 +1293,7 @@ export default function HomePage() {
       <section className="py-24 px-6 relative overflow-hidden z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent pointer-events-none" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/40">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/40 animate-float">
             <Palette size={32} className="text-slate-950 stroke-[2.5]" />
           </div>
 
@@ -1333,13 +1346,13 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/webinar"
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold rounded-xl text-sm transition-all"
+                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold rounded-xl text-sm transition-all hover:scale-105"
               >
                 Join Free Masterclass
               </Link>
               <Link
                 href="/login"
-                className="px-6 py-3 bg-slate-900 border border-slate-800 hover:border-slate-700 text-white font-bold rounded-xl text-sm transition-all"
+                className="px-6 py-3 bg-slate-900 border border-slate-800 hover:border-slate-700 text-white font-bold rounded-xl text-sm transition-all hover:scale-105"
               >
                 Student Portal
               </Link>
