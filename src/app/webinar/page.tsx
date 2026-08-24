@@ -593,15 +593,34 @@ export default function WebinarPage() {
     }, 100);
   };
 
-  const sessionDisplayDate = activeWebinar?.scheduledAt
-    ? new Date(activeWebinar.scheduledAt).toLocaleDateString("en-IN", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "THIS SUNDAY · 8:00 PM IST";
+  const getNextWebinarDate = () => {
+    if (activeWebinar?.scheduledAt) {
+      const d = new Date(activeWebinar.scheduledAt);
+      if (d.getTime() > Date.now()) {
+        return d.toLocaleDateString("en-IN", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+    }
+    const target = new Date();
+    const day = target.getDay();
+    const diff = (7 - day) % 7;
+    target.setDate(target.getDate() + (diff === 0 && target.getHours() >= 20 ? 7 : diff));
+    target.setHours(20, 0, 0, 0);
+    return target.toLocaleDateString("en-IN", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const sessionDisplayDate = getNextWebinarDate();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative font-sans">

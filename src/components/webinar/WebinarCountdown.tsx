@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '@/config/api';
 
 interface WebinarCountdownProps {
@@ -17,45 +17,53 @@ export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCoun
     seconds: 0,
   });
 
-  // Fetch next upcoming webinar if target date not provided
+  const getFallbackDate = () => {
+    const now = new Date();
+    const target = new Date(now);
+    const day = target.getDay();
+    const diff = (7 - day) % 7;
+    target.setDate(now.getDate() + (diff === 0 && now.getHours() >= 20 ? 7 : diff));
+    target.setHours(20, 0, 0, 0);
+    return target.getTime();
+  };
+
+  const fetchNextWebinar = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/webinar/next`);
+      const data = await res.json();
+      if (data.success && data.data?.scheduledAt) {
+        const time = new Date(data.data.scheduledAt).getTime();
+        if (time > Date.now()) {
+          setTargetTimestamp(time);
+          if (onWebinarLoaded) onWebinarLoaded(data.data);
+          return;
+        }
+      }
+      // If DB date is in the past or missing, advance to next upcoming slot
+      const fallback = getFallbackDate();
+      setTargetTimestamp(fallback);
+      if (onWebinarLoaded) {
+        onWebinarLoaded({
+          scheduledAt: new Date(fallback).toISOString(),
+          title: 'Resin Mastery Masterclass — Live with Vrajangna Patel',
+        });
+      }
+    } catch (_) {
+      const fallback = getFallbackDate();
+      setTargetTimestamp(fallback);
+    }
+  }, [onWebinarLoaded]);
+
   useEffect(() => {
     if (targetDateStr) {
-      setTargetTimestamp(new Date(targetDateStr).getTime());
-      return;
-    }
-
-    const fetchNextWebinar = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/webinar/next`);
-        const data = await res.json();
-        if (data.success && data.data?.scheduledAt) {
-          setTargetTimestamp(new Date(data.data.scheduledAt).getTime());
-          if (onWebinarLoaded) {
-            onWebinarLoaded(data.data);
-          }
-        } else {
-          // Fallback: Next Sunday 8 PM
-          const now = new Date();
-          const target = new Date(now);
-          const day = target.getDay();
-          const diff = (7 - day) % 7;
-          target.setDate(now.getDate() + (diff === 0 && now.getHours() >= 20 ? 7 : diff));
-          target.setHours(20, 0, 0, 0);
-          setTargetTimestamp(target.getTime());
-        }
-      } catch (_) {
-        const now = new Date();
-        const target = new Date(now);
-        const day = target.getDay();
-        const diff = (7 - day) % 7;
-        target.setDate(now.getDate() + (diff === 0 && now.getHours() >= 20 ? 7 : diff));
-        target.setHours(20, 0, 0, 0);
-        setTargetTimestamp(target.getTime());
+      const parsed = new Date(targetDateStr).getTime();
+      if (parsed > Date.now()) {
+        setTargetTimestamp(parsed);
+        return;
       }
-    };
-
+    }
     fetchNextWebinar();
-  }, [targetDateStr]);
+  }, [targetDateStr, fetchNextWebinar]);
 
   useEffect(() => {
     if (!targetTimestamp) return;
@@ -71,7 +79,8 @@ export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCoun
         const seconds = Math.floor((difference / 1000) % 60);
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        // If expired right now, auto-fetch the next upcoming webinar
+        fetchNextWebinar();
       }
     };
 
@@ -79,7 +88,7 @@ export const WebinarCountdown = ({ targetDateStr, onWebinarLoaded }: WebinarCoun
     const interval = setInterval(calculate, 1000);
 
     return () => clearInterval(interval);
-  }, [targetTimestamp]);
+  }, [targetTimestamp, fetchNextWebinar]);
 
   return (
     <div className="flex items-center justify-center gap-2 md:gap-3">
