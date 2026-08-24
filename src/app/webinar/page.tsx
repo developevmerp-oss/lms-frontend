@@ -52,7 +52,7 @@ const STAT_COUNTERS = [
 ];
 
 const SOUND_FAMILIAR = {
-  eyebrow: "Sound familiar?",
+  eyebrow: "SOUND FAMILIAR?",
   heading: "If any of this is true right now, this Masterclass is for you",
   subheading: "Most talented artists aren't stuck because they lack ability. They're stuck because nothing is joined up.",
   items: [
@@ -66,50 +66,23 @@ const SOUND_FAMILIAR = {
   turn: "None of that means you're behind. It usually means you're missing one structure — Mastery, Mindset and Monetization together. That's exactly what we cover."
 };
 
-const THREE_SECRETS = {
-  eyebrow: "On the masterclass",
-  heading: "The three secrets we'll unpack together",
-  subheading: "Each one breaks a belief that keeps talented resin artists stuck — and replaces it with something that actually works.",
-  items: [
-    {
-      label: "Secret #1 — Mastery",
-      title: "Learn the right techniques in the right sequence",
-      myth: "Most people believe more tutorials will eventually add up.",
-      truth: "You'll see why random tutorials create confusion, and how structured learning accelerates progress — technique sequencing, premium skill development, a portfolio-building mindset and moving beyond random projects."
-    },
-    {
-      label: "Secret #2 — Mindset",
-      title: "Become confident enough to own your creativity",
-      myth: "Most people believe their work isn't good enough to be seen yet.",
-      truth: "You'll learn how to move past fear of creating, comparison, the \"my work isn't good enough\" loop, fear of showing your work, and confusion about your artistic identity."
-    },
-    {
-      label: "Secret #3 — Monetization",
-      title: "Turn your art into a real opportunity",
-      myth: "Most people believe business skills come much later.",
-      truth: "You'll understand the foundations of product selection, pricing, branding, marketing, customer attraction, community support and a practical business roadmap."
-    }
-  ],
-  cta: "Yes — show me the 3 secrets"
-};
-
 const PHILOSOPHY = {
-  eyebrow: "My philosophy",
+  eyebrow: "MY PHILOSOPHY",
   heading: "Mastery → Mindset → Monetization",
   subheading: "Three steps, in this order. Skip one and the whole journey stalls.",
   steps: [
     {
-      label: "Step 1",
+      label: "STEP 1",
       title: "Master",
       body: "Build premium skills in the right sequence so you know what to learn, practice and create next."
     },
     {
-      label: "Step 2",
+      label: "STEP 2",
       title: "Mindset",
       body: "Build the confidence to create, share, receive feedback and believe your work deserves to be seen."
     },
     {
-      label: "Step 3",
+      label: "STEP 3",
       title: "Monetization",
       body: "Learn how to connect your skills with pricing, branding, marketing and a business model."
     }
@@ -117,8 +90,58 @@ const PHILOSOPHY = {
   closing: "Because skill without confidence stays hidden. Confidence without a business roadmap stays stuck. And business without mastery becomes difficult to sustain."
 };
 
+const THREE_SECRETS = {
+  eyebrow: "ON THE MASTERCLASS",
+  heading: "The three secrets we'll unpack together",
+  subheading: "Each one breaks a belief that keeps talented resin artists stuck — and replaces it with something that actually works.",
+  items: [
+    {
+      label: "SECRET #1 — MASTERY",
+      title: "Learn the right techniques in the right sequence",
+      myth: "Most people believe more tutorials will eventually add up.",
+      truth: "You'll see why random tutorials create confusion, and how structured learning accelerates progress — technique sequencing, premium skill development, a portfolio-building mindset and moving beyond random projects."
+    },
+    {
+      label: "SECRET #2 — MINDSET",
+      title: "Become confident enough to own your creativity",
+      myth: "Most people believe their work isn't good enough to be seen yet.",
+      truth: "You'll learn how to move past fear of creating, comparison, the \"my work isn't good enough\" loop, fear of showing your work, and confusion about your artistic identity."
+    },
+    {
+      label: "SECRET #3 — MONETIZATION",
+      title: "Turn your art into a real opportunity",
+      myth: "Most people believe business skills come much later.",
+      truth: "You'll understand the foundations of product selection, pricing, branding, marketing, customer attraction, community support and a practical business roadmap."
+    }
+  ]
+};
+
+const LIVE_SEATS_BANNER = {
+  heading: "Live seats are limited",
+  body: "Registration closes when the live-seat capacity is reached.",
+  cta: "Yes — show me the 3 secrets"
+};
+
+const THE_SHIFT = {
+  eyebrow: "THE SHIFT",
+  heading: "Stop learning resin the hard way",
+  subheading: "Same passion, completely different result.",
+  beforeHeading: "OLD WAY",
+  afterHeading: "NEW WAY",
+  pairs: [
+    { before: "Jumping between random tutorials", after: "Follow a structured learning sequence" },
+    { before: "Copying what others create", after: "Develop your own signature style" },
+    { before: "Doubting whether your work is good enough", after: "Build confidence through guided mastery" },
+    { before: "Making products without knowing demand", after: "Understand what can actually sell" },
+    { before: "Guessing your prices", after: "Learn the foundations of profitable pricing" },
+    { before: "Posting randomly", after: "Build a recognizable artist identity" },
+    { before: "Waiting for orders", after: "Learn how marketing and positioning create opportunities" },
+    { before: "Trying to do everything alone", after: "Grow with community and support" }
+  ]
+};
+
 const PROOF = {
-  eyebrow: "Proof",
+  eyebrow: "PROOF",
   heading: "You're learning from someone who has been in the arena",
   body: "My journey has been about more than learning resin techniques. It's been about understanding how creativity can become confidence, identity, community and income — and helping other women make that journey with greater clarity.",
   items: [
@@ -131,7 +154,7 @@ const PROOF = {
 };
 
 const RIGHT_FIT = {
-  eyebrow: "Right fit?",
+  eyebrow: "RIGHT FIT?",
   heading: "This Masterclass is for you if…",
   subheading: "Six women walk into this session. You'll recognise yourself in one of them.",
   items: [
@@ -163,7 +186,7 @@ const RIGHT_FIT = {
 };
 
 const HONEST_FIT_CHECK = {
-  eyebrow: "Honest fit check",
+  eyebrow: "HONEST FIT CHECK",
   heading: "Who should attend — and who should skip it",
   subheading: "Being explicit about fit raises show-up rate. I'd rather you spend 90 minutes well than spend them at all.",
   forHeading: "You SHOULD attend if…",
@@ -185,26 +208,8 @@ const HONEST_FIT_CHECK = {
   ]
 };
 
-const THE_SHIFT = {
-  eyebrow: "The shift",
-  heading: "Stop learning resin the hard way",
-  subheading: "Same passion, completely different result.",
-  beforeHeading: "Old way",
-  afterHeading: "New way",
-  pairs: [
-    { before: "Jumping between random tutorials", after: "Follow a structured learning sequence" },
-    { before: "Copying what others create", after: "Develop your own signature style" },
-    { before: "Doubting whether your work is good enough", after: "Build confidence through guided mastery" },
-    { before: "Making products without knowing demand", after: "Understand what can actually sell" },
-    { before: "Guessing your prices", after: "Learn the foundations of profitable pricing" },
-    { before: "Posting randomly", after: "Build a recognizable artist identity" },
-    { before: "Waiting for orders", after: "Learn how marketing and positioning create opportunities" },
-    { before: "Trying to do everything alone", after: "Grow with community and support" }
-  ]
-};
-
 const WHAT_CHANGES = {
-  eyebrow: "What changes",
+  eyebrow: "WHAT CHANGES",
   heading: "Imagine what changes when you put these three secrets together",
   subheading: "This is what women tell me shifts first once mastery, mindset and monetization finally line up.",
   items: [
@@ -236,7 +241,7 @@ const WHAT_CHANGES = {
 };
 
 const CLARITY_KIT = {
-  eyebrow: "Free bonus",
+  eyebrow: "FREE BONUS",
   heading: "Register free & get the Resin Artist Clarity Kit",
   subheading: "Come to the Masterclass ready to turn inspiration into action.",
   items: [
@@ -269,7 +274,7 @@ const CLARITY_KIT = {
 };
 
 const AGENDA = {
-  eyebrow: "Agenda",
+  eyebrow: "AGENDA",
   heading: "How the 90 minutes run",
   subheading: "A simple timeline so you know exactly what you're committing to.",
   items: [
@@ -302,7 +307,7 @@ const AGENDA = {
 };
 
 const MENTOR_SECTION = {
-  eyebrow: "Your mentor",
+  eyebrow: "YOUR MENTOR",
   name: "Vrajangna Patel",
   role: "Resin Art Business Coach • Founder, Ravishing Art Hub",
   bio: [
@@ -459,7 +464,7 @@ export default function WebinarPage() {
     setError("");
 
     if (!form.name || !form.email || !form.phone) {
-      setError("Please provide your Name, Email, and WhatsApp number.");
+      setError("Please enter your name, email address, and WhatsApp number.");
       return;
     }
 
@@ -511,7 +516,7 @@ export default function WebinarPage() {
   const handleUnlockAndScroll = () => {
     setIsUnlocked(true);
     setTimeout(() => {
-      const el = document.getElementById("gate-content");
+      const el = document.getElementById("sound-familiar");
       if (el) {
         el.scrollIntoView({ behavior: "smooth" });
       }
@@ -872,100 +877,46 @@ export default function WebinarPage() {
         {isUnlocked && (
           <div id="gate-content" className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-0">
             
-            {/* SECTION A: SOUND FAMILIAR? */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+            {/* 1. SOUND FAMILIAR? (Screenshots 1 & 2) */}
+            <section id="sound-familiar" className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {SOUND_FAMILIAR.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
                     {SOUND_FAMILIAR.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-slate-400 text-base leading-relaxed">
                     {SOUND_FAMILIAR.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                   {SOUND_FAMILIAR.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                        ✕
-                      </div>
-                      <p className="text-sm text-slate-300 leading-relaxed">{item}</p>
+                    <div key={idx} className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center gap-3">
+                      <span className="text-slate-400 text-sm font-bold">✕</span>
+                      <p className="text-sm text-slate-300">{item}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="bg-slate-900/90 border-l-4 border-orange-500 p-6 rounded-r-2xl text-center max-w-3xl mx-auto">
-                  <p className="text-sm sm:text-base text-slate-200 font-medium leading-relaxed">
+                <div className="text-center max-w-3xl mx-auto pt-4">
+                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
                     {SOUND_FAMILIAR.turn}
                   </p>
                 </div>
               </div>
             </section>
 
-            {/* SECTION B: THE THREE SECRETS */}
+            {/* 2. MY PHILOSOPHY (Screenshot 3) */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
-                    {THREE_SECRETS.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-                    {THREE_SECRETS.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {THREE_SECRETS.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-                  {THREE_SECRETS.items.map((secret, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between shadow-xl">
-                      <div>
-                        <span className="text-xs font-black text-orange-400 uppercase tracking-wider block mb-2">
-                          {secret.label}
-                        </span>
-                        <h3 className="text-xl font-bold text-white mb-4 leading-snug">
-                          {secret.title}
-                        </h3>
-                        
-                        <div className="mb-4 bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
-                          <p className="text-xs font-bold text-red-400 uppercase tracking-wider mb-1">Myth</p>
-                          <p className="text-xs text-slate-400 italic">"{secret.myth}"</p>
-                        </div>
-
-                        <div>
-                          <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Truth</p>
-                          <p className="text-sm text-slate-300 leading-relaxed">{secret.truth}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="text-center">
-                  <button
-                    onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black h-11 rounded-xl px-8 text-sm hover:scale-105 transition-transform cursor-pointer"
-                  >
-                    {THREE_SECRETS.cta}
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION C: PHILOSOPHY */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {PHILOSOPHY.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {PHILOSOPHY.heading}
                   </h2>
                   <p className="text-slate-400 text-base">
@@ -975,27 +926,122 @@ export default function WebinarPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                   {PHILOSOPHY.steps.map((step, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <span className="text-xs font-black text-orange-400 uppercase tracking-widest block mb-1">
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-3">
                         {step.label}
                       </span>
-                      <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                      <p className="text-sm text-slate-300 leading-relaxed">{step.body}</p>
+                      <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                      <p className="text-sm text-slate-400 leading-relaxed">{step.body}</p>
                     </div>
                   ))}
                 </div>
 
-                <p className="text-center text-slate-400 text-sm max-w-2xl mx-auto italic">
-                  "{PHILOSOPHY.closing}"
+                <p className="text-center text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
+                  {PHILOSOPHY.closing}
                 </p>
               </div>
             </section>
 
-            {/* SECTION D: PROOF */}
+            {/* 3. ON THE MASTERCLASS: THE THREE SECRETS (Screenshot 4) */}
+            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+              <div className="mx-auto max-w-6xl">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    {THREE_SECRETS.eyebrow}
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    {THREE_SECRETS.heading}
+                  </h2>
+                  <p className="text-slate-400 text-base">
+                    {THREE_SECRETS.subheading}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                  {THREE_SECRETS.items.map((secret, idx) => (
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+                      <div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">
+                          {secret.label}
+                        </span>
+                        <h3 className="text-lg font-bold text-white mb-4 leading-snug">
+                          {secret.title}
+                        </h3>
+                        
+                        <p className="text-xs text-slate-400 italic mb-4 leading-relaxed">
+                          {secret.myth}
+                        </p>
+
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                          {secret.truth}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 4. LIVE SEATS ARE LIMITED BANNER (Screenshot 5) */}
+                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{LIVE_SEATS_BANNER.heading}</h3>
+                    <p className="text-sm text-slate-400 mt-1">{LIVE_SEATS_BANNER.body}</p>
+                  </div>
+                  <button
+                    onClick={scrollToRegister}
+                    className="inline-flex items-center justify-center gap-2 bg-slate-950 border border-slate-700 hover:border-orange-500 text-white font-medium text-xs sm:text-sm h-10 rounded-lg px-6 transition-all hover:scale-105 cursor-pointer shrink-0"
+                  >
+                    {LIVE_SEATS_BANNER.cta}
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* 5. THE SHIFT (Screenshot 5) */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
+                <div className="text-center max-w-3xl mx-auto mb-14">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    {THE_SHIFT.eyebrow}
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    {THE_SHIFT.heading}
+                  </h2>
+                  <p className="text-slate-400 text-base">
+                    {THE_SHIFT.subheading}
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm border-collapse rounded-2xl overflow-hidden border border-slate-800">
+                    <thead>
+                      <tr className="border-b border-slate-800 bg-slate-900">
+                        <th className="p-4 font-bold text-slate-400 uppercase text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
+                        <th className="p-4 font-bold text-slate-200 uppercase text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/80 bg-slate-900/60">
+                      {THE_SHIFT.pairs.map((pair, idx) => (
+                        <tr key={idx}>
+                          <td className="p-4 text-slate-400">
+                            {pair.before}
+                          </td>
+                          <td className="p-4 text-slate-200 font-medium">
+                            {pair.after}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            {/* 6. PROOF */}
+            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+              <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {PROOF.eyebrow}
                   </span>
                   <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -1009,22 +1055,22 @@ export default function WebinarPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {PROOF.items.map((item, idx) => (
                     <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center">
-                      <p className="text-2xl font-black text-orange-400 mb-1">{item.value}</p>
-                      <p className="text-xs text-slate-300 font-medium">{item.label}</p>
+                      <p className="text-2xl font-bold text-white mb-1">{item.value}</p>
+                      <p className="text-xs text-slate-400 font-medium">{item.label}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* SECTION E: RIGHT FIT? */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+            {/* 7. RIGHT FIT? */}
+            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-6xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {RIGHT_FIT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {RIGHT_FIT.heading}
                   </h2>
                   <p className="text-slate-400 text-base">
@@ -1034,23 +1080,23 @@ export default function WebinarPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {RIGHT_FIT.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-orange-500/40 transition-all">
-                      <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{item.body}</p>
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* SECTION F: HONEST FIT CHECK */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
+            {/* 8. HONEST FIT CHECK */}
+            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {HONEST_FIT_CHECK.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {HONEST_FIT_CHECK.heading}
                   </h2>
                   <p className="text-slate-400 text-sm sm:text-base">
@@ -1059,9 +1105,9 @@ export default function WebinarPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-slate-900 border-2 border-emerald-500/40 rounded-3xl p-7 shadow-xl">
-                    <h3 className="text-lg font-black text-emerald-400 mb-4 flex items-center gap-2">
-                      <CheckCircle2 size={20} /> {HONEST_FIT_CHECK.forHeading}
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7">
+                    <h3 className="text-base font-bold text-white mb-4">
+                      {HONEST_FIT_CHECK.forHeading}
                     </h3>
                     <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
                       {HONEST_FIT_CHECK.forItems.map((it, idx) => (
@@ -1073,9 +1119,9 @@ export default function WebinarPage() {
                     </ul>
                   </div>
 
-                  <div className="bg-slate-900 border-2 border-red-500/40 rounded-3xl p-7 shadow-xl">
-                    <h3 className="text-lg font-black text-red-400 mb-4 flex items-center gap-2">
-                      <X size={20} /> {HONEST_FIT_CHECK.notForHeading}
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7">
+                    <h3 className="text-base font-bold text-white mb-4">
+                      {HONEST_FIT_CHECK.notForHeading}
                     </h3>
                     <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
                       {HONEST_FIT_CHECK.notForItems.map((it, idx) => (
@@ -1090,54 +1136,14 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* SECTION G: THE SHIFT */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
-                    {THE_SHIFT.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-                    {THE_SHIFT.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {THE_SHIFT.subheading}
-                  </p>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse rounded-2xl overflow-hidden border border-slate-800">
-                    <thead>
-                      <tr className="border-b border-slate-800 bg-slate-900">
-                        <th className="p-4 font-bold text-red-400 uppercase text-xs">{THE_SHIFT.beforeHeading}</th>
-                        <th className="p-4 font-bold text-emerald-400 uppercase text-xs">{THE_SHIFT.afterHeading}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/80 bg-slate-900/40">
-                      {THE_SHIFT.pairs.map((pair, idx) => (
-                        <tr key={idx}>
-                          <td className="p-4 text-slate-400 flex items-start gap-2">
-                            <span className="text-red-400 font-bold">✕</span> {pair.before}
-                          </td>
-                          <td className="p-4 text-white font-medium">
-                            <span className="text-emerald-400 font-bold mr-2">✓</span> {pair.after}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION H: WHAT CHANGES */}
+            {/* 9. WHAT CHANGES */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-6xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {WHAT_CHANGES.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {WHAT_CHANGES.heading}
                   </h2>
                   <p className="text-slate-400 text-sm sm:text-base">
@@ -1148,22 +1154,22 @@ export default function WebinarPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {WHAT_CHANGES.items.map((item, idx) => (
                     <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-lg font-bold text-orange-400 mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{item.body}</p>
+                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* SECTION I: CLARITY KIT BONUS */}
+            {/* 10. CLARITY KIT BONUS */}
             <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-6xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {CLARITY_KIT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {CLARITY_KIT.heading}
                   </h2>
                   <p className="text-slate-400 text-base">
@@ -1174,7 +1180,6 @@ export default function WebinarPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                   {CLARITY_KIT.items.map((item, idx) => (
                     <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <Gift size={20} className="text-orange-400 mb-3" />
                       <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
                       <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
                     </div>
@@ -1184,23 +1189,23 @@ export default function WebinarPage() {
                 <div className="text-center">
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black h-11 rounded-xl px-8 text-sm hover:scale-105 transition-transform cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
                   >
                     {CLARITY_KIT.cta}
-                    <ArrowRight size={15} />
+                    <ArrowRight size={14} />
                   </button>
                 </div>
               </div>
             </section>
 
-            {/* SECTION J: AGENDA */}
+            {/* 11. AGENDA */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
                     {AGENDA.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                     {AGENDA.heading}
                   </h2>
                   <p className="text-slate-400 text-base">
@@ -1210,13 +1215,13 @@ export default function WebinarPage() {
 
                 <div className="space-y-4 max-w-3xl mx-auto">
                   {AGENDA.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <span className="bg-orange-500/10 text-orange-400 border border-orange-500/30 text-xs font-mono font-bold px-3 py-1.5 rounded-lg shrink-0">
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      <span className="text-slate-400 font-mono text-xs font-bold shrink-0">
                         {item.time}
                       </span>
                       <div>
-                        <h3 className="font-bold text-white text-base">{item.title}</h3>
-                        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">{item.body}</p>
+                        <h3 className="font-bold text-white text-sm">{item.title}</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">{item.body}</p>
                       </div>
                     </div>
                   ))}
@@ -1224,32 +1229,32 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* SECTION K: YOUR MENTOR */}
+            {/* 12. YOUR MENTOR */}
             <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-5xl">
-                <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl">
+                <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-sm">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div className="lg:col-span-4 text-center">
-                      <div className="w-48 h-48 mx-auto rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl mb-4">
+                      <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden border border-slate-800 mb-4">
                         <img
                           src="/images/mentor/vrajangna-portrait.jpg"
                           alt="Vrajangna Patel"
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <h3 className="text-xl font-bold text-white">{MENTOR_SECTION.name}</h3>
-                      <p className="text-xs text-orange-400 font-semibold mt-1">{MENTOR_SECTION.role}</p>
+                      <h3 className="text-lg font-bold text-white">{MENTOR_SECTION.name}</h3>
+                      <p className="text-xs text-slate-400 mt-1">{MENTOR_SECTION.role}</p>
                     </div>
 
                     <div className="lg:col-span-8 space-y-4">
-                      <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300">
+                      <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300">
                         {MENTOR_SECTION.eyebrow}
                       </span>
                       <h3 className="text-2xl font-bold text-white">{MENTOR_SECTION.name}</h3>
                       {MENTOR_SECTION.bio.map((p, idx) => (
                         <p key={idx} className="text-sm text-slate-300 leading-relaxed">{p}</p>
                       ))}
-                      <blockquote className="border-l-2 border-orange-500 pl-3 text-sm italic text-orange-300">
+                      <blockquote className="border-l-2 border-slate-700 pl-3 text-sm italic text-slate-300">
                         "{MENTOR_SECTION.quote}"
                       </blockquote>
                       <div className="flex flex-wrap gap-2 pt-2">
@@ -1265,12 +1270,12 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* SECTION L: EXACT FREQUENTLY ASKED QUESTIONS */}
+            {/* 13. EXACT FREQUENTLY ASKED QUESTIONS */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-4xl">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs font-medium uppercase tracking-widest text-slate-300 mb-3">
-                    Questions
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    QUESTIONS
                   </span>
                   <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently asked</h2>
                 </div>
@@ -1279,17 +1284,17 @@ export default function WebinarPage() {
                   {EXACT_FAQS.map((faq, idx) => (
                     <div
                       key={idx}
-                      className="border border-slate-800 rounded-2xl bg-slate-900/90 overflow-hidden transition-all"
+                      className="border border-slate-800 rounded-xl bg-slate-900 overflow-hidden transition-all"
                     >
                       <button
                         onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                        className="w-full p-5 text-left font-semibold text-white text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer hover:text-orange-400 transition-colors"
+                        className="w-full p-4 text-left font-medium text-white text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer hover:text-orange-400 transition-colors"
                       >
                         <span>{faq.q}</span>
                         {openFaq === idx ? <ChevronUp size={18} className="text-orange-400 shrink-0" /> : <ChevronDown size={18} className="text-slate-400 shrink-0" />}
                       </button>
                       {openFaq === idx && (
-                        <div className="px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
+                        <div className="px-4 pb-4 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/60 pt-3">
                           {faq.a}
                         </div>
                       )}
