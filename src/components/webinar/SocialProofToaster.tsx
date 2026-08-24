@@ -1,87 +1,86 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 
+const DEFAULT_ENTRIES = [
+  { name: 'Priya', location: 'Ahmedabad', when: '2 minutes ago' },
+  { name: 'Meera', location: 'Pune', when: '6 minutes ago' },
+  { name: 'Sneha', location: 'Bengaluru', when: '11 minutes ago' },
+  { name: 'Ritu', location: 'Delhi', when: '17 minutes ago' },
+  { name: 'Kavya', location: 'Hyderabad', when: '24 minutes ago' },
+];
+
 export const SocialProofToaster = () => {
-  const [registrations, setRegistrations] = useState<any[]>([]);
+  const [entries, setEntries] = useState<any[]>(DEFAULT_ENTRIES);
   const [current, setCurrent] = useState<any>(null);
   const [visible, setVisible] = useState(false);
 
-  // Fetch real registrations dynamically from database
   useEffect(() => {
     const fetchRegistrations = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/webinar/recent-registrations`);
         const data = await res.json();
         if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          setRegistrations(data.data);
-        } else {
-          setRegistrations([]);
+          setEntries(data.data.map((r: any) => ({
+            name: r.name,
+            location: r.city,
+            when: r.time,
+          })));
         }
-      } catch (_) {
-        setRegistrations([]);
-      }
+      } catch (_) {}
     };
 
     fetchRegistrations();
   }, []);
 
   useEffect(() => {
-    if (!registrations || registrations.length === 0) return;
-
     let index = 0;
 
     const showNext = () => {
-      if (!registrations || registrations.length === 0) return;
-      setCurrent(registrations[index % registrations.length]);
+      if (!entries || entries.length === 0) return;
+      setCurrent(entries[index % entries.length]);
       setVisible(true);
       index++;
 
-      // Hide after 5.5 seconds
       setTimeout(() => {
         setVisible(false);
-      }, 5500);
+      }, 5000);
     };
 
-    // Initial popup after 2 seconds
-    const initialTimer = setTimeout(showNext, 2000);
-
-    // Repeat every 10 seconds
-    const interval = setInterval(showNext, 10000);
+    const initialTimer = setTimeout(showNext, 8000);
+    const interval = setInterval(showNext, 18000);
 
     return () => {
       clearTimeout(initialTimer);
       clearInterval(interval);
     };
-  }, [registrations]);
+  }, [entries]);
 
-  if (!current || !visible || registrations.length === 0) return null;
-
-  const initial = (current.name || 'A').charAt(0).toUpperCase();
+  if (!current || !visible) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-[999] max-w-sm animate-in fade-in slide-in-from-bottom-5 duration-500">
-      <div className="flex items-center gap-3 bg-slate-950/95 border border-orange-500/40 rounded-2xl p-3 px-4 shadow-2xl shadow-black/80 backdrop-blur-xl">
-        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center font-black text-slate-950 text-sm shrink-0 shadow-md">
-          {initial}
-        </div>
-        <div className="flex-1 min-w-0 pr-1">
-          <p className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap leading-tight">
-            <span>{current.name}</span>
-            {current.city && (
-              <span className="bg-orange-600/90 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
-                from {current.city}
-              </span>
-            )}
-          </p>
-          <p className="text-[11px] text-orange-400 font-medium flex items-center gap-1 mt-1">
-            <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
-            <span>Reserved free seat · {current.time}</span>
-          </p>
-        </div>
+    <div className="fixed bottom-20 left-4 z-40 hidden max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-300 items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 pr-8 shadow-lg text-slate-900 sm:flex">
+      <div className="mt-0.5 size-4 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
+        <Check size={10} />
       </div>
+      <div className="text-xs leading-relaxed">
+        <p className="font-semibold text-slate-900">
+          {current.name} from {current.location || 'India'}
+        </p>
+        <p className="text-slate-500 text-[11px]">
+          Registered {current.when}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => setVisible(false)}
+        aria-label="Dismiss notification"
+        className="absolute right-2 top-2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+      >
+        <X size={14} />
+      </button>
     </div>
   );
 };
