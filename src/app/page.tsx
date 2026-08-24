@@ -31,10 +31,14 @@ import {
   Zap,
   MessageCircle,
   Briefcase,
-  Globe
+  Globe,
+  ChevronRight,
+  Lightbulb,
+  DollarSign,
+  AlertCircle
 } from "lucide-react";
 
-// Student Artworks for the Exhibition Marquee
+// Student Artworks for Exhibition Showcase
 const ARTWORKS_ROW_1 = [
   {
     title: "Caribbean Ocean Wave Board",
@@ -68,241 +72,254 @@ const ARTWORKS_ROW_1 = [
   },
   {
     title: "Celestial Moon Phase Mirror",
-    artist: "Ritu M.",
-    type: "Holographic Mica Effects",
-    level: "Silver Member",
-    price: "₹6,200 Sold",
-    gradient: "from-blue-700 via-violet-900 to-slate-950",
-    accent: "text-blue-300",
-    badge: "Wall Art"
-  },
-  {
-    title: "Rose Quartz Jaimala Preservation",
-    artist: "Kavita D.",
-    type: "Floral Memory Block",
+    artist: "Tanvi R.",
+    type: "Pigment Layering",
     level: "Gold Member",
-    price: "₹18,000 Sold",
-    gradient: "from-rose-600 via-pink-800 to-purple-950",
-    accent: "text-pink-300",
-    badge: "Preservation"
+    price: "₹11,200 Sold",
+    gradient: "from-slate-700 via-indigo-950 to-black",
+    accent: "text-indigo-300",
+    badge: "Home Decor"
   }
 ];
 
 const ARTWORKS_ROW_2 = [
   {
-    title: "Obsidian & Gold Flake Geode Set",
-    artist: "Vikram R.",
-    type: "Crushed Fire Glass & Pigment",
-    level: "Silver Member",
-    price: "₹9,500 Sold",
-    gradient: "from-amber-600 via-orange-800 to-stone-950",
-    accent: "text-amber-300",
-    badge: "Coaster Suite"
+    title: "Preserved Bridal Jaimala Block",
+    artist: "Ritu M.",
+    type: "Crystal Floral Preservation",
+    level: "Diamond Club",
+    price: "₹22,000 Sold",
+    gradient: "from-rose-600 via-pink-800 to-slate-900",
+    accent: "text-rose-300",
+    badge: "Preservation"
   },
   {
-    title: "Santorini Coast Wall Canvas (3ft)",
-    artist: "Ananya B.",
-    type: "Multi-Layer Deep Cell Ocean",
+    title: "Maldives Shore Coffee Table",
+    artist: "Vikram P.",
+    type: "3-Tier Resin Wave Pour",
     level: "Diamond Club",
-    price: "₹34,000 Sold",
+    price: "₹42,000 Sold",
     gradient: "from-sky-500 via-blue-700 to-indigo-950",
     accent: "text-sky-300",
-    badge: "Statement Piece"
+    badge: "Furniture"
   },
   {
-    title: "Kintsugi Gold Cracked Marble Platter",
-    artist: "Suresh P.",
-    type: "Japanese Epoxy Repair Style",
-    level: "Gold Member",
-    price: "₹11,200 Sold",
-    gradient: "from-slate-700 via-amber-800 to-stone-900",
-    accent: "text-amber-200",
-    badge: "Luxe Decor"
-  },
-  {
-    title: "Nebula Galaxy Roman Numeral Clock",
-    artist: "Deepika T.",
-    type: "Color Shift & Mirror Gold Rim",
+    title: "Rose Quartz Resin Tray Set",
+    artist: "Ananya D.",
+    type: "Metallic Edge Accents",
     level: "Silver Member",
-    price: "₹12,800 Sold",
-    gradient: "from-fuchsia-700 via-purple-900 to-slate-950",
-    accent: "text-fuchsia-300",
-    badge: "Timepiece"
+    price: "₹6,500 Sold",
+    gradient: "from-pink-600 via-amber-800 to-slate-950",
+    accent: "text-pink-300",
+    badge: "Tableware"
   },
   {
-    title: "Botanical Gold Leaf Coaster Guild",
-    artist: "Meera J.",
-    type: "Encapsulated Flora & Foil",
-    level: "Bronze Artist",
-    price: "₹4,800 Sold",
-    gradient: "from-yellow-600 via-amber-700 to-stone-900",
-    accent: "text-yellow-200",
-    badge: "Guild Set"
+    title: "Midnight Nebula Wall Canvas",
+    artist: "Sonia G.",
+    type: "Multi-Pigment Fluid Pour",
+    level: "Gold Member",
+    price: "₹18,000 Sold",
+    gradient: "from-violet-600 via-fuchsia-900 to-slate-950",
+    accent: "text-violet-300",
+    badge: "Fine Art"
   }
 ];
 
-// 6 Dimensions of Success Data
-const SIX_DIMENSIONS = [
+// Verified Google Play Reviews
+const VERIFIED_REVIEWS = [
   {
-    icon: Palette,
-    title: "Skill",
-    description: "How confidently and consistently you can create quality Resin Art.",
-    color: "from-orange-500/20 to-amber-500/10",
-    border: "hover:border-orange-500/50",
-    badge: "Mastery"
+    name: "Krupali Shah",
+    date: "18 Feb 2023",
+    rating: 5,
+    tag: "Verified Student",
+    comment:
+      "Easy to access, easy to connect and best part always support is there so you never feel stuck anywhere. The best part is all course introductions are open for all to know the course details and see our mentor too 👍",
+    avatarBg: "from-teal-500 to-cyan-500"
   },
   {
-    icon: Sparkles,
-    title: "Creativity",
-    description: "How effectively you experiment, innovate and develop your own artistic expression.",
-    color: "from-purple-500/20 to-pink-500/10",
-    border: "hover:border-purple-500/50",
-    badge: "Innovation"
+    name: "Sonal",
+    date: "21 May 2024",
+    rating: 5,
+    tag: "Verified Student",
+    comment:
+      "Ravishing Art is a wonderful app to learn resin art. It has different courses and easy steps in video form. Vrajangna miss encourages us to try new thoughts and designs. Very much helpful for art lovers. Very happy to join Ravishing Art!",
+    avatarBg: "from-orange-500 to-amber-500"
   },
   {
-    icon: Crown,
-    title: "Identity",
-    description: "How clearly you develop your personal style, portfolio and recognition as an artist.",
-    color: "from-cyan-500/20 to-blue-500/10",
-    border: "hover:border-cyan-500/50",
-    badge: "Signature"
+    name: "Drashti Gosai",
+    date: "19 Oct 2023",
+    rating: 5,
+    tag: "Verified Student",
+    comment:
+      "Absolutely love this app. The user-friendly interface makes it easy to experiment with different techniques. I also appreciate Vrajangna mam for being a motivational figure in my art journey.",
+    avatarBg: "from-purple-500 to-pink-500"
   },
   {
-    icon: Briefcase,
-    title: "Business",
-    description: "How effectively you turn your skill and creations into products, customers and opportunities.",
-    color: "from-emerald-500/20 to-teal-500/10",
-    border: "hover:border-emerald-500/50",
-    badge: "Monetization"
+    name: "Hina Bhardwaj",
+    date: "19 Oct 2023",
+    rating: 5,
+    tag: "Verified Student",
+    comment:
+      "I first saw Vrajangna Ma'am on an Instagram Live. The way she explained resin art — whether the learner is from a well-to-do family or a simple housewife, anyone can learn with minimum investment. One day she shared a reel about the courses and I immediately enrolled myself. My learning started a new journey.",
+    avatarBg: "from-slate-600 to-slate-400"
   },
   {
-    icon: Globe,
-    title: "Impact",
-    description: "How your knowledge, creations and journey create value for customers and inspire others.",
-    color: "from-amber-500/20 to-yellow-500/10",
-    border: "hover:border-amber-500/50",
-    badge: "Inspiration"
+    name: "Manisha Dedhia",
+    date: "3 Jun 2025",
+    rating: 5,
+    tag: "Verified Student",
+    comment:
+      "Amazing experience with Vrajangana ma'am for teaching resin art. Her videos are very easy to understand for a newcomer like me. Within a month I got confidence to make different resin items. Thanks a lot ma'am for your guidance. Thank you!",
+    avatarBg: "from-emerald-500 to-teal-500"
   },
   {
-    icon: Heart,
-    title: "Personal Growth",
-    description: "How much you grow in confidence, discipline, leadership and belief in yourself.",
-    color: "from-rose-500/20 to-pink-500/10",
-    border: "hover:border-rose-500/50",
-    badge: "Confidence"
-  }
-];
-
-// FAQs Data
-const FAQS = [
-  {
-    q: "Do I need prior painting or art experience to start?",
-    a: "Not at all! Over 80% of our successful students started with zero background in art. Our structured curriculum breaks down resin chemistry, safety, viscosity, and color pouring step-by-step."
-  },
-  {
-    q: "What materials do I need to get started?",
-    a: "In the Level 0 Fast Track, we guide you on exact beginner kits, mixing ratios (2:1 & 3:1), silicone molds, pigments, and safety masks so you avoid costly material wastage."
-  },
-  {
-    q: "How does the gamified LMS with XP and badges work?",
-    a: "Every time you complete video modules, finish daily missions, or submit your poured artwork for mentor critique, you earn XP points, build daily streaks, and unlock official level certifications."
-  },
-  {
-    q: "Can I truly turn this into a profitable business from home?",
-    a: "Yes! Resin decor like luxury clocks (₹5,000–₹15,000), wedding flower preservations (₹8,000–₹25,000), and ocean tables (₹20,000–₹80,000) command strong luxury margins across India."
+    name: "Tamanna Bhanushali",
+    date: "15 Apr 2024",
+    rating: 5,
+    tag: "Verified Student",
+    comment:
+      "Learning is very easy with this app. Someone is always available for solving queries. Boosted my confidence by giving tasks and helping to complete them. Best resin art learning platform!",
+    avatarBg: "from-rose-500 to-pink-500"
   }
 ];
 
 export default function HomePage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeDimension, setActiveDimension] = useState(0);
+
+  const sixDimensions = [
+    {
+      title: "Skill",
+      icon: Brush,
+      color: "from-orange-500 to-amber-500",
+      border: "border-orange-500/40",
+      desc: "How confidently and consistently you can create quality Resin Art."
+    },
+    {
+      title: "Creativity",
+      icon: Palette,
+      color: "from-purple-500 to-pink-500",
+      border: "border-purple-500/40",
+      desc: "How effectively you experiment, innovate and develop your own artistic expression."
+    },
+    {
+      title: "Identity",
+      icon: Crown,
+      color: "from-cyan-500 to-blue-500",
+      border: "border-cyan-500/40",
+      desc: "How clearly you develop your personal style, portfolio and recognition as an artist."
+    },
+    {
+      title: "Business",
+      icon: Briefcase,
+      color: "from-emerald-500 to-teal-500",
+      border: "border-emerald-500/40",
+      desc: "How effectively you turn your skill and creations into products, customers and opportunities."
+    },
+    {
+      title: "Impact",
+      icon: Globe,
+      color: "from-rose-500 to-red-500",
+      border: "border-rose-500/40",
+      desc: "How your knowledge, creations and journey create value for customers and inspire others."
+    },
+    {
+      title: "Personal Growth",
+      icon: Sparkles,
+      color: "from-amber-400 to-yellow-500",
+      border: "border-amber-400/40",
+      desc: "How much you grow in confidence, discipline, leadership and belief in yourself."
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-slate-950 font-sans overflow-x-hidden">
-
-      {/* ─── LUXURY BACKGROUND GLOW ACCENTS ─── */}
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-slate-950 relative overflow-hidden font-sans">
+      {/* Dynamic Ambient Background Elements */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-orange-600/15 via-amber-600/5 to-transparent blur-[140px]" />
-        <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 blur-[150px]" />
-        <div className="absolute top-[65%] left-[-10%] w-[600px] h-[600px] bg-cyan-600/10 blur-[150px]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-orange-600/15 via-amber-600/10 to-transparent blur-[120px] rounded-full" />
+        <div className="absolute top-[30%] -left-40 w-[600px] h-[600px] bg-purple-600/10 blur-[140px] rounded-full" />
+        <div className="absolute top-[65%] -right-40 w-[600px] h-[600px] bg-orange-600/10 blur-[140px] rounded-full" />
       </div>
 
       {/* ─── NAVIGATION BAR ─── */}
-      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-4 transition-all">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
+      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 transition-all">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
             <BrandLogo size="md" />
+            <div>
+              <span className="text-xl font-black tracking-tight text-white block leading-none">
+                RAVISHING<span className="text-orange-400">.ART</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block mt-0.5">
+                Academy &amp; Business Hub
+              </span>
+            </div>
+          </Link>
+
+          <div className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300">
+            <a href="#problem" className="hover:text-orange-400 transition-colors">The Journey</a>
+            <a href="#path" className="hover:text-orange-400 transition-colors">The Path</a>
+            <a href="#curriculum" className="hover:text-orange-400 transition-colors">What You'll Learn</a>
+            <a href="#dimensions" className="hover:text-orange-400 transition-colors">6 Dimensions</a>
+            <a href="#community" className="hover:text-orange-400 transition-colors">Community</a>
+            <a href="#mentor" className="hover:text-orange-400 transition-colors">Meet Mentor</a>
+            <a href="#membership" className="hover:text-orange-400 transition-colors">Memberships</a>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="#problem" className="hover:text-orange-400 transition-colors">The Problem</Link>
-            <Link href="#reframe" className="hover:text-orange-400 transition-colors">The Reframe</Link>
-            <Link href="#learn" className="hover:text-orange-400 transition-colors">Curriculum</Link>
-            <Link href="#dimensions" className="hover:text-orange-400 transition-colors">6 Dimensions</Link>
-            <Link href="#mentor" className="hover:text-orange-400 transition-colors">About Vrajangna</Link>
-            <Link href="#reviews" className="hover:text-orange-400 transition-colors">Reviews</Link>
-            <Link href="#journey" className="hover:text-orange-400 transition-colors">Membership</Link>
-          </div>
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="text-xs md:text-sm font-bold text-slate-300 hover:text-white px-4 py-2 rounded-xl transition-all"
+              className="text-sm font-bold text-slate-300 hover:text-white transition-colors px-4 py-2"
             >
               Sign In
             </Link>
             <Link
               href="/webinar"
-              className="text-xs md:text-sm font-black bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 transition-all flex items-center gap-1.5"
+              className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2"
             >
-              Free Masterclass <ArrowRight size={14} />
+              Free Masterclass <ArrowRight size={15} />
             </Link>
           </div>
         </div>
       </nav>
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
-      <section className="relative pt-20 pb-16 px-6 z-10">
+      <section className="relative pt-16 pb-20 px-6 z-10">
         <div className="max-w-6xl mx-auto text-center">
 
-          {/* Social Proof Badge */}
-          <div className="inline-flex items-center gap-2.5 bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-full mb-8 backdrop-blur-md shadow-inner">
+          {/* Tagline Pill */}
+          <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-full mb-8 backdrop-blur-md shadow-inner">
             <Sparkles size={14} className="text-orange-400 animate-pulse" />
-            <span>India's #1 Resin Art &amp; Creative Business Hub</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-            <span className="text-slate-300 font-semibold">52K+ Students</span>
+            <span>Join a community of women transforming creativity into freedom</span>
           </div>
 
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.12] mb-8">
+          {/* Hero Headline */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.1] mb-6">
             Turn Your Resin Art Passion Into{" "}
-            <span className="shimmer-text">Skill, Identity &amp; Financial Freedom</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">
+              Skill, Identity &amp; Financial Freedom.
+            </span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-6 leading-relaxed font-normal">
+          {/* Hero Subtitle */}
+          <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed font-normal">
             You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
           </p>
 
-          {/* Core Pillars Banner */}
-          <div className="inline-flex flex-wrap justify-center items-center gap-2 md:gap-4 text-xs md:text-sm font-bold text-orange-300 bg-slate-900/90 border border-orange-500/30 rounded-2xl px-6 py-3 mb-8 shadow-xl">
-            <span>Learn Resin Art</span>
-            <span className="text-slate-600">•</span>
-            <span>Build Your Signature Style</span>
-            <span className="text-slate-600">•</span>
-            <span>Create Your Identity</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-emerald-400">Build Your Income</span>
+          {/* Value Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-10 max-w-3xl mx-auto">
+            {["Learn Resin Art", "Build Your Signature Style", "Create Your Identity", "Build Your Income"].map((pill, idx) => (
+              <div key={idx} className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-bold text-slate-200">
+                <CheckCircle2 size={13} className="text-orange-400" />
+                {pill}
+              </div>
+            ))}
           </div>
 
-          <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-10">
-            Join a community of women who are transforming their creativity into something much bigger than a hobby.
-          </p>
-
-          {/* Call to Actions */}
+          {/* Hero CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <Link
               href="/webinar"
-              className="px-9 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 w-full sm:w-auto justify-center hover:scale-[1.02]"
+              className="px-9 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 w-full sm:w-auto justify-center hover:scale-105"
             >
               <Sparkles size={20} />
               Start My Resin Journey
@@ -316,7 +333,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* ─── HERO VIDEO SHOWCASE (Canva Presentation Video) ─── */}
+          {/* Canva Video Presentation Showcase */}
           <div className="max-w-5xl mx-auto mb-16 relative rounded-3xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 bg-slate-950 aspect-video">
             <iframe
               loading="lazy"
@@ -324,18 +341,18 @@ export default function HomePage() {
               allow="fullscreen; autoplay; clipboard-write"
               allowFullScreen
               className="w-full h-full border-0 absolute inset-0 rounded-3xl"
-              title="Ravishing Art Resin Masterclass Studio Preview"
+              title="Ravishing Art Resin Masterclass Canva Video"
             />
           </div>
 
-          {/* Quick Studio Authority Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 border-t border-slate-800/80">
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-800/80">
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300 mb-1">52,000+</p>
+              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300 mb-1">52K+</p>
               <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Students Taught</p>
             </div>
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300 mb-1">8,000+</p>
+              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300 mb-1">8K+</p>
               <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Orders Completed</p>
             </div>
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
@@ -343,8 +360,8 @@ export default function HomePage() {
               <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Google Play Rating</p>
             </div>
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md">
-              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 mb-1">₹1Cr+</p>
-              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Student Revenue</p>
+              <p className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 mb-1">1140+</p>
+              <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Community</p>
             </div>
           </div>
 
@@ -352,11 +369,11 @@ export default function HomePage() {
       </section>
 
       {/* ─── SECTION 2: THE REAL PROBLEM ─── */}
-      <section id="problem" className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Real Challenge</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+      <section id="problem" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-red-400 text-xs font-black uppercase tracking-widest block mb-2">The Real Challenge</span>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               Beautiful Art Alone Doesn't Build a Business.
             </h2>
             <p className="text-slate-300 text-base md:text-lg leading-relaxed">
@@ -364,217 +381,197 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 space-y-3 hover:border-red-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 font-bold text-lg mb-2">
-                1
-              </div>
-              <h3 className="text-xl font-bold text-white">Technique &amp; Product Confusion</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                You may still be wondering what to learn next, which techniques to master, and what exact products to create to stand out in the market.
-              </p>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl space-y-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <AlertCircle className="text-amber-400" size={22} />
+              You may still be wondering:
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                "What to learn next & which techniques to master",
+                "What exact products to create for maximum demand",
+                "How to develop your own signature recognizable style",
+                "How to showcase your artwork with confidence",
+                "How to get consistent, high-paying orders",
+                "How to turn your creative skill into predictable income"
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4">
+                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-xs font-bold shrink-0 mt-0.5">
+                    ?
+                  </div>
+                  <p className="text-sm text-slate-300 leading-snug">{item}</p>
+                </div>
+              ))}
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 space-y-3 hover:border-orange-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 font-bold text-lg mb-2">
-                2
-              </div>
-              <h3 className="text-xl font-bold text-white">Developing Your Own Style</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Stuck copying Pinterest and Instagram reels instead of building a signature aesthetic and brand identity that clients recognize instantly.
+            <div className="mt-8 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border-l-4 border-orange-500 rounded-r-2xl p-6">
+              <p className="text-base md:text-lg font-bold text-white leading-relaxed">
+                The problem isn't your talent. <span className="text-orange-400">The problem is that nobody gave you a clear path.</span>
               </p>
             </div>
-
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 space-y-3 hover:border-amber-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-lg mb-2">
-                3
-              </div>
-              <h3 className="text-xl font-bold text-white">Showcasing &amp; Inconsistent Orders</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                You know your creations have real value, but you lack a predictable system to showcase your work and attract consistent, paying clients.
-              </p>
-            </div>
-
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 space-y-3 hover:border-emerald-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-lg mb-2">
-                4
-              </div>
-              <h3 className="text-xl font-bold text-white">Turning Skill into Steady Income</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Treating resin as an expensive personal hobby rather than monetizing high-ticket creations like clocks, tables, and floral preservations.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border-2 border-orange-500/30 rounded-3xl p-8 text-center max-w-3xl mx-auto shadow-2xl">
-            <p className="text-xl md:text-2xl font-black text-white">
-              "The problem isn't your talent. The problem is that nobody gave you a clear path."
-            </p>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 3: THE REFRAME ─── */}
-      <section id="reframe" className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto text-center space-y-12">
-          <div>
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">A New Perspective</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
-              Resin Art Is Not the Destination. It's the Vehicle.
-            </h2>
-            <p className="text-slate-300 text-base md:text-xl max-w-3xl mx-auto leading-relaxed">
-              Resin Art can become the vehicle through which you discover your creativity, build your confidence, create a unique identity and create financial opportunities for yourself.
-            </p>
-          </div>
+      <section className="py-24 px-6 relative z-10">
+        <div className="max-w-5xl mx-auto text-center">
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Mindset</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+            Resin Art Is Not the Destination. <span className="shimmer-text">It's the Vehicle.</span>
+          </h2>
+          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
+            Resin Art can become the vehicle through which you discover your creativity, build your confidence, create a unique identity and create financial opportunities for yourself.
+          </p>
 
-          {/* Sequential Pathway */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-sm md:text-lg font-black">
-              <span className="px-4 py-2 rounded-xl bg-orange-500/20 text-orange-300 border border-orange-500/30">Passion</span>
-              <ArrowRight className="text-slate-600 hidden sm:block" size={18} />
-              <span className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">Skill</span>
-              <ArrowRight className="text-slate-600 hidden sm:block" size={18} />
-              <span className="px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Signature</span>
-              <ArrowRight className="text-slate-600 hidden sm:block" size={18} />
-              <span className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Portfolio</span>
-              <ArrowRight className="text-slate-600 hidden sm:block" size={18} />
-              <span className="px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Income</span>
-              <ArrowRight className="text-slate-600 hidden sm:block" size={18} />
-              <span className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-lg shadow-orange-500/20">Freedom</span>
+          {/* The Vehicle Progression Map */}
+          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 items-center">
+              {[
+                { title: "Passion", desc: "Creative spark", icon: Flame, color: "text-orange-400" },
+                { title: "Skill", desc: "Technique mastery", icon: Brush, color: "text-amber-400" },
+                { title: "Signature", desc: "Unique style", icon: Sparkles, color: "text-yellow-400" },
+                { title: "Portfolio", desc: "Showcase proof", icon: Layers, color: "text-emerald-400" },
+                { title: "Income", desc: "Monetization", icon: DollarSign, color: "text-cyan-400" },
+                { title: "Freedom", desc: "Self-identity", icon: Trophy, color: "text-purple-400" }
+              ].map((step, idx) => (
+                <div key={idx} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center group hover:border-orange-500/50 transition-all">
+                  <div className={`w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mx-auto mb-2 ${step.color}`}>
+                    <step.icon size={20} />
+                  </div>
+                  <p className="font-bold text-white text-sm">{step.title}</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{step.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="max-w-2xl mx-auto space-y-2">
-            <p className="text-lg md:text-xl text-slate-200 font-bold">
+          <div className="max-w-2xl mx-auto text-center space-y-2">
+            <p className="text-slate-300 text-base md:text-lg font-medium">
               You don't have to choose between being an artist and building a successful life.
             </p>
-            <p className="text-orange-400 text-xl md:text-2xl font-black">
+            <p className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
               You can create beautiful art and create a beautiful future with it.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 4: YOUR JOURNEY STARTS WITH WHAT YOU HAVE ─── */}
+      {/* ─── SECTION 4: YOUR JOURNEY ─── */}
       <section className="py-20 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Zero Barriers to Begin</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              Your Journey Starts With What You Already Have.
-            </h2>
-            <p className="text-slate-400 text-base md:text-lg">
-              You don't need a fancy studio or decades of fine art school.
-            </p>
-          </div>
+        <div className="max-w-4xl mx-auto text-center">
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Zero Barrier To Start</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+            Your Journey Starts With What You Already Have.
+          </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center space-y-2 hover:border-slate-700 transition-all">
-              <span className="text-3xl block mb-2">❌</span>
-              <h3 className="font-bold text-white text-base">No Prior Expertise</h3>
-              <p className="text-xs text-slate-400">You don't need to be an expert to begin.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
+              <p className="text-sm text-slate-300">You don't need to be an expert to begin.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center space-y-2 hover:border-slate-700 transition-all">
-              <span className="text-3xl block mb-2">❌</span>
-              <h3 className="font-bold text-white text-base">No Perfect Setup</h3>
-              <p className="text-xs text-slate-400">You don't need a dedicated luxury studio.</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
+              <p className="text-sm text-slate-300">You don't need an expensive or perfect setup.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center space-y-2 hover:border-slate-700 transition-all">
-              <span className="text-3xl block mb-2">❌</span>
-              <h3 className="font-bold text-white text-base">No Social Followers</h3>
-              <p className="text-xs text-slate-400">You don't need thousands of followers to start selling.</p>
-            </div>
-            <div className="bg-slate-900 border-2 border-orange-500/40 rounded-3xl p-6 text-center space-y-2 bg-orange-500/5 shadow-xl">
-              <span className="text-3xl block mb-2">✨</span>
-              <h3 className="font-bold text-orange-400 text-base">Willingness to Learn</h3>
-              <p className="text-xs text-slate-300">Simply the desire to create and take the next step.</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
+              <p className="text-sm text-slate-300">You don't need thousands of social media followers.</p>
             </div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 text-center max-w-3xl mx-auto shadow-2xl">
-            <p className="text-base md:text-xl font-bold text-slate-300">
-              We help you move from{" "}
-              <span className="text-slate-400 italic">“I want to learn Resin Art”</span> to{" "}
-              <span className="text-orange-400 font-black">
-                “I know what I'm doing, I know what I'm creating and I know where I'm going.”
-              </span>
+          <div className="bg-slate-900/90 border border-orange-500/40 rounded-3xl p-8 shadow-2xl">
+            <p className="text-slate-300 text-base md:text-lg mb-4">
+              You simply need the willingness to learn, create and take the next step.
             </p>
+            <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800">
+              <p className="text-lg md:text-xl font-bold text-white">
+                We help you move from <span className="text-slate-400 italic">"I want to learn Resin Art"</span> to:
+              </p>
+              <p className="text-xl md:text-2xl font-black text-orange-400 mt-2">
+                "I know what I'm doing, I know what I'm creating and I know where I'm going."
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 5: DOES THIS SOUND LIKE YOU? ─── */}
       <section className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Self-Reflection Check</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Self Reflection</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               Does This Sound Like You?
             </h2>
             <p className="text-slate-400 text-base md:text-lg">
-              Recognizing where you are today is the first step toward lasting creative mastery.
+              Recognize where you are right now so we can guide you to where you want to be.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl">
+            {/* Card 1 */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/40 transition-all shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl mb-6">
                   1
                 </div>
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-white mb-3">
                   You Love Creating, But You Don't Know What To Focus On.
                 </h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  You keep learning different techniques but still feel confused about what you should master next.
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  You keep learning different techniques from scattered videos but still feel confused about what you should master next to make real progress.
                 </p>
               </div>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between hover:border-amber-500/40 transition-all shadow-xl">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl">
+            {/* Card 2 */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-amber-500/40 transition-all shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl mb-6">
                   2
                 </div>
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-white mb-3">
                   You Create Beautiful Work, But You're Not Getting Consistent Orders.
                 </h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  You know your creations have value, but you don't know how to consistently attract the right customers and convert your creativity into income.
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  You know your creations have value, but you don't know how to consistently attract the right customers and convert your creativity into predictable income.
                 </p>
               </div>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 flex flex-col justify-between hover:border-pink-500/40 transition-all shadow-xl">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-black text-xl">
+            {/* Card 3 */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-yellow-500/40 transition-all shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-black text-xl mb-6">
                   3
                 </div>
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-xl font-bold text-white mb-3">
                   You Want Your Own Identity and Income—Not Another Hobby.
                 </h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
+                <p className="text-slate-300 text-sm leading-relaxed">
                   You want people to recognise you for your talent, you want something that is truly yours and you want your creativity to contribute to your financial freedom.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="text-center">
-            <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black text-sm md:text-base px-6 py-3 rounded-full shadow-lg">
-              <CheckCircle2 size={18} /> If you see yourself in any of these, you're in the right place.
-            </span>
+          <div className="text-center bg-slate-900/60 border border-slate-800 rounded-2xl p-6 max-w-2xl mx-auto">
+            <p className="text-base font-bold text-orange-400">
+              ✨ If you see yourself in any of these, you're in the right place.
+            </p>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 6: THE PATH ─── */}
-      <section className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-5xl mx-auto">
+      <section id="path" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Structured Roadmap</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Framework</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              You Don't Need Another Hobby. You Need a Path.
+              You Don't Need Another Hobby. <span className="shimmer-text">You Need a Path.</span>
             </h2>
             <p className="text-slate-400 text-base md:text-lg">
               A structured journey can help you turn scattered learning into meaningful progress.
@@ -582,46 +579,58 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-orange-500/50 transition-all shadow-xl">
-              <span className="text-xs font-black text-orange-400 uppercase tracking-wider block">Phase 1</span>
-              <h3 className="text-lg font-black text-white">Skill → Creation</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Learn the right techniques and develop the confidence to create beautiful resin art.
-              </p>
+            {/* Step 1 */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-xs font-black text-orange-400 uppercase tracking-widest block mb-2">Stage 01</span>
+                <h3 className="text-lg font-black text-white mb-3">Skill → Creation</h3>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  Learn the right techniques and develop the confidence to create professional-grade resin art from zero.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-amber-500/50 transition-all shadow-xl">
-              <span className="text-xs font-black text-amber-400 uppercase tracking-wider block">Phase 2</span>
-              <h3 className="text-lg font-black text-white">Creation → Signature</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Discover your creative strengths and develop a style that feels uniquely yours.
-              </p>
+            {/* Step 2 */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-xs font-black text-amber-400 uppercase tracking-widest block mb-2">Stage 02</span>
+                <h3 className="text-lg font-black text-white mb-3">Creation → Signature</h3>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  Discover your creative strengths and develop a distinct style that feels uniquely and unmistakably yours.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-cyan-500/50 transition-all shadow-xl">
-              <span className="text-xs font-black text-cyan-400 uppercase tracking-wider block">Phase 3</span>
-              <h3 className="text-lg font-black text-white">Signature → Portfolio</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Build a collection of creations that represents your skills and showcases your work with pride.
-              </p>
+            {/* Step 3 */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-yellow-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-xs font-black text-yellow-400 uppercase tracking-widest block mb-2">Stage 03</span>
+                <h3 className="text-lg font-black text-white mb-3">Signature → Portfolio</h3>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  Build a collection of creations that represents your skills and helps you showcase your work with total confidence.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3 hover:border-emerald-500/50 transition-all shadow-xl">
-              <span className="text-xs font-black text-emerald-400 uppercase tracking-wider block">Phase 4</span>
-              <h3 className="text-lg font-black text-white">Portfolio → Income</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Learn how to position, present and monetize your creations into income-generating opportunities.
-              </p>
+            {/* Step 4 */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-emerald-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-xs font-black text-emerald-400 uppercase tracking-widest block mb-2">Stage 04</span>
+                <h3 className="text-lg font-black text-white mb-3">Portfolio → Income</h3>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  Learn how to position, present and monetize your creations so your skill becomes an income-generating business.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 7: WHAT YOU WILL LEARN + CREATE ─── */}
-      <section id="learn" className="py-24 px-6 relative z-10">
+      {/* ─── SECTION 7: WHAT YOU WILL LEARN ─── */}
+      <section id="curriculum" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Hands-On Mastery</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Curriculum + Outcomes</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               What You'll Learn + What You'll Create
             </h2>
@@ -631,43 +640,47 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-4 hover:border-orange-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            {/* Pillar 1 */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/40 transition-all shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-6">
+                <Brush size={24} />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Master Resin Art Techniques</h3>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.
+              </p>
+            </div>
+
+            {/* Pillar 2 */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-purple-500/40 transition-all shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6">
                 <Palette size={24} />
               </div>
-              <h3 className="text-2xl font-black text-white">Master Resin Art Techniques</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Understand the fundamentals and advanced chemistry required to create professional-quality resin artwork—including cell lacing, 3D geodes, floral preservations, and ocean wave dynamics.
+              <h3 className="text-2xl font-bold text-white mb-3">Develop Your Signature Style</h3>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.
               </p>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-4 hover:border-amber-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <Sparkles size={24} />
-              </div>
-              <h3 className="text-2xl font-black text-white">Develop Your Signature Style</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Move beyond copying others and discover the colours, techniques, compositions and products that make your work unmistakably recognizable in the market.
-              </p>
-            </div>
-
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-4 hover:border-cyan-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            {/* Pillar 3 */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-cyan-500/40 transition-all shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6">
                 <Layers size={24} />
               </div>
-              <h3 className="text-2xl font-black text-white">Build a Portfolio You Are Proud Of</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Create meaningful, gallery-grade projects (Roman clocks, geode platters, bridal jaimala blocks) that demonstrate your mastery and give you something tangible to showcase.
+              <h3 className="text-2xl font-bold text-white mb-3">Build a Portfolio You Are Proud Of</h3>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.
               </p>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 space-y-4 hover:border-emerald-500/40 transition-all shadow-xl">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            {/* Pillar 4 */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-emerald-500/40 transition-all shadow-xl">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
                 <TrendingUp size={24} />
               </div>
-              <h3 className="text-2xl font-black text-white">Learn How To Monetize Your Skill</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Understand how to turn your creations into high-margin products, attract custom client commissions, price with confidence, and establish consistent monthly cash flow.
+              <h3 className="text-2xl font-bold text-white mb-3">Learn How To Monetize Your Skill</h3>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.
               </p>
             </div>
           </div>
@@ -675,429 +688,337 @@ export default function HomePage() {
       </section>
 
       {/* ─── SECTION 8: SIX DIMENSIONS OF SUCCESS ─── */}
-      <section id="dimensions" className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/80 relative z-10">
+      <section id="dimensions" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Holistic Growth Model</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Holistic Development</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               Success Is More Than The Money You Make.
             </h2>
             <p className="text-slate-300 text-base md:text-lg">
-              Your growth should be measured by the person you become along the way. We believe your Resin Art journey should help you grow across six important dimensions.
+              Your growth should be measured by the person you become along the way. We believe your Resin Art journey should help you grow across six important dimensions:
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SIX_DIMENSIONS.map((dim, idx) => {
-              const IconComp = dim.icon;
-              return (
-                <div
-                  key={idx}
-                  className={`bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between transition-all duration-300 ${dim.border} shadow-xl group`}
-                >
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
-                        <IconComp size={22} />
-                      </div>
-                      <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950 px-3 py-1 rounded-full text-slate-400 border border-slate-800">
-                        {dim.badge}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-black text-white">{dim.title}</h3>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                      {dim.description}
-                    </p>
+            {sixDimensions.map((dim, idx) => (
+              <div
+                key={idx}
+                className={`bg-slate-900/90 border ${dim.border} rounded-3xl p-7 flex flex-col justify-between hover:scale-[1.02] transition-all shadow-xl`}
+              >
+                <div>
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${dim.color} flex items-center justify-center text-slate-950 font-black mb-6`}>
+                    <dim.icon size={22} />
                   </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{dim.title}</h3>
+                  <p className="text-slate-300 text-sm leading-relaxed">{dim.desc}</p>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 9: VISIBLE GROWTH (GAMIFIED PROGRESSION) ─── */}
+      {/* ─── SECTION 9: VISIBLE GROWTH ─── */}
       <section className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto text-center space-y-12">
-          <div>
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Transparent Milestones</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              Your Growth Should Be Visible.
-            </h2>
-            <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-              Every creation, challenge, milestone and achievement should tell a story of how far you've come. Instead of wondering whether you're progressing, you'll have tangible milestones that help you see, measure and celebrate your growth.
+        <div className="max-w-5xl mx-auto text-center">
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Gamified Progress Tracking</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+            Your Growth Should Be Visible.
+          </h2>
+          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
+            Every creation, challenge, milestone and achievement should tell a story of how far you've come. Instead of wondering whether you're progressing, you'll have tangible milestones that help you see, measure and celebrate your growth.
+          </p>
+
+          {/* Gamified Flow Pipeline */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl">
+            <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+              {[
+                { title: "Learn", icon: BookOpen },
+                { title: "Create", icon: Brush },
+                { title: "Complete", icon: CheckCircle2 },
+                { title: "Earn Points", icon: Flame },
+                { title: "Unlock Milestones", icon: Trophy },
+                { title: "Earn Recognition", icon: Crown }
+              ].map((step, idx) => (
+                <React.Fragment key={idx}>
+                  <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">
+                    <step.icon size={16} className="text-orange-400" />
+                    {step.title}
+                  </div>
+                  {idx < 5 && (
+                    <ChevronRight size={18} className="text-slate-600 hidden sm:block" />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+
+            <p className="text-orange-400 font-bold text-sm md:text-base mt-8">
+              ✨ Your journey becomes something you can see, track and be proud of.
             </p>
           </div>
-
-          {/* Gamified Flow Loop */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-xs md:text-base font-black">
-              <span className="px-4 py-2 rounded-xl bg-slate-800 text-white">Learn</span>
-              <ArrowRight className="text-orange-400" size={16} />
-              <span className="px-4 py-2 rounded-xl bg-orange-500/20 text-orange-300 border border-orange-500/30">Create</span>
-              <ArrowRight className="text-orange-400" size={16} />
-              <span className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">Complete</span>
-              <ArrowRight className="text-orange-400" size={16} />
-              <span className="px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Earn Points</span>
-              <ArrowRight className="text-orange-400" size={16} />
-              <span className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Unlock Milestones</span>
-              <ArrowRight className="text-orange-400" size={16} />
-              <span className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950">Earn Recognition</span>
-            </div>
-          </div>
-
-          <p className="text-slate-400 text-base md:text-lg font-semibold">
-            Your journey becomes something you can see, track and be proud of every single day.
-          </p>
         </div>
       </section>
 
       {/* ─── SECTION 10: ART-O-THON ─── */}
-      <section className="py-20 px-6 bg-gradient-to-r from-orange-600/10 via-amber-600/10 to-orange-600/10 border-y border-orange-500/30 relative z-10">
-        <div className="max-w-5xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center gap-2 bg-orange-500/20 text-orange-300 border border-orange-500/40 text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full">
-            <Zap size={14} className="text-orange-400" /> Action-Powered Challenge
-          </div>
+      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/40 rounded-3xl p-8 md:p-14 shadow-2xl">
+            <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
+              <div className="space-y-4 max-w-2xl">
+                <span className="text-orange-400 text-xs font-black uppercase tracking-widest block">Action-First Learning</span>
+                <h2 className="text-3xl md:text-4xl font-black text-white">
+                  ART-O-THON: Don't Just Learn. Create.
+                </h2>
+                <p className="text-slate-300 text-base leading-relaxed">
+                  Learning becomes powerful when you put it into action. ART-O-THON is designed to turn learning into consistent creation through daily challenges, missions and milestone submissions.
+                </p>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  Every creation becomes a step forward. Every completed challenge becomes proof of your progress. And every milestone gives you another reason to celebrate how far you've come.
+                </p>
+              </div>
 
-          <h2 className="text-3xl md:text-5xl font-black text-white">
-            ART-O-THON: Don't Just Learn. Create.
-          </h2>
-
-          <p className="text-slate-200 text-base md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Learning becomes powerful when you put it into action. ART-O-THON is designed to turn learning into consistent creation through challenges, missions and milestones.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto pt-4">
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
-              <h3 className="font-bold text-white text-base mb-1">Step Forward</h3>
-              <p className="text-xs text-slate-400">Every creation becomes a verified step forward in your artistic mastery.</p>
-            </div>
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
-              <h3 className="font-bold text-white text-base mb-1">Proof of Progress</h3>
-              <p className="text-xs text-slate-400">Every completed challenge becomes solid proof of your confidence.</p>
-            </div>
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
-              <h3 className="font-bold text-white text-base mb-1">Celebrate Wins</h3>
-              <p className="text-xs text-slate-400">Every milestone gives you another reason to celebrate how far you've come.</p>
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 text-center shrink-0 w-full md:w-64 space-y-3">
+                <Flame size={40} className="text-orange-500 mx-auto animate-bounce" />
+                <p className="text-2xl font-black text-white">30-Day</p>
+                <p className="text-xs text-orange-400 font-bold uppercase tracking-wider">Creation Sprint</p>
+                <Link
+                  href="/webinar"
+                  className="block w-full py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all"
+                >
+                  Join Challenge
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 11: SISTERHOOD COMMUNITY ─── */}
-      <section className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto text-center space-y-12">
-          <div>
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Thriving Sisterhood</span>
+      {/* ─── SECTION 11: COMMUNITY ─── */}
+      <section id="community" className="py-24 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Sisterhood &amp; Support</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               You Don't Have To Build Alone.
             </h2>
-            <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+            <p className="text-slate-300 text-base md:text-lg leading-relaxed">
               The journey becomes easier when you're surrounded by women who understand your dreams, your struggles and your ambition. Inside Ravishing Art Hub, you don't just learn from a coach. You learn, create, share, celebrate and grow together.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-orange-500/40 transition-all">
-              <MessageCircle className="text-orange-400 mx-auto mb-2" size={24} />
-              <p className="font-bold text-white text-sm">Ask Questions</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-amber-500/40 transition-all">
-              <Palette className="text-amber-400 mx-auto mb-2" size={24} />
-              <p className="font-bold text-white text-sm">Share Creations</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-cyan-500/40 transition-all">
-              <Sparkles className="text-cyan-400 mx-auto mb-2" size={24} />
-              <p className="font-bold text-white text-sm">Get Feedback</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-emerald-500/40 transition-all">
-              <Trophy className="text-emerald-400 mx-auto mb-2" size={24} />
-              <p className="font-bold text-white text-sm">Celebrate Wins</p>
-            </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-purple-500/40 transition-all col-span-2 sm:col-span-1">
-              <Users className="text-purple-400 mx-auto mb-2" size={24} />
-              <p className="font-bold text-white text-sm">Grow Together</p>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+            {[
+              { title: "Ask Questions", desc: "Get instant doubt resolution", icon: MessageCircle },
+              { title: "Share Creations", desc: "Showcase your newest pours", icon: Palette },
+              { title: "Get Feedback", desc: "Constructive mentor critiques", icon: CheckCircle2 },
+              { title: "Celebrate Milestones", desc: "Cheer each other's wins", icon: Trophy },
+              { title: "Learn Together", desc: "Collaborate with peers", icon: Users }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-orange-500/40 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center mx-auto mb-3">
+                  <item.icon size={20} />
+                </div>
+                <p className="font-bold text-white text-sm">{item.title}</p>
+                <p className="text-[11px] text-slate-400 mt-1">{item.desc}</p>
+              </div>
+            ))}
           </div>
 
-          <p className="text-orange-400 font-black text-lg md:text-xl">
-            "Because when women grow together, everyone grows stronger."
-          </p>
+          <div className="text-center">
+            <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+              "Because when women grow together, everyone grows stronger."
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ─── SECTION 12: STUDENT TRANSFORMATION ─── */}
-      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center max-w-3xl mx-auto">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Journeys</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              From “I Can't” To “I Created This.”
-            </h2>
-            <p className="text-slate-300 text-base md:text-lg leading-relaxed">
-              Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
-            </p>
-            <p className="text-orange-400 font-bold text-base mt-3">
-              The transformation isn't just in what their hands can create. It's in what they start believing about themselves.
-            </p>
-          </div>
+      <section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10">
+        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+            From “I Can't” To “I Created This.”
+          </h2>
+          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+            Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
+          </p>
+          <p className="text-orange-400 text-sm font-bold mt-2">
+            The transformation isn't just in what their hands can create. It's in what they start believing about themselves.
+          </p>
+        </div>
 
-          {/* Marquee Row 1 */}
-          <div className="overflow-hidden relative">
-            <div className="animate-marquee-left gap-6">
-              {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
-                <div
-                  key={`r1-${idx}`}
-                  className="w-[300px] md:w-[340px] bg-slate-900 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all shadow-xl"
-                >
-                  <div className={`h-40 rounded-2xl bg-gradient-to-br ${art.gradient} p-4 flex flex-col justify-between relative overflow-hidden shadow-inner`}>
-                    <div className="flex justify-between items-center z-10">
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-slate-950/70 text-white px-2.5 py-1 rounded-full">
-                        {art.badge}
-                      </span>
-                      <span className="text-xs font-black bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full">
-                        {art.price}
-                      </span>
-                    </div>
-                    <div className="z-10">
-                      <p className="text-base font-black text-white">{art.title}</p>
-                      <p className="text-xs text-slate-200/80">{art.type}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-800">
-                    <p className="text-xs font-bold text-white">{art.artist} · <span className="text-orange-400">{art.level}</span></p>
-                    <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 size={12} /> Verified Piece
+        {/* Marquee Row 1 */}
+        <div className="relative mb-6">
+          <div className="animate-marquee-left gap-6">
+            {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
+              <div
+                key={`r1-${idx}`}
+                className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all duration-300 shadow-xl group"
+              >
+                <div className={`h-48 rounded-2xl bg-gradient-to-br ${art.gradient} p-4 flex flex-col justify-between relative overflow-hidden shadow-inner`}>
+                  <div className="relative z-10 flex justify-between items-center">
+                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/60 text-white px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                      {art.badge}
+                    </span>
+                    <span className="text-xs font-black bg-emerald-500/90 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
+                      {art.price}
                     </span>
                   </div>
+                  <div className="relative z-10">
+                    <p className="text-lg font-black text-white drop-shadow-md">{art.title}</p>
+                    <p className="text-xs text-slate-200/90 font-medium">{art.type}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Marquee Row 2 */}
-          <div className="overflow-hidden relative">
-            <div className="animate-marquee-right gap-6">
-              {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
-                <div
-                  key={`r2-${idx}`}
-                  className="w-[300px] md:w-[340px] bg-slate-900 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all shadow-xl"
-                >
-                  <div className={`h-40 rounded-2xl bg-gradient-to-br ${art.gradient} p-4 flex flex-col justify-between relative overflow-hidden shadow-inner`}>
-                    <div className="flex justify-between items-center z-10">
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-slate-950/70 text-white px-2.5 py-1 rounded-full">
-                        {art.badge}
-                      </span>
-                      <span className="text-xs font-black bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full">
-                        {art.price}
-                      </span>
+                <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-xs font-black text-slate-950">
+                      {art.artist[0]}
                     </div>
-                    <div className="z-10">
-                      <p className="text-base font-black text-white">{art.title}</p>
-                      <p className="text-xs text-slate-200/80">{art.type}</p>
+                    <div>
+                      <p className="text-sm font-bold text-white leading-none">{art.artist}</p>
+                      <p className="text-[11px] text-slate-400 font-medium">{art.level}</p>
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-800">
-                    <p className="text-xs font-bold text-white">{art.artist} · <span className="text-orange-400">{art.level}</span></p>
-                    <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 size={12} /> Verified Piece
+                  <span className="text-[11px] text-orange-400 font-semibold flex items-center gap-1">
+                    <CheckCircle2 size={13} /> Verified Piece
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Marquee Row 2 */}
+        <div className="relative">
+          <div className="animate-marquee-right gap-6">
+            {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
+              <div
+                key={`r2-${idx}`}
+                className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all duration-300 shadow-xl group"
+              >
+                <div className={`h-48 rounded-2xl bg-gradient-to-br ${art.gradient} p-4 flex flex-col justify-between relative overflow-hidden shadow-inner`}>
+                  <div className="relative z-10 flex justify-between items-center">
+                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/60 text-white px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                      {art.badge}
+                    </span>
+                    <span className="text-xs font-black bg-emerald-500/90 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
+                      {art.price}
                     </span>
                   </div>
+                  <div className="relative z-10">
+                    <p className="text-lg font-black text-white drop-shadow-md">{art.title}</p>
+                    <p className="text-xs text-slate-200/90 font-medium">{art.type}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-xs font-black text-slate-950">
+                      {art.artist[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white leading-none">{art.artist}</p>
+                      <p className="text-[11px] text-slate-400 font-medium">{art.level}</p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] text-cyan-400 font-semibold flex items-center gap-1">
+                    <CheckCircle2 size={13} /> Verified Piece
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 13: SOCIAL PROOF & GOOGLE PLAY REVIEWS ─── */}
-      <section id="reviews" className="py-24 px-6 relative z-10">
+      {/* ─── SECTION 13: SOCIAL PROOF ─── */}
+      <section className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Verified Social Proof</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Verified Track Record</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              52K+ Students Taught · 8K+ Orders Completed · 5.0★ Google Rating
+              52K+ Students Taught. 8K+ Orders Completed. 5★ Google Rating.
             </h2>
-            <p className="text-slate-300 text-base md:text-lg">
+            <p className="text-slate-300 text-base md:text-lg leading-relaxed">
               Thousands of learners have already trusted Ravishing Art to help them explore, learn and grow through Resin Art. From beginners taking their first step to creators building their own identity and income, every journey is different. But every journey begins with one decision: to start.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            {/* Review 1 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 18 Feb 2023</span>
-                </div>
-                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "Easy to access, easy to connect and best part always support is there so you never feel stuck anywhere. The best part is all course introductions are open for all to know the course details and see our mentor too 👍"
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-cyan-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">K</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            {VERIFIED_REVIEWS.map((rev, idx) => (
+              <div
+                key={idx}
+                className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl"
+              >
                 <div>
-                  <p className="font-bold text-white text-sm">Krupali Shah</p>
-                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex gap-1">
+                      {[...Array(rev.rating)].map((_, i) => (
+                        <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-medium">Google Play · {rev.date}</span>
+                  </div>
+                  <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
+                    "{rev.comment}"
+                  </p>
                 </div>
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${rev.avatarBg} flex items-center justify-center font-black text-slate-950 text-sm shrink-0`}>
+                    {rev.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">{rev.name}</p>
+                    <p className="text-xs text-orange-400 font-semibold">{rev.tag}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Google Play Rating Badge */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-4 bg-slate-900/80 border border-slate-800 rounded-2xl px-6 py-4 shadow-xl">
+              <div className="text-center">
+                <p className="text-4xl font-black text-white">5.0</p>
+                <div className="flex gap-0.5 mt-1 justify-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+              </div>
+              <div className="w-px h-12 bg-slate-700" />
+              <div>
+                <p className="text-sm font-bold text-white">Ravishing Art App</p>
+                <p className="text-xs text-slate-400">Google Play Store · 100% Real Student Feedback</p>
               </div>
             </div>
-
-            {/* Review 2 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 21 May 2024</span>
-                </div>
-                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "Ravishing Art is a wonderful app to learn resin art. It has different courses and easy steps in video form. Vrajangna miss encourages us to try new thoughts and designs. Very much helpful for art lovers. Very happy to join Ravishing Art!"
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">S</div>
-                <div>
-                  <p className="font-bold text-white text-sm">Sonal</p>
-                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Review 3 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 19 Oct 2023</span>
-                </div>
-                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "Absolutely love this app. The user-friendly interface makes it easy to experiment with different techniques. I also appreciate Vrajangna mam for being a motivational figure in my art journey."
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">D</div>
-                <div>
-                  <p className="font-bold text-white text-sm">Drashti Gosai</p>
-                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Review 4 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 19 Oct 2023</span>
-                </div>
-                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "I first saw Vrajangna Ma'am on an Instagram Live. The way she explained resin art—whether the learner is from a well-to-do family or a simple housewife, anyone can learn with minimum investment. One day she shared a reel about the courses and I immediately enrolled. My learning started a new journey."
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-500 to-slate-400 flex items-center justify-center font-black text-white text-sm shrink-0">H</div>
-                <div>
-                  <p className="font-bold text-white text-sm">Hina Bhardwaj</p>
-                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Review 5 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 3 Jun 2025</span>
-                </div>
-                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "Amazing experience with Vrajangana ma'am for teaching resin art. Her videos are very easy to understand for a newcomer like me. Within a month I got confidence to make different resin items. Thanks a lot ma'am for your guidance. Thank you!"
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">M</div>
-                <div>
-                  <p className="font-bold text-white text-sm">Manisha Dedhia</p>
-                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Review 6 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium">Google Play · 15 Apr 2024</span>
-                </div>
-                <p className="text-slate-200 text-sm leading-relaxed mb-6 italic">
-                  "Learning is very easy with this app. Someone is always available for solving queries. Boosted my confidence by giving tasks and helping to complete them. Best resin art learning platform!"
-                </p>
-              </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center font-black text-slate-950 text-sm shrink-0">T</div>
-                <div>
-                  <p className="font-bold text-white text-sm">Tamanna Bhanushali</p>
-                  <p className="text-xs text-orange-400 font-semibold">Verified Ravishing Art Student</p>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 14: ABOUT VRAJANGNA PATEL (WITH REAL PHOTOS) ─── */}
-      <section id="mentor" className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/80 relative z-10">
+      {/* ─── SECTION 14: ABOUT VRAJANGNA ─── */}
+      <section id="mentor" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-6xl mx-auto space-y-12">
-
-          {/* Main Mentor Card */}
           <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-14 shadow-2xl">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-4 text-center">
-                <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto mb-4 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl shadow-orange-500/30 group">
+                <div className="relative w-48 h-48 sm:w-60 sm:h-60 mx-auto mb-4 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl shadow-orange-500/30 group">
                   <img
                     src="/images/mentor/vrajangna-portrait.jpg"
                     alt="Vrajangna Patel - Resin Art & Business Coach"
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
                 </div>
                 <h3 className="text-2xl font-black text-white">Vrajangna Patel</h3>
                 <p className="text-xs text-orange-400 font-bold mt-1 uppercase tracking-wider">
-                  Founder &amp; Resin Art Business Coach · Ravishing Art Hub
+                  Founder &amp; Resin Art Business Coach
                 </p>
               </div>
 
               <div className="lg:col-span-8 space-y-5">
                 <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
-                  <Sparkles size={13} /> Founder &amp; Business Coach
+                  <Sparkles size={13} /> Meet Your Mentor &amp; Coach
                 </div>
 
                 <h3 className="text-2xl md:text-4xl font-black text-white leading-tight">
@@ -1112,90 +1033,77 @@ export default function HomePage() {
                   My goal isn't just to teach you how to make Resin Art. My goal is to help you believe that your creativity can become something meaningful, valuable and truly yours.
                 </p>
 
-                <div className="bg-orange-500/10 border-l-4 border-orange-500 p-4 rounded-r-2xl">
-                  <p className="text-sm md:text-base font-bold text-orange-300 italic">
-                    "Because I believe every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
-                  </p>
-                </div>
+                <p className="text-orange-400 font-bold text-sm md:text-base">
+                  "Because I believe every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Real Awards & Author Accreditations Grid */}
+          {/* Real Mentor Recognition Photos Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            {/* Photo 1: Hall of Fame Award */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/40 transition-all">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/40 transition-all">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src="/images/mentor/hall-of-fame-award.jpg"
-                  alt="Vrajangna Patel receiving Hall of Fame Award from Siddharth Rajsekar"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  alt="Vrajangna Patel Hall of Fame Award"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                 <span className="absolute top-4 left-4 bg-orange-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
                   🏆 Hall of Fame Award
                 </span>
               </div>
-              <div className="p-5 space-y-1.5">
-                <h4 className="text-base font-bold text-white">Felicitation on Stage</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Honored with the prestigious Hall of Fame Award 2022–23 at the Freedom Business Retreat.
-                </p>
+              <div className="p-5">
+                <h4 className="font-bold text-white text-base">Hall of Fame 2022–23</h4>
+                <p className="text-xs text-slate-400 mt-1">Recognized on stage by Siddharth Rajsekar at Freedom Retreat.</p>
               </div>
             </div>
 
-            {/* Photo 2: Diamond Club Award */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-cyan-500/40 transition-all">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-cyan-500/40 transition-all">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src="/images/mentor/diamond-award.jpg"
-                  alt="Diamond Awards Certificate Presentation"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  alt="Vrajangna Patel Diamond Awards"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                <span className="absolute top-4 left-4 bg-cyan-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                  💎 Diamond Creator Award
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                <span className="absolute top-4 left-4 bg-cyan-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                  💎 Diamond Club Felicitation
                 </span>
               </div>
-              <div className="p-5 space-y-1.5">
-                <h4 className="text-base font-bold text-white">Diamond Club Certification</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Recognized as an elite educational creator transforming creative lives nationwide.
-                </p>
+              <div className="p-5">
+                <h4 className="font-bold text-white text-base">Diamond Awardee</h4>
+                <p className="text-xs text-slate-400 mt-1">Awarded top mentor status for empowering thousands of artists.</p>
               </div>
             </div>
 
-            {/* Photo 3: Published Author Feature */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-amber-500/40 transition-all">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-purple-500/40 transition-all">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src="/images/mentor/author-feature.jpg"
-                  alt="I Can Coach - Stories of Transformation Co-Authored by Vrajangna Patel"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  alt="Vrajangna Patel Published Author"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                <span className="absolute top-4 left-4 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                <span className="absolute top-4 left-4 bg-purple-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
                   📖 Published Author
                 </span>
               </div>
-              <div className="p-5 space-y-1.5">
-                <h4 className="text-base font-bold text-white">"I Can Coach" Contributor</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Featured transformation author sharing the philosophy of resin artistry and financial freedom.
-                </p>
+              <div className="p-5">
+                <h4 className="font-bold text-white text-base">"I Can Coach" Transformation</h4>
+                <p className="text-xs text-slate-400 mt-1">Featured as a leading Resin Art Business Coach across India.</p>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (MEMBERSHIPS) ─── */}
-      <section id="journey" className="py-24 px-6 relative z-10">
+      {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
+      <section id="membership" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Tiered Pathways</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Level Progression</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               Choose Your Ravishing Journey
             </h2>
@@ -1205,253 +1113,254 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            {/* Level 0: START */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl">
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/30 inline-block">
+            {/* L0: START */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-[10px] font-black bg-orange-500/10 text-orange-400 border border-orange-500/30 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 0 · START
                 </span>
-                <h3 className="text-xl font-black text-white">Explore Your Creativity</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2">Explore Your Creativity</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-6">
                   Begin your Resin Art journey, understand the fundamentals and create your first beautiful pieces with confidence.
                 </p>
-                <div className="pt-2 border-t border-slate-800 space-y-2 text-xs text-slate-300">
-                  <div className="flex items-center gap-2"><Check size={14} className="text-orange-400" /> Epoxy safety &amp; ratios</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-orange-400" /> Beginner coaster sets</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-orange-400" /> Resin FastStart Bundle</div>
+                <div className="space-y-2 border-t border-slate-800 pt-4">
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-orange-400" /> FastTrack Starter Toolkit
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-orange-400" /> Basic Epoxy Chemistry
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-orange-400" /> First 3 Practical Pours
+                  </div>
                 </div>
               </div>
               <Link
                 href="/webinar"
-                className="mt-6 w-full py-3 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-slate-950 font-bold rounded-xl text-xs transition-all text-center border border-orange-500/30"
+                className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs text-center block transition-all"
               >
-                Join Free Masterclass
+                Join Level 0
               </Link>
             </div>
 
-            {/* Level 1: GROW */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/40 transition-all shadow-xl">
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 inline-block">
+            {/* L1: GROW */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 1 · GROW
                 </span>
-                <h3 className="text-xl font-black text-white">Build Skills &amp; Signature</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2">Build Skills &amp; Signature</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-6">
                   Go deeper into techniques, creativity, portfolio building and the skills required to take your art seriously.
                 </p>
-                <div className="pt-2 border-t border-slate-800 space-y-2 text-xs text-slate-300">
-                  <div className="flex items-center gap-2"><Check size={14} className="text-amber-400" /> Ocean lacing &amp; cell formulas</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-amber-400" /> 3D Geode inlays &amp; clocks</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-amber-400" /> Masters Artistry Bundle</div>
+                <div className="space-y-2 border-t border-slate-800 pt-4">
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-amber-400" /> Ocean Lacing &amp; Geodes
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-amber-400" /> Portfolio Foundations
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-amber-400" /> Daily Action Missions
+                  </div>
                 </div>
               </div>
               <Link
                 href="/register"
-                className="mt-6 w-full py-3 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 font-bold rounded-xl text-xs transition-all text-center border border-amber-500/30"
+                className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs text-center block transition-all"
               >
-                Explore Masters
+                Explore Level 1
               </Link>
             </div>
 
-            {/* Level 2: MASTER */}
-            <div className="bg-slate-900 border-2 border-orange-500/50 rounded-3xl p-7 flex flex-col justify-between shadow-2xl relative">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+            {/* L2: MASTER */}
+            <div className="bg-slate-900/90 border-2 border-orange-500/60 rounded-3xl p-7 flex flex-col justify-between shadow-2xl relative">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md">
                 Most Popular
               </span>
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 inline-block">
+              <div>
+                <span className="text-[10px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/40 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 2 · MASTER
                 </span>
-                <h3 className="text-xl font-black text-white">Build Identity &amp; Income</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <h3 className="text-xl font-bold text-white mb-2">Build Identity &amp; Income</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-6">
                   Develop advanced skills, strengthen your personal brand, understand business and build a sustainable path around your creativity.
                 </p>
-                <div className="pt-2 border-t border-slate-800 space-y-2 text-xs text-slate-200">
-                  <div className="flex items-center gap-2"><Check size={14} className="text-orange-400" /> Jaimala bridal preservations</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-orange-400" /> Client pricing &amp; branding</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-orange-400" /> Renaissance Elite Mastery</div>
+                <div className="space-y-2 border-t border-slate-800 pt-4">
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-orange-400" /> Bridal Preservation &amp; Clocks
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-orange-400" /> Pricing &amp; Client Acquisition
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-orange-400" /> Live Mentorship Calls
+                  </div>
                 </div>
               </div>
               <Link
-                href="/register"
-                className="mt-6 w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-xs transition-all text-center shadow-lg shadow-orange-500/20"
+                href="/webinar"
+                className="mt-8 w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-xs text-center block transition-all shadow-lg"
               >
-                Join Renaissance
+                Apply for Master
               </Link>
             </div>
 
-            {/* Level 3: CERTIFY */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-cyan-500/40 transition-all shadow-xl">
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 inline-block">
+            {/* L3: CERTIFY */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-cyan-500/50 transition-all shadow-xl">
+              <div>
+                <span className="text-[10px] font-black bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
                   Level 3 · CERTIFY
                 </span>
-                <h3 className="text-xl font-black text-white">Recognised Creator</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Take your skills, portfolio, business knowledge and personal growth to the next level through structured milestones and certification.
+                <h3 className="text-xl font-bold text-white mb-2">Recognised Creator</h3>
+                <p className="text-xs text-slate-300 leading-relaxed mb-6">
+                  Take your skills, portfolio, business knowledge and personal growth to the highest level through structured milestones and certification.
                 </p>
-                <div className="pt-2 border-t border-slate-800 space-y-2 text-xs text-slate-300">
-                  <div className="flex items-center gap-2"><Check size={14} className="text-cyan-400" /> Furniture river tables</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-cyan-400" /> Certified Master Artist Badge</div>
-                  <div className="flex items-center gap-2"><Check size={14} className="text-cyan-400" /> Artistry Pinnacle License</div>
+                <div className="space-y-2 border-t border-slate-800 pt-4">
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-cyan-400" /> Certified Trainer Status
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-cyan-400" /> High-Ticket Furniture Pours
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Check size={14} className="text-cyan-400" /> Hall of Fame Induction
+                  </div>
                 </div>
               </div>
               <Link
                 href="/register"
-                className="mt-6 w-full py-3 bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 font-bold rounded-xl text-xs transition-all text-center border border-cyan-500/30"
+                className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs text-center block transition-all"
               >
-                Explore Certification
+                Learn About Level 3
               </Link>
             </div>
-
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 16: FREE MASTERCLASS ─── */}
-      <section className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-4xl mx-auto bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-2 border-orange-500/30 rounded-3xl p-8 md:p-14 shadow-2xl text-center space-y-8">
-          <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
-            <Sparkles size={13} /> Complimentary 90-Min Training
-          </div>
-
-          <h2 className="text-3xl md:text-5xl font-black text-white">
-            Not Sure Where To Start? Start Here.
+      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Free Training Invitation</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+            Not Sure Where To Start? <span className="shimmer-text">Start Here.</span>
           </h2>
-
-          <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
             Join my FREE Resin Mastery Masterclass and discover the three essential shifts that can help you move from simply learning Resin Art to confidently building something of your own.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left max-w-2xl mx-auto pt-2">
-            <div className="flex items-start gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-              <CheckCircle2 size={18} className="text-orange-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-300">Understand the foundational skills &amp; safety formulas</p>
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl mx-auto text-left mb-10 space-y-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-slate-200">Understand what it really takes to develop professional-level resin skills from home.</p>
             </div>
-            <div className="flex items-start gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-              <CheckCircle2 size={18} className="text-orange-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-300">Create your signature style without copy-pasting</p>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-slate-200">Create your signature style that sets you apart from amateur creators.</p>
             </div>
-            <div className="flex items-start gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-              <CheckCircle2 size={18} className="text-orange-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-300">Explore high-margin product monetization paths</p>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-slate-200">Explore the practical business potential of Resin Art with zero guesswork.</p>
+            </div>
+            <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 font-medium">
+              ✓ No pressure. No complicated jargon. Just clarity on your next step.
             </div>
           </div>
 
-          <p className="text-slate-400 text-xs md:text-sm font-semibold">
-            No pressure. No complicated jargon. Just clarity on your next step.
-          </p>
-
           <Link
             href="/webinar"
-            className="inline-flex items-center gap-2.5 px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-2xl text-lg shadow-xl shadow-orange-500/25 hover:scale-105 transition-all"
+            className="px-10 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 inline-flex items-center gap-3 hover:scale-105"
           >
-            <Sparkles size={20} /> Join The Free Masterclass
+            <Sparkles size={22} />
+            Join The Free Masterclass
           </Link>
         </div>
       </section>
 
       {/* ─── SECTION 17: FINAL EMOTIONAL CTA ─── */}
-      <section className="py-24 px-6 relative overflow-hidden text-center z-10">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto shadow-2xl shadow-orange-500/40">
+      <section className="py-24 px-6 relative overflow-hidden z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent pointer-events-none" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/40">
             <Palette size={32} className="text-slate-950 stroke-[2.5]" />
           </div>
 
-          <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
+          <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
             Your Art Has More Potential{" "}
             <span className="shimmer-text">Than You Think.</span>
           </h2>
 
-          <div className="space-y-4 text-slate-300 text-base md:text-xl max-w-2xl mx-auto leading-relaxed">
-            <p>
-              Maybe Resin Art started as something you simply wanted to learn. Maybe it was a way to express yourself. Maybe you were looking for something that was yours.
-            </p>
-            <p className="text-white font-bold">
-              But what if it could become much more?
-            </p>
-            <div className="flex flex-col gap-1 text-orange-300 font-semibold text-lg">
-              <span>What if your art could become your identity?</span>
-              <span>What if your skill could become your income?</span>
-              <span className="text-orange-400 font-black text-xl">What if your creativity could create freedom?</span>
+          <div className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed space-y-3 font-normal">
+            <p>Maybe Resin Art started as something you simply wanted to learn.</p>
+            <p>Maybe it was a way to express yourself.</p>
+            <p>Maybe you were looking for something that was yours.</p>
+            <div className="pt-4 pb-2 space-y-1">
+              <p className="text-lg md:text-xl font-bold text-white">But what if it could become much more?</p>
+              <p className="text-orange-400 font-bold">What if your art could become your identity?</p>
+              <p className="text-amber-400 font-bold">What if your skill could become your income?</p>
+              <p className="text-yellow-400 font-bold">What if your creativity could create freedom?</p>
             </div>
-            <p className="text-slate-400 text-base">
+            <p className="text-slate-400 text-sm pt-2">
               You don't have to know the entire journey today. You just need to take the first step.
             </p>
           </div>
 
-          <div className="pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/webinar"
-              className="inline-flex items-center gap-3 px-12 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 hover:scale-105"
+              className="px-10 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-3 w-full sm:w-auto justify-center hover:scale-105"
             >
-              Start My Resin Journey <ArrowRight size={22} />
+              <Sparkles size={22} />
+              Start My Resin Journey
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── SECTION 18: FAQS & CLOSING FOOTER ─── */}
-      <section className="py-20 px-6 bg-slate-900/30 border-t border-slate-800/60 relative z-10">
-        <div className="max-w-4xl mx-auto mb-16">
-          <div className="text-center mb-12">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Got Questions?</span>
-            <h2 className="text-3xl md:text-4xl font-black text-white">Frequently Asked Questions</h2>
-          </div>
-
-          <div className="space-y-4">
-            {FAQS.map((faq, idx) => (
-              <div
-                key={idx}
-                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 cursor-pointer hover:border-slate-700 transition-colors"
-              >
-                <div className="flex justify-between items-center gap-4">
-                  <h3 className="font-bold text-white text-base md:text-lg flex items-center gap-2">
-                    <HelpCircle size={18} className="text-orange-400 shrink-0" />
-                    {faq.q}
-                  </h3>
-                  <span className="text-slate-400 font-black text-xl">
-                    {openFaq === idx ? "−" : "+"}
-                  </span>
-                </div>
-                {openFaq === idx && (
-                  <p className="mt-4 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-4">
-                    {faq.a}
-                  </p>
-                )}
+      {/* ─── SECTION 18: FOOTER / CLOSING STATEMENT ─── */}
+      <footer className="bg-slate-950 border-t border-slate-800/80 py-16 px-6 relative z-10 text-slate-400">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pb-12 border-b border-slate-800/80">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <BrandLogo size="md" />
+                <span className="text-2xl font-black text-white tracking-tight">
+                  RAVISHING<span className="text-orange-400">.ART</span>
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
+              <h3 className="text-xl font-bold text-white">Create. Connect. Grow. Become Ravishing.</h3>
+              <p className="text-sm text-slate-400 max-w-lg leading-relaxed">
+                Ravishing Art Hub is a community for ambitious women who want to transform their creativity into skill, identity, impact and financial freedom. Your creativity deserves a place in your life. And your journey starts here.
+              </p>
+            </div>
 
-        {/* Closing Statement */}
-        <div className="max-w-5xl mx-auto pt-12 border-t border-slate-800/80 text-center space-y-4">
-          <BrandLogo size="lg" className="justify-center mx-auto" />
-
-          <h3 className="text-xl md:text-2xl font-black text-white">
-            Create. Connect. Grow. Become Ravishing.
-          </h3>
-
-          <p className="text-slate-400 text-xs md:text-sm max-w-2xl mx-auto leading-relaxed">
-            Ravishing Art Hub is a community for ambitious women who want to transform their creativity into skill, identity, impact and financial freedom. Your creativity deserves a place in your life. And your journey starts here.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-6 text-xs text-slate-500 font-semibold pt-4">
-            <Link href="/webinar" className="hover:text-slate-300 transition-colors">Free Masterclass</Link>
-            <Link href="/login" className="hover:text-slate-300 transition-colors">Student Login</Link>
-            <Link href="/register" className="hover:text-slate-300 transition-colors">Join Academy</Link>
-            <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms of Service</Link>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/webinar"
+                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold rounded-xl text-sm transition-all"
+              >
+                Join Free Masterclass
+              </Link>
+              <Link
+                href="/login"
+                className="px-6 py-3 bg-slate-900 border border-slate-800 hover:border-slate-700 text-white font-bold rounded-xl text-sm transition-all"
+              >
+                Student Portal
+              </Link>
+            </div>
           </div>
 
-          <p className="text-[11px] text-slate-600 pt-4">
-            © {new Date().getFullYear()} Ravishing Art Hub. All Rights Reserved. Mastered with pride in India.
-          </p>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+            <p>© {new Date().getFullYear()} Ravishing Art Hub. All Rights Reserved. Mastered with Passion.</p>
+            <div className="flex gap-6">
+              <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms of Service</Link>
+              <Link href="/contact" className="hover:text-slate-300 transition-colors">Contact Support</Link>
+            </div>
+          </div>
         </div>
-      </section>
-
+      </footer>
     </div>
   );
 }
