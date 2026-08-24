@@ -131,10 +131,7 @@ export default function StudentDashboard() {
             <div className="lg:col-span-4 flex flex-col">
               <WinWall 
                 communityWins={stats.communityWins} 
-                onShareWin={() => {
-                  const el = document.getElementById('community-sales');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }} 
+                onWinAdded={() => fetchStats(true)} 
               />
             </div>
           </div>
