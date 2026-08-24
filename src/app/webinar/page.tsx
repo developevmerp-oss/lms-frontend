@@ -38,11 +38,12 @@ import {
   Briefcase,
   Globe,
   Brush,
+  Quote,
   Sun,
   Moon
 } from "lucide-react";
 
-// ─── EXACT REFERENCE DATA EXTRACTED VERBATIM FROM REFERENCE APPLICATION ───
+// ─── EXACT REFERENCE DATA IN 100% CANONICAL SEQUENCE FROM SOURCE BUNDLE ───
 
 const STAT_COUNTERS = [
   { value: "10+ Years", label: "Experience in coaching" },
@@ -51,6 +52,7 @@ const STAT_COUNTERS = [
   { value: "90 min", label: "Live masterclass" }
 ];
 
+// SECTION 1: SOUND FAMILIAR? (W -> e2)
 const SOUND_FAMILIAR = {
   eyebrow: "SOUND FAMILIAR?",
   heading: "If any of this is true right now, this Masterclass is for you",
@@ -66,6 +68,7 @@ const SOUND_FAMILIAR = {
   turn: "None of that means you're behind. It usually means you're missing one structure — Mastery, Mindset and Monetization together. That's exactly what we cover."
 };
 
+// SECTION 2: MY PHILOSOPHY (H -> n2)
 const PHILOSOPHY = {
   eyebrow: "MY PHILOSOPHY",
   heading: "Mastery → Mindset → Monetization",
@@ -90,6 +93,7 @@ const PHILOSOPHY = {
   closing: "Because skill without confidence stays hidden. Confidence without a business roadmap stays stuck. And business without mastery becomes difficult to sustain."
 };
 
+// SECTION 3: ON THE MASTERCLASS: THREE SECRETS (q -> t2)
 const THREE_SECRETS = {
   eyebrow: "ON THE MASTERCLASS",
   heading: "The three secrets we'll unpack together",
@@ -116,12 +120,14 @@ const THREE_SECRETS = {
   ]
 };
 
+// SECTION 4: LIVE SEATS ARE LIMITED (ve -> o2)
 const LIVE_SEATS_BANNER = {
   heading: "Live seats are limited",
   body: "Registration closes when the live-seat capacity is reached.",
   cta: "Yes — show me the 3 secrets"
 };
 
+// SECTION 5: THE SHIFT (L -> i2)
 const THE_SHIFT = {
   eyebrow: "THE SHIFT",
   heading: "Stop learning resin the hard way",
@@ -140,74 +146,7 @@ const THE_SHIFT = {
   ]
 };
 
-const PROOF = {
-  eyebrow: "PROOF",
-  heading: "You're learning from someone who has been in the arena",
-  body: "My journey has been about more than learning resin techniques. It's been about understanding how creativity can become confidence, identity, community and income — and helping other women make that journey with greater clarity.",
-  items: [
-    { value: "10+ Years", label: "Experience in coaching" },
-    { value: "54,000+", label: "People have attended my webinars" },
-    { value: "2022", label: "Hall of Fame Award from mentor Siddharth Rajsekar" },
-    { value: "International Best Seller", label: "Featured as part of I Can Coach" },
-    { value: "Featured", label: "Sylph Magazine and other art publications" }
-  ]
-};
-
-const RIGHT_FIT = {
-  eyebrow: "RIGHT FIT?",
-  heading: "This Masterclass is for you if…",
-  subheading: "Six women walk into this session. You'll recognise yourself in one of them.",
-  items: [
-    {
-      title: "The Passionate Beginner",
-      body: "You have always wanted to create beautiful resin art but need a structured path."
-    },
-    {
-      title: "The Aspiring Artist",
-      body: "You want to move beyond hobby-level work and develop premium skills."
-    },
-    {
-      title: "The Homemaker Ready for Her Own Identity",
-      body: "You want something that belongs to you — creatively and financially."
-    },
-    {
-      title: "The Working Professional",
-      body: "You want to build a creative income stream alongside your existing work."
-    },
-    {
-      title: "The Existing Resin Artist",
-      body: "You know the basics but want better skills, stronger positioning and more consistent opportunities."
-    },
-    {
-      title: "The Creative Entrepreneur",
-      body: "You want to turn your creative expertise into a structured business."
-    }
-  ]
-};
-
-const HONEST_FIT_CHECK = {
-  eyebrow: "HONEST FIT CHECK",
-  heading: "Who should attend — and who should skip it",
-  subheading: "Being explicit about fit raises show-up rate. I'd rather you spend 90 minutes well than spend them at all.",
-  forHeading: "You SHOULD attend if…",
-  notForHeading: "This is NOT for you if…",
-  forItems: [
-    "You want to seriously explore monetizing your creative skill.",
-    "You are willing to learn rather than only collect tutorials.",
-    "You want to build confidence and a unique identity.",
-    "You want a structured resin learning roadmap.",
-    "You want to understand how art can become a business.",
-    "You are willing to take action after the Masterclass."
-  ],
-  notForItems: [
-    "You only want free tutorials with no intention of applying them.",
-    "You are looking for instant or guaranteed income.",
-    "You do not want to practice or improve your skills.",
-    "You expect someone else to build the business for you.",
-    "You are not interested in turning creativity into a serious opportunity."
-  ]
-};
-
+// SECTION 6: WHAT CHANGES (X -> l2)
 const WHAT_CHANGES = {
   eyebrow: "WHAT CHANGES",
   heading: "Imagine what changes when you put these three secrets together",
@@ -240,6 +179,54 @@ const WHAT_CHANGES = {
   ]
 };
 
+// SECTION 7: RIGHT FIT? (ee -> s2)
+const RIGHT_FIT = {
+  eyebrow: "RIGHT FIT?",
+  heading: "This Masterclass is for you if…",
+  subheading: "Six women walk into this session. You'll recognise yourself in one of them.",
+  items: [
+    {
+      title: "The Passionate Beginner",
+      body: "You have always wanted to create beautiful resin art but need a structured path."
+    },
+    {
+      title: "The Aspiring Artist",
+      body: "You want to move beyond hobby-level work and develop premium skills."
+    },
+    {
+      title: "The Homemaker Ready for Her Own Identity",
+      body: "You want something that belongs to you — creatively and financially."
+    },
+    {
+      title: "The Working Professional",
+      body: "You want to build a creative income stream alongside your existing work."
+    },
+    {
+      title: "The Existing Resin Artist",
+      body: "You know the basics but want better skills, stronger positioning and more consistent opportunities."
+    },
+    {
+      title: "The Creative Entrepreneur",
+      body: "You want to turn your creative expertise into a structured business."
+    }
+  ]
+};
+
+// SECTION 8: PROOF (te -> r2)
+const PROOF = {
+  eyebrow: "PROOF",
+  heading: "You're learning from someone who has been in the arena",
+  body: "My journey has been about more than learning resin techniques. It's been about understanding how creativity can become confidence, identity, community and income — and helping other women make that journey with greater clarity.",
+  items: [
+    { value: "10+ Years", label: "Experience in coaching" },
+    { value: "54,000+", label: "People have attended my webinars" },
+    { value: "2022", label: "Hall of Fame Award from mentor Siddharth Rajsekar" },
+    { value: "International Best Seller", label: "Featured as part of I Can Coach" },
+    { value: "Featured", label: "Sylph Magazine and other art publications" }
+  ]
+};
+
+// SECTION 9: FREE BONUS: CLARITY KIT (B -> u2)
 const CLARITY_KIT = {
   eyebrow: "FREE BONUS",
   heading: "Register free & get the Resin Artist Clarity Kit",
@@ -273,6 +260,58 @@ const CLARITY_KIT = {
   cta: "Yes, I want the free Clarity Kit"
 };
 
+// SECTION 10: VALUE STACK (Ks -> E)
+const VALUE_STACK = {
+  eyebrow: "VALUE STACK",
+  heading: "Everything you need to start seeing your resin journey differently",
+  items: [
+    {
+      title: "Resin Mastery Masterclass (live, 90 minutes)",
+      value: "₹9,900",
+      body: "Mastery, mindset and monetization — plus live Q&A with Vrajangna."
+    },
+    {
+      title: "Resin Artist Clarity Kit",
+      value: "Free bonus",
+      body: "Six practical resources to help you act on what you learn."
+    },
+    {
+      title: "Roadmap, planner, product list & worksheets",
+      value: "Included",
+      body: "Success Roadmap, 90-Day Planner, Top 25 Products That Sell, Readiness Checklist, Identity Worksheet and Artist Archetypes."
+    }
+  ],
+  totalLabel: "Total value",
+  totalValue: "₹9,900 + bonuses",
+  priceLabel: "Your investment today",
+  priceValue: "₹0 — Free"
+};
+
+// SECTION 11: HONEST FIT CHECK (D -> a2)
+const HONEST_FIT_CHECK = {
+  eyebrow: "HONEST FIT CHECK",
+  heading: "Who should attend — and who should skip it",
+  subheading: "Being explicit about fit raises show-up rate. I'd rather you spend 90 minutes well than spend them at all.",
+  forHeading: "You SHOULD attend if…",
+  notForHeading: "This is NOT for you if…",
+  forItems: [
+    "You want to seriously explore monetizing your creative skill.",
+    "You are willing to learn rather than only collect tutorials.",
+    "You want to build confidence and a unique identity.",
+    "You want a structured resin learning roadmap.",
+    "You want to understand how art can become a business.",
+    "You are willing to take action after the Masterclass."
+  ],
+  notForItems: [
+    "You only want free tutorials with no intention of applying them.",
+    "You are looking for instant or guaranteed income.",
+    "You do not want to practice or improve your skills.",
+    "You expect someone else to build the business for you.",
+    "You are not interested in turning creativity into a serious opportunity."
+  ]
+};
+
+// SECTION 12: AGENDA (se -> c2)
 const AGENDA = {
   eyebrow: "AGENDA",
   heading: "How the 90 minutes run",
@@ -306,6 +345,7 @@ const AGENDA = {
   ]
 };
 
+// SECTION 13: YOUR MENTOR (A -> h2)
 const MENTOR_SECTION = {
   eyebrow: "YOUR MENTOR",
   name: "Vrajangna Patel",
@@ -325,6 +365,36 @@ const MENTOR_SECTION = {
   ]
 };
 
+// SECTION 14: COMMUNITY (ae -> d2)
+const COMMUNITY_SECTION = {
+  eyebrow: "COMMUNITY",
+  heading: "Women like you are turning creativity into confidence",
+  subheading: "Stories and transformations from the Ravishing Art Hub sisterhood.",
+  items: [
+    {
+      quote: "The masterclass completely changed how I look at resin art. I stopped ruining expensive pours and gained the confidence to start taking custom client orders!",
+      name: "Pooja Sharma",
+      role: "Mumbai"
+    },
+    {
+      quote: "Vrajangna ma'am's chemistry breakdown was an eye-opener. The wave lacing and ratio formulas worked on my very first try.",
+      name: "Ananya Roy",
+      role: "Kolkata"
+    },
+    {
+      quote: "I was struggling with pricing for months. Using the monetization roadmap, I closed two corporate gift orders within 3 weeks of attending.",
+      name: "Shweta Verma",
+      role: "Delhi"
+    },
+    {
+      quote: "As a homemaker, this gave me my own creative identity and financial independence. The step-by-step guidance is priceless.",
+      name: "Neha Patel",
+      role: "Ahmedabad"
+    }
+  ]
+};
+
+// SECTION 15: FREQUENTLY ASKED QUESTIONS (Ne -> f2)
 const EXACT_FAQS = [
   {
     q: "Is the Masterclass really free?",
@@ -873,11 +943,11 @@ export default function WebinarPage() {
           </div>
         </section>
 
-        {/* ─── 7. UNLOCKED EXACT CURRICULUM SECTIONS (MATCHING REFERENCE VERBATIM) ─── */}
+        {/* ─── 7. UNLOCKED EXACT CURRICULUM SECTIONS (100% MATCHING REFERENCE SEQUENCE) ─── */}
         {isUnlocked && (
           <div id="gate-content" className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-0">
             
-            {/* 1. SOUND FAMILIAR? (Screenshots 1 & 2) */}
+            {/* 1. SOUND FAMILIAR? (W -> e2) */}
             <section id="sound-familiar" className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-12">
@@ -909,7 +979,7 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 2. MY PHILOSOPHY (Screenshot 3) */}
+            {/* 2. MY PHILOSOPHY (H -> n2) */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
@@ -942,7 +1012,7 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 3. ON THE MASTERCLASS: THE THREE SECRETS (Screenshot 4) */}
+            {/* 3. ON THE MASTERCLASS: THE THREE SECRETS (q -> t2) */}
             <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
               <div className="mx-auto max-w-6xl">
                 <div className="text-center max-w-3xl mx-auto mb-16">
@@ -980,7 +1050,7 @@ export default function WebinarPage() {
                   ))}
                 </div>
 
-                {/* 4. LIVE SEATS ARE LIMITED BANNER (Screenshot 5) */}
+                {/* 4. LIVE SEATS ARE LIMITED BANNER (ve -> o2) */}
                 <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                   <div>
                     <h3 className="text-lg font-bold text-white">{LIVE_SEATS_BANNER.heading}</h3>
@@ -997,7 +1067,7 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 5. THE SHIFT (Screenshot 5) */}
+            {/* 5. THE SHIFT (L -> i2) */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
@@ -1037,33 +1107,33 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 6. PROOF */}
+            {/* 6. WHAT CHANGES (X -> l2) */}
             <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
-                <div className="text-center max-w-3xl mx-auto mb-12">
+              <div className="mx-auto max-w-6xl">
+                <div className="text-center max-w-3xl mx-auto mb-14">
                   <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {PROOF.eyebrow}
+                    {WHAT_CHANGES.eyebrow}
                   </span>
                   <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {PROOF.heading}
+                    {WHAT_CHANGES.heading}
                   </h2>
-                  <p className="text-slate-300 text-base leading-relaxed max-w-2xl mx-auto">
-                    {PROOF.body}
+                  <p className="text-slate-400 text-sm sm:text-base">
+                    {WHAT_CHANGES.subheading}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {PROOF.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center">
-                      <p className="text-2xl font-bold text-white mb-1">{item.value}</p>
-                      <p className="text-xs text-slate-400 font-medium">{item.label}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {WHAT_CHANGES.items.map((item, idx) => (
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
 
-            {/* 7. RIGHT FIT? */}
+            {/* 7. RIGHT FIT? (ee -> s2) */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-6xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
@@ -1089,8 +1159,116 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 8. HONEST FIT CHECK */}
+            {/* 8. PROOF (te -> r2) */}
             <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+              <div className="mx-auto max-w-5xl">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    {PROOF.eyebrow}
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    {PROOF.heading}
+                  </h2>
+                  <p className="text-slate-300 text-base leading-relaxed max-w-2xl mx-auto">
+                    {PROOF.body}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {PROOF.items.map((item, idx) => (
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center">
+                      <p className="text-2xl font-bold text-white mb-1">{item.value}</p>
+                      <p className="text-xs text-slate-400 font-medium">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* 9. FREE BONUS: CLARITY KIT (B -> u2) */}
+            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
+              <div className="mx-auto max-w-6xl">
+                <div className="text-center max-w-3xl mx-auto mb-14">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    {CLARITY_KIT.eyebrow}
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    {CLARITY_KIT.heading}
+                  </h2>
+                  <p className="text-slate-400 text-base">
+                    {CLARITY_KIT.subheading}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                  {CLARITY_KIT.items.map((item, idx) => (
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-center">
+                  <button
+                    onClick={scrollToRegister}
+                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
+                  >
+                    {CLARITY_KIT.cta}
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* 10. VALUE STACK (Ks -> E) */}
+            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+              <div className="mx-auto max-w-4xl">
+                <div className="text-center max-w-2xl mx-auto mb-12">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    {VALUE_STACK.eyebrow}
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    {VALUE_STACK.heading}
+                  </h2>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  {VALUE_STACK.items.map((item, idx) => (
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-base font-bold text-white">{item.title}</h3>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1">{item.body}</p>
+                      </div>
+                      <span className="text-sm font-bold text-orange-400 shrink-0 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-center">
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                  <div>
+                    <p className="text-xs text-slate-400 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
+                    <p className="text-lg font-bold text-slate-400 line-through">{VALUE_STACK.totalValue}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-orange-400 uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
+                    <p className="text-2xl font-black text-emerald-400">{VALUE_STACK.priceValue}</p>
+                  </div>
+                  <button
+                    onClick={scrollToRegister}
+                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
+                  >
+                    Reserve my free seat
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* 11. HONEST FIT CHECK (D -> a2) */}
+            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
                   <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
@@ -1136,70 +1314,8 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 9. WHAT CHANGES */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {WHAT_CHANGES.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {WHAT_CHANGES.heading}
-                  </h2>
-                  <p className="text-slate-400 text-sm sm:text-base">
-                    {WHAT_CHANGES.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {WHAT_CHANGES.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* 10. CLARITY KIT BONUS */}
+            {/* 12. AGENDA (se -> c2) */}
             <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {CLARITY_KIT.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {CLARITY_KIT.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {CLARITY_KIT.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                  {CLARITY_KIT.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="text-center">
-                  <button
-                    onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
-                  >
-                    {CLARITY_KIT.cta}
-                    <ArrowRight size={14} />
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* 11. AGENDA */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
                 <div className="text-center max-w-3xl mx-auto mb-14">
                   <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
@@ -1229,8 +1345,8 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 12. YOUR MENTOR */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+            {/* 13. YOUR MENTOR (A -> h2) */}
+            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-5xl">
                 <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-sm">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -1250,7 +1366,8 @@ export default function WebinarPage() {
                       <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300">
                         {MENTOR_SECTION.eyebrow}
                       </span>
-                      <h3 className="text-2xl font-bold text-white">{MENTOR_SECTION.name}</h3>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-white">Meet {MENTOR_SECTION.name}</h2>
+                      <p className="text-xs text-slate-400">{MENTOR_SECTION.role}</p>
                       {MENTOR_SECTION.bio.map((p, idx) => (
                         <p key={idx} className="text-sm text-slate-300 leading-relaxed">{p}</p>
                       ))}
@@ -1270,7 +1387,41 @@ export default function WebinarPage() {
               </div>
             </section>
 
-            {/* 13. EXACT FREQUENTLY ASKED QUESTIONS */}
+            {/* 14. COMMUNITY / TESTIMONIALS (ae -> d2) */}
+            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
+              <div className="mx-auto max-w-6xl">
+                <div className="text-center max-w-3xl mx-auto mb-14">
+                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                    {COMMUNITY_SECTION.eyebrow}
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    {COMMUNITY_SECTION.heading}
+                  </h2>
+                  <p className="text-slate-400 text-base">
+                    {COMMUNITY_SECTION.subheading}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {COMMUNITY_SECTION.items.map((item, idx) => (
+                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+                      <div>
+                        <Quote size={20} className="text-orange-400 mb-3" />
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic mb-4">
+                          "{item.quote}"
+                        </p>
+                      </div>
+                      <div className="border-t border-slate-800 pt-3">
+                        <p className="text-sm font-bold text-white">{item.name}</p>
+                        <p className="text-xs text-slate-400">{item.role}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* 15. FREQUENTLY ASKED QUESTIONS (Ne -> f2) */}
             <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
               <div className="mx-auto max-w-4xl">
                 <div className="text-center max-w-2xl mx-auto mb-12">
