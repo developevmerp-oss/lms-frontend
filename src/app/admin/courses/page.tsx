@@ -253,6 +253,27 @@ export default function AdminCourses() {
     reader.readAsDataURL(file);
   };
 
+  const handleSyncCurriculum = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/courses/seed`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess("All 30 level-wise courses synced to database!");
+        fetchCourses();
+      } else {
+        alert(data.message || "Failed to sync courses");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const displayedCourses = courses.filter((c) => {
     if (activeLevelFilter === "all") return true;
     return (c.levelCode || "L0").toUpperCase() === activeLevelFilter.toUpperCase();
@@ -274,7 +295,16 @@ export default function AdminCourses() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={handleSyncCurriculum}
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-amber-500/30 transition-all cursor-pointer shadow-md"
+              title="Populate or sync all 30 standard courses into the database"
+            >
+              <Sparkles size={16} /> Sync 30 Curriculum Courses
+            </button>
+
             <button
               onClick={() => {
                 setEditingCourse(null);
