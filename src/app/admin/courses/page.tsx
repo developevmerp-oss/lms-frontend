@@ -19,13 +19,23 @@ import {
   ExternalLink,
   Upload,
   Link as LinkIcon,
-  Video
+  Video,
+  Filter,
+  Sparkles,
+  Trophy
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
+  L0: { name: "Fast Track", price: "₹499", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
+  L1: { name: "Silver Member", price: "₹4,999", color: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-500/30" },
+  L2: { name: "Gold Member", price: "₹19,999", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  L3: { name: "Diamond Club", price: "₹59,999", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
+  "L3+": { name: "Masters Club", price: "Custom", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
+};
+
 function formatEmbedUrl(url: string): string {
   if (!url) return "";
-  // YouTube watch?v= or youtu.be/
   if (url.includes("youtube.com/watch")) {
     const videoId = new URL(url).searchParams.get("v");
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
@@ -34,12 +44,10 @@ function formatEmbedUrl(url: string): string {
     const videoId = url.split("youtu.be/")[1]?.split("?")[0];
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
   }
-  // Google Drive view -> preview
   if (url.includes("drive.google.com/file/d/")) {
     const fileId = url.split("/d/")[1]?.split("/")[0];
     if (fileId) return `https://drive.google.com/file/d/${fileId}/preview`;
   }
-  // Vimeo
   if (url.includes("vimeo.com/")) {
     const vimeoId = url.split("vimeo.com/")[1]?.split("?")[0];
     if (vimeoId) return `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
@@ -51,12 +59,18 @@ export default function AdminCourses() {
   const { token, user, logout } = useAuth();
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [activeLevelFilter, setActiveLevelFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
 
   // Course Modals
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
-  const [courseForm, setCourseForm] = useState({ title: "", description: "" });
+  const [courseForm, setCourseForm] = useState({
+    title: "",
+    description: "",
+    levelCode: "L0",
+    order: 1,
+  });
 
   // Chapter Modals
   const [showChapterModal, setShowChapterModal] = useState<string | null>(null);
@@ -93,7 +107,6 @@ export default function AdminCourses() {
       .then((data) => {
         if (Array.isArray(data)) {
           setCourses(data);
-          // If a course is currently opened, update its details
           if (selectedCourse) {
             const updated = data.find((c: any) => c.id === selectedCourse.id);
             if (updated) setSelectedCourse(updated);
@@ -133,7 +146,7 @@ export default function AdminCourses() {
       if (res.ok) {
         setShowCourseModal(false);
         setEditingCourse(null);
-        setCourseForm({ title: "", description: "" });
+        setCourseForm({ title: "", description: "", levelCode: "L0", order: 1 });
         showSuccess(editingCourse ? "Course updated successfully!" : "New course created!");
         fetchCourses();
       }
@@ -225,12 +238,10 @@ export default function AdminCourses() {
     }
   };
 
-  // Direct Video File Picker handler
   const handleDirectVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // For local system videos: Create object URL or base64 data stream
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
@@ -242,6 +253,11 @@ export default function AdminCourses() {
     reader.readAsDataURL(file);
   };
 
+  const displayedCourses = courses.filter((c) => {
+    if (activeLevelFilter === "all") return true;
+    return (c.levelCode || "L0").toUpperCase() === activeLevelFilter.toUpperCase();
+  });
+
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans">
       <AdminNav user={user} logout={logout} />
@@ -250,24 +266,31 @@ export default function AdminCourses() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <BookOpen size={13} className="text-orange-400" /> Curriculum &amp; Video Manager
+              <BookOpen size={13} className="text-orange-400" /> Sequential Level Curriculum
             </span>
-            <h1 className="text-3xl font-black text-white">Manage Courses &amp; Lessons</h1>
+            <h1 className="text-3xl font-black text-white">Level-Wise Course Management</h1>
             <p className="text-slate-400 mt-1 text-sm">
-              Create video modules, upload lesson recordings (YouTube, Drive, MP4), and organize curriculum folders.
+              Organize course videos sequentially across L0 (Starter), L1 (Silver), L2 (Gold), and L3 (Diamond).
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setEditingCourse(null);
-              setCourseForm({ title: "", description: "" });
-              setShowCourseModal(true);
-            }}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm transition-all hover:scale-105 shadow-lg shadow-orange-500/20 cursor-pointer self-start md:self-auto"
-          >
-            <Plus size={18} /> Create New Course
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setEditingCourse(null);
+                setCourseForm({
+                  title: "",
+                  description: "",
+                  levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
+                  order: displayedCourses.length + 1,
+                });
+                setShowCourseModal(true);
+              }}
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm transition-all hover:scale-105 shadow-lg shadow-orange-500/20 cursor-pointer"
+            >
+              <Plus size={18} /> Create New Course
+            </button>
+          </div>
         </header>
 
         {successMsg && (
@@ -276,16 +299,66 @@ export default function AdminCourses() {
           </div>
         )}
 
+        {/* Level Tabs / Filter Bar */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
+          <button
+            onClick={() => setActiveLevelFilter("all")}
+            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              activeLevelFilter === "all"
+                ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
+                : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+            }`}
+          >
+            All Levels ({courses.length})
+          </button>
+
+          {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
+            const cfg = LEVEL_TIER_CONFIG[lvl];
+            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
+            const isActive = activeLevelFilter === lvl;
+
+            return (
+              <button
+                key={lvl}
+                onClick={() => setActiveLevelFilter(lvl)}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                  isActive
+                    ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
+                    : "bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                }`}
+              >
+                <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${isActive ? "bg-slate-950 text-orange-400" : `${cfg.bg} ${cfg.color}`}`}>
+                  {lvl}
+                </span>
+                <span>{cfg.name}</span>
+                <span className="text-[11px] opacity-75 font-mono">({cfg.price})</span>
+                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Courses Grid */}
         {isLoading ? (
-          <div className="p-16 text-center text-slate-500">Loading course library...</div>
-        ) : courses.length === 0 ? (
+          <div className="p-16 text-center text-slate-500">Loading curriculum library...</div>
+        ) : displayedCourses.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl p-8">
             <BookOpen size={48} className="text-slate-700 mb-4" />
-            <h3 className="text-lg font-bold text-white mb-1">No Courses Yet</h3>
-            <p className="text-slate-400 text-sm mb-4">Click "Create New Course" to add your first course module.</p>
+            <h3 className="text-lg font-bold text-white mb-1">No Courses Found in this Tier</h3>
+            <p className="text-slate-400 text-sm mb-4">Click "Create New Course" to add a course to {activeLevelFilter}.</p>
             <button
-              onClick={() => setShowCourseModal(true)}
+              onClick={() => {
+                setEditingCourse(null);
+                setCourseForm({
+                  title: "",
+                  description: "",
+                  levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
+                  order: 1,
+                });
+                setShowCourseModal(true);
+              }}
               className="bg-orange-500 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl cursor-pointer"
             >
               + Create Course
@@ -293,8 +366,10 @@ export default function AdminCourses() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => {
+            {displayedCourses.map((course) => {
               const isSelected = selectedCourse?.id === course.id;
+              const lvl = (course.levelCode || "L0").toUpperCase();
+              const cfg = LEVEL_TIER_CONFIG[lvl] || LEVEL_TIER_CONFIG.L0;
 
               return (
                 <div
@@ -304,24 +379,26 @@ export default function AdminCourses() {
                   }`}
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-400">
-                          {isSelected ? <FolderOpen size={24} /> : <Folder size={24} />}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-black text-white leading-snug">{course.title}</h3>
-                          <p className="text-slate-400 text-xs flex items-center gap-1.5 mt-1 font-semibold">
-                            <Layers size={13} className="text-orange-400" /> {course.chapters?.length || 0} Chapters / Lessons
-                          </p>
-                        </div>
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2.5 py-1 rounded-xl text-xs font-black border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                          {lvl} • {cfg.name}
+                        </span>
+                        <span className="text-xs text-slate-500 font-mono font-bold">
+                          {cfg.price}
+                        </span>
                       </div>
 
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => {
                             setEditingCourse(course);
-                            setCourseForm({ title: course.title, description: course.description || "" });
+                            setCourseForm({
+                              title: course.title,
+                              description: course.description || "",
+                              levelCode: course.levelCode || "L0",
+                              order: course.order || 0,
+                            });
                             setShowCourseModal(true);
                           }}
                           className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
@@ -339,7 +416,19 @@ export default function AdminCourses() {
                       </div>
                     </div>
 
-                    <p className="text-slate-400 text-xs leading-relaxed mb-6 line-clamp-3">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-400">
+                        {isSelected ? <FolderOpen size={20} /> : <Folder size={20} />}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-white leading-snug">{course.title}</h3>
+                        <p className="text-slate-400 text-xs flex items-center gap-1.5 mt-1 font-semibold">
+                          <Layers size={12} className="text-orange-400" /> {course.chapters?.length || 0} Video Lessons
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="text-slate-400 text-xs leading-relaxed mb-6 line-clamp-2">
                       {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                     </p>
                   </div>
@@ -384,9 +473,14 @@ export default function AdminCourses() {
                   <FolderOpen size={24} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-orange-400 block">
-                    Opened Folder Content
-                  </span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-black uppercase tracking-wider text-orange-400">
+                      Tier: {selectedCourse.levelCode || "L0"}
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">
+                      ({LEVEL_TIER_CONFIG[selectedCourse.levelCode || "L0"]?.price || "₹499"})
+                    </span>
+                  </div>
                   <h2 className="text-2xl font-black text-white flex items-center gap-2">
                     {selectedCourse.title}
                   </h2>
@@ -532,6 +626,33 @@ export default function AdminCourses() {
             </div>
 
             <form onSubmit={handleSaveCourse} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Tier</label>
+                  <select
+                    value={courseForm.levelCode}
+                    onChange={(e) => setCourseForm({ ...courseForm, levelCode: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                  >
+                    <option value="L0">L0 (Fast Track - ₹499)</option>
+                    <option value="L1">L1 (Silver - ₹4,999)</option>
+                    <option value="L2">L2 (Gold - ₹19,999)</option>
+                    <option value="L3">L3 (Diamond - ₹59,999)</option>
+                    <option value="L3+">L3+ (Masters Club)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Sequence Order #</label>
+                  <input
+                    type="number"
+                    value={courseForm.order}
+                    onChange={(e) => setCourseForm({ ...courseForm, order: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-1.5">Course Title</label>
                 <input
@@ -540,7 +661,7 @@ export default function AdminCourses() {
                   value={courseForm.title}
                   onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
-                  placeholder="e.g. Resin Geode Masterclass"
+                  placeholder="e.g. 1. Resin Fundamentals"
                 />
               </div>
 
@@ -576,7 +697,7 @@ export default function AdminCourses() {
         </div>
       )}
 
-      {/* Chapter Modal (Create / Edit) with YouTube & Direct File Upload Support */}
+      {/* Chapter Modal (Create / Edit) */}
       {showChapterModal && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-white">
@@ -605,11 +726,10 @@ export default function AdminCourses() {
                   value={chapterForm.title}
                   onChange={(e) => setChapterForm({ ...chapterForm, title: e.target.value })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
-                  placeholder="e.g. Module 1: Resin Chemistry & 3:1 Ratios"
+                  placeholder="e.g. Module 1: Resin Chemistry & Pouring Technique"
                 />
               </div>
 
-              {/* Video Source Tabs */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-2">Video Lesson Source</label>
                 <div className="flex items-center gap-2 mb-3 bg-slate-950 p-1 rounded-xl border border-slate-800">

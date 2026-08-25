@@ -2,15 +2,43 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { StudentNav } from "@/components/layout/StudentNav";
-import { BookOpen, PlayCircle, FileText, ChevronRight, CheckCircle2, Video, X, Layers, ExternalLink } from "lucide-react";
+import { StudentNav, getLevelCode } from "@/components/layout/StudentNav";
+import {
+  BookOpen,
+  PlayCircle,
+  FileText,
+  ChevronRight,
+  CheckCircle2,
+  Video,
+  X,
+  Layers,
+  ExternalLink,
+  Lock,
+  Sparkles,
+  Trophy
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 import { API_BASE_URL } from "@/config/api";
 
+export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
+  L0: { name: "Fast Track", price: "₹499", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
+  L1: { name: "Silver Member", price: "₹4,999", color: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-500/30" },
+  L2: { name: "Gold Member", price: "₹19,999", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  L3: { name: "Diamond Club", price: "₹59,999", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
+  "L3+": { name: "Masters Club", price: "Exclusive", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
+};
+
+const LEVEL_HIERARCHY: Record<string, number> = {
+  L0: 0,
+  L1: 1,
+  L2: 2,
+  L3: 3,
+  "L3+": 4,
+};
+
 function formatEmbedUrl(url: string): string {
   if (!url) return "";
-  // YouTube watch?v= or youtu.be/
   if (url.includes("youtube.com/watch")) {
     const videoId = new URL(url).searchParams.get("v");
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
@@ -19,12 +47,10 @@ function formatEmbedUrl(url: string): string {
     const videoId = url.split("youtu.be/")[1]?.split("?")[0];
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
   }
-  // Google Drive view -> preview
   if (url.includes("drive.google.com/file/d/")) {
     const fileId = url.split("/d/")[1]?.split("/")[0];
     if (fileId) return `https://drive.google.com/file/d/${fileId}/preview`;
   }
-  // Vimeo
   if (url.includes("vimeo.com/")) {
     const vimeoId = url.split("vimeo.com/")[1]?.split("?")[0];
     if (vimeoId) return `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
@@ -38,34 +64,53 @@ export default function StudentCourses() {
   const [stats, setStats] = useState<any>({ points: 0, notifications: [] });
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [activeVideoLesson, setActiveVideoLesson] = useState<{ title: string; videoUrl: string } | null>(null);
+  const [activeLevelFilter, setActiveLevelFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!token) return;
     
-    // Fetch user stats for the StudentNav
     fetch(`${API_BASE_URL}/dashboard/student`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => {
         if (data && !data.message) {
-          setStats({ points: data.points, notifications: data.notifications, membershipLevel: data.membershipLevel });
+          setStats({
+            points: data.points,
+            notifications: data.notifications,
+            membershipLevel: data.membershipLevel,
+            rank: data.rank,
+          });
         }
       })
       .catch(err => console.error("Error fetching stats", err));
 
-    // Fetch courses
     fetch(`${API_BASE_URL}/courses`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
-      .then(data => setCourses(data))
+      .then(data => {
+        if (Array.isArray(data)) setCourses(data);
+      })
       .catch(err => console.error("Error fetching courses", err));
   }, [token]);
+
+  const studentLevelCode = getLevelCode(stats.membershipLevel || stats.rank, stats.points || 0);
+  const studentRankNum = LEVEL_HIERARCHY[studentLevelCode] ?? 0;
+
+  const isCourseUnlocked = (courseLevel: string) => {
+    const requiredNum = LEVEL_HIERARCHY[courseLevel.toUpperCase()] ?? 0;
+    return studentRankNum >= requiredNum;
+  };
 
   const getLevelName = () => {
     return stats.membershipLevel || stats.rank || "Fast Track (L0)";
   };
+
+  const displayedCourses = courses.filter((c) => {
+    if (activeLevelFilter === "all") return true;
+    return (c.levelCode || "L0").toUpperCase() === activeLevelFilter.toUpperCase();
+  });
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans">
@@ -78,62 +123,131 @@ export default function StudentCourses() {
       />
 
       <main className="flex-1 max-w-[1400px] mx-auto w-full p-4 md:p-8">
-        <header className="mb-10">
+        <header className="mb-8">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-            <BookOpen size={13} className="text-orange-400" /> Video Learning Curriculum
+            <BookOpen size={13} className="text-orange-400" /> Sequential Video Curriculum
           </span>
           <h1 className="text-3xl md:text-4xl font-black text-white flex items-center gap-3">
-            My Course Library
+            Course Library &amp; Video Modules
           </h1>
-          <p className="text-slate-400 mt-2 text-base">
-            Open any course folder below to watch high-definition video lessons and study guides.
+          <p className="text-slate-400 mt-2 text-sm md:text-base">
+            Your step-by-step masterclass library structured from foundational casting (L0) to commercial masterworks (L3).
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course, idx) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              key={course.id} 
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl hover:border-orange-500/40 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
-                    <BookOpen size={22} />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-white text-lg group-hover:text-orange-400 transition-colors leading-snug">
-                      {course.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-semibold">
-                      <Layers size={12} className="text-orange-400" /> {course.chapters?.length || 0} Video Lessons
-                    </p>
-                  </div>
-                </div>
-                
-                <p className="text-slate-400 text-xs leading-relaxed mb-6 line-clamp-3">
-                  {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
-                </p>
-              </div>
+        {/* Level Filters */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
+          <button
+            onClick={() => setActiveLevelFilter("all")}
+            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              activeLevelFilter === "all"
+                ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
+                : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+            }`}
+          >
+            All Courses ({courses.length})
+          </button>
 
-              <button 
-                onClick={() => setSelectedCourse(course)}
-                className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/10 transition-all hover:scale-[1.02] cursor-pointer"
+          {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
+            const cfg = LEVEL_TIER_CONFIG[lvl];
+            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
+            const isActive = activeLevelFilter === lvl;
+            const isUnlocked = isCourseUnlocked(lvl);
+
+            return (
+              <button
+                key={lvl}
+                onClick={() => setActiveLevelFilter(lvl)}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                  isActive
+                    ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
+                    : "bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                }`}
               >
-                <span>📂 Open Course Lessons</span>
-                <ChevronRight size={14} />
+                <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${isActive ? "bg-slate-950 text-orange-400" : `${cfg.bg} ${cfg.color}`}`}>
+                  {lvl}
+                </span>
+                <span>{cfg.name}</span>
+                {!isUnlocked && <Lock size={12} className="text-slate-500" />}
+                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
+                  {count}
+                </span>
               </button>
-            </motion.div>
-          ))}
+            );
+          })}
+        </div>
+
+        {/* Courses Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayedCourses.map((course, idx) => {
+            const lvl = (course.levelCode || "L0").toUpperCase();
+            const cfg = LEVEL_TIER_CONFIG[lvl] || LEVEL_TIER_CONFIG.L0;
+            const unlocked = isCourseUnlocked(lvl);
+
+            return (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                key={course.id} 
+                className={`bg-slate-900/90 border rounded-3xl p-6 shadow-xl transition-all flex flex-col justify-between ${
+                  unlocked ? "border-slate-800 hover:border-orange-500/40" : "border-slate-800/60 opacity-80"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className={`px-2.5 py-0.5 rounded-xl text-[11px] font-black border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                      {lvl} • {cfg.name}
+                    </span>
+                    {!unlocked && (
+                      <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                        <Lock size={12} /> Tier Locked
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-11 h-11 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
+                      <BookOpen size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-white text-base leading-snug">
+                        {course.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-semibold">
+                        <Layers size={12} className="text-orange-400" /> {course.chapters?.length || 0} Video Lessons
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-slate-400 text-xs leading-relaxed mb-6 line-clamp-2">
+                    {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
+                  </p>
+                </div>
+
+                {unlocked ? (
+                  <button 
+                    onClick={() => setSelectedCourse(course)}
+                    className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/10 transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    <span>📂 Open Course Lessons</span>
+                    <ChevronRight size={14} />
+                  </button>
+                ) : (
+                  <div className="w-full py-2.5 px-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-400 text-center flex items-center justify-center gap-1.5">
+                    <Lock size={13} className="text-orange-400" />
+                    <span>Included in {cfg.name} ({lvl})</span>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
           
-          {courses.length === 0 && (
+          {displayedCourses.length === 0 && (
             <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-slate-900/50 border border-dashed border-slate-800 rounded-3xl p-8">
               <BookOpen size={56} className="text-slate-700 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No Courses Available Yet</h3>
-              <p className="text-slate-400 text-sm">Course modules will appear here once published by your mentor.</p>
+              <h3 className="text-xl font-bold text-white mb-2">No Courses in this Category</h3>
+              <p className="text-slate-400 text-sm">Check other level tabs to view your enrolled curriculum.</p>
             </div>
           )}
         </div>
@@ -153,7 +267,9 @@ export default function StudentCourses() {
                   <BookOpen size={20} />
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block">Course Folder</span>
+                  <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block">
+                    Tier: {selectedCourse.levelCode || "L0"} ({LEVEL_TIER_CONFIG[selectedCourse.levelCode || "L0"]?.name})
+                  </span>
                   <h2 className="text-xl font-black text-white">{selectedCourse.title}</h2>
                 </div>
               </div>
