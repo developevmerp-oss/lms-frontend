@@ -19,7 +19,9 @@ import {
   ArrowRight,
   HelpCircle,
   Eye,
-  Info
+  Info,
+  IndianRupee,
+  Tag
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -27,6 +29,7 @@ interface LevelTier {
   id: string;
   code: string;
   name: string;
+  price?: string;
   minPoints?: number;
   maxPoints?: number | null;
   icon: string;
@@ -61,6 +64,7 @@ export default function AdminLevels() {
   const [formData, setFormData] = useState({
     code: 'L1',
     name: '',
+    price: '₹4,999',
     icon: '🥈',
     badgeColor: 'slate',
     order: 1,
@@ -112,6 +116,7 @@ export default function AdminLevels() {
     setFormData({
       code: `L${nextOrder}`,
       name: '',
+      price: '₹499',
       icon: '🏆',
       badgeColor: 'amber',
       order: nextOrder,
@@ -125,6 +130,7 @@ export default function AdminLevels() {
     setFormData({
       code: tier.code,
       name: tier.name,
+      price: tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : '₹59,999'),
       icon: tier.icon || '⭐',
       badgeColor: tier.badgeColor || 'amber',
       order: tier.order || 0,
@@ -144,6 +150,7 @@ export default function AdminLevels() {
       const payload = {
         code: formData.code.trim().toUpperCase(),
         name: formData.name.trim(),
+        price: formData.price.trim(),
         minPoints: 0,
         maxPoints: null,
         icon: formData.icon,
@@ -169,7 +176,7 @@ export default function AdminLevels() {
 
       const data = await res.json();
       if (res.ok) {
-        showSuccess(editingTier ? "Level tier updated successfully!" : "New level tier created!");
+        showSuccess(editingTier ? "Level tier & price updated successfully!" : "New level tier created!");
         setIsModalOpen(false);
         fetchData();
       } else {
@@ -215,13 +222,13 @@ export default function AdminLevels() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <Trophy size={13} className="text-orange-400" /> Membership Tier Hierarchy
+              <Trophy size={13} className="text-orange-400" /> Membership Tier Hierarchy &amp; Pricing
             </span>
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              Membership Level Settings
+              Membership Level &amp; Price Settings
             </h1>
             <p className="text-slate-400 mt-1 text-sm">
-              Manage student membership tiers (L0, L1, L2, L3, L3+). Access is based on student tier assignment.
+              Manage level titles, customize offer prices (₹499, ₹4,999, ₹19,999, ₹59,999), and edit access privileges.
             </p>
           </div>
 
@@ -244,7 +251,7 @@ export default function AdminLevels() {
         <div className="mb-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs md:text-sm flex items-center gap-3">
           <Info size={18} className="text-orange-400 shrink-0" />
           <span>
-            <strong>Tier-Based Access Model:</strong> Student levels (L0 Fast Track, L1 Silver, L2 Gold, L3 Diamond, L3+ Masters) represent curriculum &amp; membership access tiers. Levels are assigned directly and do not depend on XP points.
+            <strong>Dynamic Level Pricing:</strong> Click <strong>"Edit Tier"</strong> on any level card below to update its <strong>Offer Price</strong>, title, badge color, or description. Changes immediately reflect across the entire portal.
           </span>
         </div>
 
@@ -268,6 +275,7 @@ export default function AdminLevels() {
             {levels.map((tier) => {
               const studentCount = getStudentCountForTier(tier.code);
               const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
+              const displayPrice = tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : tier.code === 'L3' ? '₹59,999' : 'Custom');
 
               return (
                 <div
@@ -285,9 +293,15 @@ export default function AdminLevels() {
                           <h3 className="text-lg font-black text-white">{tier.name}</h3>
                         </div>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${colorConfig.bg}/10 ${colorConfig.text} border ${colorConfig.border}`}>
-                        Order #{tier.order}
-                      </span>
+
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-sm font-black text-amber-400 font-mono bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                          <Tag size={12} /> {displayPrice}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-bold">
+                          Order #{tier.order}
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-xs text-slate-400 leading-relaxed mb-4">
@@ -307,7 +321,7 @@ export default function AdminLevels() {
                       onClick={() => openEditModal(tier)}
                       className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl border border-slate-700 transition-colors cursor-pointer"
                     >
-                      <Edit2 size={13} /> Edit Tier
+                      <Edit2 size={13} /> Edit Tier &amp; Price
                     </button>
                     <button
                       onClick={() => handleDeleteTier(tier.id, tier.code)}
@@ -331,7 +345,7 @@ export default function AdminLevels() {
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
                   <Trophy className="text-orange-400" size={20} />
-                  {editingTier ? `Edit Level (${editingTier.code})` : 'Create New Level Tier'}
+                  {editingTier ? `Edit Level & Price (${editingTier.code})` : 'Create New Level Tier'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -370,16 +384,29 @@ export default function AdminLevels() {
                   </div>
                 </div>
 
-                {/* Display Order */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Display Hierarchy Order</label>
-                  <input
-                    type="number"
-                    value={formData.order}
-                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                    placeholder="0 = Starter, 1 = Silver, 2 = Gold, 3 = Diamond"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
-                  />
+                {/* Offer Price & Order */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Offer Price / Fee (₹)</label>
+                    <input
+                      type="text"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="e.g. ₹4,999"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Hierarchy Order #</label>
+                    <input
+                      type="number"
+                      value={formData.order}
+                      onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                      placeholder="0, 1, 2, 3..."
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
                 </div>
 
                 {/* Icon Selection */}
@@ -449,7 +476,7 @@ export default function AdminLevels() {
                     type="submit"
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
                   >
-                    {editingTier ? 'Update Level Tier' : 'Create Level Tier'}
+                    {editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}
                   </button>
                   <button
                     type="button"
