@@ -4,7 +4,7 @@ import { BrandLogo } from "@/components/ui/BrandLogo";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Trophy, Bell, Menu, X, ChevronRight, Lock, Sparkles, User, ShoppingBag, Calendar, Target, BookOpen, LayoutDashboard } from "lucide-react";
+import { LogOut, Trophy, Bell, Menu, X, ChevronRight, Lock, Sparkles, User, ShoppingBag, Calendar, Target, BookOpen, LayoutDashboard, Video } from "lucide-react";
 import { ProfileUpdateModal } from "@/components/profile/ProfileUpdateModal";
 import { AccessLockModal } from "@/components/layout/AccessLockModal";
 
@@ -49,10 +49,6 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
 
   const studentLevelCode = getLevelCode(level, points);
 
-  // Access rules:
-  // L0: Feed, Courses, Merch store
-  // L1, L2: Feed, Courses, Events, Merch store
-  // L3, L3+: Feed, Courses, Events, Northstar, Merch store
   const isEventsAccessible = ["L1", "L2", "L3", "L3+"].includes(studentLevelCode);
   const isNorthstarAccessible = ["L3", "L3+"].includes(studentLevelCode);
 
@@ -76,16 +72,25 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       description: "Structured video masterclasses, assignments, and practical resin modules.",
     },
     {
-      name: "Events",
-      path: "/student/events",
-      icon: Calendar,
+      name: "Live Classes",
+      path: "/student/classes",
+      icon: Video,
       isAccessible: isEventsAccessible,
       requiredLevel: "L1 (Silver)",
       requiredPoints: 500,
-      description: "Live interactive webinars, weekly mentor Q&A calls, and workshop meetups unlock at Level 1 (Silver Membership).",
+      description: "Live interactive coaching calls, weekly mentor Q&A, and attendance XP unlock at Level 1 (Silver Membership).",
     },
     {
-      name: "Northstar (tracking system)",
+      name: "Webinar",
+      path: "/student/webinar",
+      icon: Sparkles,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Live Webinar registration details, Zoom link, VIP WhatsApp group, and preparation workshop video.",
+    },
+    {
+      name: "Northstar",
       path: "/student/northstar",
       icon: Target,
       isAccessible: isNorthstarAccessible,
