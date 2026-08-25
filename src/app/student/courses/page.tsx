@@ -15,9 +15,12 @@ import {
   ExternalLink,
   Lock,
   Sparkles,
-  Trophy
+  Trophy,
+  Zap,
+  Tag
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -65,8 +68,14 @@ export default function StudentCourses() {
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [activeVideoLesson, setActiveVideoLesson] = useState<{ title: string; videoUrl: string } | null>(null);
   const [activeLevelFilter, setActiveLevelFilter] = useState<string>("all");
+  
+  // Purchase / Upgrade Modal State
+  const [purchaseModal, setPurchaseModal] = useState<{ isOpen: boolean; tierCode: string }>({
+    isOpen: false,
+    tierCode: "L1",
+  });
 
-  useEffect(() => {
+  const fetchStudentData = () => {
     if (!token) return;
     
     fetch(`${API_BASE_URL}/dashboard/student`, {
@@ -93,6 +102,10 @@ export default function StudentCourses() {
         if (Array.isArray(data)) setCourses(data);
       })
       .catch(err => console.error("Error fetching courses", err));
+  };
+
+  useEffect(() => {
+    fetchStudentData();
   }, [token]);
 
   const studentLevelCode = getLevelCode(stats.membershipLevel || stats.rank, stats.points || 0);
@@ -123,17 +136,50 @@ export default function StudentCourses() {
       />
 
       <main className="flex-1 max-w-[1400px] mx-auto w-full p-4 md:p-8">
-        <header className="mb-8">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-            <BookOpen size={13} className="text-orange-400" /> Sequential Video Curriculum
-          </span>
-          <h1 className="text-3xl md:text-4xl font-black text-white flex items-center gap-3">
-            Course Library &amp; Video Modules
-          </h1>
-          <p className="text-slate-400 mt-2 text-sm md:text-base">
-            Your step-by-step masterclass library structured from foundational casting (L0) to commercial masterworks (L3).
-          </p>
+        <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
+              <BookOpen size={13} className="text-orange-400" /> Sequential Video Curriculum
+            </span>
+            <h1 className="text-3xl md:text-4xl font-black text-white flex items-center gap-3">
+              Course Library &amp; Video Modules
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm md:text-base">
+              Your step-by-step masterclass library structured from foundational casting (L0) to commercial masterworks (L3).
+            </p>
+          </div>
+
+          <button
+            onClick={() => setPurchaseModal({ isOpen: true, tierCode: studentLevelCode === "L0" ? "L1" : studentLevelCode === "L1" ? "L2" : "L3" })}
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs transition-all hover:scale-105 shadow-lg shadow-orange-500/20 cursor-pointer self-start md:self-auto"
+          >
+            <Zap size={16} /> Upgrade Membership Level
+          </button>
         </header>
+
+        {/* Upgrade Banner for students who want to purchase next levels directly */}
+        <div className="mb-8 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-orange-950/30 to-slate-900 border border-orange-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white">
+                Want to skip ahead? Purchase &amp; Unlock Any Level Directly
+              </h3>
+              <p className="text-xs text-slate-400">
+                You don't need to finish earlier modules — you can directly purchase Silver (₹4,999), Gold (₹19,999), or Diamond (₹59,999).
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setPurchaseModal({ isOpen: true, tierCode: "L2" })}
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+          >
+            View All Upgrade Tiers →
+          </button>
+        </div>
 
         {/* Level Filters */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
@@ -191,7 +237,7 @@ export default function StudentCourses() {
                 transition={{ delay: idx * 0.05 }}
                 key={course.id} 
                 className={`bg-slate-900/90 border rounded-3xl p-6 shadow-xl transition-all flex flex-col justify-between ${
-                  unlocked ? "border-slate-800 hover:border-orange-500/40" : "border-slate-800/60 opacity-80"
+                  unlocked ? "border-slate-800 hover:border-orange-500/40" : "border-slate-800/60 bg-slate-900/60"
                 }`}
               >
                 <div>
@@ -199,9 +245,13 @@ export default function StudentCourses() {
                     <span className={`px-2.5 py-0.5 rounded-xl text-[11px] font-black border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                       {lvl} • {cfg.name}
                     </span>
-                    {!unlocked && (
-                      <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
-                        <Lock size={12} /> Tier Locked
+                    {!unlocked ? (
+                      <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                        <Tag size={10} /> {cfg.price}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 size={12} /> Unlocked
                       </span>
                     )}
                   </div>
@@ -234,10 +284,13 @@ export default function StudentCourses() {
                     <ChevronRight size={14} />
                   </button>
                 ) : (
-                  <div className="w-full py-2.5 px-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-400 text-center flex items-center justify-center gap-1.5">
-                    <Lock size={13} className="text-orange-400" />
-                    <span>Included in {cfg.name} ({lvl})</span>
-                  </div>
+                  <button
+                    onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
+                    className="w-full py-3 px-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-orange-500 hover:to-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer group"
+                  >
+                    <Lock size={13} className="text-amber-400 group-hover:text-slate-950" />
+                    <span>Purchase &amp; Unlock {cfg.name} ({cfg.price})</span>
+                  </button>
                 )}
               </motion.div>
             );
@@ -372,6 +425,15 @@ export default function StudentCourses() {
           </div>
         </div>
       )}
+
+      {/* Purchase / Upgrade Tier Modal */}
+      <TierPurchaseModal
+        isOpen={purchaseModal.isOpen}
+        onClose={() => setPurchaseModal({ isOpen: false, tierCode: "L1" })}
+        targetTierCode={purchaseModal.tierCode}
+        currentLevel={getLevelName()}
+        onUpgradeSuccess={fetchStudentData}
+      />
     </div>
   );
 }
