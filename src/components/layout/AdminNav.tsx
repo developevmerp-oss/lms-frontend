@@ -49,10 +49,11 @@ const NAV_GROUPS = [
     ]
   },
   {
-    label: 'Courses',
+    label: 'Courses & Coaching',
     icon: <BookOpen size={15} />,
     children: [
       { name: 'Manage Courses', path: '/admin/courses', icon: <BookOpen size={14} /> },
+      { name: 'Live Classes & Attendance', path: '/admin/classes', icon: <Video size={14} /> },
       { name: 'Assignments', path: '/admin/assignments', icon: <ClipboardList size={14} /> },
       { name: 'Mentoring Center', path: '/admin/mentoring', icon: <Video size={14} /> },
       { name: 'Certificates', path: '/admin/certificates', icon: <Award size={14} /> },
