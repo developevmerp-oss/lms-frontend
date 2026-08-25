@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { API_BASE_URL } from "@/config/api";
@@ -696,11 +697,18 @@ export default function AdminStudents() {
                         )}
                       </div>
 
-                      {/* Award Badges */}
                       <div>
-                        <h3 className="text-slate-300 font-bold text-base mb-3 flex items-center gap-2">
-                          ➕ Award a Badge
-                        </h3>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-slate-300 font-bold text-base flex items-center gap-2">
+                            ➕ Award a Badge
+                          </h3>
+                          <Link
+                            href="/admin/badges"
+                            className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1"
+                          >
+                            ⚙️ Add / Edit Master Badges →
+                          </Link>
+                        </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {allBadges
                             .filter(b => !(selectedStudent.badges || []).find((sb: any) => sb.id === b.id))

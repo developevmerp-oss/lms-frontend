@@ -44,6 +44,7 @@ const NAV_GROUPS = [
       { name: 'Webinar Leads', path: '/admin/webinar', icon: <Sparkles size={14} /> },
       { name: 'Level Settings', path: '/admin/levels', icon: <Trophy size={14} /> },
       { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },
+      { name: 'Badges & Rewards', path: '/admin/badges', icon: <Award size={14} /> },
       { name: 'Sales Records', path: '/admin/sales', icon: <IndianRupee size={14} /> },
     ]
   },
