@@ -16,12 +16,12 @@ interface StudentNavProps {
   notifications?: any[];
 }
 
-export function getLevelCode(levelName?: string, points: number = 0): "L0" | "L1" | "L2" | "L3" | "L3+" {
+export function getLevelCode(levelName?: string, _points: number = 0): "L0" | "L1" | "L2" | "L3" | "L3+" {
   const normalized = (levelName || "").toUpperCase();
-  if (normalized.includes("L3+") || normalized.includes("MASTERS") || points >= 50000) return "L3+";
-  if (normalized.includes("L3") || normalized.includes("DIAMOND") || points >= 10000) return "L3";
-  if (normalized.includes("L2") || normalized.includes("GOLD") || points >= 5000) return "L2";
-  if (normalized.includes("L1") || normalized.includes("SILVER") || points >= 500) return "L1";
+  if (normalized.includes("L3+") || normalized.includes("MASTERS")) return "L3+";
+  if (normalized.includes("L3") || normalized.includes("DIAMOND")) return "L3";
+  if (normalized.includes("L2") || normalized.includes("GOLD")) return "L2";
+  if (normalized.includes("L1") || normalized.includes("SILVER")) return "L1";
   return "L0";
 }
 

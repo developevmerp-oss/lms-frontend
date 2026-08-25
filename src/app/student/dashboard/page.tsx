@@ -74,24 +74,13 @@ export default function StudentDashboard() {
     fetchStats();
   }, [token]);
 
-  const getLevelName = (points: number) => {
+  const getLevelName = () => {
+    if (stats.membershipLevel) return stats.membershipLevel;
+    if (stats.rank) return stats.rank;
     if (stats.currentTier?.name) {
       return `${stats.currentTier.name} (${stats.currentTier.code})`;
     }
-    if (Array.isArray(stats.levelTiers) && stats.levelTiers.length > 0) {
-      let current = stats.levelTiers[0];
-      for (const tier of stats.levelTiers) {
-        if (points >= tier.minPoints) {
-          current = tier;
-        }
-      }
-      return `${current.name} (${current.code})`;
-    }
-    if (points < 500) return "Fast Start (L0)";
-    if (points < 5000) return "Silver Member (L1)";
-    if (points < 10000) return "Gold Member (L2)";
-    if (points < 50000) return "Diamond Club (L3)";
-    return "Masters Club (L3+)";
+    return "Fast Track (L0)";
   };
 
   // Calculate dynamic progress based on enrolled course
@@ -103,7 +92,7 @@ export default function StudentDashboard() {
       
       <StudentNav 
         user={user} 
-        level={getLevelName(stats.points)} 
+        level={getLevelName()} 
         points={stats.points} 
         logout={logout} 
         notifications={stats.notifications}
@@ -118,7 +107,7 @@ export default function StudentDashboard() {
             <div className="lg:col-span-8 flex flex-col">
               <WelcomeHeader 
                 user={user} 
-                level={getLevelName(stats.points)} 
+                level={getLevelName()} 
                 xp={stats.points} 
                 streak={stats.streak} 
                 progress={dynamicProgress} 

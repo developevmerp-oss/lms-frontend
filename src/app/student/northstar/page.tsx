@@ -172,25 +172,19 @@ export default function NorthstarTrackingPage() {
               Northstar Tracking Engine is Locked
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed mb-6">
-              The full commercial revenue tracker, client conversion analytics, and 90-day milestone scorecards unlock at <strong>Level 3 (Diamond Membership)</strong> once you accumulate <strong>10,000 XP</strong>.
+              The full commercial revenue tracker, client conversion analytics, and 90-day milestone scorecards are exclusive to <strong>Level 3 (Diamond Membership)</strong> and <strong>Level 3+ (Masters Club)</strong> members.
             </p>
             <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 mb-6 text-left">
-              <div className="flex justify-between text-xs font-bold text-slate-300 mb-2">
-                <span>Current: {stats?.membershipLevel || "L0 Fast Track"}</span>
-                <span className="text-orange-400">{stats?.points || 0} / 10,000 XP</span>
-              </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400"
-                  style={{ width: `${Math.min(100, Math.round(((stats?.points || 0) / 10000) * 100))}%` }}
-                ></div>
+              <div className="flex justify-between text-xs font-bold text-slate-300">
+                <span>Your Current Membership:</span>
+                <span className="text-orange-400 font-bold">{stats?.membershipLevel || "L0 Fast Track"}</span>
               </div>
             </div>
             <Link
               href="/student/courses"
               className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-sm h-11 px-8 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 transition-all"
             >
-              Complete Lessons &amp; Assignments to Level Up
+              Explore Available Courses
             </Link>
           </div>
         ) : (

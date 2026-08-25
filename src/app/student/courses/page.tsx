@@ -38,19 +38,15 @@ export default function StudentCourses() {
       .catch(err => console.error("Error fetching courses", err));
   }, [token]);
 
-  const getLevelName = (points: number) => {
-    if (points < 500) return "Fast Start (L0)";
-    if (points < 5000) return "Silver Member (L1)";
-    if (points < 10000) return "Gold Member (L2)";
-    if (points < 50000) return "Diamond Club (L3)";
-    return "Masters Club (L3+)";
+  const getLevelName = () => {
+    return stats.membershipLevel || stats.rank || "Fast Track (L0)";
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <StudentNav 
         user={user} 
-        level={getLevelName(stats.points)} 
+        level={getLevelName()} 
         points={stats.points} 
         logout={logout} 
         notifications={stats.notifications}

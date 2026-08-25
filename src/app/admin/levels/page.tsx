@@ -18,7 +18,8 @@ import {
   Layers,
   ArrowRight,
   HelpCircle,
-  Eye
+  Eye,
+  Info
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -26,8 +27,8 @@ interface LevelTier {
   id: string;
   code: string;
   name: string;
-  minPoints: number;
-  maxPoints: number | null;
+  minPoints?: number;
+  maxPoints?: number | null;
   icon: string;
   badgeColor: string;
   order: number;
@@ -60,8 +61,6 @@ export default function AdminLevels() {
   const [formData, setFormData] = useState({
     code: 'L1',
     name: '',
-    minPoints: 500,
-    maxPoints: 4999,
     icon: '🥈',
     badgeColor: 'slate',
     order: 1,
@@ -84,14 +83,12 @@ export default function AdminLevels() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch level tiers
       const resLevels = await fetch(`${API}/admin/levels`, { headers });
       const dataLevels = await resLevels.json();
       if (Array.isArray(dataLevels)) {
         setLevels(dataLevels);
       }
 
-      // Fetch students to calculate distribution
       const resStudents = await fetch(`${API}/admin/students`, { headers });
       const dataStudents = await resStudents.json();
       if (Array.isArray(dataStudents)) {
@@ -115,8 +112,6 @@ export default function AdminLevels() {
     setFormData({
       code: `L${nextOrder}`,
       name: '',
-      minPoints: levels.length > 0 ? (levels[levels.length - 1].maxPoints || 10000) + 1 : 0,
-      maxPoints: 9999,
       icon: '🏆',
       badgeColor: 'amber',
       order: nextOrder,
@@ -130,11 +125,9 @@ export default function AdminLevels() {
     setFormData({
       code: tier.code,
       name: tier.name,
-      minPoints: tier.minPoints,
-      maxPoints: tier.maxPoints || 0,
-      icon: tier.icon || '⚡',
-      badgeColor: tier.badgeColor || 'emerald',
-      order: tier.order,
+      icon: tier.icon || '⭐',
+      badgeColor: tier.badgeColor || 'amber',
+      order: tier.order || 0,
       description: tier.description || ''
     });
     setIsModalOpen(true);
@@ -143,210 +136,187 @@ export default function AdminLevels() {
   const handleSaveTier = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.code.trim()) {
-      showError("Please fill in level code and name");
+      showError("Tier Code and Name are required");
       return;
     }
 
     try {
+      const payload = {
+        code: formData.code.trim().toUpperCase(),
+        name: formData.name.trim(),
+        minPoints: 0,
+        maxPoints: null,
+        icon: formData.icon,
+        badgeColor: formData.badgeColor,
+        order: formData.order,
+        description: formData.description.trim()
+      };
+
+      let res;
       if (editingTier) {
-        // Update existing tier
-        const res = await fetch(`${API}/admin/levels/${editingTier.id}`, {
+        res = await fetch(`${API}/admin/levels/${editingTier.id}`, {
           method: 'PUT',
           headers,
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error("Failed to update tier");
-        showSuccess(`Level "${formData.name}" updated successfully!`);
       } else {
-        // Create new tier
-        const res = await fetch(`${API}/admin/levels`, {
+        res = await fetch(`${API}/admin/levels`, {
           method: 'POST',
           headers,
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error("Failed to create tier");
-        showSuccess(`Level "${formData.name}" created successfully!`);
       }
 
-      setIsModalOpen(false);
-      await fetchData();
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess(editingTier ? "Level tier updated successfully!" : "New level tier created!");
+        setIsModalOpen(false);
+        fetchData();
+      } else {
+        showError(data.message || "Failed to save level tier");
+      }
     } catch (err: any) {
-      console.error(err);
-      showError(err.message || "Error saving level tier");
+      showError(err.message || "An error occurred");
     }
   };
 
-  const handleDeleteTier = async (tierId: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete level "${name}"?`)) return;
+  const handleDeleteTier = async (id: string, code: string) => {
+    if (!confirm(`Are you sure you want to delete tier "${code}"?`)) return;
     try {
-      const res = await fetch(`${API}/admin/levels/${tierId}`, {
+      const res = await fetch(`${API}/admin/levels/${id}`, {
         method: 'DELETE',
         headers
       });
-      if (!res.ok) throw new Error("Failed to delete tier");
-      showSuccess(`Level "${name}" deleted`);
-      await fetchData();
+      if (res.ok) {
+        showSuccess(`Tier ${code} deleted successfully`);
+        fetchData();
+      } else {
+        showError("Failed to delete tier");
+      }
     } catch (err: any) {
-      console.error(err);
-      showError("Error deleting level");
+      showError(err.message || "An error occurred");
     }
   };
 
-  // Helper to count students in this tier
-  const getStudentCountInTier = (tier: LevelTier) => {
+  const getStudentCountForTier = (tierCode: string) => {
     return students.filter(s => {
-      const pts = s.points || 0;
-      if (tier.maxPoints !== null && tier.maxPoints !== undefined && tier.maxPoints > 0) {
-        return pts >= tier.minPoints && pts <= tier.maxPoints;
-      }
-      return pts >= tier.minPoints;
+      const code = (s.rank || s.membershipLevel || '').toUpperCase();
+      return code.includes(tierCode.toUpperCase());
     }).length;
   };
 
-  const getColorTheme = (colorName: string) => {
-    return COLOR_OPTIONS.find(c => c.value === colorName) || COLOR_OPTIONS[0];
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white font-sans">
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1500px] mx-auto p-4 md:p-8 space-y-6">
+      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
         
-        {/* Header Title Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl relative overflow-hidden shadow-xl">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-inner">
-                <Trophy size={22} />
-              </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                Level & Tier Configuration
-              </h1>
-            </div>
-            <p className="text-slate-400 text-sm max-w-2xl">
-              Configure student membership tiers, customize minimum XP requirements, and assign badge icons & colors. Changes immediately reflect across all student headers and leaderboards.
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
+              <Trophy size={13} className="text-orange-400" /> Membership Tier Hierarchy
+            </span>
+            <h1 className="text-3xl font-black text-white flex items-center gap-3">
+              Membership Level Settings
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm">
+              Manage student membership tiers (L0, L1, L2, L3, L3+). Access is based on student tier assignment.
             </p>
           </div>
 
           <button
             onClick={openCreateModal}
-            className="relative z-10 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-orange-500/25 flex items-center gap-2 shrink-0 hover:scale-105"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-6 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer self-start md:self-auto"
           >
-            <Plus size={18} className="stroke-[3]" /> Add Level Tier
+            <Plus size={18} /> Create New Level Tier
           </button>
         </div>
 
-        {/* Notifications */}
+        {/* Alert Messages */}
         {successMsg && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold rounded-2xl flex items-center gap-2 animate-fade-in shadow-lg">
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
             <CheckCircle2 size={18} /> {successMsg}
           </div>
         )}
-        {errorMsg && (
-          <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm font-bold rounded-2xl flex items-center gap-2 animate-fade-in shadow-lg">
-            <CheckCircle2 size={18} /> {errorMsg}
-          </div>
-        )}
+
+        {/* Info Note */}
+        <div className="mb-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs md:text-sm flex items-center gap-3">
+          <Info size={18} className="text-orange-400 shrink-0" />
+          <span>
+            <strong>Tier-Based Access Model:</strong> Student levels (L0 Fast Track, L1 Silver, L2 Gold, L3 Diamond, L3+ Masters) represent curriculum &amp; membership access tiers. Levels are assigned directly and do not depend on XP points.
+          </span>
+        </div>
 
         {/* Level Tiers Grid */}
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500">Loading configured level tiers...</div>
+          <div className="p-16 text-center text-slate-500">Loading level configurations...</div>
+        ) : levels.length === 0 ? (
+          <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
+            <Trophy size={40} className="text-slate-600 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-white mb-1">No Level Tiers Configured</h3>
+            <p className="text-sm text-slate-400 mb-4">Create your first level tier to configure membership access.</p>
+            <button
+              onClick={openCreateModal}
+              className="bg-orange-500 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl"
+            >
+              + Create Level Tier
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {levels.map((tier, idx) => {
-              const theme = getColorTheme(tier.badgeColor);
-              const studentCount = getStudentCountInTier(tier);
+            {levels.map((tier) => {
+              const studentCount = getStudentCountForTier(tier.code);
+              const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
 
               return (
                 <div
-                  key={tier.id || idx}
-                  className={`bg-slate-900 border ${theme.border} rounded-3xl p-6 relative overflow-hidden shadow-xl flex flex-col justify-between hover:border-orange-500/40 transition-all duration-300 group`}
+                  key={tier.id}
+                  className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl"
                 >
                   <div>
-                    {/* Top Tier Meta */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-2xl ${theme.bg}/20 border ${theme.border} flex items-center justify-center text-2xl shadow-inner`}>
-                          {tier.icon}
-                        </div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl">{tier.icon || '⭐'}</span>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-black px-2.5 py-0.5 rounded-md bg-slate-800 text-white border border-slate-700">
-                              {tier.code}
-                            </span>
-                            <span className={`text-xs font-bold ${theme.text}`}>
-                              Tier #{idx + 1}
-                            </span>
-                          </div>
-                          <h3 className="text-xl font-black text-white mt-0.5">{tier.name}</h3>
+                          <span className="text-xs font-black text-orange-400 uppercase tracking-widest block">
+                            {tier.code} Tier
+                          </span>
+                          <h3 className="text-lg font-black text-white">{tier.name}</h3>
                         </div>
                       </div>
-
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openEditModal(tier)}
-                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                          title="Edit level"
-                        >
-                          <Edit2 size={15} />
-                        </button>
-                        {levels.length > 1 && (
-                          <button
-                            onClick={() => handleDeleteTier(tier.id, tier.name)}
-                            className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
-                            title="Delete level"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        )}
-                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${colorConfig.bg}/10 ${colorConfig.text} border ${colorConfig.border}`}>
+                        Order #{tier.order}
+                      </span>
                     </div>
 
-                    {/* Threshold Points Box */}
-                    <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 mb-4">
-                      <div className="flex justify-between items-center text-xs text-slate-400 mb-1">
-                        <span>Required XP Range:</span>
-                        <span className="font-mono text-white font-bold">
-                          {tier.minPoints.toLocaleString()} XP
-                          {tier.maxPoints ? ` → ${tier.maxPoints.toLocaleString()} XP` : ' and above'}
-                        </span>
-                      </div>
-                      
-                      {/* Mini Bar */}
-                      <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-                        <div
-                          className={`h-full ${theme.bg} rounded-full`}
-                          style={{ width: `${Math.min(100, Math.max(15, (tier.minPoints / (levels[levels.length - 1].minPoints || 1)) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                      {tier.description || "Full membership tier benefits and unlocked portal privileges."}
+                    </p>
 
-                    {/* Description */}
-                    {tier.description && (
-                      <p className="text-xs text-slate-400 mb-4 leading-relaxed line-clamp-2">
-                        {tier.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Footer Badge Preview & Students Count */}
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                      <Users size={14} className="text-slate-500" />
-                      <span><strong>{studentCount}</strong> student{studentCount === 1 ? '' : 's'} in tier</span>
-                    </div>
-
-                    {/* Live Badge Preview */}
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border ${theme.border} ${theme.bg}/10 text-xs font-black ${theme.text}`}>
-                      <span>{tier.icon}</span>
-                      <span>{tier.code}</span>
+                    <div className="rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 mb-4 flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Assigned Members:</span>
+                      <span className="font-black text-white flex items-center gap-1">
+                        <Users size={13} className="text-orange-400" /> {studentCount} Students
+                      </span>
                     </div>
                   </div>
 
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
+                    <button
+                      onClick={() => openEditModal(tier)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                    >
+                      <Edit2 size={13} /> Edit Tier
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTier(tier.id, tier.code)}
+                      className="text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
+                      title="Delete Tier"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -365,7 +335,7 @@ export default function AdminLevels() {
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
@@ -400,33 +370,19 @@ export default function AdminLevels() {
                   </div>
                 </div>
 
-                {/* Min & Max Points */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Minimum XP Required</label>
-                    <input
-                      type="number"
-                      value={formData.minPoints}
-                      onChange={(e) => setFormData({ ...formData, minPoints: parseInt(e.target.value) || 0 })}
-                      placeholder="0"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-orange-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Maximum XP (Optional)</label>
-                    <input
-                      type="number"
-                      value={formData.maxPoints || ''}
-                      onChange={(e) => setFormData({ ...formData, maxPoints: e.target.value ? parseInt(e.target.value) : 0 })}
-                      placeholder="Leave blank for highest tier"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-orange-500"
-                    />
-                  </div>
+                {/* Display Order */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Display Hierarchy Order</label>
+                  <input
+                    type="number"
+                    value={formData.order}
+                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                    placeholder="0 = Starter, 1 = Silver, 2 = Gold, 3 = Diamond"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
+                  />
                 </div>
 
-                {/* Icon Selection & Color */}
+                {/* Icon Selection */}
                 <div>
                   <label className="block text-xs font-bold text-slate-400 mb-1.5">Choose Icon / Emoji</label>
                   <div className="flex flex-wrap gap-2 mb-2">
@@ -435,7 +391,7 @@ export default function AdminLevels() {
                         key={i}
                         type="button"
                         onClick={() => setFormData({ ...formData, icon: em })}
-                        className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all ${
+                        className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all cursor-pointer ${
                           formData.icon === em
                             ? 'bg-orange-500/20 border-orange-500 scale-110'
                             : 'bg-slate-950 border-slate-800 hover:border-slate-700'
@@ -449,7 +405,7 @@ export default function AdminLevels() {
                     type="text"
                     value={formData.icon}
                     onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    placeholder="Or type custom emoji/icon"
+                    placeholder="Or type custom emoji"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                   />
                 </div>
@@ -463,7 +419,7 @@ export default function AdminLevels() {
                         key={c.value}
                         type="button"
                         onClick={() => setFormData({ ...formData, badgeColor: c.value })}
-                        className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                        className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                           formData.badgeColor === c.value
                             ? 'bg-slate-800 border-white text-white shadow-md'
                             : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
@@ -478,51 +434,35 @@ export default function AdminLevels() {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Description (Optional)</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Description &amp; Access Privileges</label>
+                  <textarea
+                    rows={2}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="e.g. Master core techniques and launch your first sale"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                    placeholder="e.g. Access to live interactive masterclasses, weekly Q&A calls, and replay vault."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-orange-500 resize-none"
                   />
                 </div>
 
-                {/* Live Preview Box */}
-                <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] text-slate-500 block">Live Student Badge Preview</span>
-                    <span className="text-sm font-bold text-white">{formData.name || 'Level Name'}</span>
-                  </div>
-                  <div className={`px-3 py-1 rounded-xl border ${getColorTheme(formData.badgeColor).border} ${getColorTheme(formData.badgeColor).bg}/10 font-black text-xs ${getColorTheme(formData.badgeColor).text} flex items-center gap-1.5`}>
-                    <span>{formData.icon}</span>
-                    <span>{formData.code || 'L0'}</span>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="pt-3 border-t border-slate-800 flex justify-end gap-3">
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                  <button
+                    type="submit"
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    {editingTier ? 'Update Level Tier' : 'Create Level Tier'}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                    className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs rounded-xl transition-all shadow-lg shadow-orange-500/20"
-                  >
-                    {editingTier ? 'Save Changes' : 'Create Level Tier'}
-                  </button>
                 </div>
-
               </form>
-
             </div>
           </div>
         )}
-
       </main>
     </div>
   );

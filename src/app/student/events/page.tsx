@@ -117,25 +117,19 @@ export default function StudentEventsPage() {
               Live Events &amp; Q&amp;A Calls are Locked
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed mb-6">
-              Live interactive Masterclasses, weekly Q&amp;A calls, and live critiques unlock as soon as you reach <strong>Level 1 (Silver)</strong> with <strong>500 XP</strong>.
+              Live interactive Masterclasses, weekly Q&amp;A calls, and live critiques unlock as soon as your account is upgraded to <strong>Level 1 (Silver Membership)</strong> or above.
             </p>
             <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 mb-6 text-left">
-              <div className="flex justify-between text-xs font-bold text-slate-300 mb-2">
-                <span>Current: {stats?.membershipLevel || "L0 Fast Track"}</span>
-                <span className="text-orange-400">{stats?.points || 0} / 500 XP</span>
-              </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400"
-                  style={{ width: `${Math.min(100, Math.round(((stats?.points || 0) / 500) * 100))}%` }}
-                ></div>
+              <div className="flex justify-between text-xs font-bold text-slate-300">
+                <span>Your Current Membership:</span>
+                <span className="text-orange-400 font-bold">{stats?.membershipLevel || "L0 Fast Track"}</span>
               </div>
             </div>
             <Link
               href="/student/courses"
               className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-sm h-11 px-8 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 transition-all"
             >
-              Complete Course Lessons to Earn XP
+              Explore Available Courses
             </Link>
           </div>
         ) : activeTab === "upcoming" ? (
