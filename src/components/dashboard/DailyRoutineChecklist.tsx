@@ -151,12 +151,11 @@ export const DailyRoutineChecklist = ({ streak = 0, onCompleteRoutine }: { strea
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 bg-orange-500/10 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/20 mb-1">
-            <Flame size={14} className="fill-orange-400" /> Daily Habits Streak
-          </div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            Today's Focus: 6-Step Daily Routine
+            <Flame size={20} className="text-orange-400 fill-orange-400" />
+            Daily Habits Streak
           </h2>
+          <p className="text-xs text-slate-400 mt-0.5">Complete your 6-step creative ritual to keep your streak &amp; earn XP</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-slate-950 border border-slate-800 px-3.5 py-1.5 rounded-xl text-center">
