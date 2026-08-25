@@ -21,7 +21,8 @@ import {
   Eye,
   Info,
   IndianRupee,
-  Tag
+  Tag,
+  CreditCard
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -247,11 +248,58 @@ export default function AdminLevels() {
           </div>
         )}
 
+        {/* Razorpay Gateway Live Settings */}
+        <div className="mb-6 p-5 rounded-3xl bg-slate-900 border border-orange-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0">
+              <CreditCard size={20} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white flex items-center gap-2">
+                Razorpay Payment Gateway Integration
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  Live &amp; Test Supported
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Configure your Razorpay Key ID and Secret to collect direct UPI, Card, and Netbanking payments.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              const keyId = prompt("Enter your Razorpay Key ID (e.g. rzp_live_xxx or rzp_test_xxx):");
+              if (!keyId) return;
+              const keySecret = prompt("Enter your Razorpay Key Secret:");
+              if (!keySecret) return;
+
+              fetch(`${API}/payments/config`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ keyId, keySecret }),
+              })
+                .then((r) => r.json())
+                .then((d) => {
+                  if (d.success) {
+                    showSuccess("Razorpay API keys updated successfully!");
+                  } else {
+                    showError(d.message || "Failed to update keys");
+                  }
+                })
+                .catch((e) => showError("Connection error"));
+            }}
+            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer whitespace-nowrap"
+          >
+            ⚙️ Configure Razorpay Keys
+          </button>
+        </div>
+
         {/* Info Note */}
-        <div className="mb-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs md:text-sm flex items-center gap-3">
+        <div className="mb-6 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-300 text-xs md:text-sm flex items-center gap-3">
           <Info size={18} className="text-orange-400 shrink-0" />
           <span>
-            <strong>Dynamic Level Pricing:</strong> Click <strong>"Edit Tier"</strong> on any level card below to update its <strong>Offer Price</strong>, title, badge color, or description. Changes immediately reflect across the entire portal.
+            <strong>Dynamic Level Pricing:</strong> Click <strong>"Edit Tier &amp; Price"</strong> on any level card below to update its <strong>Offer Price</strong>, title, badge color, or description. Changes immediately reflect across the entire portal.
           </span>
         </div>
 
