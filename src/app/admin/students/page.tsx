@@ -46,6 +46,8 @@ export default function AdminStudents() {
   // Form states
   const [editProfile, setEditProfile] = useState<any>({});
   const [newMilestone, setNewMilestone] = useState({ name: "", completed: false });
+  const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
+  const [editingMilestoneName, setEditingMilestoneName] = useState("");
   const [newSale, setNewSale] = useState({ amount: "", productName: "", date: "" });
   const [skillsForm, setSkillsForm] = useState<any>({});
   const [allCourses, setAllCourses] = useState<any[]>([]);
@@ -151,10 +153,23 @@ export default function AdminStudents() {
     if (!selectedStudent) return;
     await fetch(`${API}/admin/milestones/${milestoneId}`, {
       method: 'PUT', headers,
-      body: JSON.stringify({ completed: !currentStatus })
+      body: JSON.stringify({ completed: !currentStatus, completedAt: !currentStatus ? new Date() : null })
     });
     await refreshStudent(selectedStudent.id);
     showSuccess("Milestone updated!");
+  };
+
+  // Update milestone name
+  const updateMilestoneName = async (milestoneId: string) => {
+    if (!selectedStudent || !editingMilestoneName.trim()) return;
+    await fetch(`${API}/admin/milestones/${milestoneId}`, {
+      method: 'PUT', headers,
+      body: JSON.stringify({ name: editingMilestoneName.trim() })
+    });
+    setEditingMilestoneId(null);
+    setEditingMilestoneName("");
+    await refreshStudent(selectedStudent.id);
+    showSuccess("Milestone title updated!");
   };
 
   // Add milestone
@@ -435,13 +450,14 @@ export default function AdminStudents() {
                           placeholder="New milestone name..."
                           value={newMilestone.name}
                           onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
+                          onKeyDown={e => e.key === 'Enter' && addMilestone()}
                           className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors"
                         />
-                        <label className="flex items-center gap-2 text-sm text-slate-400 px-3">
+                        <label className="flex items-center gap-2 text-sm text-slate-400 px-3 cursor-pointer">
                           <input type="checkbox" checked={newMilestone.completed} onChange={e => setNewMilestone({ ...newMilestone, completed: e.target.checked })} className="accent-orange-500" />
                           Done
                         </label>
-                        <button onClick={addMilestone} className="flex items-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold transition-colors shrink-0">
+                        <button onClick={addMilestone} className="flex items-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold transition-colors shrink-0 cursor-pointer">
                           <Plus size={16} /> Add
                         </button>
                       </div>
@@ -451,16 +467,58 @@ export default function AdminStudents() {
                       ) : (
                         <div className="space-y-2">
                           {(selectedStudent.milestones || []).map((m: any) => (
-                            <div key={m.id} className={`flex items-center gap-4 p-4 rounded-2xl border transition-colors ${m.completed ? 'bg-green-500/5 border-green-500/20' : 'bg-slate-800/50 border-slate-700'}`}>
-                              <button onClick={() => toggleMilestone(m.id, m.completed)} className="shrink-0">
+                            <div key={m.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-colors ${m.completed ? 'bg-green-500/5 border-green-500/20' : 'bg-slate-800/50 border-slate-700'}`}>
+                              <button onClick={() => toggleMilestone(m.id, m.completed)} className="shrink-0 cursor-pointer" title={m.completed ? "Mark incomplete" : "Mark complete"}>
                                 {m.completed
-                                  ? <CheckCircle2 size={22} className="text-green-500" />
+                                  ? <CheckCircle2 size={22} className="text-emerald-400" />
                                   : <Circle size={22} className="text-slate-600 hover:text-orange-500 transition-colors" />
                                 }
                               </button>
-                              <span className={`flex-1 font-medium ${m.completed ? 'text-white' : 'text-slate-400'}`}>{m.name}</span>
-                              {m.completedAt && <span className="text-xs text-slate-500">{new Date(m.completedAt).toLocaleDateString('en-IN')}</span>}
-                              <button onClick={() => deleteMilestone(m.id)} className="text-slate-600 hover:text-red-400 transition-colors shrink-0">
+
+                              {editingMilestoneId === m.id ? (
+                                <div className="flex-1 flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={editingMilestoneName}
+                                    onChange={e => setEditingMilestoneName(e.target.value)}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter') updateMilestoneName(m.id);
+                                      if (e.key === 'Escape') setEditingMilestoneId(null);
+                                    }}
+                                    autoFocus
+                                    className="flex-1 bg-slate-950 border border-orange-500 rounded-xl px-3 py-1.5 text-sm text-white focus:outline-none"
+                                  />
+                                  <button onClick={() => updateMilestoneName(m.id)} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-2 py-1.5 rounded-lg text-xs font-bold">
+                                    Save
+                                  </button>
+                                  <button onClick={() => setEditingMilestoneId(null)} className="bg-slate-800 text-slate-300 px-2 py-1.5 rounded-lg text-xs">
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex-1 flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className={`font-medium text-sm ${m.completed ? 'text-white' : 'text-slate-400'}`}>{m.name}</span>
+                                    <button
+                                      onClick={() => {
+                                        setEditingMilestoneId(m.id);
+                                        setEditingMilestoneName(m.name);
+                                      }}
+                                      className="text-slate-500 hover:text-orange-400 p-1 transition-colors text-xs"
+                                      title="Edit Name"
+                                    >
+                                      ✎
+                                    </button>
+                                  </div>
+                                  {m.completedAt && (
+                                    <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono">
+                                      {new Date(m.completedAt).toLocaleDateString('en-IN')}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+
+                              <button onClick={() => deleteMilestone(m.id)} className="text-slate-600 hover:text-red-400 transition-colors p-1 shrink-0" title="Delete">
                                 <Trash2 size={16} />
                               </button>
                             </div>
