@@ -948,7 +948,7 @@ export default function HomePage() {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Verified Track Record</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              52K+ Students Taught. 8K+ Orders Completed. 5★ Google Rating.
+              54K+ Students Taught. 8K+ Orders Completed. 5★ Google Rating.
             </h2>
             <p className="text-slate-300 text-base md:text-lg leading-relaxed">
               Thousands of learners have already trusted Ravishing Art to help them explore, learn and grow through Resin Art. From beginners taking their first step to creators building their own identity and income, every journey is different. But every journey begins with one decision: to start.
