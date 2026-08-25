@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
@@ -9,7 +9,7 @@ const SLIDES = [
   { id: "renaissance", label: "RENAISSANCE CERTIFICATION", title: "Renaissance", titleAccent: "Certification", subtitle: "L2 · Advanced artistry & business mastery", emoji: "🏆", accent: "#eab308", bg: "#0d0b03" },
   { id: "courses", label: "COURSES", title: "Our Course", titleAccent: "Curriculum", subtitle: "Step-by-step guided video lessons at your pace", emoji: "📚", accent: "#22c55e", bg: "#030d06" },
   { id: "coaching", label: "COACHING", title: "Live 1-on-1", titleAccent: "Coaching", subtitle: "Direct mentorship from Vrajangna Patel herself", emoji: "🎓", accent: "#f97316", bg: "#0d0a08" },
-  { id: "challenge", label: "CHALLENGE", title: "30-Day Resin", titleAccent: "Challenge", subtitle: "Daily missions to build your resin skills fast", emoji: "⚡", accent: "#ef4444", bg: "#0d0404" },
+  { id: "challenge", label: "CHALLENGE", title: "90-Day Resin", titleAccent: "Challenge", subtitle: "Daily missions to build your resin skills fast", emoji: "⚡", accent: "#ef4444", bg: "#0d0404" },
   { id: "community", label: "COMMUNITY", title: "Our Creative", titleAccent: "Community", subtitle: "Connect with 1000+ artists across India", emoji: "🤝", accent: "#8b5cf6", bg: "#09060d" },
   { id: "certification", label: "CERTIFICATION", title: "Get Certified", titleAccent: "Today", subtitle: "Earn a recognised Resin Art certification", emoji: "📜", accent: "#0ea5e9", bg: "#030a0d" },
   { id: "hall", label: "HALL OF FAME", title: "Hall of", titleAccent: "Fame", subtitle: "Celebrating our top-performing artists", emoji: "🌟", accent: "#f59e0b", bg: "#0d0a03" },
