@@ -17,11 +17,12 @@ import {
   Crown
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { API_BASE_URL } from "@/config/api";
+import { processRazorpayPayment } from "@/utils/razorpay";
 
 export interface TierInfo {
   code: "L0" | "L1" | "L2" | "L3" | "L3+";
   name: string;
+  numericPrice: number;
   price: string;
   originalPrice: string;
   badgeColor: string;
@@ -34,6 +35,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   {
     code: "L0",
     name: "Fast Track",
+    numericPrice: 499,
     price: "₹499",
     originalPrice: "₹2,499",
     badgeColor: "emerald",
@@ -49,6 +51,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   {
     code: "L1",
     name: "Silver Member",
+    numericPrice: 4999,
     price: "₹4,999",
     originalPrice: "₹9,999",
     badgeColor: "slate",
@@ -64,6 +67,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   {
     code: "L2",
     name: "Gold Member",
+    numericPrice: 19999,
     price: "₹19,999",
     originalPrice: "₹34,999",
     badgeColor: "amber",
@@ -79,6 +83,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   {
     code: "L3",
     name: "Diamond Club",
+    numericPrice: 59999,
     price: "₹59,999",
     originalPrice: "₹99,999",
     badgeColor: "cyan",
@@ -108,54 +113,45 @@ export const TierPurchaseModal = ({
   currentLevel = "L0 Fast Track",
   onUpgradeSuccess,
 }: TierPurchaseModalProps) => {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [selectedCode, setSelectedCode] = useState<string>(targetTierCode);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   if (!isOpen) return null;
 
   const targetTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
 
-  const handleWhatsAppCheckout = () => {
-    const text = encodeURIComponent(
-      `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${targetTier.name} (${targetTier.code})* at the offer price of *${targetTier.price}*.\n\nMy Student Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share the payment details/UPI link to unlock my courses.`
-    );
-    window.open(`https://wa.me/919429424263?text=${text}`, "_blank");
-  };
-
-  const handleInstantUpgradeDemo = async () => {
+  const handleRazorpayPayment = () => {
     setIsProcessing(true);
-    try {
-      // Direct API update for student's level
-      const res = await fetch(`${API_BASE_URL}/users/profile`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          membershipLevel: `${targetTier.name} (${targetTier.code})`,
-          rank: `${targetTier.name} (${targetTier.code})`,
-        }),
-      });
-
-      if (res.ok) {
-        setSuccess(true);
+    processRazorpayPayment({
+      amount: targetTier.numericPrice,
+      tierCode: targetTier.code,
+      tierName: targetTier.name,
+      email: user?.email,
+      name: user?.name,
+      phone: user?.phone,
+      onSuccess: (data) => {
+        setIsProcessing(false);
+        setSuccessMsg(`🎉 Payment successful! ${targetTier.name} (${targetTier.code}) is now unlocked.`);
         if (onUpgradeSuccess) onUpgradeSuccess();
         setTimeout(() => {
-          setSuccess(false);
           onClose();
           window.location.reload();
-        }, 1500);
-      } else {
-        handleWhatsAppCheckout();
-      }
-    } catch (_) {
-      handleWhatsAppCheckout();
-    } finally {
-      setIsProcessing(false);
-    }
+        }, 1800);
+      },
+      onFailure: (err) => {
+        setIsProcessing(false);
+        console.error("Payment failed or dismissed:", err);
+      },
+    });
+  };
+
+  const handleWhatsAppHelp = () => {
+    const text = encodeURIComponent(
+      `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${targetTier.name} (${targetTier.code})* at *${targetTier.price}*.\n\nMy Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share alternative payment options.`
+    );
+    window.open(`https://wa.me/919429424263?text=${text}`, "_blank");
   };
 
   return (
@@ -166,13 +162,13 @@ export const TierPurchaseModal = ({
         <div className="flex justify-between items-start pb-4 border-b border-slate-800 shrink-0">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-orange-400 mb-1.5">
-              <Trophy size={13} /> Instant Membership Upgrade
+              <Trophy size={13} /> Razorpay Secure Checkout
             </span>
             <h2 className="text-2xl font-black text-white">
               Unlock Next-Level Curriculum &amp; Masterclasses
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Purchase and unlock any level directly — no sequential completion required!
+              Directly purchase any level with UPI, Cards, Netbanking via Razorpay — no prerequisite completion needed!
             </p>
           </div>
           <button
@@ -239,7 +235,7 @@ export const TierPurchaseModal = ({
                   </span>
                 </div>
                 <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-0.5">
-                  Lifetime Course &amp; Vault Access
+                  Instant Auto-Activation
                 </span>
               </div>
             </div>
@@ -251,7 +247,7 @@ export const TierPurchaseModal = ({
             {/* Benefits Checklist */}
             <div className="mt-4 pt-4 border-t border-slate-800/80 space-y-2">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                What's Unlocked in this Tier:
+                Included in this Membership:
               </span>
               {targetTier.benefits.map((b, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs text-slate-200">
@@ -262,30 +258,31 @@ export const TierPurchaseModal = ({
             </div>
           </div>
 
-          {success && (
+          {successMsg && (
             <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
-              <CheckCircle2 size={18} /> Upgrade successful! Unlocking your courses now...
+              <CheckCircle2 size={18} /> {successMsg}
             </div>
           )}
         </div>
 
-        {/* Footer Actions */}
+        {/* Footer Actions with Razorpay Checkout */}
         <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center gap-3 shrink-0">
           <button
             type="button"
-            onClick={handleWhatsAppCheckout}
-            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+            onClick={handleRazorpayPayment}
+            disabled={isProcessing}
+            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
           >
-            <MessageCircle size={16} /> Pay via WhatsApp / Mentor Desk ({targetTier.price})
+            <CreditCard size={17} />
+            {isProcessing ? "Opening Razorpay..." : `Pay ${targetTier.price} with Razorpay`}
           </button>
 
           <button
             type="button"
-            onClick={handleInstantUpgradeDemo}
-            disabled={isProcessing}
-            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+            onClick={handleWhatsAppHelp}
+            className="w-full sm:w-auto py-3 px-4 border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
-            <Zap size={16} /> {isProcessing ? "Upgrading..." : `Instant Unlock (${targetTier.code})`}
+            <MessageCircle size={15} className="text-emerald-400" /> WhatsApp Support
           </button>
         </div>
       </div>

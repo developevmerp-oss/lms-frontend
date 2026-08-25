@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { API_BASE_URL } from "@/config/api";
+import { processRazorpayPayment } from "@/utils/razorpay";
 import {
   CheckCircle2,
   Calendar,
@@ -133,36 +134,25 @@ export default function ThankYouPage() {
   )}&location=${encodeURIComponent("Zoom Live")}`;
 
   /**
-   * Fast Start (Level 0) Checkout / Enrollment Handler
-   * Designed with Razorpay payment gateway placeholder for future seamless activation.
+   * Fast Start (Level 0) Razorpay Checkout Handler
+   * Allows direct ₹499 purchase so students can skip waiting and access L0 immediately.
    */
   const handleFastStartCheckout = () => {
-    // --- FUTURE RAZORPAY PAYMENT GATEWAY INTEGRATION HOOK ---
-    // When Razorpay credentials are ready in the future:
-    // const options = {
-    //   key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || "rzp_test_xxxx",
-    //   amount: 99900, // in paise (₹999)
-    //   currency: "INR",
-    //   name: "Ravishing Art Hub",
-    //   description: "Resin Art Fast Start (Level 0) Bundle",
-    //   image: "/logo-dark.png",
-    //   prefill: { name: lead?.name || "", email: lead?.email || "", contact: lead?.phone || "" },
-    //   handler: function (response: any) { ... }
-    // };
-    // const rzp = new (window as any).Razorpay(options);
-    // rzp.open();
-    // --------------------------------------------------------
-
-    // For now: Direct instant registration & auto-enrollment in Level 0 Fast Start
-    const queryParams = new URLSearchParams({
-      bundle: "fast-start",
-      course: "l0",
-      ...(lead?.name && { name: lead.name }),
-      ...(lead?.email && { email: lead.email }),
-      ...(lead?.phone && { phone: lead.phone }),
+    processRazorpayPayment({
+      amount: 499,
+      tierCode: "L0",
+      tierName: "Fast Track",
+      name: lead?.name || "",
+      email: lead?.email || "",
+      phone: lead?.phone || "",
+      onSuccess: (data) => {
+        alert("🎉 Payment Successful! Welcome to Fast Track (Level 0). Redirecting to your dashboard...");
+        router.push("/student/dashboard");
+      },
+      onFailure: (err) => {
+        console.warn("Payment dismissed or failed:", err);
+      },
     });
-
-    router.push(`/register?${queryParams.toString()}`);
   };
 
   const handleContinueWithWebinar = () => {
