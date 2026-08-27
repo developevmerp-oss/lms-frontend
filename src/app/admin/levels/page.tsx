@@ -49,6 +49,7 @@ interface LevelTier {
   offerStartDate?: string | null;
   offerEndDate?: string | null;
   offerActive?: boolean;
+  offerTitle?: string | null;
 }
 
 const CATEGORY_OPTIONS = [
@@ -92,6 +93,7 @@ export default function AdminLevels() {
     validityDays: 15,
     isPublished: true,
     offerActive: false,
+    offerTitle: 'Special Festival Offer 🔥',
     discountType: 'percentage' as 'percentage' | 'flat',
     discountValue: 0,
     offerStartDate: '',
@@ -125,16 +127,16 @@ export default function AdminLevels() {
       if (Array.isArray(dataStudents)) {
         setStudents(dataStudents);
       }
-    } catch (err) {
-      console.error("Error fetching levels:", err);
-      showError("Failed to fetch level configurations");
+    } catch (err: any) {
+      console.error(err);
+      showError("Failed to fetch level config data.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) fetchData();
+    fetchData();
   }, [token]);
 
   const openCreateModal = () => {
@@ -148,10 +150,11 @@ export default function AdminLevels() {
       badgeColor: 'amber',
       order: nextOrder,
       description: '',
-      category: 'General',
-      validityDays: 0,
+      category: 'Single Validity',
+      validityDays: 15,
       isPublished: true,
       offerActive: false,
+      offerTitle: 'Special Festival Offer 🔥',
       discountType: 'percentage',
       discountValue: 0,
       offerStartDate: '',
@@ -170,10 +173,11 @@ export default function AdminLevels() {
       badgeColor: tier.badgeColor || 'amber',
       order: tier.order || 0,
       description: tier.description || '',
-      category: tier.category || 'General',
-      validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 0,
+      category: tier.category || 'Single Validity',
+      validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 15,
       isPublished: tier.isPublished !== false,
       offerActive: Boolean(tier.offerActive),
+      offerTitle: tier.offerTitle || 'Special Festival Offer 🔥',
       discountType: (tier.discountType as any) || 'percentage',
       discountValue: tier.discountValue || 0,
       offerStartDate: tier.offerStartDate ? new Date(tier.offerStartDate).toISOString().slice(0, 16) : '',
@@ -425,10 +429,17 @@ export default function AdminLevels() {
                         </span>
 
                         {tier.offerActive && (
-                          <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
-                            <Flame size={10} />
-                            {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
-                          </span>
+                          <div className="flex flex-col items-end gap-0.5">
+                            {tier.offerTitle && (
+                              <span className="text-[9px] font-extrabold text-red-400 uppercase tracking-tight">
+                                🎁 {tier.offerTitle}
+                              </span>
+                            )}
+                            <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
+                              <Flame size={10} />
+                              {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
+                            </span>
+                          </div>
                         )}
 
                         <span className="text-[10px] text-slate-500 font-bold">
@@ -647,6 +658,20 @@ export default function AdminLevels() {
 
                   {formData.offerActive && (
                     <div className="pt-3 border-t border-slate-800/80 space-y-3">
+                      {/* Offer Campaign Title */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                          <Tag size={11} className="text-red-400" /> Offer Campaign Title / Headline
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.offerTitle || ""}
+                          onChange={(e) => setFormData({ ...formData, offerTitle: e.target.value })}
+                          placeholder="e.g. Festive Diwali Sale 🔥 / Early Bird Discount"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-bold"
+                        />
+                      </div>
+
                       {/* Discount Type & Value */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>

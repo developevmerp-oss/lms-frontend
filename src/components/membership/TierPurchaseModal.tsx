@@ -38,6 +38,7 @@ export interface TierInfo {
   offerStartDate?: string | null;
   offerEndDate?: string | null;
   offerActive?: boolean;
+  offerTitle?: string | null;
 }
 
 export const TIERS_CATALOG: TierInfo[] = [
@@ -127,6 +128,7 @@ export const TierPurchaseModal = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [liveTiers, setLiveTiers] = useState<any[]>([]);
+  const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen && token) {
@@ -138,6 +140,15 @@ export const TierPurchaseModal = ({
           if (Array.isArray(data)) setLiveTiers(data);
         })
         .catch(() => {});
+
+      fetch(`${API_BASE_URL}/admin/offers`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setCampaignOffers(data);
+        })
+        .catch(() => {});
     }
   }, [isOpen, token]);
 
@@ -146,18 +157,28 @@ export const TierPurchaseModal = ({
   const baseTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
   const liveTierMatch = liveTiers.find((lt) => lt.code === selectedCode);
 
+  // Check separate offers module for matching active campaign offer
+  const now = new Date();
+  const activeCampaignOffer = campaignOffers.find((co) => {
+    if (!co.isActive) return false;
+    if (co.levelCode !== "ALL" && co.levelCode !== selectedCode) return false;
+    if (co.startDate && new Date(co.startDate) > now) return false;
+    if (co.endDate && new Date(co.endDate) < now) return false;
+    return true;
+  });
+
   const mergedTier: TierInfo = {
     ...baseTier,
     price: liveTierMatch?.price || baseTier.price,
-    discountType: liveTierMatch?.discountType || baseTier.discountType,
-    discountValue: liveTierMatch?.discountValue || baseTier.discountValue,
-    offerStartDate: liveTierMatch?.offerStartDate || baseTier.offerStartDate,
-    offerEndDate: liveTierMatch?.offerEndDate || baseTier.offerEndDate,
-    offerActive: liveTierMatch ? liveTierMatch.offerActive : baseTier.offerActive,
+    discountType: activeCampaignOffer?.discountType || liveTierMatch?.discountType || baseTier.discountType,
+    discountValue: activeCampaignOffer?.discountValue || liveTierMatch?.discountValue || baseTier.discountValue,
+    offerStartDate: activeCampaignOffer?.startDate || liveTierMatch?.offerStartDate || baseTier.offerStartDate,
+    offerEndDate: activeCampaignOffer?.endDate || liveTierMatch?.offerEndDate || baseTier.offerEndDate,
+    offerActive: activeCampaignOffer ? activeCampaignOffer.isActive : liveTierMatch ? liveTierMatch.offerActive : baseTier.offerActive,
+    offerTitle: activeCampaignOffer?.title || liveTierMatch?.offerTitle || baseTier.offerTitle || "Special Level Offer 🔥",
   };
 
   // Compute discount offer
-  const now = new Date();
   const hasActiveOffer = Boolean(
     mergedTier.offerActive &&
     mergedTier.discountValue &&
@@ -269,6 +290,17 @@ export const TierPurchaseModal = ({
 
           {/* Selected Tier Detail Card */}
           <div className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-inner">
+            {offerBadge && mergedTier.offerTitle && (
+              <div className="mb-4 p-2.5 rounded-2xl bg-gradient-to-r from-red-500/10 via-rose-500/10 to-orange-500/10 border border-red-500/30 flex items-center justify-between gap-2">
+                <span className="text-xs font-black text-red-400 flex items-center gap-1.5">
+                  🎁 {mergedTier.offerTitle}
+                </span>
+                <span className="text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 px-2.5 py-0.5 rounded-lg shadow-md animate-pulse flex items-center gap-1">
+                  <Flame size={10} /> {offerBadge} ACTIVE
+                </span>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-2xl shrink-0">
