@@ -52,11 +52,8 @@ interface LevelTier {
 }
 
 const CATEGORY_OPTIONS = [
-  'General',
-  'Starter Foundation',
-  'Mastery & Technique',
-  'Luxury Art & Clocks',
-  'Business & Scaling',
+  'Single Validity',
+  'Lifetime Validity',
 ];
 
 const COLOR_OPTIONS = [
@@ -91,8 +88,8 @@ export default function AdminLevels() {
     badgeColor: 'slate',
     order: 1,
     description: '',
-    category: 'General',
-    validityDays: 0,
+    category: 'Single Validity',
+    validityDays: 15,
     isPublished: true,
     offerActive: false,
     discountType: 'percentage' as 'percentage' | 'flat',
@@ -556,37 +553,54 @@ export default function AdminLevels() {
                 </div>
 
                 {/* Category & Validity Configuration */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Category</label>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Validity Category</label>
                     <select
                       value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      onChange={(e) => {
+                        const cat = e.target.value;
+                        setFormData({
+                          ...formData,
+                          category: cat,
+                          validityDays: cat === 'Lifetime Validity' ? 0 : (formData.validityDays > 0 ? formData.validityDays : 15),
+                        });
+                      }}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
                     >
                       {CATEGORY_OPTIONS.map((c) => (
                         <option key={c} value={c}>
-                          {c}
+                          {c === 'Single Validity' ? '⏱️ Single Validity (Day-wise)' : '♾️ Lifetime Validity (Permanent)'}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">
-                      Access Validity (Days)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={formData.validityDays}
-                      onChange={(e) => setFormData({ ...formData, validityDays: parseInt(e.target.value) || 0 })}
-                      placeholder="0 for Lifetime, 30, 90, 365..."
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-mono"
-                    />
-                    <p className="text-[10px] text-slate-500 mt-1">
-                      {formData.validityDays === 0 ? '♾️ Lifetime Access' : `⏳ Access valid for ${formData.validityDays} days from purchase`}
-                    </p>
+                    {formData.category === 'Single Validity' ? (
+                      <>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                          Validity Period (Days)
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={formData.validityDays || 15}
+                          onChange={(e) => setFormData({ ...formData, validityDays: Math.max(1, parseInt(e.target.value) || 1) })}
+                          placeholder="e.g. 15"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-orange-500 font-mono font-bold"
+                        />
+                        <p className="text-[10px] text-amber-400 mt-1">
+                          ⏳ Automatically unpublishes/expires {formData.validityDays || 15} days after student purchase.
+                        </p>
+                      </>
+                    ) : (
+                      <div className="h-full flex flex-col justify-end">
+                        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-2 text-emerald-400 text-xs font-bold">
+                          ♾️ Permanent Lifetime Access
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -120,6 +120,9 @@ export default function StudentCourses() {
             notifications: data.notifications,
             membershipLevel: data.membershipLevel,
             rank: data.rank,
+            membershipExpiresAt: data.membershipExpiresAt,
+            isExpired: data.isExpired,
+            daysRemaining: data.daysRemaining,
           });
         }
       })
@@ -143,6 +146,7 @@ export default function StudentCourses() {
   const studentRankNum = LEVEL_HIERARCHY[studentLevelCode] ?? 0;
 
   const isCourseUnlocked = (courseLevel: string) => {
+    if (stats.isExpired) return false;
     const requiredNum = LEVEL_HIERARCHY[courseLevel.toUpperCase()] ?? 0;
     return studentRankNum >= requiredNum;
   };
@@ -187,6 +191,46 @@ export default function StudentCourses() {
             <Zap size={16} /> Upgrade Membership Level
           </button>
         </header>
+
+        {/* Student Expiry Alert Banner (Single Validity) */}
+        {stats.isExpired ? (
+          <div className="mb-6 p-5 rounded-3xl bg-gradient-to-r from-red-950/80 via-slate-900 to-red-950/80 border-2 border-red-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0 animate-pulse">
+                <Lock size={22} />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white flex items-center gap-2">
+                  🔒 Level Access Expired (Single Validity Limit Reached)
+                </h3>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Your purchase validity expired on {stats.membershipExpiresAt ? new Date(stats.membershipExpiresAt).toLocaleDateString("en-IN") : "recently"}. Re-enroll or upgrade to Lifetime Validity to resume video lessons.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setPurchaseModal({ isOpen: true, tierCode: studentLevelCode })}
+              className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-black rounded-xl text-xs shadow-lg transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+            >
+              Renew Access Now →
+            </button>
+          </div>
+        ) : stats.daysRemaining !== null && stats.daysRemaining !== undefined && stats.daysRemaining <= 30 ? (
+          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-300">
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-amber-400 animate-spin-slow" />
+              <span>
+                <strong>Single Validity Active:</strong> {stats.daysRemaining} Days Remaining (Valid until {stats.membershipExpiresAt ? new Date(stats.membershipExpiresAt).toLocaleDateString("en-IN") : ""})
+              </span>
+            </div>
+            <button
+              onClick={() => setPurchaseModal({ isOpen: true, tierCode: studentLevelCode })}
+              className="font-bold underline hover:text-amber-200 cursor-pointer"
+            >
+              Upgrade to Lifetime Validity
+            </button>
+          </div>
+        ) : null}
 
         {/* Upgrade Banner for students who want to purchase next levels directly */}
         <div className="mb-8 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-orange-950/30 to-slate-900 border border-orange-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
