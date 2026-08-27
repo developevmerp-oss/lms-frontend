@@ -29,14 +29,29 @@ export default function AdminDashboard() {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [notifTitle, setNotifTitle] = useState("");
   const [notifMessage, setNotifMessage] = useState("");
-  const [winName, setWinName] = useState("");
+  const [winName, setWinName] = useState("Patel Vrajangna (Admin)");
   const [winAchievement, setWinAchievement] = useState("");
+  const [winSalesAmount, setWinSalesAmount] = useState("");
+  const [winTechnique, setWinTechnique] = useState("");
+  const [winImage, setWinImage] = useState("");
   const [sending, setSending] = useState(false);
   const [postingWin, setPostingWin] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'notifications' | 'wins'>('overview');
 
   const [isLoading, setIsLoading] = useState(true);
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+  const handleAdminFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setWinImage(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -82,18 +97,28 @@ export default function AdminDashboard() {
   };
 
   const handlePostWin = async () => {
-    if (!winName || !winAchievement) return;
+    if (!winAchievement) return;
     setPostingWin(true);
     try {
       const res = await fetch(`${API}/admin/community-wins`, {
         method: 'POST', headers,
-        body: JSON.stringify({ studentName: winName, achievement: winAchievement, timeAgo: 'Just now' })
+        body: JSON.stringify({ 
+          studentName: winName || 'Patel Vrajangna (Admin)', 
+          achievement: winAchievement, 
+          salesAmount: winSalesAmount,
+          technique: winTechnique,
+          image: winImage,
+          timeAgo: 'Just now' 
+        })
       });
       if (res.ok) {
-        const newWin = await res.json();
-        setWins(prev => [newWin, ...prev]);
-        setWinName('');
+        const updatedWins = await fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json());
+        if (Array.isArray(updatedWins)) setWins(updatedWins);
+        setWinName('Patel Vrajangna (Admin)');
         setWinAchievement('');
+        setWinSalesAmount('');
+        setWinTechnique('');
+        setWinImage('');
       }
     } finally {
       setPostingWin(false);
@@ -363,32 +388,99 @@ export default function AdminDashboard() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Student</label>
+                  <label className="text-sm font-semibold text-slate-400 block mb-2">Author (Admin or Select Student)</label>
                   <select
                     value={winName}
                     onChange={e => setWinName(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500"
+                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 font-bold"
                   >
-                    <option value="">-- Choose a student --</option>
+                    <option value="Patel Vrajangna (Admin)">👑 Patel Vrajangna (Admin Announcement)</option>
                     {students.map(s => (
-                      <option key={s.id} value={s.name}>{s.name} ({s.email})</option>
+                      <option key={s.id} value={s.name}>🎓 Student: {s.name} ({s.email})</option>
                     ))}
                   </select>
                 </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Sales Amount (₹ optional)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 4500"
+                      value={winSalesAmount}
+                      onChange={e => setWinSalesAmount(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Technique Used</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ocean Wave Lacing"
+                      value={winTechnique}
+                      onChange={e => setWinTechnique(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Achievement</label>
+                  <label className="text-sm font-semibold text-slate-400 block mb-2">Achievement / Story</label>
                   <textarea
                     value={winAchievement}
                     onChange={e => setWinAchievement(e.target.value)}
                     placeholder="e.g. Got her first corporate order for 50 custom clocks!"
                     rows={3}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 resize-none"
+                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 resize-none text-xs"
                   />
                 </div>
+
+                {/* Browser File Upload (Image, Video, Document) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 block">Upload File (Image, Video, Document)</label>
+                  <input
+                    type="file"
+                    accept="image/*,video/*,.pdf,.doc,.docx"
+                    onChange={handleAdminFileSelect}
+                    className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500/20 file:text-pink-400 hover:file:bg-pink-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1"
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Or paste external file / image URL..."
+                    value={winImage}
+                    onChange={e => setWinImage(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2 text-xs focus:outline-none focus:border-pink-500 mt-1"
+                  />
+
+                  {winImage && (
+                    <div className="mt-2 p-2 rounded-xl bg-slate-950 border border-slate-800 relative">
+                      <button
+                        type="button"
+                        onClick={() => setWinImage('')}
+                        className="absolute right-2 top-2 bg-slate-900 text-slate-400 hover:text-white p-1 rounded-lg z-10 text-xs"
+                      >
+                        ✕
+                      </button>
+
+                      {winImage.startsWith('data:video') || winImage.match(/\.(mp4|webm|mov)$/i) ? (
+                        <video src={winImage} controls className="max-h-36 rounded-lg w-full object-cover" />
+                      ) : winImage.startsWith('data:image') || winImage.match(/\.(jpeg|jpg|gif|png|webp)$/i) || winImage.startsWith('data:') ? (
+                        <img src={winImage} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover" />
+                      ) : (
+                        <div className="p-3 text-xs font-bold text-pink-400 flex items-center gap-2">
+                          📄 Document / File attached!
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <button
                   onClick={handlePostWin}
-                  disabled={postingWin || !winName || !winAchievement}
-                  className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  disabled={postingWin || !winAchievement}
+                  className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Heart size={16} /> {postingWin ? 'Posting...' : 'Post Win to Wall'}
                 </button>
