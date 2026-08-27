@@ -82,7 +82,7 @@ function RegisterForm() {
 
       if (data.token) {
         login(data.token, data.user);
-        router.push("/student/dashboard");
+        router.push("/student/feed");
       } else {
         router.push("/login?registered=true");
       }

@@ -73,8 +73,8 @@ export default function StudentFeedPage() {
             <WinWall communityWins={wins} onWinAdded={fetchData} />
           </div>
 
-          {/* Right Side: Badges Spotlight & Diamond Gamification (4 Cols) */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* Right Side: Badges Spotlight & Diamond Gamification (4 Cols - Sticky) */}
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
               <h3 className="text-base font-bold text-white flex items-center gap-2 mb-2">
                 <Trophy className="text-amber-400" size={20} /> Student Badges Spotlight

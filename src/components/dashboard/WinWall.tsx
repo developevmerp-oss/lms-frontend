@@ -204,7 +204,7 @@ export const WinWall = ({
           </div>
 
           {/* Wins Feed */}
-          <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+          <div className="space-y-4 pr-1">
             {displayWins.length === 0 ? (
               <div className="text-center py-8 text-xs text-slate-500">
                 Be the first to share a win today!

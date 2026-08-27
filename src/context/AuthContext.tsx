@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (newUser.role === "admin") {
       router.push("/admin/dashboard");
     } else {
-      router.push("/student/dashboard");
+      router.push("/student/feed");
     }
   };
 
