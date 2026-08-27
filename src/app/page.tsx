@@ -220,12 +220,22 @@ export default function HomePage() {
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
+        const storedToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const headers: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+
         const [levelsRes, coursesRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/dashboard/levels`).then((r) => r.ok ? r.json() : []).catch(() => []),
-          fetch(`${API_BASE_URL}/courses`).then((r) => r.ok ? r.json() : []).catch(() => []),
+          fetch(`${API_BASE_URL}/dashboard/levels`, { headers }).then((r) => r.ok ? r.json() : []).catch(() => []),
+          fetch(`${API_BASE_URL}/dashboard/courses`, { headers }).then((r) => r.ok ? r.json() : []).catch(() => []),
         ]);
+
+        let validCourses = Array.isArray(coursesRes) && coursesRes.length > 0 ? coursesRes : [];
+        if (validCourses.length === 0) {
+          const fallbackCourses = await fetch(`${API_BASE_URL}/courses`, { headers }).then((r) => r.ok ? r.json() : []).catch(() => []);
+          if (Array.isArray(fallbackCourses)) validCourses = fallbackCourses;
+        }
+
         if (Array.isArray(levelsRes) && levelsRes.length > 0) setLevelTiers(levelsRes);
-        if (Array.isArray(coursesRes) && coursesRes.length > 0) setLevelCourses(coursesRes);
+        if (validCourses.length > 0) setLevelCourses(validCourses);
       } catch (err) {
         console.error("Error loading level progression data:", err);
       }
