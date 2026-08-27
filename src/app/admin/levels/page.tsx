@@ -41,12 +41,23 @@ interface LevelTier {
   badgeColor: string;
   order: number;
   description?: string;
+  category?: string;
+  validityDays?: number | null;
+  isPublished?: boolean;
   discountType?: "percentage" | "flat" | string | null;
   discountValue?: number | null;
   offerStartDate?: string | null;
   offerEndDate?: string | null;
   offerActive?: boolean;
 }
+
+const CATEGORY_OPTIONS = [
+  'General',
+  'Starter Foundation',
+  'Mastery & Technique',
+  'Luxury Art & Clocks',
+  'Business & Scaling',
+];
 
 const COLOR_OPTIONS = [
   { label: 'Emerald / Green', value: 'emerald', bg: 'bg-emerald-500', text: 'text-emerald-400', border: 'border-emerald-500/40' },
@@ -64,6 +75,7 @@ export default function AdminLevels() {
   const { token, user, logout } = useAuth();
   const [levels, setLevels] = useState<LevelTier[]>([]);
   const [students, setStudents] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isLoading, setIsLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -79,6 +91,9 @@ export default function AdminLevels() {
     badgeColor: 'slate',
     order: 1,
     description: '',
+    category: 'General',
+    validityDays: 0,
+    isPublished: true,
     offerActive: false,
     discountType: 'percentage' as 'percentage' | 'flat',
     discountValue: 0,
@@ -136,6 +151,9 @@ export default function AdminLevels() {
       badgeColor: 'amber',
       order: nextOrder,
       description: '',
+      category: 'General',
+      validityDays: 0,
+      isPublished: true,
       offerActive: false,
       discountType: 'percentage',
       discountValue: 0,
@@ -155,6 +173,9 @@ export default function AdminLevels() {
       badgeColor: tier.badgeColor || 'amber',
       order: tier.order || 0,
       description: tier.description || '',
+      category: tier.category || 'General',
+      validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 0,
+      isPublished: tier.isPublished !== false,
       offerActive: Boolean(tier.offerActive),
       discountType: (tier.discountType as any) || 'percentage',
       discountValue: tier.discountValue || 0,
@@ -182,6 +203,9 @@ export default function AdminLevels() {
         badgeColor: formData.badgeColor,
         order: formData.order,
         description: formData.description.trim(),
+        category: formData.category,
+        validityDays: Number(formData.validityDays) || 0,
+        isPublished: Boolean(formData.isPublished),
         discountType: formData.discountType,
         discountValue: Number(formData.discountValue) || 0,
         offerStartDate: formData.offerStartDate ? new Date(formData.offerStartDate) : null,
@@ -332,6 +356,24 @@ export default function AdminLevels() {
           </span>
         </div>
 
+        {/* Category Filter Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
+          {['All', ...CATEGORY_OPTIONS].map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                selectedCategory === cat
+                  ? 'bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              {cat === 'All' ? '🌟 All Categories' : `📂 ${cat}`}
+            </button>
+          ))}
+        </div>
+
         {/* Level Tiers Grid */}
         {isLoading ? (
           <div className="p-16 text-center text-slate-500">Loading level configurations...</div>
@@ -349,24 +391,33 @@ export default function AdminLevels() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {levels.map((tier) => {
+            {levels
+              .filter((tier) => selectedCategory === 'All' || (tier.category || 'General') === selectedCategory)
+              .map((tier) => {
               const studentCount = getStudentCountForTier(tier.code);
               const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
               const displayPrice = tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : tier.code === 'L3' ? '₹59,999' : 'Custom');
+              const validityText = !tier.validityDays || tier.validityDays === 0 ? '♾️ Lifetime Access' : `⏳ ${tier.validityDays} Days Access`;
+              const isPub = tier.isPublished !== false;
 
               return (
                 <div
                   key={tier.id}
-                  className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl"
+                  className={`rounded-3xl border ${isPub ? 'border-slate-800 bg-slate-900/90' : 'border-slate-800/60 bg-slate-950/60 opacity-80'} p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl`}
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2.5">
                         <span className="text-2xl">{tier.icon || '⭐'}</span>
                         <div>
-                          <span className="text-xs font-black text-orange-400 uppercase tracking-widest block">
-                            {tier.code} Tier
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-orange-400 uppercase tracking-widest block">
+                              {tier.code} Tier
+                            </span>
+                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${isPub ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}`}>
+                              {isPub ? 'Live' : 'Unpublished'}
+                            </span>
+                          </div>
                           <h3 className="text-lg font-black text-white">{tier.name}</h3>
                         </div>
                       </div>
@@ -387,6 +438,16 @@ export default function AdminLevels() {
                           Order #{tier.order}
                         </span>
                       </div>
+                    </div>
+
+                    {/* Category & Validity Strip */}
+                    <div className="flex items-center gap-2 mb-3 text-[11px] font-bold">
+                      <span className="bg-slate-800/80 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">
+                        📂 {tier.category || 'General'}
+                      </span>
+                      <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-2.5 py-1 rounded-lg">
+                        {validityText}
+                      </span>
                     </div>
 
                     <p className="text-xs text-slate-400 leading-relaxed mb-4">
@@ -469,7 +530,7 @@ export default function AdminLevels() {
                   </div>
                 </div>
 
-                {/* Offer Price & Order */}
+                {/* Base Price & Hierarchy Order */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-400 mb-1.5">Base Price / Fee (₹)</label>
@@ -492,6 +553,58 @@ export default function AdminLevels() {
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
                     />
                   </div>
+                </div>
+
+                {/* Category & Validity Configuration */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Category</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                    >
+                      {CATEGORY_OPTIONS.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                      Access Validity (Days)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.validityDays}
+                      onChange={(e) => setFormData({ ...formData, validityDays: parseInt(e.target.value) || 0 })}
+                      placeholder="0 for Lifetime, 30, 90, 365..."
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-mono"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      {formData.validityDays === 0 ? '♾️ Lifetime Access' : `⏳ Access valid for ${formData.validityDays} days from purchase`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Published / Active Toggle */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <div>
+                    <span className="text-xs font-bold text-white block">Publish / Live on Portal</span>
+                    <span className="text-[10px] text-slate-400">Uncheck to unpublish this level from public storefront</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.isPublished}
+                      onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
                 </div>
 
                 {/* Special Level Offer & Discount Configuration */}

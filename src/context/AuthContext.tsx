@@ -11,7 +11,11 @@ export interface User {
   email: string;
   role: "admin" | "student";
   points?: number;
+  xpPoints?: number;
   streak?: number;
+  membershipLevel?: string;
+  rank?: string;
+  lastLoginAt?: string;
   avatarUrl?: string;
   city?: string;
   phone?: string;

@@ -7,7 +7,7 @@ import { AdminNav } from "@/components/layout/AdminNav";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users, Search, ChevronRight, X, Plus, Trash2, CheckCircle2,
-  Circle, Star, Edit3, Trophy, Flame, IndianRupee, BookOpen, Save, UserPlus, Eye, EyeOff
+  Circle, Star, Edit3, Trophy, Flame, IndianRupee, BookOpen, Save, UserPlus, Eye, EyeOff, Clock, Send, AlertTriangle
 } from "lucide-react";
 
 interface Student {
@@ -19,6 +19,8 @@ interface Student {
   streak: number;
   membershipLevel: string;
   city?: string;
+  lastLoginAt?: string | null;
+  membershipExpiresAt?: string | null;
   skills?: any;
   badges?: any[];
   portfolios?: any[];
@@ -33,9 +35,11 @@ export default function AdminStudents() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'milestones' | 'sales' | 'skills' | 'courses' | 'badges'>('profile');
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [reEngageSending, setReEngageSending] = useState(false);
 
   // Add Student Modal
   const [showAddModal, setShowAddModal] = useState(false);
@@ -260,10 +264,48 @@ export default function AdminStudents() {
     showSuccess('Badge removed.');
   };
 
-  const filteredStudents = students.filter(s =>
-    s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const formatLastLogin = (dateStr?: string | null) => {
+    if (!dateStr) return { text: "Never logged in", color: "text-slate-500", dot: "bg-slate-600", isInactive: true };
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) return { text: "Active just now", color: "text-emerald-400", dot: "bg-emerald-400 animate-pulse", isInactive: false };
+    if (diffHours < 24) return { text: `Active ${diffHours}h ago`, color: "text-emerald-400", dot: "bg-emerald-400", isInactive: false };
+    if (diffDays < 7) return { text: `Active ${diffDays}d ago`, color: "text-teal-400", dot: "bg-teal-400", isInactive: false };
+    return { text: `Inactive ${diffDays}d ago`, color: "text-amber-400", dot: "bg-amber-400", isInactive: true };
+  };
+
+  const handleSendReengagement = async (studentId: string, studentName: string) => {
+    setReEngageSending(true);
+    try {
+      await fetch(`${API}/admin/students/${studentId}/notifications`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          title: "🔥 We miss you at Ravishing Art Hub!",
+          message: `Hello ${studentName}, your resin journey awaits! New masterclasses and community challenges are live in your portal. Jump back in today!`
+        }),
+      });
+      showSuccess(`Re-engagement notification sent to ${studentName}! 🚀`);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setReEngageSending(false);
+    }
+  };
+
+  const filteredStudents = students.filter(s => {
+    const matchesSearch = s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          s.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+    if (statusFilter === 'all') return true;
+    const loginStatus = formatLastLogin(s.lastLoginAt);
+    if (statusFilter === 'active') return !loginStatus.isInactive;
+    if (statusFilter === 'inactive') return loginStatus.isInactive;
+    return true;
+  });
 
   const TABS = [
     { key: 'profile', label: 'Profile & XP' },
@@ -287,8 +329,8 @@ export default function AdminStudents() {
       <main className="max-w-[1400px] mx-auto p-4 md:p-8">
         <header className="mb-6 md:mb-8 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">Student Management</h1>
-            <p className="text-slate-400 mt-1 md:mt-2 text-sm">View and manage all student profiles, milestones, sales, skills, and course enrollments.</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-white">Student Management &amp; Engagement</h1>
+            <p className="text-slate-400 mt-1 md:mt-2 text-sm">Track last login activity, milestones, sales, and trigger re-engagement notifications.</p>
           </div>
           <button
             onClick={() => { setShowAddModal(true); setAddError(''); }}
@@ -301,8 +343,8 @@ export default function AdminStudents() {
         <div className="flex flex-col lg:flex-row gap-4 md:gap-6 min-h-[600px] lg:h-[calc(100vh-220px)]">
           
           {/* Student List */}
-          <div className="w-full lg:w-80 lg:shrink-0 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col overflow-hidden shadow-xl max-h-80 lg:max-h-none">
-            <div className="p-4 border-b border-slate-800">
+          <div className="w-full lg:w-80 lg:shrink-0 bg-slate-900 border border-slate-800 rounded-3xl flex flex-col overflow-hidden shadow-xl max-h-96 lg:max-h-none">
+            <div className="p-4 border-b border-slate-800 space-y-2">
               <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input
@@ -313,32 +355,69 @@ export default function AdminStudents() {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm outline-none focus:border-orange-500 transition-colors"
                 />
               </div>
+
+              {/* Inactivity & Status Filter Tabs */}
+              <div className="grid grid-cols-3 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className={`py-1 rounded-lg transition-all ${statusFilter === 'all' ? 'bg-slate-800 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  All ({students.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('active')}
+                  className={`py-1 rounded-lg transition-all ${statusFilter === 'active' ? 'bg-emerald-500/20 text-emerald-400 shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Active
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('inactive')}
+                  className={`py-1 rounded-lg transition-all ${statusFilter === 'inactive' ? 'bg-amber-500/20 text-amber-400 shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Inactive
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-2">
               {isLoading ? (
                 <div className="p-8 text-center text-slate-500">Loading...</div>
               ) : filteredStudents.length === 0 ? (
-                <div className="p-8 text-center text-slate-500">No students found</div>
+                <div className="p-8 text-center text-slate-500">No students match filter</div>
               ) : (
-                filteredStudents.map(student => (
-                  <button
-                    key={student.id}
-                    onClick={() => openStudent(student)}
-                    className={`w-full text-left p-3 rounded-2xl flex items-center gap-3 transition-colors mb-1 group ${
-                      selectedStudent?.id === student.id ? 'bg-orange-500/10 border border-orange-500/30' : 'hover:bg-slate-800 border border-transparent'
-                    }`}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-orange-400 shrink-0">
-                      {student.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-white text-sm truncate">{student.name}</p>
-                      <p className="text-xs text-slate-500 truncate">{student.email}</p>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-600 shrink-0 group-hover:text-slate-400 transition-colors" />
-                  </button>
-                ))
+                filteredStudents.map(student => {
+                  const lastLog = formatLastLogin(student.lastLoginAt);
+
+                  return (
+                    <button
+                      key={student.id}
+                      onClick={() => openStudent(student)}
+                      className={`w-full text-left p-3 rounded-2xl flex items-center gap-3 transition-colors mb-1 group ${
+                        selectedStudent?.id === student.id ? 'bg-orange-500/10 border border-orange-500/30' : 'hover:bg-slate-800 border border-transparent'
+                      }`}
+                    >
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-orange-400 shrink-0">
+                          {student.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-slate-900 ${lastLog.dot}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="font-semibold text-white text-sm truncate">{student.name}</p>
+                          <span className="text-[10px] font-bold text-orange-400">{student.membershipLevel || 'L0'}</span>
+                        </div>
+                        <p className={`text-[11px] flex items-center gap-1 font-medium mt-0.5 ${lastLog.color}`}>
+                          <Clock size={10} /> {lastLog.text}
+                        </p>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-600 shrink-0 group-hover:text-slate-400 transition-colors" />
+                    </button>
+                  );
+                })
               )}
             </div>
           </div>
@@ -364,17 +443,53 @@ export default function AdminStudents() {
                       <p className="text-slate-400 text-sm">{selectedStudent.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
                     {successMsg && (
                       <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
                         <CheckCircle2 size={14} /> {successMsg}
                       </span>
                     )}
+
+                    {/* Re-engagement Quick Action */}
+                    <button
+                      type="button"
+                      onClick={() => handleSendReengagement(selectedStudent.id, selectedStudent.name)}
+                      disabled={reEngageSending}
+                      className="px-3.5 py-1.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Send re-engagement push notification"
+                    >
+                      <Send size={13} /> {reEngageSending ? 'Sending...' : 'Send Reminder'}
+                    </button>
+
                     <div className="text-right">
                       <p className="text-orange-400 font-black">{(selectedStudent.points || 0).toLocaleString()} XP</p>
                       <p className="text-slate-500 text-xs">🔥 {selectedStudent.streak || 0} day streak</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Last Login Info Strip */}
+                <div className="px-6 py-2.5 bg-slate-950/60 border-b border-slate-800/80 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">Activity Status:</span>
+                    {(() => {
+                      const logInfo = formatLastLogin(selectedStudent.lastLoginAt);
+                      return (
+                        <span className={`font-bold flex items-center gap-1.5 ${logInfo.color}`}>
+                          <span className={`w-2 h-2 rounded-full ${logInfo.dot}`} />
+                          {logInfo.text}
+                          {selectedStudent.lastLoginAt && (
+                            <span className="text-slate-500 font-normal">
+                              ({new Date(selectedStudent.lastLoginAt).toLocaleString('en-IN')})
+                            </span>
+                          )}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    ID: {selectedStudent.id.slice(0, 8)}...
+                  </span>
                 </div>
 
                 {/* Tabs - scrollable on mobile */}

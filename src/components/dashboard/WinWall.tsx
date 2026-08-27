@@ -2,8 +2,14 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame } from 'lucide-react';
+import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
+import { useAuth } from '@/context/AuthContext';
+
+interface CommentItem {
+  author: string;
+  text: string;
+}
 
 interface WinItem {
   id: string;
@@ -11,6 +17,9 @@ interface WinItem {
   studentLevel: string;
   title: string;
   amount?: string;
+  image?: string;
+  likes?: number;
+  comments?: CommentItem[];
   badge?: string;
   timeAgo: string;
 }
@@ -22,16 +31,25 @@ export const WinWall = ({
   communityWins?: any[];
   onWinAdded?: () => void;
 }) => {
+  const { user } = useAuth();
   const [wins, setWins] = useState<any[]>(communityWins);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedCommentsId, setExpandedCommentsId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState<{ [winId: string]: string }>({});
+  const [commenting, setCommenting] = useState(false);
   const [winForm, setWinForm] = useState({
     title: '',
     salesAmount: '',
     technique: '',
     notes: '',
+    imageUrl: '',
   });
   const [posting, setPosting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+
+  const currentLevel = (user?.membershipLevel || 'L0').toUpperCase();
+  const isL3Diamond = currentLevel === 'L3' || (user?.rank || '').toUpperCase().includes('DIAMOND');
+  const canPost = ['L1', 'L2', 'L3', 'L3+'].includes(currentLevel);
 
   // Keep synced with parent props
   React.useEffect(() => {
@@ -60,22 +78,65 @@ export const WinWall = ({
           achievement: winForm.notes || winForm.title,
           salesAmount: winForm.salesAmount,
           technique: winForm.technique,
+          imageUrl: winForm.imageUrl,
         }),
       });
 
       const data = await res.json();
       if (data.success && data.win) {
         setWins([data.win, ...wins]);
-        setSuccessMsg('🎉 Win published! +50 XP awarded to your profile!');
-        setWinForm({ title: '', salesAmount: '', technique: '', notes: '' });
+        setSuccessMsg(data.message || (isL3Diamond ? '🎉 Win published! +100 XP awarded to your Diamond profile!' : '🎉 Win published to Community Feed!'));
+        setWinForm({ title: '', salesAmount: '', technique: '', notes: '', imageUrl: '' });
         setTimeout(() => {
           setIsModalOpen(false);
           setSuccessMsg('');
           if (onWinAdded) onWinAdded();
-        }, 1500);
+        }, 1800);
       }
     } catch (_) {}
     setPosting(false);
+  };
+
+  const handleAddComment = async (winId: string) => {
+    const text = commentText[winId];
+    if (!text || !text.trim()) return;
+
+    setCommenting(true);
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_BASE_URL}/dashboard/community-wins/${winId}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text: text.trim() }),
+      });
+
+      if (res.ok) {
+        const updatedWin = await res.json();
+        setWins(wins.map((w) => (w.id === winId ? updatedWin : w)));
+        setCommentText({ ...commentText, [winId]: '' });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCommenting(false);
+    }
+  };
+
+  const handleLike = async (winId: string) => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_BASE_URL}/dashboard/community-wins/${winId}/like`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updatedWin = await res.json();
+        setWins(wins.map((w) => (w.id === winId ? updatedWin : w)));
+      }
+    } catch (_) {}
   };
 
   const displayWins: WinItem[] = wins.map((w, idx) => ({
@@ -84,6 +145,9 @@ export const WinWall = ({
     studentLevel: w.level || 'L1 Member',
     title: w.achievement || w.title || 'Achieved a new breakthrough!',
     amount: w.salesAmount ? `₹${Number(w.salesAmount).toLocaleString('en-IN')}` : undefined,
+    image: w.image || w.imageUrl,
+    likes: w.likes || 0,
+    comments: w.comments || [],
     badge: '🏆 Win',
     timeAgo: w.timeAgo || 'Recently',
   }));
@@ -103,9 +167,9 @@ export const WinWall = ({
               </div>
               <div>
                 <h2 className="text-base font-bold text-white flex items-center gap-1.5">
-                  Community Win Wall
+                  Community Win Feed
                 </h2>
-                <p className="text-[11px] text-slate-400">Live student sales &amp; milestones</p>
+                <p className="text-[11px] text-slate-400">Live sisterhood sales, photos &amp; comments</p>
               </div>
             </div>
 
@@ -113,42 +177,115 @@ export const WinWall = ({
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-md transition-all hover:scale-105 cursor-pointer"
             >
-              <Plus size={13} /> Post a Win (+50 XP)
+              <Plus size={13} /> Post a Win {isL3Diamond && '(+100 XP)'}
             </button>
           </div>
 
           {/* Wins Feed */}
-          <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
             {displayWins.length === 0 ? (
               <div className="text-center py-8 text-xs text-slate-500">
                 Be the first to share a win today!
               </div>
             ) : (
-              displayWins.map((win) => (
-                <div
-                  key={win.id}
-                  className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 transition-colors flex items-center justify-between gap-3 text-xs"
-                >
-                  <div className="flex-1 min-w-0 space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white truncate">{win.studentName}</span>
-                      <span className="text-[10px] text-slate-400">· {win.timeAgo}</span>
+              displayWins.map((win) => {
+                const isExpanded = expandedCommentsId === win.id;
+
+                return (
+                  <div
+                    key={win.id}
+                    className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 transition-colors space-y-2 text-xs"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white truncate">{win.studentName}</span>
+                          <span className="text-[10px] text-slate-400">· {win.timeAgo}</span>
+                        </div>
+                        <p className="text-slate-300 text-[11px] leading-relaxed">{win.title}</p>
+                      </div>
+                      {win.amount && (
+                        <span className="font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[11px] shrink-0 font-mono">
+                          {win.amount}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-2">{win.title}</p>
+
+                    {/* Attached Photo */}
+                    {win.image && (
+                      <div className="rounded-xl overflow-hidden border border-slate-800 max-h-48 bg-slate-900">
+                        <img src={win.image} alt="Artwork" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    {/* Like & Comment Bar */}
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-900 text-[11px] text-slate-400">
+                      <button
+                        type="button"
+                        onClick={() => handleLike(win.id)}
+                        className="flex items-center gap-1 hover:text-rose-400 transition-colors cursor-pointer"
+                      >
+                        <Heart size={12} className={win.likes ? 'text-rose-500 fill-rose-500' : ''} />
+                        <span>{win.likes || 0} Likes</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
+                        className="flex items-center gap-1 hover:text-orange-400 transition-colors cursor-pointer"
+                      >
+                        <MessageCircle size={12} />
+                        <span>{win.comments?.length || 0} Comments</span>
+                      </button>
+                    </div>
+
+                    {/* Comments Section */}
+                    {isExpanded && (
+                      <div className="pt-2 space-y-2 border-t border-slate-900/80">
+                        {win.comments && win.comments.length > 0 ? (
+                          <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                            {win.comments.map((c, i) => (
+                              <div key={i} className="bg-slate-900/60 p-2 rounded-xl text-[11px]">
+                                <span className="font-bold text-orange-400 mr-1.5">{c.author}:</span>
+                                <span className="text-slate-300">{c.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-slate-500">No comments yet. Say congratulations!</p>
+                        )}
+
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Write a supportive comment..."
+                            value={commentText[win.id] || ''}
+                            onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
+                            className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none focus:border-orange-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleAddComment(win.id)}
+                            disabled={commenting}
+                            className="px-2.5 py-1 bg-orange-500 text-slate-950 rounded-lg font-bold text-[11px] hover:bg-orange-600 transition-colors cursor-pointer shrink-0"
+                          >
+                            <Send size={11} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  {win.amount && (
-                    <span className="font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[11px] shrink-0">
-                      {win.amount}
-                    </span>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
 
         <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-          <span>Celebrating all L0 to L3 achievements</span>
+          <span className="flex items-center gap-1">
+            <Gem size={12} className="text-cyan-400" /> Only L3 Diamond earns XP
+          </span>
           <span className="flex items-center gap-1 text-orange-400 font-semibold">
             <Flame size={13} /> Active Sisterhood
           </span>
@@ -172,7 +309,11 @@ export const WinWall = ({
               </div>
               <div>
                 <h3 className="text-lg font-black text-white">Post Your Win on the Feed</h3>
-                <p className="text-xs text-slate-400">Share your milestone &amp; earn +50 XP!</p>
+                <p className="text-xs text-slate-400">
+                  {isL3Diamond
+                    ? '💎 Diamond Club (L3): Earn +100 XP on win posts!'
+                    : 'Share your milestone with the sisterhood!'}
+                </p>
               </div>
             </div>
 
@@ -218,6 +359,20 @@ export const WinWall = ({
                   </div>
                 </div>
 
+                {/* File / Image Upload URL */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Image size={13} className="text-orange-400" /> Photo / File URL (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://... or uploaded image link"
+                    value={winForm.imageUrl}
+                    onChange={(e) => setWinForm({ ...winForm, imageUrl: e.target.value })}
+                    className="flex h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+                  />
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-300">Story / Reflection</label>
                   <textarea
@@ -235,7 +390,7 @@ export const WinWall = ({
                     disabled={posting}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
                   >
-                    {posting ? 'Publishing...' : 'Publish Win (+50 XP)'}
+                    {posting ? 'Publishing...' : `Publish Win ${isL3Diamond ? '(+100 XP)' : ''}`}
                   </button>
                   <button
                     type="button"

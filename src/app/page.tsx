@@ -841,47 +841,16 @@ export default function HomePage() {
             {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
               <div
                 key={`r1-${idx}`}
-                className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-orange-500/50 transition-all duration-300 shadow-xl group"
+                className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-orange-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
               >
-                {/* Real Artwork Photo with smooth zoom */}
-                <div className="h-52 rounded-2xl relative overflow-hidden shadow-inner bg-slate-950">
+                {/* Real Artwork Photo Only */}
+                <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
                   <img
                     src={art.image}
-                    alt={art.title}
+                    alt="Student Resin Art"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
-                  
-                  <div className="absolute top-3 inset-x-3 flex justify-between items-center z-10">
-                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/80 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30 backdrop-blur-md">
-                      {art.badge}
-                    </span>
-                    <span className="text-xs font-black bg-emerald-500 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
-                      {art.price}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-3 inset-x-3 z-10">
-                    <p className="text-base font-black text-white drop-shadow-md leading-tight">
-                      {art.title}
-                    </p>
-                    <p className="text-xs text-slate-300 font-medium mt-0.5">{art.type}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-800">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-xs font-black text-slate-950">
-                      {art.artist[0]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white leading-none">{art.artist}</p>
-                      <p className="text-[11px] text-slate-400 font-medium">{art.level}</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] text-orange-400 font-semibold flex items-center gap-1">
-                    <CheckCircle2 size={13} /> Verified Piece
-                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             ))}
@@ -894,47 +863,16 @@ export default function HomePage() {
             {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
               <div
                 key={`r2-${idx}`}
-                className="w-[320px] md:w-[360px] bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shrink-0 hover:border-cyan-500/50 transition-all duration-300 shadow-xl group"
+                className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-cyan-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
               >
-                {/* Real Artwork Photo with smooth zoom */}
-                <div className="h-52 rounded-2xl relative overflow-hidden shadow-inner bg-slate-950">
+                {/* Real Artwork Photo Only */}
+                <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
                   <img
                     src={art.image}
-                    alt={art.title}
+                    alt="Student Resin Art"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
-                  
-                  <div className="absolute top-3 inset-x-3 flex justify-between items-center z-10">
-                    <span className="text-[11px] font-black uppercase tracking-wider bg-slate-950/80 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 backdrop-blur-md">
-                      {art.badge}
-                    </span>
-                    <span className="text-xs font-black bg-emerald-500 text-slate-950 px-2.5 py-0.5 rounded-full shadow-md">
-                      {art.price}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-3 inset-x-3 z-10">
-                    <p className="text-base font-black text-white drop-shadow-md leading-tight">
-                      {art.title}
-                    </p>
-                    <p className="text-xs text-slate-300 font-medium mt-0.5">{art.type}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between pt-2 border-t border-slate-800">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-xs font-black text-slate-950">
-                      {art.artist[0]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white leading-none">{art.artist}</p>
-                      <p className="text-[11px] text-slate-400 font-medium">{art.level}</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] text-cyan-400 font-semibold flex items-center gap-1">
-                    <CheckCircle2 size={13} /> Verified Piece
-                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             ))}
