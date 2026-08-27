@@ -500,19 +500,41 @@ export default function AdminDashboard() {
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-bold text-white text-sm">{w.studentName}</h4>
-                          <p className="text-xs text-slate-300 mt-1">{w.achievement}</p>
+                          <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                            {w.studentName}
+                            {w.studentName?.includes('Admin') && (
+                              <span className="text-[10px] font-bold text-pink-400 bg-pink-500/10 border border-pink-500/30 px-2 py-0.5 rounded-md">Admin</span>
+                            )}
+                          </h4>
+                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">{w.achievement}</p>
                         </div>
                         <button
                           onClick={() => handleDeleteWin(w.id)}
-                          className="text-slate-600 hover:text-red-400 transition-colors p-1 ml-2 shrink-0"
+                          className="text-slate-600 hover:text-red-400 transition-colors p-1 ml-2 shrink-0 cursor-pointer"
                         >
                           <Trash2 size={14} />
                         </button>
                       </div>
+
+                      {/* Attached Photo / Video / Document */}
+                      {w.image && (
+                        <div className="mt-2 rounded-xl overflow-hidden border border-slate-700 bg-slate-950">
+                          {w.image.startsWith('data:video') || /\.(mp4|webm|mov)$/i.test(w.image) ? (
+                            <video src={w.image} controls className="w-full max-h-48 object-contain bg-black" />
+                          ) : w.image.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(w.image) ? (
+                            <div className="p-3 text-xs font-bold text-pink-400 flex items-center justify-between">
+                              <span>📄 Attached Document / File</span>
+                              <a href={w.image} download target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-lg bg-pink-500/20 text-white font-bold text-[10px]">Download</a>
+                            </div>
+                          ) : (
+                            <img src={w.image} alt="Attachment" className="w-full max-h-48 object-cover" />
+                          )}
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs text-pink-400">❤️ {w.likes}</span>
-                        <span className="text-xs text-slate-500">{w.timeAgo}</span>
+                        <span className="text-xs text-slate-500">· {w.timeAgo}</span>
                       </div>
                     </div>
                   </div>

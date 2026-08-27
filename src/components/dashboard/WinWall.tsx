@@ -234,19 +234,52 @@ export const WinWall = ({
                     </div>
 
                     {/* Attached Photo / Video / Document */}
-                    {win.image && (
-                      <div className="rounded-xl overflow-hidden border border-slate-800 max-h-56 bg-slate-950 mt-1">
-                        {win.image.startsWith('data:video') || win.image.match(/\.(mp4|webm|mov)$/i) ? (
-                          <video src={win.image} controls className="w-full h-full object-cover" />
-                        ) : win.image.startsWith('data:image') || win.image.match(/\.(jpeg|jpg|gif|png|webp)$/i) || win.image.startsWith('data:') ? (
-                          <img src={win.image} alt="Artwork" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="p-3 bg-slate-900 text-xs font-bold text-orange-400 flex items-center gap-2">
-                            📄 Attached File: <a href={win.image} download target="_blank" className="underline text-white">View File</a>
+                    {(() => {
+                      const mediaUrl = win.image;
+                      if (!mediaUrl) return null;
+
+                      const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
+                      const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
+
+                      if (isVideo) {
+                        return (
+                          <div className="rounded-2xl overflow-hidden border border-slate-800 bg-black mt-2 shadow-lg">
+                            <video src={mediaUrl} controls className="w-full max-h-64 object-contain bg-black" />
                           </div>
-                        )}
-                      </div>
-                    )}
+                        );
+                      }
+
+                      if (isDoc) {
+                        return (
+                          <div className="mt-2 p-3 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                            <div className="flex items-center gap-2.5 overflow-hidden">
+                              <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold shrink-0 text-sm">
+                                📄
+                              </div>
+                              <div className="truncate">
+                                <p className="text-xs font-bold text-white truncate">Attached Document / File</p>
+                                <p className="text-[10px] text-slate-400">Click to download or view</p>
+                              </div>
+                            </div>
+                            <a
+                              href={mediaUrl}
+                              download="community-file"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3 py-1 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-300 text-[11px] font-bold transition-all shrink-0"
+                            >
+                              Download File
+                            </a>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950 mt-2 max-h-80 shadow-lg">
+                          <img src={mediaUrl} alt="Post attachment" className="w-full h-full max-h-80 object-cover hover:scale-102 transition-transform duration-300" />
+                        </div>
+                      );
+                    })()}
 
                     {/* Like & Comment Bar */}
                     <div className="flex items-center justify-between pt-1 border-t border-slate-900 text-[11px] text-slate-400">
