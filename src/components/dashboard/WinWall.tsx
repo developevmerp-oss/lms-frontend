@@ -49,7 +49,7 @@ export const WinWall = ({
 
   const currentLevel = (user?.membershipLevel || 'L0').toUpperCase();
   const isL3Diamond = currentLevel === 'L3' || (user?.rank || '').toUpperCase().includes('DIAMOND');
-  const canPost = ['L1', 'L2', 'L3', 'L3+'].includes(currentLevel);
+  const canPost = true; // All students (L0, L1, L2, L3) can post on Community Win Feed
 
   // Keep synced with parent props
   React.useEffect(() => {
@@ -57,6 +57,22 @@ export const WinWall = ({
       setWins(communityWins);
     }
   }, [communityWins]);
+
+  const handleFileBrowserSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setWinForm((prev) => ({
+          ...prev,
+          imageUrl: event.target?.result as string,
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handlePostWin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,10 +227,18 @@ export const WinWall = ({
                       )}
                     </div>
 
-                    {/* Attached Photo */}
+                    {/* Attached Photo / Video / Document */}
                     {win.image && (
-                      <div className="rounded-xl overflow-hidden border border-slate-800 max-h-48 bg-slate-900">
-                        <img src={win.image} alt="Artwork" className="w-full h-full object-cover" />
+                      <div className="rounded-xl overflow-hidden border border-slate-800 max-h-56 bg-slate-950 mt-1">
+                        {win.image.startsWith('data:video') || win.image.match(/\.(mp4|webm|mov)$/i) ? (
+                          <video src={win.image} controls className="w-full h-full object-cover" />
+                        ) : win.image.startsWith('data:image') || win.image.match(/\.(jpeg|jpg|gif|png|webp)$/i) || win.image.startsWith('data:') ? (
+                          <img src={win.image} alt="Artwork" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="p-3 bg-slate-900 text-xs font-bold text-orange-400 flex items-center gap-2">
+                            📄 Attached File: <a href={win.image} download target="_blank" className="underline text-white">View File</a>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -359,18 +383,54 @@ export const WinWall = ({
                   </div>
                 </div>
 
-                {/* File / Image Upload URL */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                    <Image size={13} className="text-orange-400" /> Photo / File URL (Optional)
+                {/* Browser File Upload & URL input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Image size={13} className="text-orange-400" /> Upload File (Image, Video, Document)
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-normal">Browser File Picker</span>
                   </label>
-                  <input
-                    type="url"
-                    placeholder="https://... or uploaded image link"
-                    value={winForm.imageUrl}
-                    onChange={(e) => setWinForm({ ...winForm, imageUrl: e.target.value })}
-                    className="flex h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
-                  />
+
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="file"
+                      accept="image/*,video/*,.pdf,.doc,.docx"
+                      onChange={handleFileBrowserSelect}
+                      className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500/20 file:text-orange-400 hover:file:bg-orange-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Or paste external file / image URL..."
+                      value={winForm.imageUrl}
+                      onChange={(e) => setWinForm({ ...winForm, imageUrl: e.target.value })}
+                      className="flex h-9 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* File Preview */}
+                  {winForm.imageUrl && (
+                    <div className="mt-2 p-2 rounded-xl bg-slate-950 border border-slate-800 relative">
+                      <button
+                        type="button"
+                        onClick={() => setWinForm({ ...winForm, imageUrl: '' })}
+                        className="absolute right-2 top-2 bg-slate-900 text-slate-400 hover:text-white p-1 rounded-lg z-10"
+                      >
+                        <X size={12} />
+                      </button>
+
+                      {winForm.imageUrl.startsWith('data:video') || winForm.imageUrl.match(/\.(mp4|webm|mov)$/i) ? (
+                        <video src={winForm.imageUrl} controls className="max-h-36 rounded-lg w-full object-cover" />
+                      ) : winForm.imageUrl.startsWith('data:image') || winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i) || winForm.imageUrl.startsWith('data:') ? (
+                        <img src={winForm.imageUrl} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover" />
+                      ) : (
+                        <div className="p-3 text-xs font-bold text-orange-400 flex items-center gap-2">
+                          📄 Document / File attached successfully!
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1">
