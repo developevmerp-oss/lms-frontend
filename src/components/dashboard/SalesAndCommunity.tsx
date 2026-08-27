@@ -103,13 +103,13 @@ export const SalesAndCommunity = ({ sales, communityWins, onInteract }: SalesAnd
   const totalRevenue = activeSales.reduce((sum, s) => sum + s.amount, 0);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 h-full">
+    <div className="w-full">
       {/* Sales Chart */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
-        className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col shadow-xl"
+        className="w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col shadow-xl"
       >
         <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
           <div className="flex items-center gap-2">
@@ -164,116 +164,6 @@ export const SalesAndCommunity = ({ sales, communityWins, onInteract }: SalesAnd
               ))}
             </div>
           </div>
-        )}
-      </motion.div>
-
-      {/* Community Wins */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="lg:col-span-1 bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col shadow-xl"
-      >
-        <div className="flex items-center gap-2 mb-6">
-          <Heart className="text-pink-400" />
-          <h2 className="text-xl font-bold text-white">Win Wall</h2>
-        </div>
-
-        <div className="space-y-4 flex-1">
-          {displayWins.map((win, i) => (
-            <div key={i} className="bg-slate-800/50 border border-slate-700 p-4 rounded-2xl">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <span className="text-sm font-bold text-blue-400">{win.studentName}</span>
-                  <span className="text-xs text-slate-500 block">{win.timeAgo}</span>
-                </div>
-                {i === 0 && <Trophy size={16} className="text-yellow-400" />}
-              </div>
-              <p className="text-white text-sm font-medium mb-3">{win.achievement}</p>
-              
-              <div className="flex items-center gap-3 border-t border-slate-700 pt-3">
-                <button 
-                  onClick={() => handleLike(win.id)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-pink-400 transition-colors"
-                >
-                  <ThumbsUp size={14} /> {win.likes || 0}
-                </button>
-                <button 
-                  onClick={() => setActiveReplyId(activeReplyId === win.id ? null : win.id)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-400 transition-colors"
-                >
-                  <MessageSquare size={14} /> {win.comments?.length || 0} Reply
-                </button>
-              </div>
-
-              {/* Comments Display */}
-              {win.comments && win.comments.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {win.comments.map((comment: any, idx: number) => (
-                    <div key={idx} className="bg-slate-800/80 rounded-xl p-2.5 text-xs">
-                      <span className="font-bold text-blue-400 mr-2">{comment.author}:</span>
-                      <span className="text-slate-300">{comment.text}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Reply Input Box */}
-              {activeReplyId === win.id && (
-                <div className="mt-3 flex items-center gap-2">
-                  <input 
-                    type="text" 
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Type a supportive reply..." 
-                    className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-                    onKeyDown={(e) => { if(e.key === 'Enter') submitReply(win.id); }}
-                  />
-                  <button 
-                    onClick={() => submitReply(win.id)}
-                    disabled={isSubmitting || !replyText.trim()}
-                    className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white p-2 rounded-lg transition-colors"
-                  >
-                    <Send size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        
-        {isSharingWin ? (
-          <div className="mt-4 p-4 border border-slate-700 bg-slate-800/30 rounded-xl">
-            <h3 className="text-sm font-bold text-white mb-2">What did you achieve?</h3>
-            <textarea 
-              value={newWinText}
-              onChange={(e) => setNewWinText(e.target.value)}
-              placeholder="e.g. Just sold my first resin coaster set!"
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-pink-500 min-h-[80px] mb-3 resize-none"
-            />
-            <div className="flex gap-2 justify-end">
-              <button 
-                onClick={() => setIsSharingWin(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={submitNewWin}
-                disabled={isPostingWin || !newWinText.trim()}
-                className="bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2"
-              >
-                {isPostingWin ? 'Posting...' : 'Post Win'} <Send size={12} />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button 
-            onClick={() => setIsSharingWin(true)}
-            className="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors border border-slate-700 text-sm"
-          >
-            Share Your Win
-          </button>
         )}
       </motion.div>
     </div>
