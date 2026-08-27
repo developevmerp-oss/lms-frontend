@@ -125,6 +125,7 @@ export const TierPurchaseModal = ({
 }: TierPurchaseModalProps) => {
   const { user, token } = useAuth();
   const [selectedCode, setSelectedCode] = useState<string>(targetTierCode);
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [liveTiers, setLiveTiers] = useState<any[]>([]);
@@ -157,15 +158,19 @@ export const TierPurchaseModal = ({
   const baseTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
   const liveTierMatch = liveTiers.find((lt) => lt.code === selectedCode);
 
-  // Check separate offers module for matching active campaign offer
+  // Check separate offers module for ALL matching active campaign offers
   const now = new Date();
-  const activeCampaignOffer = campaignOffers.find((co) => {
+  const matchingOffers = campaignOffers.filter((co) => {
     if (!co.isActive) return false;
     if (co.levelCode !== "ALL" && co.levelCode !== selectedCode) return false;
     if (co.startDate && new Date(co.startDate) > now) return false;
     if (co.endDate && new Date(co.endDate) < now) return false;
     return true;
   });
+
+  const activeCampaignOffer = selectedOfferId
+    ? matchingOffers.find((o) => o.id === selectedOfferId) || matchingOffers[0]
+    : matchingOffers[0];
 
   const mergedTier: TierInfo = {
     ...baseTier,
@@ -287,6 +292,35 @@ export const TierPurchaseModal = ({
               );
             })}
           </div>
+
+          {/* Multi-Offer Campaign Selector (When admin creates multiple offers for the same level) */}
+          {matchingOffers.length > 1 && (
+            <div className="mb-3 p-3 bg-slate-900 border border-slate-800 rounded-2xl">
+              <span className="text-[11px] font-bold text-slate-400 block mb-2">
+                🎉 {matchingOffers.length} Active Offers Available for {selectedCode} (Click to Switch):
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {matchingOffers.map((off) => {
+                  const isSel = (activeCampaignOffer?.id || matchingOffers[0]?.id) === off.id;
+                  const bdg = off.discountType === "percentage" ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`;
+                  return (
+                    <button
+                      key={off.id}
+                      type="button"
+                      onClick={() => setSelectedOfferId(off.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSel
+                          ? "bg-gradient-to-r from-red-500 to-rose-600 text-white font-black shadow-md border border-red-400"
+                          : "bg-slate-950 border border-slate-800 text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      <Tag size={12} /> {off.title} ({bdg})
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Selected Tier Detail Card */}
           <div className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-inner">
