@@ -142,50 +142,6 @@ export default function StudentDashboard() {
             <SalesAndCommunity sales={stats.salesRecords} communityWins={stats.communityWins} onInteract={fetchStats} />
           </div>
 
-          {/* Full Dedicated Community Feed Section */}
-          <div id="community-feed" className="pt-4 scroll-mt-20">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
-              <div className="lg:col-span-8">
-                <WinWall 
-                  communityWins={stats.communityWins} 
-                  onWinAdded={() => fetchStats(true)} 
-                />
-              </div>
-              <div className="lg:col-span-4 space-y-4">
-                {/* Right Side: Badges Spotlight & Hall of Fame Leaders */}
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl">
-                  <h3 className="text-base font-bold text-white flex items-center gap-2 mb-3">
-                    <Trophy className="text-amber-400" size={18} /> Student Badges Spotlight
-                  </h3>
-                  <p className="text-xs text-slate-400 mb-4">Earn badges by completing courses, sales milestones, and Art-o-Thon challenges.</p>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {(stats.badges && stats.badges.length > 0 ? stats.badges : [
-                      { name: 'First Resin Pour', icon: '🎨', pointsRequired: 100 },
-                      { name: 'First Client Sale', icon: '💰', pointsRequired: 500 },
-                      { name: 'Art-o-thon finisher', icon: '💎', pointsRequired: 500 },
-                      { name: 'HOF Creator', icon: '👑', pointsRequired: 1000 },
-                    ]).slice(0, 4).map((b: any, idx: number) => (
-                      <div key={idx} className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col items-center text-center">
-                        <span className="text-2xl mb-1">{b.icon || '🏆'}</span>
-                        <span className="text-[11px] font-bold text-white truncate w-full">{b.name}</span>
-                        <span className="text-[9px] text-amber-400 font-semibold">{b.pointsRequired || 100} XP</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 shadow-xl">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                    <Sparkles className="text-pink-400" size={14} /> Diamond Club Gamification
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Level 3 (L3 Diamond Club) members earn <span className="text-amber-400 font-bold">+15 XP</span> for feed posts, <span className="text-amber-400 font-bold">+30 XP</span> for win wall sales shares, and <span className="text-amber-400 font-bold">+5 XP</span> for comments.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
           <RewardsStore currentPoints={stats.points} onRedeem={fetchStats} />
 
           <AiMentor skills={stats.skills} />
