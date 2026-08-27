@@ -20,8 +20,8 @@ export default function StudentFeedPage() {
       const headers = { Authorization: `Bearer ${token}` };
       const [dashRes, winsRes, badgesRes] = await Promise.all([
         fetch(`${API_BASE_URL}/dashboard/student`, { headers }).then((r) => r.json()),
-        fetch(`${API_BASE_URL}/admin/community-wins`, { headers }).then((r) => r.json()),
-        fetch(`${API_BASE_URL}/admin/badges`, { headers }).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/dashboard/community-wins`, { headers }).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/dashboard/badges`, { headers }).then((r) => r.json()),
       ]);
 
       if (dashRes && !dashRes.message) {
