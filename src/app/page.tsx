@@ -1091,25 +1091,25 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {[
               {
                 code: "L0",
-                badgeTag: "LEVEL 0 · START",
-                defaultTitle: "Explore Your Creativity",
+                badgeTag: "LEVEL 0",
+                defaultName: "Fast Track",
                 defaultDesc: "Begin your Resin Art journey, understand the fundamentals and create your first beautiful pieces with confidence.",
                 defaultHighlights: ["FastTrack Starter Toolkit", "Basic Epoxy Chemistry", "First 3 Practical Pours"],
-                accentColor: "orange",
-                buttonText: "Join Level 0",
+                accentColor: "emerald",
+                buttonText: "Explore Fast Track",
                 buttonHref: "/webinar",
                 isPopular: false,
               },
               {
                 code: "L1",
-                badgeTag: "LEVEL 1 · GROW",
-                defaultTitle: "Build Skills & Signature",
+                badgeTag: "LEVEL 1",
+                defaultName: "Silver Membership",
                 defaultDesc: "Go deeper into techniques, creativity, portfolio building and the skills required to take your art seriously.",
-                defaultHighlights: ["Ocean Lacing & Geodes", "Portfolio Foundations", "Daily Action Missions"],
+                defaultHighlights: ["Coasters, Fridge Magnets, Keychains", "Marbling & Evil Eye Techniques", "Ocean Lacing & Lotus Pond"],
                 accentColor: "amber",
                 buttonText: "Explore Level 1",
                 buttonHref: "/register",
@@ -1117,25 +1117,25 @@ export default function HomePage() {
               },
               {
                 code: "L2",
-                badgeTag: "LEVEL 2 · MASTER",
-                defaultTitle: "Build Identity & Income",
+                badgeTag: "LEVEL 2",
+                defaultName: "Gold Membership",
                 defaultDesc: "Develop advanced skills, strengthen your personal brand, understand business and build a sustainable path around your creativity.",
-                defaultHighlights: ["Bridal Preservation & Clocks", "Pricing & Client Acquisition", "Live Mentorship Calls"],
+                defaultHighlights: ["Geode Art & Vein Effects", "Tree of Life Clocks", "3D Waves & Client Acquisition"],
                 accentColor: "orange",
-                buttonText: "Apply for Master",
+                buttonText: "Explore Level 2",
                 buttonHref: "/webinar",
-                isPopular: true,
+                isPopular: false,
               },
               {
                 code: "L3",
-                badgeTag: "LEVEL 3 · CERTIFY",
-                defaultTitle: "Recognised Creator",
+                badgeTag: "LEVEL 3",
+                defaultName: "Renaissance Certification",
                 defaultDesc: "Take your skills, portfolio, business knowledge and personal growth to the highest level through structured milestones and certification.",
-                defaultHighlights: ["Certified Trainer Status", "High-Ticket Furniture Pours", "Hall of Fame Induction"],
+                defaultHighlights: ["3D Photo Resin Art", "Wood & Resin River Tables", "Floral Preservation & Mantras"],
                 accentColor: "cyan",
-                buttonText: "Learn About Level 3",
-                buttonHref: "/login",
-                isPopular: false,
+                buttonText: "Apply for Certification",
+                buttonHref: "/webinar",
+                isPopular: true,
               },
             ].map((card, idx) => {
               const dbLevel = levelTiers.find((l) => (l.code || "").toUpperCase() === card.code);
@@ -1143,91 +1143,94 @@ export default function HomePage() {
                 (c) => (c.levelCode || c.level || "").toUpperCase() === card.code
               );
 
-              const cardTitle = dbLevel?.name ? (dbLevel.name.includes(':') ? dbLevel.name.split(':')[1].trim() : dbLevel.name) : card.defaultTitle;
-              const cardDesc = dbLevel?.description || card.defaultDesc;
+              // Use exact db name or fallback
+              const levelName = dbLevel?.name || card.defaultName;
+              const levelDesc = dbLevel?.description || card.defaultDesc;
 
-              const highlightsToRender = dynamicCourses.length > 0
-                ? dynamicCourses.map((c) => c.title)
+              // Extract course titles
+              const allHighlights = dynamicCourses.length > 0
+                ? dynamicCourses.map((c) => c.title.replace(/^\d+\.\s*/, ""))
                 : card.defaultHighlights;
 
-              if (card.isPopular) {
-                return (
-                  <div
-                    key={idx}
-                    className="bg-slate-900/90 border-2 border-orange-500/70 rounded-3xl p-7 flex flex-col justify-between shadow-2xl relative hover:-translate-y-2 hover:shadow-orange-500/20 transition-all duration-300"
-                  >
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md">
-                      Most Popular
-                    </span>
-                    <div>
-                      <span className="text-[10px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/40 px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4">
-                        {card.badgeTag}
-                      </span>
-                      <h3 className="text-xl font-bold text-white mb-2">{cardTitle}</h3>
-                      <p className="text-xs text-slate-300 leading-relaxed mb-6">{cardDesc}</p>
-                      <div className="space-y-2 border-t border-slate-800 pt-4">
-                        {highlightsToRender.map((h, hIdx) => (
-                          <div key={hIdx} className="flex items-center gap-2 text-xs text-slate-300">
-                            <Check size={14} className="text-orange-400 shrink-0" />
-                            <span className="truncate">{h}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <Link
-                      href={card.buttonHref}
-                      className="mt-8 w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center block transition-all shadow-lg hover:scale-105"
-                    >
-                      {card.buttonText}
-                    </Link>
-                  </div>
-                );
-              }
+              const visibleHighlights = allHighlights.slice(0, 3);
+              const remainingCount = allHighlights.length > 3 ? allHighlights.length - 3 : 0;
 
-              const badgeClass =
-                card.accentColor === "amber"
-                  ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                  : card.accentColor === "cyan"
-                  ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
-                  : "bg-orange-500/10 text-orange-400 border-orange-500/30";
+              const isMainL3 = card.isPopular || card.code === "L3";
 
-              const hoverBorderClass =
-                card.accentColor === "amber"
-                  ? "hover:border-amber-500/50 hover:shadow-amber-500/10"
-                  : card.accentColor === "cyan"
-                  ? "hover:border-cyan-500/50 hover:shadow-cyan-500/10"
-                  : "hover:border-orange-500/50 hover:shadow-orange-500/10";
+              const cardBorderClass = isMainL3
+                ? "border-2 border-cyan-500/80 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 shadow-2xl shadow-cyan-500/20 relative"
+                : "bg-slate-900/90 border border-slate-800 shadow-xl hover:border-slate-700";
 
-              const iconColor =
-                card.accentColor === "amber"
-                  ? "text-amber-400"
-                  : card.accentColor === "cyan"
-                  ? "text-cyan-400"
-                  : "text-orange-400";
+              const badgeClass = card.code === "L3"
+                ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40"
+                : card.code === "L2"
+                ? "bg-orange-500/20 text-orange-400 border-orange-500/40"
+                : card.code === "L1"
+                ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
+
+              const iconColor = card.code === "L3"
+                ? "text-cyan-400"
+                : card.code === "L2"
+                ? "text-orange-400"
+                : card.code === "L1"
+                ? "text-amber-400"
+                : "text-emerald-400";
 
               return (
                 <div
                   key={idx}
-                  className={`bg-slate-900/90 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 shadow-xl ${hoverBorderClass}`}
+                  className={`rounded-3xl p-6 md:p-7 flex flex-col justify-between hover:-translate-y-2 transition-all duration-300 ${cardBorderClass}`}
                 >
-                  <div>
-                    <span className={`text-[10px] font-black border px-3 py-1 rounded-full uppercase tracking-wider block w-fit mb-4 ${badgeClass}`}>
-                      {card.badgeTag}
+                  {isMainL3 && (
+                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-lg whitespace-nowrap">
+                      ★ MAIN CERTIFICATION
                     </span>
-                    <h3 className="text-xl font-bold text-white mb-2">{cardTitle}</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed mb-6">{cardDesc}</p>
-                    <div className="space-y-2 border-t border-slate-800 pt-4">
-                      {highlightsToRender.map((h, hIdx) => (
-                        <div key={hIdx} className="flex items-center gap-2 text-xs text-slate-300">
-                          <Check size={14} className={`${iconColor} shrink-0`} />
+                  )}
+
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className={`text-[10px] font-black border px-2.5 py-1 rounded-full uppercase tracking-wider block ${badgeClass}`}>
+                        {card.badgeTag}
+                      </span>
+                      {dbLevel?.price && (
+                        <span className="text-xs font-bold text-white bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-lg font-mono">
+                          {dbLevel.price}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-lg md:text-xl font-bold text-white mb-2 leading-snug">
+                      {levelName}
+                    </h3>
+                    <p className="text-xs text-slate-300 leading-relaxed mb-5 min-h-[48px] line-clamp-3">
+                      {levelDesc}
+                    </p>
+
+                    <div className="space-y-2 border-t border-slate-800/80 pt-4">
+                      {visibleHighlights.map((h, hIdx) => (
+                        <div key={hIdx} className="flex items-start gap-2 text-xs text-slate-300">
+                          <Check size={14} className={`${iconColor} shrink-0 mt-0.5`} />
                           <span className="truncate">{h}</span>
                         </div>
                       ))}
+                      {remainingCount > 0 && (
+                        <div className="pt-1">
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800/60 border border-slate-700/60 px-2.5 py-1 rounded-lg inline-block">
+                            + {remainingCount} More Modules Included
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
+
                   <Link
                     href={card.buttonHref}
-                    className="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs text-center block transition-all"
+                    className={`mt-6 w-full py-3 font-bold rounded-xl text-xs text-center block transition-all shadow-md ${
+                      isMainL3
+                        ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-black shadow-cyan-500/20 hover:scale-105"
+                        : "bg-slate-800 hover:bg-slate-700 text-white"
+                    }`}
                   >
                     {card.buttonText}
                   </Link>
