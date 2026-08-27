@@ -224,7 +224,31 @@ export const WinWall = ({
                           <span className="font-bold text-white truncate">{win.studentName}</span>
                           <span className="text-[10px] text-slate-400">· {win.timeAgo}</span>
                         </div>
-                        <p className="text-slate-300 text-[11px] leading-relaxed">{win.title}</p>
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          {(() => {
+                            const text = win.title || '';
+                            const urlRegex = /(https?:\/\/[^\s]+)/g;
+                            const parts = text.split(urlRegex);
+
+                            return parts.map((part, index) => {
+                              if (part.match(urlRegex)) {
+                                return (
+                                  <a
+                                    key={index}
+                                    href={part}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-orange-400 font-bold underline hover:text-orange-300 break-all inline-flex items-center gap-0.5 ml-1"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    🔗 {part} ↗
+                                  </a>
+                                );
+                              }
+                              return part;
+                            });
+                          })()}
+                        </p>
                       </div>
                       {win.amount && (
                         <span className="font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[11px] shrink-0 font-mono">
@@ -233,13 +257,15 @@ export const WinWall = ({
                       )}
                     </div>
 
-                    {/* Attached Photo / Video / Document */}
+                    {/* Attached Photo / Video / Document / External Link */}
                     {(() => {
                       const mediaUrl = win.image;
                       if (!mediaUrl) return null;
 
                       const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
                       const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
+                      const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                      const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
 
                       if (isVideo) {
                         return (
@@ -269,6 +295,30 @@ export const WinWall = ({
                               className="px-3 py-1 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-300 text-[11px] font-bold transition-all shrink-0"
                             >
                               Download File
+                            </a>
+                          </div>
+                        );
+                      }
+
+                      if (isWebUrl && !isDirectImage) {
+                        return (
+                          <div className="mt-2 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                            <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
+                                🔗
+                              </div>
+                              <div className="truncate min-w-0">
+                                <p className="text-xs font-bold text-white truncate">External Link Attachment</p>
+                                <p className="text-[10px] text-slate-400 truncate">{mediaUrl}</p>
+                              </div>
+                            </div>
+                            <a
+                              href={mediaUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
+                            >
+                              Open Link ↗
                             </a>
                           </div>
                         );
