@@ -73,12 +73,13 @@ export default function AdminLevels() {
   const { token, user, logout } = useAuth();
   const [levels, setLevels] = useState<LevelTier[]>([]);
   const [students, setStudents] = useState<any[]>([]);
+  const [levelOffers, setLevelOffers] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isLoading, setIsLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Modal State
+  // Modal State for Level Tier
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTier, setEditingTier] = useState<LevelTier | null>(null);
   const [formData, setFormData] = useState({
@@ -98,6 +99,18 @@ export default function AdminLevels() {
     discountValue: 0,
     offerStartDate: '',
     offerEndDate: '',
+  });
+
+  // Modal State for Quick Add Offer on Level Card
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [offerTargetCode, setOfferTargetCode] = useState("L1");
+  const [offerFormData, setOfferFormData] = useState({
+    title: "",
+    discountType: "percentage" as "percentage" | "flat",
+    discountValue: 20,
+    startDate: "",
+    endDate: "",
+    isActive: true,
   });
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -126,6 +139,12 @@ export default function AdminLevels() {
       const dataStudents = await resStudents.json();
       if (Array.isArray(dataStudents)) {
         setStudents(dataStudents);
+      }
+
+      const resOffers = await fetch(`${API}/admin/offers`, { headers });
+      const dataOffers = await resOffers.json();
+      if (Array.isArray(dataOffers)) {
+        setLevelOffers(dataOffers);
       }
     } catch (err: any) {
       console.error(err);
@@ -239,6 +258,46 @@ export default function AdminLevels() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    }
+  };
+
+  const openAddOfferForLevelModal = (code: string) => {
+    setOfferTargetCode(code);
+    setOfferFormData({
+      title: "",
+      discountType: "percentage",
+      discountValue: 20,
+      startDate: new Date().toISOString().slice(0, 16),
+      endDate: "",
+      isActive: true,
+    });
+    setIsOfferModalOpen(true);
+  };
+
+  const handleSaveOfferForLevel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offerFormData.title.trim()) {
+      showError("Offer Campaign Title is required.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/admin/offers`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          ...offerFormData,
+          levelCode: offerTargetCode,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to create offer");
+
+      showSuccess(`🎉 Offer added to ${offerTargetCode} successfully!`);
+      setIsOfferModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      showError(err?.message || "Failed to add campaign offer.");
     }
   };
 
@@ -462,12 +521,51 @@ export default function AdminLevels() {
                       {tier.description || "Full membership tier benefits and unlocked portal privileges."}
                     </p>
 
-                    <div className="rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 mb-4 flex items-center justify-between text-xs">
+                    <div className="rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 mb-3 flex items-center justify-between text-xs">
                       <span className="text-slate-400">Assigned Members:</span>
                       <span className="font-black text-white flex items-center gap-1">
                         <Users size={13} className="text-orange-400" /> {studentCount} Students
                       </span>
                     </div>
+
+                    {/* Level Offers Box (Multiple Offers per Level) */}
+                    {(() => {
+                      const offersForLevel = levelOffers.filter(o => o.levelCode === tier.code || o.levelCode === 'ALL');
+                      return (
+                        <div className="my-3 p-3 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-black text-slate-300 flex items-center gap-1.5">
+                              <Tag size={12} className="text-red-400" /> Level Offers ({offersForLevel.length})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => openAddOfferForLevelModal(tier.code)}
+                              className="px-2.5 py-1 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-black transition-all cursor-pointer flex items-center gap-1"
+                            >
+                              + Add Offer
+                            </button>
+                          </div>
+
+                          {offersForLevel.length > 0 ? (
+                            <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
+                              {offersForLevel.map((off) => (
+                                <div key={off.id} className="flex items-center justify-between text-[11px] bg-slate-900/90 p-2 rounded-xl border border-slate-800/80">
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="text-red-400">🎁</span>
+                                    <span className="font-bold text-white truncate">{off.title}</span>
+                                  </div>
+                                  <span className="font-black text-red-400 font-mono text-[10px] shrink-0 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded-md">
+                                    {off.discountType === 'percentage' ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-500 font-medium">No campaign offers added for {tier.code} yet.</p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
@@ -821,6 +919,111 @@ export default function AdminLevels() {
                     type="button"
                     onClick={() => setIsModalOpen(false)}
                     className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Add Offer Modal directly for Level Card */}
+        {isOfferModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-slate-900 p-6 sm:p-7 shadow-2xl text-white">
+              <button
+                onClick={() => setIsOfferModalOpen(false)}
+                className="absolute right-4 top-4 text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
+                  <Tag size={18} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">
+                    Add Campaign Offer for {offerTargetCode}
+                  </h3>
+                  <p className="text-xs text-slate-400">Create another offer deal for {offerTargetCode} tier</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveOfferForLevel} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Offer Campaign Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={offerFormData.title}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, title: e.target.value })}
+                    placeholder="e.g. Diwali Flash Sale 20% OFF"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-bold"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Discount Type</label>
+                    <select
+                      value={offerFormData.discountType}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, discountType: e.target.value as any })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                    >
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="flat">Flat (₹)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Discount Value</label>
+                    <input
+                      type="number"
+                      min="0"
+                      required
+                      value={offerFormData.discountValue}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, discountValue: parseFloat(e.target.value) || 0 })}
+                      placeholder={offerFormData.discountType === "percentage" ? "20 for 20%" : "1000 for ₹1,000"}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-red-400 font-mono font-bold focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Start Date &amp; Time</label>
+                    <input
+                      type="datetime-local"
+                      value={offerFormData.startDate}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, startDate: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">End Date &amp; Time</label>
+                    <input
+                      type="datetime-local"
+                      value={offerFormData.endDate}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, endDate: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
+                  >
+                    + Add Offer to {offerTargetCode}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsOfferModalOpen(false)}
+                    className="px-4 bg-slate-800 text-slate-300 font-semibold text-xs h-10 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
