@@ -221,11 +221,11 @@ export default function HomePage() {
     const fetchLevelData = async () => {
       try {
         const [levelsRes, coursesRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/dashboard/levels`).then((r) => r.json()),
-          fetch(`${API_BASE_URL}/dashboard/courses`).then((r) => r.json()),
+          fetch(`${API_BASE_URL}/dashboard/levels`).then((r) => r.ok ? r.json() : []).catch(() => []),
+          fetch(`${API_BASE_URL}/courses`).then((r) => r.ok ? r.json() : []).catch(() => []),
         ]);
-        if (Array.isArray(levelsRes)) setLevelTiers(levelsRes);
-        if (Array.isArray(coursesRes)) setLevelCourses(coursesRes);
+        if (Array.isArray(levelsRes) && levelsRes.length > 0) setLevelTiers(levelsRes);
+        if (Array.isArray(coursesRes) && coursesRes.length > 0) setLevelCourses(coursesRes);
       } catch (err) {
         console.error("Error loading level progression data:", err);
       }
@@ -1130,7 +1130,7 @@ export default function HomePage() {
             ].map((card, idx) => {
               const dbLevel = levelTiers.find((l) => (l.code || "").toUpperCase() === card.code);
               const dynamicCourses = levelCourses.filter(
-                (c) => (c.level || "").toUpperCase() === card.code
+                (c) => (c.levelCode || c.level || "").toUpperCase() === card.code
               );
 
               const cardTitle = dbLevel?.name ? (dbLevel.name.includes(':') ? dbLevel.name.split(':')[1].trim() : dbLevel.name) : card.defaultTitle;
