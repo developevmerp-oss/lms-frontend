@@ -54,13 +54,22 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
 
   const navLinks = [
     {
-      name: "Feed",
+      name: "Dashboard",
       path: "/student/dashboard",
       icon: LayoutDashboard,
       isAccessible: true,
       requiredLevel: "L0",
       requiredPoints: 0,
-      description: "Community feed, upcoming sessions, and Win Wall.",
+      description: "Student overview dashboard, daily habits checklist, and badges showcase.",
+    },
+    {
+      name: "Community Feed",
+      path: "/student/dashboard#community-feed",
+      icon: Sparkles,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Dedicated social feed with live posts, photos, videos, and comments.",
     },
     {
       name: "Courses",
