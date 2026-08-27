@@ -22,9 +22,19 @@ import {
   Video,
   Filter,
   Sparkles,
-  Trophy
+  Trophy,
+  Image as ImageIcon,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+
+export const PRESET_COURSE_BANNERS = [
+  { name: "Ocean Waves", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80" },
+  { name: "Geode Crystal", url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80" },
+  { name: "Gold Marble", url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80" },
+  { name: "Floral Keepsake", url: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800&auto=format&fit=crop&q=80" },
+  { name: "Resin Wood Table", url: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800&auto=format&fit=crop&q=80" },
+  { name: "Resin Jewellery", url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&auto=format&fit=crop&q=80" },
+];
 
 export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
   L0: { name: "Fast Track", price: "₹499", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
@@ -108,6 +118,7 @@ export default function AdminCourses() {
   const [courseForm, setCourseForm] = useState({
     title: "",
     description: "",
+    image: "",
     levelCode: "L0",
     order: 1,
   });
@@ -135,6 +146,21 @@ export default function AdminCourses() {
   const showSuccess = (msg: string) => {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(""), 3500);
+  };
+
+  const handleDirectCourseBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setCourseForm((prev) => ({
+        ...prev,
+        image: dataUrl,
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const fetchCourses = () => {
@@ -186,7 +212,7 @@ export default function AdminCourses() {
       if (res.ok) {
         setShowCourseModal(false);
         setEditingCourse(null);
-        setCourseForm({ title: "", description: "", levelCode: "L0", order: 1 });
+        setCourseForm({ title: "", description: "", image: "", levelCode: "L0", order: 1 });
         showSuccess(editingCourse ? "Course updated successfully!" : "New course created!");
         fetchCourses();
       }
@@ -391,12 +417,13 @@ export default function AdminCourses() {
                 setCourseForm({
                   title: "",
                   description: "",
+                  image: "",
                   levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
-                  order: displayedCourses.length + 1,
+                  order: courses.filter((c) => (c.levelCode || "L0") === (activeLevelFilter === "all" ? "L0" : activeLevelFilter)).length + 1 || 1,
                 });
                 setShowCourseModal(true);
               }}
-              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm transition-all hover:scale-105 shadow-lg shadow-orange-500/20 cursor-pointer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs px-5 py-3 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer shrink-0"
             >
               <Plus size={18} /> Create New Course
             </button>
@@ -464,6 +491,7 @@ export default function AdminCourses() {
                 setCourseForm({
                   title: "",
                   description: "",
+                  image: "",
                   levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
                   order: 1,
                 });
@@ -484,61 +512,80 @@ export default function AdminCourses() {
               return (
                 <div
                   key={course.id}
-                  className={`bg-slate-900/90 border rounded-3xl p-6 flex flex-col justify-between shadow-xl transition-all ${
+                  className={`bg-slate-900/90 border rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all ${
                     isSelected ? "border-orange-500 ring-2 ring-orange-500/30" : "border-slate-800 hover:border-slate-700"
                   }`}
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2.5 py-1 rounded-xl text-xs font-black border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                    {/* Course Banner Thumbnail */}
+                    <div className="relative w-full h-36 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950">
+                      {course.image ? (
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center">
+                          <BookOpen size={36} className="text-slate-700" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                      
+                      {/* Top Overlay Badges */}
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                           {lvl} • {cfg.name}
-                        </span>
-                        <span className="text-xs text-slate-500 font-mono font-bold">
-                          {cfg.price}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-slate-950/70 backdrop-blur-md px-1.5 py-0.5 rounded-xl border border-slate-800">
                         <button
                           onClick={() => {
                             setEditingCourse(course);
                             setCourseForm({
                               title: course.title,
                               description: course.description || "",
+                              image: course.image || "",
                               levelCode: course.levelCode || "L0",
                               order: course.order || 0,
                             });
                             setShowCourseModal(true);
                           }}
-                          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                          className="p-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                           title="Edit Course"
                         >
-                          <Edit2 size={14} />
+                          <Edit2 size={13} />
                         </button>
                         <button
                           onClick={() => handleDeleteCourse(course.id, course.title)}
-                          className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                          className="p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors cursor-pointer"
                           title="Delete Course"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
+                      </div>
+
+                      <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
+                        <span className="text-[11px] text-amber-400 font-mono font-bold">
+                          {cfg.price}
+                        </span>
+                        <span className="text-[10px] text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-700 font-semibold">
+                          #{course.order || 1}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-400">
-                        {isSelected ? <FolderOpen size={20} /> : <Folder size={20} />}
-                      </div>
-                      <div>
-                        <h3 className="text-base font-black text-white leading-snug">{course.title}</h3>
-                        <p className="text-slate-400 text-xs flex items-center gap-1.5 mt-1 font-semibold">
-                          <Layers size={12} className="text-orange-400" /> {course.chapters?.length || 0} Video Lessons
+                    <div className="flex items-start gap-2.5 mb-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-black text-white leading-snug truncate">{course.title}</h3>
+                        <p className="text-slate-400 text-[11px] flex items-center gap-1.5 mt-0.5 font-semibold">
+                          <Layers size={11} className="text-orange-400" /> {course.chapters?.length || 0} Lessons
                         </p>
                       </div>
                     </div>
 
-                    <p className="text-slate-400 text-xs leading-relaxed mb-6 line-clamp-2">
+                    <p className="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">
                       {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                     </p>
                   </div>
@@ -773,6 +820,92 @@ export default function AdminCourses() {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
                   placeholder="e.g. 1. Resin Fundamentals"
                 />
+              </div>
+
+              {/* Course Banner Thumbnail */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ImageIcon size={14} className="text-orange-500" /> Course Banner / Thumbnail Image
+                  </span>
+                  {courseForm.image && (
+                    <button
+                      type="button"
+                      onClick={() => setCourseForm({ ...courseForm, image: "" })}
+                      className="text-[11px] text-red-400 hover:underline cursor-pointer"
+                    >
+                      Clear Image
+                    </button>
+                  )}
+                </label>
+
+                <div className="space-y-2.5">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="url"
+                        value={courseForm.image}
+                        onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 pr-8"
+                        placeholder="https://images.unsplash.com/... or paste image URL"
+                      />
+                      <LinkIcon size={14} className="absolute right-3 top-3 text-slate-600" />
+                    </div>
+
+                    <label className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0">
+                      <Upload size={13} />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleDirectCourseBannerUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Preset Banner Templates */}
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                      Or Pick a Preset Resin Art Theme:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {PRESET_COURSE_BANNERS.map((preset) => (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
+                          className={`text-[11px] px-2.5 py-1 rounded-lg border font-semibold transition-all cursor-pointer ${
+                            courseForm.image === preset.url
+                              ? "bg-orange-500/20 text-orange-400 border-orange-500/50 font-bold"
+                              : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white"
+                          }`}
+                        >
+                          {preset.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Live Banner Preview */}
+                  {courseForm.image && (
+                    <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-orange-500/30 bg-slate-950 mt-2">
+                      <img
+                        src={courseForm.image}
+                        alt="Course Banner Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-2.5">
+                        <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/80 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                          <CheckCircle2 size={10} /> Banner Active
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>

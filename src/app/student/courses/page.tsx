@@ -236,41 +236,69 @@ export default function StudentCourses() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
                 key={course.id} 
-                className={`bg-slate-900/90 border rounded-3xl p-6 shadow-xl transition-all flex flex-col justify-between ${
+                className={`bg-slate-900/90 border rounded-3xl p-5 shadow-xl transition-all flex flex-col justify-between group ${
                   unlocked ? "border-slate-800 hover:border-orange-500/40" : "border-slate-800/60 bg-slate-900/60"
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className={`px-2.5 py-0.5 rounded-xl text-[11px] font-black border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
-                      {lvl} • {cfg.name}
-                    </span>
-                    {!unlocked ? (
-                      <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                        <Tag size={10} /> {cfg.price}
-                      </span>
+                  {/* Course Banner Thumbnail */}
+                  <div className="relative w-full h-38 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950">
+                    {course.image ? (
+                      <img
+                        src={course.image}
+                        alt={course.title}
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+                          !unlocked ? "filter grayscale-[50%] opacity-50" : ""
+                        }`}
+                      />
                     ) : (
-                      <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
-                        <CheckCircle2 size={12} /> Unlocked
-                      </span>
+                      <div className={`w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center ${
+                        !unlocked ? "opacity-50" : ""
+                      }`}>
+                        <BookOpen size={36} className="text-slate-700" />
+                      </div>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+
+                    {/* Top Overlay Badges */}
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                      <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                        {lvl} • {cfg.name}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-2.5 right-2.5">
+                      {!unlocked ? (
+                        <span className="text-[10px] font-black text-amber-300 bg-slate-950/85 border border-amber-500/40 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
+                          <Lock size={10} /> {cfg.price}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-black text-emerald-400 bg-slate-950/85 border border-emerald-500/30 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
+                          <CheckCircle2 size={10} /> Unlocked
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Course Order */}
+                    <div className="absolute bottom-2 right-2.5">
+                      <span className="text-[10px] text-slate-300 bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-700 font-semibold backdrop-blur-sm">
+                        Course #{course.order || idx + 1}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
-                      <BookOpen size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-black text-white text-base leading-snug">
+                  <div className="flex items-start gap-2.5 mb-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-black text-white text-base leading-snug truncate">
                         {course.title}
                       </h3>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-semibold">
+                      <p className="text-xs text-slate-400 flex items-center gap-1 mt-1 font-semibold">
                         <Layers size={12} className="text-orange-400" /> {course.chapters?.length || 0} Video Lessons
                       </p>
                     </div>
                   </div>
                   
-                  <p className="text-slate-400 text-xs leading-relaxed mb-6 line-clamp-2">
+                  <p className="text-slate-400 text-xs leading-relaxed mb-5 line-clamp-2">
                     {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                   </p>
                 </div>
@@ -314,22 +342,34 @@ export default function StudentCourses() {
             animate={{ scale: 1, opacity: 1 }}
             className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
           >
-            <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900/80">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            {/* Modal Course Banner */}
+            {selectedCourse.image && (
+              <div className="relative w-full h-36 border-b border-slate-800 bg-slate-950 overflow-hidden shrink-0">
+                <img
+                  src={selectedCourse.image}
+                  alt={selectedCourse.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+              </div>
+            )}
+
+            <div className="flex justify-between items-center p-5 sm:p-6 border-b border-slate-800 bg-slate-900/80">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
                   <BookOpen size={20} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block">
                     Tier: {selectedCourse.levelCode || "L0"} ({LEVEL_TIER_CONFIG[selectedCourse.levelCode || "L0"]?.name})
                   </span>
-                  <h2 className="text-xl font-black text-white">{selectedCourse.title}</h2>
+                  <h2 className="text-lg sm:text-xl font-black text-white truncate">{selectedCourse.title}</h2>
                 </div>
               </div>
 
               <button 
                 onClick={() => setSelectedCourse(null)} 
-                className="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 &times;
               </button>
