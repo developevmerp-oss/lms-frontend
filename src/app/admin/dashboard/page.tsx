@@ -464,15 +464,54 @@ export default function AdminDashboard() {
                         ✕
                       </button>
 
-                      {winImage.startsWith('data:video') || winImage.match(/\.(mp4|webm|mov)$/i) ? (
-                        <video src={winImage} controls className="max-h-36 rounded-lg w-full object-cover" />
-                      ) : winImage.startsWith('data:image') || winImage.match(/\.(jpeg|jpg|gif|png|webp)$/i) || winImage.startsWith('data:') ? (
-                        <img src={winImage} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover" />
-                      ) : (
-                        <div className="p-3 text-xs font-bold text-pink-400 flex items-center gap-2">
-                          📄 Document / File attached!
-                        </div>
-                      )}
+                      {/* Preview Box */}
+                      {(() => {
+                        const mediaUrl = winImage;
+                        if (!mediaUrl) return null;
+
+                        const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                          (() => {
+                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                            const match = mediaUrl.match(regExp);
+                            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                          })()
+                        ) : null;
+
+                        if (ytEmbed) {
+                          return (
+                            <div className="mt-2 rounded-xl overflow-hidden border border-slate-800 aspect-video bg-black shadow-lg">
+                              <iframe src={ytEmbed} title="YouTube Preview" allowFullScreen className="w-full h-full border-0" />
+                            </div>
+                          );
+                        }
+
+                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov)$/i.test(mediaUrl);
+                        if (isVideo) {
+                          return <video src={mediaUrl} controls className="max-h-36 rounded-lg w-full object-cover mt-2 bg-black" />;
+                        }
+
+                        const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl);
+                        if (isDoc) {
+                          return (
+                            <div className="p-3 text-xs font-bold text-pink-400 flex items-center gap-2 mt-2 bg-slate-900 border border-slate-800 rounded-xl">
+                              📄 Attached Document / File Ready!
+                            </div>
+                          );
+                        }
+
+                        const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                        const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+
+                        if (isWebUrl && !isDirectImage) {
+                          return (
+                            <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2 mt-2 bg-slate-900 border border-slate-800 rounded-xl truncate">
+                              🔗 External Web Link: <span className="text-white underline truncate">{mediaUrl}</span>
+                            </div>
+                          );
+                        }
+
+                        return <img src={mediaUrl} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover mt-2 border border-slate-800" />;
+                      })()}
                     </div>
                   )}
                 </div>
@@ -497,7 +536,7 @@ export default function AdminDashboard() {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold shrink-0">
                       {w.studentName?.charAt(0)}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-bold text-white text-sm flex items-center gap-2">
@@ -516,21 +555,101 @@ export default function AdminDashboard() {
                         </button>
                       </div>
 
-                      {/* Attached Photo / Video / Document */}
-                      {w.image && (
-                        <div className="mt-2 rounded-xl overflow-hidden border border-slate-700 bg-slate-950">
-                          {w.image.startsWith('data:video') || /\.(mp4|webm|mov)$/i.test(w.image) ? (
-                            <video src={w.image} controls className="w-full max-h-48 object-contain bg-black" />
-                          ) : w.image.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(w.image) ? (
-                            <div className="p-3 text-xs font-bold text-pink-400 flex items-center justify-between">
-                              <span>📄 Attached Document / File</span>
-                              <a href={w.image} download target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-lg bg-pink-500/20 text-white font-bold text-[10px]">Download</a>
+                      {/* Attached Photo / Video / Document / YouTube / External Link */}
+                      {(() => {
+                        const mediaUrl = w.image;
+                        if (!mediaUrl) return null;
+
+                        const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                          (() => {
+                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                            const match = mediaUrl.match(regExp);
+                            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                          })()
+                        ) : null;
+
+                        if (ytEmbed) {
+                          return (
+                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video shadow-lg">
+                              <iframe
+                                src={ytEmbed}
+                                title="YouTube Video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-full border-0"
+                              />
                             </div>
-                          ) : (
-                            <img src={w.image} alt="Attachment" className="w-full max-h-48 object-cover" />
-                          )}
-                        </div>
-                      )}
+                          );
+                        }
+
+                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
+                        if (isVideo) {
+                          return (
+                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black shadow-lg">
+                              <video src={mediaUrl} controls className="w-full max-h-56 object-contain bg-black" />
+                            </div>
+                          );
+                        }
+
+                        const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
+                        if (isDoc) {
+                          return (
+                            <div className="mt-2 p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                              <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                                <div className="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-bold shrink-0 text-sm">
+                                  📄
+                                </div>
+                                <div className="truncate min-w-0">
+                                  <p className="text-xs font-bold text-white truncate">Attached Document / File</p>
+                                  <p className="text-[10px] text-slate-400">Click to download or view</p>
+                                </div>
+                              </div>
+                              <a
+                                href={mediaUrl}
+                                download="community-file"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-300 text-[11px] font-bold transition-all shrink-0"
+                              >
+                                Download File
+                              </a>
+                            </div>
+                          );
+                        }
+
+                        const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                        const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+
+                        if (isWebUrl && !isDirectImage) {
+                          return (
+                            <div className="mt-2 p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                              <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
+                                  🔗
+                                </div>
+                                <div className="truncate min-w-0">
+                                  <p className="text-xs font-bold text-white truncate">External Web Link</p>
+                                  <p className="text-[10px] text-slate-400 truncate">{mediaUrl}</p>
+                                </div>
+                              </div>
+                              <a
+                                href={mediaUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
+                              >
+                                Open Link ↗
+                              </a>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 max-h-64 shadow-lg">
+                            <img src={mediaUrl} alt="Attachment" className="w-full h-full max-h-64 object-cover" />
+                          </div>
+                        );
+                      })()}
 
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs text-pink-400">❤️ {w.likes}</span>

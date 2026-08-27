@@ -257,10 +257,32 @@ export const WinWall = ({
                       )}
                     </div>
 
-                    {/* Attached Photo / Video / Document / External Link */}
+                    {/* Attached Photo / Video / Document / YouTube / External Link */}
                     {(() => {
                       const mediaUrl = win.image;
                       if (!mediaUrl) return null;
+
+                      const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                        (() => {
+                          const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                          const match = mediaUrl.match(regExp);
+                          return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                        })()
+                      ) : null;
+
+                      if (ytEmbed) {
+                        return (
+                          <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video shadow-lg">
+                            <iframe
+                              src={ytEmbed}
+                              title="YouTube Video"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="w-full h-full border-0"
+                            />
+                          </div>
+                        );
+                      }
 
                       const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
                       const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
