@@ -35,9 +35,11 @@ export default function StudentRewards() {
       } else {
         // Fallback static data if backend is empty
         setRewards([
-          { id: "1", title: "Digital Certificate", description: "Official Art Concept Certificate of Completion", pointCost: 500 },
-          { id: "2", title: "1-on-1 Mentoring", description: "30 minute portfolio review with a master artist", pointCost: 3000 },
-          { id: "3", title: "Premium Brushes", description: "Exclusive digital brush pack for Procreate", pointCost: 1500 },
+          { id: "1", title: "30 min 1-on-1 Mentoring Call", description: "Private 1-on-1 strategy & portfolio review session with Vrajangna Patel (Prior booking required).", pointCost: 1500 },
+          { id: "2", title: "Custom Artistry Journal with Pen", description: "Premium hardcover resin artist planner & goal tracking journal with signature metallic gel pen.", pointCost: 2000 },
+          { id: "3", title: "Ravishing Art Physical Merch Kit", description: "Complete 9-Piece Merch Bundle: Badge/Fridge Magnet, Goal Card, Lanyard Keychain, A5 Customized Notebook (80 pgs), Corrugated Box, Logo Pen, 8x4 Voucher, Appreciation Card & Silicone Wrist Band.", pointCost: 3000 },
+          { id: "4", title: "15% Off Discount Voucher", description: "Redeem 15% discount on any advanced masterclass course or live offline workshop ticket.", pointCost: 5000 },
+          { id: "5", title: "50% OFF Live Ticket + Physical Renaissance Certificate", description: "50% discount on live event ticket + physical printed Renaissance Master Certification awarded live on stage.", pointCost: 10000 },
         ]);
       }
     } catch (err) {
@@ -108,6 +110,29 @@ export default function StudentRewards() {
             </div>
           </div>
         </header>
+
+        {/* L3 Diamond Club Exclusive Notice */}
+        {(() => {
+          const uLvl = (user?.membershipLevel || user?.rank || "").toUpperCase();
+          const isL3 = uLvl.includes("L3") || uLvl.includes("DIAMOND");
+          if (isL3) return null;
+
+          return (
+            <div className="mb-8 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-cyan-950/80 to-slate-900 border border-cyan-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-cyan-300">💎 Diamond Club (L3) Exclusive Gamification</h4>
+                  <p className="text-xs text-slate-300">
+                    XP points earning and Merch Store redemptions are exclusively enabled for Level 3 (L3) Diamond Club Members.
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rewards.map((reward, idx) => {
