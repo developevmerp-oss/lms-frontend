@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Trophy,
   X,
@@ -14,10 +14,14 @@ import {
   MessageCircle,
   Award,
   Gem,
-  Crown
+  Crown,
+  Flame,
+  Tag,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { processRazorpayPayment } from "@/utils/razorpay";
+import { API_BASE_URL } from "@/config/api";
 
 export interface TierInfo {
   code: "L0" | "L1" | "L2" | "L3" | "L3+";
@@ -29,6 +33,11 @@ export interface TierInfo {
   icon: string;
   description: string;
   benefits: string[];
+  discountType?: "percentage" | "flat" | string | null;
+  discountValue?: number | null;
+  offerStartDate?: string | null;
+  offerEndDate?: string | null;
+  offerActive?: boolean;
 }
 
 export const TIERS_CATALOG: TierInfo[] = [
@@ -113,27 +122,75 @@ export const TierPurchaseModal = ({
   currentLevel = "L0 Fast Track",
   onUpgradeSuccess,
 }: TierPurchaseModalProps) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [selectedCode, setSelectedCode] = useState<string>(targetTierCode);
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [liveTiers, setLiveTiers] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isOpen && token) {
+      fetch(`${API_BASE_URL}/admin/levels`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setLiveTiers(data);
+        })
+        .catch(() => {});
+    }
+  }, [isOpen, token]);
 
   if (!isOpen) return null;
 
-  const targetTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
+  const baseTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
+  const liveTierMatch = liveTiers.find((lt) => lt.code === selectedCode);
+
+  const mergedTier: TierInfo = {
+    ...baseTier,
+    price: liveTierMatch?.price || baseTier.price,
+    discountType: liveTierMatch?.discountType || baseTier.discountType,
+    discountValue: liveTierMatch?.discountValue || baseTier.discountValue,
+    offerStartDate: liveTierMatch?.offerStartDate || baseTier.offerStartDate,
+    offerEndDate: liveTierMatch?.offerEndDate || baseTier.offerEndDate,
+    offerActive: liveTierMatch ? liveTierMatch.offerActive : baseTier.offerActive,
+  };
+
+  // Compute discount offer
+  const now = new Date();
+  const hasActiveOffer = Boolean(
+    mergedTier.offerActive &&
+    mergedTier.discountValue &&
+    (!mergedTier.offerStartDate || new Date(mergedTier.offerStartDate) <= now) &&
+    (!mergedTier.offerEndDate || new Date(mergedTier.offerEndDate) >= now)
+  );
+
+  let finalNumericPrice = mergedTier.numericPrice;
+  let offerBadge: string | null = null;
+
+  if (hasActiveOffer && mergedTier.discountValue) {
+    if (mergedTier.discountType === "percentage") {
+      const disc = (mergedTier.numericPrice * mergedTier.discountValue) / 100;
+      finalNumericPrice = Math.max(0, Math.round(mergedTier.numericPrice - disc));
+      offerBadge = `${mergedTier.discountValue}% OFF`;
+    } else {
+      finalNumericPrice = Math.max(0, Math.round(mergedTier.numericPrice - mergedTier.discountValue));
+      offerBadge = `₹${mergedTier.discountValue} OFF`;
+    }
+  }
 
   const handleRazorpayPayment = () => {
     setIsProcessing(true);
     processRazorpayPayment({
-      amount: targetTier.numericPrice,
-      tierCode: targetTier.code,
-      tierName: targetTier.name,
+      amount: finalNumericPrice,
+      tierCode: mergedTier.code,
+      tierName: mergedTier.name,
       email: user?.email,
       name: user?.name,
       phone: user?.phone,
       onSuccess: (data) => {
         setIsProcessing(false);
-        setSuccessMsg(`🎉 Payment successful! ${targetTier.name} (${targetTier.code}) is now unlocked.`);
+        setSuccessMsg(`🎉 Payment successful! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`);
         if (onUpgradeSuccess) onUpgradeSuccess();
         setTimeout(() => {
           onClose();
@@ -149,7 +206,7 @@ export const TierPurchaseModal = ({
 
   const handleWhatsAppHelp = () => {
     const text = encodeURIComponent(
-      `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${targetTier.name} (${targetTier.code})* at *${targetTier.price}*.\n\nMy Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share alternative payment options.`
+      `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${mergedTier.name} (${mergedTier.code})* at *₹${finalNumericPrice.toLocaleString("en-IN")}*.\n\nMy Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share alternative payment options.`
     );
     window.open(`https://wa.me/919429424263?text=${text}`, "_blank");
   };
@@ -215,24 +272,40 @@ export const TierPurchaseModal = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-2xl shrink-0">
-                  {targetTier.icon}
+                  {mergedTier.icon}
                 </div>
                 <div>
                   <span className="text-xs font-black text-orange-400 uppercase tracking-wider block">
-                    {targetTier.code} Tier Enrollment
+                    {mergedTier.code} Tier Enrollment
                   </span>
-                  <h3 className="text-xl font-black text-white">{targetTier.name}</h3>
+                  <h3 className="text-xl font-black text-white">{mergedTier.name}</h3>
                 </div>
               </div>
 
               <div className="flex flex-col sm:items-end">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-amber-400 font-mono">
-                    {targetTier.price}
-                  </span>
-                  <span className="text-xs text-slate-500 line-through font-mono">
-                    {targetTier.originalPrice}
-                  </span>
+                  {offerBadge ? (
+                    <>
+                      <span className="text-xs text-slate-500 line-through font-mono">
+                        {mergedTier.price}
+                      </span>
+                      <span className="text-2xl font-black text-amber-400 font-mono">
+                        ₹{finalNumericPrice.toLocaleString("en-IN")}
+                      </span>
+                      <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md flex items-center gap-1 animate-pulse">
+                        <Flame size={10} /> {offerBadge}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-black text-amber-400 font-mono">
+                        {mergedTier.price}
+                      </span>
+                      <span className="text-xs text-slate-500 line-through font-mono">
+                        {mergedTier.originalPrice}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-0.5">
                   Instant Auto-Activation
@@ -241,7 +314,7 @@ export const TierPurchaseModal = ({
             </div>
 
             <p className="text-xs text-slate-300 mt-3 leading-relaxed">
-              {targetTier.description}
+              {mergedTier.description}
             </p>
 
             {/* Benefits Checklist */}
@@ -249,7 +322,7 @@ export const TierPurchaseModal = ({
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
                 Included in this Membership:
               </span>
-              {targetTier.benefits.map((b, i) => (
+              {mergedTier.benefits.map((b, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs text-slate-200">
                   <CheckCircle2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                   <span>{b}</span>
@@ -274,7 +347,9 @@ export const TierPurchaseModal = ({
             className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
           >
             <CreditCard size={17} />
-            {isProcessing ? "Opening Razorpay..." : `Pay ${targetTier.price} with Razorpay`}
+            {isProcessing
+              ? "Opening Razorpay..."
+              : `Pay ₹${finalNumericPrice.toLocaleString("en-IN")} with Razorpay`}
           </button>
 
           <button

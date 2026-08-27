@@ -20,7 +20,8 @@ import {
   ClipboardList,
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  Bell,
 } from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
@@ -41,6 +42,7 @@ const NAV_GROUPS = [
     icon: <Users size={15} />,
     children: [
       { name: 'All Students', path: '/admin/students', icon: <Users size={14} /> },
+      { name: 'Broadcast Center', path: '/admin/notifications', icon: <Bell size={14} /> },
       { name: 'Webinar Leads', path: '/admin/webinar', icon: <Sparkles size={14} /> },
       { name: 'Level Settings', path: '/admin/levels', icon: <Trophy size={14} /> },
       { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },

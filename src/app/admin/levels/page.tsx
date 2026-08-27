@@ -22,7 +22,11 @@ import {
   Info,
   IndianRupee,
   Tag,
-  CreditCard
+  CreditCard,
+  Percent,
+  Flame,
+  Clock,
+  Calendar,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -37,6 +41,11 @@ interface LevelTier {
   badgeColor: string;
   order: number;
   description?: string;
+  discountType?: "percentage" | "flat" | string | null;
+  discountValue?: number | null;
+  offerStartDate?: string | null;
+  offerEndDate?: string | null;
+  offerActive?: boolean;
 }
 
 const COLOR_OPTIONS = [
@@ -69,7 +78,12 @@ export default function AdminLevels() {
     icon: '🥈',
     badgeColor: 'slate',
     order: 1,
-    description: ''
+    description: '',
+    offerActive: false,
+    discountType: 'percentage' as 'percentage' | 'flat',
+    discountValue: 0,
+    offerStartDate: '',
+    offerEndDate: '',
   });
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -121,7 +135,12 @@ export default function AdminLevels() {
       icon: '🏆',
       badgeColor: 'amber',
       order: nextOrder,
-      description: ''
+      description: '',
+      offerActive: false,
+      discountType: 'percentage',
+      discountValue: 0,
+      offerStartDate: '',
+      offerEndDate: '',
     });
     setIsModalOpen(true);
   };
@@ -135,7 +154,12 @@ export default function AdminLevels() {
       icon: tier.icon || '⭐',
       badgeColor: tier.badgeColor || 'amber',
       order: tier.order || 0,
-      description: tier.description || ''
+      description: tier.description || '',
+      offerActive: Boolean(tier.offerActive),
+      discountType: (tier.discountType as any) || 'percentage',
+      discountValue: tier.discountValue || 0,
+      offerStartDate: tier.offerStartDate ? new Date(tier.offerStartDate).toISOString().slice(0, 16) : '',
+      offerEndDate: tier.offerEndDate ? new Date(tier.offerEndDate).toISOString().slice(0, 16) : '',
     });
     setIsModalOpen(true);
   };
@@ -157,7 +181,12 @@ export default function AdminLevels() {
         icon: formData.icon,
         badgeColor: formData.badgeColor,
         order: formData.order,
-        description: formData.description.trim()
+        description: formData.description.trim(),
+        discountType: formData.discountType,
+        discountValue: Number(formData.discountValue) || 0,
+        offerStartDate: formData.offerStartDate ? new Date(formData.offerStartDate) : null,
+        offerEndDate: formData.offerEndDate ? new Date(formData.offerEndDate) : null,
+        offerActive: Boolean(formData.offerActive),
       };
 
       let res;
@@ -346,6 +375,14 @@ export default function AdminLevels() {
                         <span className="text-sm font-black text-amber-400 font-mono bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
                           <Tag size={12} /> {displayPrice}
                         </span>
+
+                        {tier.offerActive && (
+                          <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
+                            <Flame size={10} />
+                            {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
+                          </span>
+                        )}
+
                         <span className="text-[10px] text-slate-500 font-bold">
                           Order #{tier.order}
                         </span>
@@ -435,7 +472,7 @@ export default function AdminLevels() {
                 {/* Offer Price & Order */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Offer Price / Fee (₹)</label>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Base Price / Fee (₹)</label>
                     <input
                       type="text"
                       value={formData.price}
@@ -455,6 +492,108 @@ export default function AdminLevels() {
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
                     />
                   </div>
+                </div>
+
+                {/* Special Level Offer & Discount Configuration */}
+                <div className="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                        <Percent size={14} />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-white">Level Offer &amp; Discount</h4>
+                        <p className="text-[10px] text-slate-400">Enable percentage or flat discount with start &amp; end timers</p>
+                      </div>
+                    </div>
+
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.offerActive}
+                        onChange={(e) => setFormData({ ...formData, offerActive: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-red-500 peer-checked:to-orange-500"></div>
+                    </label>
+                  </div>
+
+                  {formData.offerActive && (
+                    <div className="pt-3 border-t border-slate-800/80 space-y-3">
+                      {/* Discount Type & Value */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-400 mb-1">Discount Type</label>
+                          <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, discountType: "percentage" })}
+                              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                                formData.discountType === "percentage"
+                                  ? "bg-red-500 text-white shadow-sm font-black"
+                                  : "text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              <Percent size={12} /> Percentage (%)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, discountType: "flat" })}
+                              className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                                formData.discountType === "flat"
+                                  ? "bg-red-500 text-white shadow-sm font-black"
+                                  : "text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              <Tag size={12} /> Flat (₹)
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                            {formData.discountType === "percentage" ? "Discount Percentage (%)" : "Flat Discount Amount (₹)"}
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max={formData.discountType === "percentage" ? "100" : undefined}
+                            value={formData.discountValue || ""}
+                            onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) || 0 })}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-bold"
+                            placeholder={formData.discountType === "percentage" ? "e.g. 20 for 20% OFF" : "e.g. 1000 for ₹1,000 OFF"}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Offer Start & End Date with Time */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                            <Calendar size={11} className="text-orange-400" /> Offer Start Date &amp; Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={formData.offerStartDate}
+                            onChange={(e) => setFormData({ ...formData, offerStartDate: e.target.value })}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                            <Clock size={11} className="text-red-400" /> Offer End Date &amp; Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={formData.offerEndDate}
+                            onChange={(e) => setFormData({ ...formData, offerEndDate: e.target.value })}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Icon Selection */}

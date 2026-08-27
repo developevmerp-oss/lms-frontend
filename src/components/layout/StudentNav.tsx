@@ -228,12 +228,43 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
                     {notifications.length === 0 ? (
                       <p className="text-xs text-slate-500 text-center py-6">No notifications yet</p>
                     ) : (
-                      notifications.map((n, i) => (
-                        <div key={i} className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs">
-                          <p className="font-bold text-white mb-0.5">{n.title}</p>
-                          <p className="text-slate-400 leading-relaxed">{n.message}</p>
-                        </div>
-                      ))
+                      notifications.map((n, i) => {
+                        const content = (
+                          <div
+                            key={i}
+                            className={`p-3 rounded-xl border text-xs transition-all ${
+                              n.link
+                                ? "bg-slate-950/80 border-slate-800 hover:border-orange-500/50 hover:bg-slate-950 cursor-pointer group"
+                                : "bg-slate-950/60 border-slate-800/80"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="text-[10px] font-black text-orange-400 uppercase tracking-wider">
+                                {n.type === "offer" ? "🔥 Special Offer" : n.type === "event" ? "🎥 Live Class" : "📢 Update"}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-mono">
+                                {n.createdAt ? new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Today"}
+                              </span>
+                            </div>
+                            <p className="font-bold text-white mb-0.5 group-hover:text-orange-300 transition-colors">{n.title}</p>
+                            <p className="text-slate-400 leading-relaxed text-[11px]">{n.message}</p>
+                            {n.link && (
+                              <div className="mt-2 text-[10px] font-bold text-amber-400 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                <span>Open Page</span>
+                                <span>→</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+
+                        return n.link ? (
+                          <Link key={i} href={n.link} onClick={() => setShowNotifications(false)}>
+                            {content}
+                          </Link>
+                        ) : (
+                          <div key={i}>{content}</div>
+                        );
+                      })
                     )}
                   </div>
                 </div>

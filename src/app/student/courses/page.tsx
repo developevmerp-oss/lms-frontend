@@ -17,12 +17,43 @@ import {
   Sparkles,
   Trophy,
   Zap,
-  Tag
+  Tag,
+  Percent,
+  Flame,
+  Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
 import { API_BASE_URL } from "@/config/api";
+
+export function getCourseOffer(course: any, basePriceStr: string) {
+  if (!course.offerActive || !course.discountValue) return null;
+
+  const now = new Date();
+  if (course.offerStartDate && new Date(course.offerStartDate) > now) return null;
+  if (course.offerEndDate && new Date(course.offerEndDate) < now) return null;
+
+  const numPrice = parseInt(basePriceStr.replace(/[^0-9]/g, "")) || 0;
+  if (numPrice <= 0) return null;
+
+  let finalPrice = numPrice;
+  if (course.discountType === "percentage") {
+    const discount = (numPrice * course.discountValue) / 100;
+    finalPrice = Math.max(0, Math.round(numPrice - discount));
+  } else {
+    finalPrice = Math.max(0, Math.round(numPrice - course.discountValue));
+  }
+
+  return {
+    discountType: course.discountType,
+    discountValue: course.discountValue,
+    originalPrice: `₹${numPrice.toLocaleString("en-IN")}`,
+    discountedPrice: `₹${finalPrice.toLocaleString("en-IN")}`,
+    discountLabel: course.discountType === "percentage" ? `${course.discountValue}% OFF` : `₹${course.discountValue} OFF`,
+    offerEndDate: course.offerEndDate,
+  };
+}
 
 export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
   L0: { name: "Fast Track", price: "₹499", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
@@ -265,13 +296,37 @@ export default function StudentCourses() {
                       <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                         {lvl} • {cfg.name}
                       </span>
+
+                      {(() => {
+                        const offer = getCourseOffer(course, cfg.price);
+                        if (!offer) return null;
+                        return (
+                          <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1 animate-pulse">
+                            <Flame size={10} />
+                            {offer.discountLabel}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     <div className="absolute top-2.5 right-2.5">
                       {!unlocked ? (
-                        <span className="text-[10px] font-black text-amber-300 bg-slate-950/85 border border-amber-500/40 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
-                          <Lock size={10} /> {cfg.price}
-                        </span>
+                        (() => {
+                          const offer = getCourseOffer(course, cfg.price);
+                          if (offer) {
+                            return (
+                              <div className="flex items-center gap-1.5 bg-slate-950/90 border border-red-500/50 px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
+                                <span className="text-[10px] text-slate-400 line-through">{offer.originalPrice}</span>
+                                <span className="text-[11px] font-black text-amber-300">{offer.discountedPrice}</span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <span className="text-[10px] font-black text-amber-300 bg-slate-950/85 border border-amber-500/40 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
+                              <Lock size={10} /> {cfg.price}
+                            </span>
+                          );
+                        })()
                       ) : (
                         <span className="text-[10px] font-black text-emerald-400 bg-slate-950/85 border border-emerald-500/30 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
                           <CheckCircle2 size={10} /> Unlocked
@@ -317,7 +372,17 @@ export default function StudentCourses() {
                     className="w-full py-3 px-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-orange-500 hover:to-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer group"
                   >
                     <Lock size={13} className="text-amber-400 group-hover:text-slate-950" />
-                    <span>Purchase &amp; Unlock {cfg.name} ({cfg.price})</span>
+                    {(() => {
+                      const offer = getCourseOffer(course, cfg.price);
+                      if (offer) {
+                        return (
+                          <span>
+                            Purchase &amp; Unlock {cfg.name} (Offer: {offer.discountedPrice})
+                          </span>
+                        );
+                      }
+                      return <span>Purchase &amp; Unlock {cfg.name} ({cfg.price})</span>;
+                    })()}
                   </button>
                 )}
               </motion.div>
