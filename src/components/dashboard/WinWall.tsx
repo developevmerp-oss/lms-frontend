@@ -49,7 +49,7 @@ export const WinWall = ({
 
   const currentLevel = (user?.membershipLevel || 'L0').toUpperCase();
   const isL3Diamond = currentLevel === 'L3' || (user?.rank || '').toUpperCase().includes('DIAMOND');
-  const canPost = true; // All students (L0, L1, L2, L3) can post on Community Win Feed
+  const canPost = currentLevel !== 'L0'; // L0 Fast Track students can ONLY VIEW feed; L1, L2, L3 can post!
 
   // Keep synced with parent props
   React.useEffect(() => {
@@ -189,12 +189,18 @@ export const WinWall = ({
               </div>
             </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-md transition-all hover:scale-105 cursor-pointer"
-            >
-              <Plus size={13} /> Post a Win {isL3Diamond && '(+100 XP)'}
-            </button>
+            {canPost ? (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-md transition-all hover:scale-105 cursor-pointer"
+              >
+                <Plus size={13} /> Post a Win {isL3Diamond && '(+100 XP)'}
+              </button>
+            ) : (
+              <span className="text-[10px] font-bold text-slate-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1 cursor-default" title="L0 Fast Track Members can view all posts from students & admin. Upgrade to L1 to post!">
+                🔒 View Only Mode
+              </span>
+            )}
           </div>
 
           {/* Wins Feed */}
