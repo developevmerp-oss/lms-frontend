@@ -234,32 +234,35 @@ body {
   fill: #d97706 !important;
 }
 
-/* ─── ORANGE THEME OVERRIDES ─── */
-.theme-orange .recharts-radar-polygon {
-  stroke: #f97316 !important;
-  fill: #f97316 !important;
-}
-
 /* =========================================================================
    LUXURY WHITE ART STUDIO LANDING PAGE & APP ENGINE (.light)
    ========================================================================= */
 
 /* 1. Page Backgrounds & Luminous Studio Lighting */
 .light,
-.light body,
+.light body {
+  background-color: #fafaf9 !important;
+  color: #0f172a !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 60%) !important;
+  background-attachment: fixed !important;
+}
+
 .light .min-h-screen,
 .light .bg-slate-950,
 .light [class*="bg-slate-950"] {
-  background-color: #fafaf9 !important;
+  background-color: transparent !important;
   color: #0f172a !important;
 }
 
 .light .fixed.inset-0 .animate-blob-morph {
-  background: radial-gradient(circle, rgba(251, 146, 60, 0.12) 0%, rgba(254, 215, 170, 0.08) 50%, transparent 70%) !important;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.16) 0%, rgba(253, 186, 116, 0.08) 50%, transparent 70%) !important;
 }
 
 .light .fixed.inset-0 .animate-blob-morph-delayed {
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, rgba(186, 230, 253, 0.06) 50%, transparent 70%) !important;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.12) 0%, rgba(186, 230, 253, 0.06) 50%, transparent 70%) !important;
 }
 
 .light .fixed.inset-0 [class*="radial-gradient"] {
@@ -273,8 +276,15 @@ body {
 .light [class*="bg-slate-850"] {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 2px 6px 0 rgba(15, 23, 42, 0.02) !important;
   color: #0f172a !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease !important;
+}
+
+.light .bg-slate-900:hover,
+.light [class*="bg-slate-900"]:hover {
+  border-color: #fdba74 !important;
+  box-shadow: 0 20px 45px -10px rgba(249, 115, 22, 0.12) !important;
 }
 
 /* 3. Sub-cards, Inset Panels & Focus Items (slate-800) */
@@ -294,16 +304,17 @@ body {
 /* 4. Headings & High-Contrast Typography */
 .light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
   color: #0f172a !important;
+  letter-spacing: -0.02em !important;
 }
 
 .light h1 [class*="bg-clip-text"] {
-  background: linear-gradient(135deg, #0f172a 0%, #334155 70%, #ea580c 100%) !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #c2410c 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
 
 .light .shimmer-text {
-  background: linear-gradient(90deg, #ea580c 0%, #d97706 25%, #b45309 50%, #d97706 75%, #ea580c 100%) !important;
+  background: linear-gradient(90deg, #ea580c 0%, #d97706 25%, #92400e 50%, #d97706 75%, #ea580c 100%) !important;
   background-size: 200% auto !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -329,7 +340,7 @@ body {
 .light .text-gray-400,
 .light .text-zinc-300,
 .light .text-zinc-400 {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
 .light .text-slate-500,
@@ -339,86 +350,126 @@ body {
   color: #64748b !important;
 }
 
-/* 5. Masterpieces Exhibition Marquee (#masterpieces) */
-.light #masterpieces {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
+/* 5. Multidimensional Section Backgrounds in Light Mode */
+.light section:nth-of-type(even) {
+  background-color: #f1f5f9 !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
-.light #masterpieces [class*="w-[320px]"] {
+.light section[class*="bg-slate-950/60"] {
+  background-color: #f1f5f9 !important;
+}
+
+/* 6. Accent Text & Pill Badges in Light Mode */
+.light .text-orange-400,
+.light .text-orange-300 {
+  color: #ea580c !important;
+}
+
+.light .text-amber-400,
+.light .text-amber-300 {
+  color: #d97706 !important;
+}
+
+.light .text-cyan-400,
+.light .text-cyan-300 {
+  color: #0284c7 !important;
+}
+
+.light .text-emerald-400,
+.light .text-emerald-300 {
+  color: #059669 !important;
+}
+
+.light .text-teal-400,
+.light .text-teal-300 {
+  color: #0d9488 !important;
+}
+
+.light [class*="bg-orange-500/10"],
+.light [class*="bg-orange-500/20"] {
+  background-color: #fff7ed !important;
+  color: #c2410c !important;
+  border-color: #fed7aa !important;
+}
+
+.light [class*="bg-amber-500/10"],
+.light [class*="bg-amber-500/20"] {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+.light [class*="bg-cyan-500/10"],
+.light [class*="bg-cyan-500/20"] {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+.light [class*="bg-emerald-500/10"],
+.light [class*="bg-emerald-500/20"] {
+  background-color: #f0fdf4 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+/* 7. Action Buttons in Light Mode */
+.light button[class*="bg-gradient-to-r"],
+.light a[class*="bg-gradient-to-r"],
+.light button[class*="bg-orange-500"],
+.light a[class*="bg-orange-500"] {
+  background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.35) !important;
+}
+
+.light button[class*="bg-gradient-to-r"]:hover,
+.light a[class*="bg-gradient-to-r"]:hover,
+.light button[class*="bg-orange-500"]:hover,
+.light a[class*="bg-orange-500"]:hover {
+  box-shadow: 0 15px 35px -5px rgba(249, 115, 22, 0.45) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+.light button[class*="bg-slate-800"],
+.light a[class*="bg-slate-800"] {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light button[class*="bg-slate-800"]:hover,
+.light a[class*="bg-slate-800"]:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* 8. Level Progression Showcase Card (L3 Highlighted) in Light Mode */
+.light [class*="border-cyan-500/80"] {
+  border: 2px solid #0284c7 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%) !important;
+  box-shadow: 0 20px 45px -10px rgba(2, 132, 199, 0.25) !important;
+}
+
+/* 9. Marquee Exhibition Showcase in Light Mode */
+.light #masterpieces [class*="w-[280px]"],
+.light #masterpieces [class*="w-[320px]"],
+.light .animate-marquee-left [class*="w-[280px]"],
+.light .animate-marquee-right [class*="w-[280px]"] {
   background-color: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
 }
 
-.light #masterpieces [class*="w-[320px]"]:hover {
-  border-color: var(--primary) !important;
-  box-shadow: 0 15px 30px -5px var(--primary-glow) !important;
+.light .animate-marquee-left [class*="w-[280px]"]:hover,
+.light .animate-marquee-right [class*="w-[280px]"]:hover {
+  border-color: #f97316 !important;
+  box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.2) !important;
 }
 
-/* 6. Techniques Section (#techniques) */
-.light #techniques {
-  background-color: #fafaf9 !important;
-}
-
-.light #techniques button {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-}
-
-.light #techniques button:hover {
-  background-color: #f8fafc !important;
-  border-color: #cbd5e1 !important;
-}
-
-.light #techniques [class*="ring-1"] {
-  background-color: #ffffff !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 8px 24px var(--primary-glow) !important;
-}
-
-.light #techniques [class*="shadow-2xl"][class*="rounded-3xl"] {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06) !important;
-}
-
-/* 7. Roadmap Section (#roadmap) */
-.light #roadmap {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
-}
-
-.light #roadmap [class*="grid-cols-1 md:grid-cols-2 lg:grid-cols-4"] > div {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04) !important;
-}
-
-/* 8. Success Stories (#stories) */
-.light #stories {
-  background-color: #fafaf9 !important;
-}
-
-.light #stories [class*="grid-cols-1 md:grid-cols-3"] > div {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05) !important;
-}
-
-/* 9. FAQs Section */
-.light section:has([class*="max-w-4xl"]) {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
-}
-
-.light section:has([class*="max-w-4xl"]) [class*="space-y-4"] > div {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
-}
-
-/* 10. Navbars & Topbars in Light Mode */
+/* 10. Navbars & Footers in Light Mode */
 .light nav,
 .light [class*="bg-slate-900"][class*="border-b"] {
   background-color: rgba(255, 255, 255, 0.95) !important;
@@ -431,11 +482,6 @@ body {
   color: #1e293b !important;
 }
 
-.light nav a:hover, .light nav button:hover {
-  color: var(--primary) !important;
-}
-
-/* 11. Footers in Light Mode */
 .light footer {
   background-color: #f1f5f9 !important;
   border-top: 1px solid #e2e8f0 !important;
@@ -546,98 +592,6 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   ULTRA-REFINED LIGHT MODE EXCLUSIVE POLISH (DARK MODE UNTOUCHED)
-───────────────────────────────────────────────────────────── */
-
-/* 1. Light Mode Vibrant Typography & Accent Text */
-.light .text-orange-400,
-.light .text-orange-300 {
-  color: #ea580c !important;
-}
-
-.light .text-amber-400,
-.light .text-amber-300 {
-  color: #d97706 !important;
-}
-
-.light .text-cyan-400,
-.light .text-cyan-300 {
-  color: #0284c7 !important;
-}
-
-.light .text-emerald-400,
-.light .text-emerald-300 {
-  color: #059669 !important;
-}
-
-.light .text-teal-400,
-.light .text-teal-300 {
-  color: #0d9488 !important;
-}
-
-/* 2. Light Mode Pill Badges & Inset Tags */
-.light [class*="bg-orange-500/10"],
-.light [class*="bg-orange-500/20"] {
-  background-color: #fff7ed !important;
-  color: #c2410c !important;
-  border-color: #fed7aa !important;
-}
-
-.light [class*="bg-amber-500/10"],
-.light [class*="bg-amber-500/20"] {
-  background-color: #fffbeb !important;
-  color: #b45309 !important;
-  border-color: #fde68a !important;
-}
-
-.light [class*="bg-cyan-500/10"],
-.light [class*="bg-cyan-500/20"] {
-  background-color: #f0f9ff !important;
-  color: #0369a1 !important;
-  border-color: #bae6fd !important;
-}
-
-.light [class*="bg-emerald-500/10"],
-.light [class*="bg-emerald-500/20"] {
-  background-color: #f0fdf4 !important;
-  color: #047857 !important;
-  border-color: #a7f3d0 !important;
-}
-
-/* 3. Light Mode Inset Sub-panels (e.g., slate-950 inside cards) */
-.light .bg-slate-950,
-.light [class*="bg-slate-950"] {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* 4. Light Mode Section Alternating Lighting */
-.light section[class*="bg-slate-950/60"],
-.light section[class*="bg-slate-950"] {
-  background-color: #f1f5f9 !important;
-}
-
-/* 5. Light Mode Buttons - Secondary & Outlined */
-.light button[class*="bg-slate-800"],
-.light a[class*="bg-slate-800"] {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-}
-
-.light button[class*="bg-slate-800"]:hover,
-.light a[class*="bg-slate-800"]:hover {
-  background-color: #cbd5e1 !important;
-  color: #0f172a !important;
-}
-
-/* 6. Light Mode Level Cards Highlighting */
-.light [class*="border-cyan-500/80"] {
-  border-color: #0284c7 !important;
-  box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.15) !important;
-  background-color: #ffffff !important;
-}
-
 /* 7. Light Mode Webinar Exclusive Elements */
 .light [class*="border-orange-500/40"],
 .light [class*="border-orange-500/30"] {
