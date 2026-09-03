@@ -329,6 +329,10 @@ export default function HomePage() {
             You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
           </p>
 
+          <p className="text-orange-400 font-bold text-base md:text-lg mb-4">
+            Learn Resin Art. Build Your Signature Style. Create Your Identity. Build Your Income.
+          </p>
+
           {/* 4 Benefit Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto mb-6">
             <span className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
