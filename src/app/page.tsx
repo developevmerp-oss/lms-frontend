@@ -266,16 +266,16 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-slate-950 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-slate-950 relative font-sans">
       {/* Dynamic Ambient Background Glowing Art Orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0">
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-orange-600/15 via-amber-600/10 to-transparent blur-[120px] rounded-full animate-pulse-glow" />
         <div className="absolute top-[25%] -left-40 w-[600px] h-[600px] bg-purple-600/10 blur-[140px] rounded-full animate-pulse-glow" />
         <div className="absolute top-[60%] -right-40 w-[600px] h-[600px] bg-orange-600/10 blur-[140px] rounded-full animate-pulse-glow" />
       </div>
 
-      {/* ─── NAVIGATION BAR ─── */}
-      <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 transition-all">
+      {/* ─── NAVIGATION BAR (STICKY) ─── */}
+      <nav className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-2xl border-b border-slate-800/80 shadow-lg shadow-black/10 transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <BrandLogo size="md" />
 
