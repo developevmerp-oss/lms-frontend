@@ -307,8 +307,14 @@ export default function HomePage() {
       </nav>
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
-      <section className="relative pt-20 pb-16 px-6 z-10">
+      <section className="relative pt-16 pb-16 px-6 z-10">
         <div className="max-w-5xl mx-auto text-center">
+
+          {/* Luminous Top Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+            <Award size={14} className="text-orange-500" />
+            <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span>
+          </div>
 
           {/* Hero Headline */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.15] mb-6 text-white">
@@ -323,22 +329,49 @@ export default function HomePage() {
             You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
           </p>
 
-          <p className="text-orange-400 font-bold text-base md:text-lg mb-4">
-            Learn Resin Art. Build Your Signature Style. Create Your Identity. Build Your Income.
-          </p>
+          {/* 4 Benefit Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto mb-6">
+            <span className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              🎨 Learn Resin Art
+            </span>
+            <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              ✨ Signature Style
+            </span>
+            <span className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              👑 Create Identity
+            </span>
+            <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+              💰 Build Income
+            </span>
+          </div>
 
-          <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
             Join a community of women who are transforming their creativity into something much bigger than a hobby.
           </p>
 
-          {/* Hero CTA */}
-          <div className="flex justify-center items-center mb-14">
+          {/* Hero CTA & Trust Micro-bar */}
+          <div className="flex flex-col items-center justify-center mb-14">
             <Link
               href="/webinar"
-              className="px-10 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 hover:scale-105"
+              className="px-10 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-white font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 hover:scale-105"
             >
               Start My Resin Journey <ArrowRight size={18} />
             </Link>
+
+            <div className="flex items-center gap-3 mt-4 text-xs text-slate-400 font-semibold flex-wrap justify-center">
+              <div className="flex items-center gap-1 text-amber-400">
+                <Star size={13} className="fill-amber-400" />
+                <Star size={13} className="fill-amber-400" />
+                <Star size={13} className="fill-amber-400" />
+                <Star size={13} className="fill-amber-400" />
+                <Star size={13} className="fill-amber-400" />
+                <span className="text-white font-bold ml-1">4.9/5</span>
+              </div>
+              <span>•</span>
+              <span>2,400+ Verified Student Reviews</span>
+              <span>•</span>
+              <span className="text-emerald-400 font-bold">100% Free Masterclass</span>
+            </div>
           </div>
 
           {/* ─── HERO VIDEO SHOWCASE (Real Masterclass Video) ─── */}
