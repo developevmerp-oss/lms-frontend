@@ -653,35 +653,274 @@ body {
   stroke: #0284c7 !important;
 }
 
+/* Section 3 & 4: Vehicle & Zero Barrier Start */
+.light section:has([class*="Resin Art Is Not the Destination"]) {
+  background: radial-gradient(circle at 80% 20%, #fff7ed 0%, #fafaf9 70%) !important;
+}
+
+.light section:has([class*="Resin Art Is Not the Destination"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #fed7aa !important;
+  box-shadow: 0 15px 35px -5px rgba(249, 115, 22, 0.08) !important;
+}
+
+.light section:has([class*="Resin Art Is Not the Destination"]) [class*="bg-slate-950"] {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.light section:has([class*="Resin Art Is Not the Destination"]) [class*="bg-slate-950"] p {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Your Journey Starts With What You Already Have"]) {
+  background-color: #fafaf9 !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light section:has([class*="Your Journey Starts With What You Already Have"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
+}
+
+.light section:has([class*="Your Journey Starts With What You Already Have"]) [class*="bg-slate-950"] {
+  background-color: #fff7ed !important;
+  border: 1px solid #fed7aa !important;
+}
+
+/* Section 5: Does This Sound Like You? */
 .light section:has([class*="Does This Sound Like You"]) {
-  background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.15) 0%, transparent 50%),
+  background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.18) 0%, transparent 50%),
+              radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.18) 0%, transparent 50%),
               #fafaf9 !important;
 }
 
+.light section:has([class*="Does This Sound Like You"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.06) !important;
+}
+
+.light section:has([class*="Does This Sound Like You"]) [class*="bg-slate-900"] h3 {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Does This Sound Like You"]) [class*="bg-slate-900"] p {
+  color: #334155 !important;
+}
+
+/* Section 6: The Strategic Framework (#path) */
+.light #path {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light #path [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05) !important;
+}
+
+.light #path [class*="bg-slate-900"] h3 {
+  color: #0f172a !important;
+}
+
+.light #path [class*="bg-slate-900"] p {
+  color: #334155 !important;
+}
+
+/* Section 7: Meet Your Mentor (#mentor) */
+.light #mentor,
 .light section:has([class*="Vrajangna Patel"]) {
   background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%) !important;
   border-top: 1px solid #fed7aa !important;
   border-bottom: 1px solid #fed7aa !important;
 }
 
-.light section:has([class*="FREE Resin Mastery"]),
-.light section:has([class*="Not Sure Where To Start"]) {
-  background: linear-gradient(180deg, #fff7ed 0%, #fafaf9 100%) !important;
+.light section:has([class*="Vrajangna Patel"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #fed7aa !important;
+  box-shadow: 0 15px 35px -5px rgba(249, 115, 22, 0.1) !important;
 }
 
+.light section:has([class*="Vrajangna Patel"]) h2,
+.light section:has([class*="Vrajangna Patel"]) h3 {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Vrajangna Patel"]) p {
+  color: #334155 !important;
+}
+
+/* Section 8: Student Creations & Gallery (#creations) */
+.light #creations,
+.light section:has([class*="Student Creations"]) {
+  background-color: #fafaf9 !important;
+}
+
+/* Section 9: What Our Students Achieve (#wins) */
+.light #wins,
+.light section:has([class*="What Our Students Achieve"]) {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light section:has([class*="What Our Students Achieve"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.06) !important;
+}
+
+.light section:has([class*="What Our Students Achieve"]) [class*="bg-slate-900"] p {
+  color: #1e293b !important;
+}
+
+/* Section 11: Sisterhood & Community (#community) */
+.light #community,
 .light section:has([class*="Sisterhood & Support"]) {
-  background: radial-gradient(circle at 50% 50%, rgba(253, 224, 71, 0.08) 0%, transparent 60%), #fafaf9 !important;
+  background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.12) 0%, transparent 50%),
+              radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.12) 0%, transparent 50%),
+              #fafaf9 !important;
 }
 
+.light section:has([class*="Sisterhood & Support"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
+}
+
+.light section:has([class*="Sisterhood & Support"]) [class*="bg-slate-900"] h3 {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Sisterhood & Support"]) [class*="bg-slate-900"] p {
+  color: #475569 !important;
+}
+
+/* Section 12: Bonus Value Stack (#bonuses) */
+.light #bonuses,
+.light section:has([class*="Bonus Value Stack"]) {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light section:has([class*="Bonus Value Stack"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.06) !important;
+}
+
+.light section:has([class*="Bonus Value Stack"]) [class*="bg-slate-900"] h3 {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Bonus Value Stack"]) [class*="bg-slate-900"] p {
+  color: #334155 !important;
+}
+
+/* Section 14: Guaranteed ISO Certification (#certification) */
+.light #certification,
+.light section:has([class*="Guaranteed ISO 9001:2015"]) {
+  background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%) !important;
+  border-top: 1px solid #fed7aa !important;
+  border-bottom: 1px solid #fed7aa !important;
+}
+
+.light section:has([class*="Guaranteed ISO 9001:2015"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #fed7aa !important;
+  box-shadow: 0 20px 45px -10px rgba(249, 115, 22, 0.12) !important;
+}
+
+.light section:has([class*="Guaranteed ISO 9001:2015"]) h2,
+.light section:has([class*="Guaranteed ISO 9001:2015"]) h3 {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Guaranteed ISO 9001:2015"]) p {
+  color: #334155 !important;
+}
+
+/* Section 15: Choose Your Ravishing Journey (#pricing) */
+.light #pricing,
 .light section:has([class*="Choose Your Ravishing Journey"]) {
   background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%) !important;
   border-top: 1px solid #e2e8f0 !important;
   border-bottom: 1px solid #e2e8f0 !important;
 }
 
+.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.08) !important;
+}
+
+.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] h3 {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] p {
+  color: #334155 !important;
+}
+
+.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] span:not([class*="bg-cyan"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-emerald"]):not([class*="text-amber"]) {
+  color: #334155 !important;
+}
+
+/* Section 16: FAQ Accordion (#faq) */
+.light #faq,
+.light section:has([class*="Frequently Asked Questions"]) {
+  background-color: #fafaf9 !important;
+}
+
+.light section:has([class*="Frequently Asked Questions"]) [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 15px -2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.light section:has([class*="Frequently Asked Questions"]) [class*="bg-slate-900"] h3,
+.light section:has([class*="Frequently Asked Questions"]) [class*="bg-slate-900"] span {
+  color: #0f172a !important;
+}
+
+.light section:has([class*="Frequently Asked Questions"]) [class*="bg-slate-900"] p {
+  color: #334155 !important;
+}
+
+/* Section 17: Final Call To Action (#cta) */
+.light #cta,
 .light section:last-of-type {
-  background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%) !important;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+  border-top: 1px solid #fed7aa !important;
+}
+
+.light section:last-of-type h2 {
+  color: #0f172a !important;
+}
+
+.light section:last-of-type p {
+  color: #334155 !important;
+}
+
+/* Footer */
+.light footer {
+  background-color: #fafaf9 !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+.light footer p,
+.light footer a {
+  color: #475569 !important;
+}
+
+.light footer a:hover {
+  color: #ea580c !important;
 }
 
 /* 12. Tables */
@@ -736,7 +975,7 @@ body {
   border-color: #e2e8f0 !important;
 }
 
-/* 15. Saturated Action Buttons & Gradients KEEP Crisp White Text */
+/* 15. Saturated Action Buttons KEEP Crisp White Text */
 .light button[class*="bg-orange"],
 .light a[class*="bg-orange"],
 .light button[class*="bg-amber"],
@@ -745,19 +984,10 @@ body {
 .light a[class*="bg-blue"],
 .light button[class*="bg-emerald"],
 .light a[class*="bg-emerald"],
-.light button[class*="bg-green"],
-.light a[class*="bg-green"],
 .light button[class*="bg-purple"],
 .light a[class*="bg-purple"],
-.light button[class*="bg-indigo"],
-.light a[class*="bg-indigo"],
-.light button[class*="bg-red"],
-.light a[class*="bg-red"],
-.light button[class*="bg-primary"],
-.light a[class*="bg-primary"],
-.light [class*="bg-gradient-to-r"],
-.light [class*="bg-gradient-to-br"],
-.light [class*="bg-gradient-to-tr"] {
+.light button[class*="bg-gradient-to-r"],
+.light a[class*="bg-gradient-to-r"] {
   color: #ffffff !important;
 }
 
@@ -771,8 +1001,8 @@ body {
 .light a[class*="bg-emerald"] *,
 .light button[class*="bg-purple"] *,
 .light a[class*="bg-purple"] *,
-.light [class*="bg-gradient-to-r"] *,
-.light [class*="bg-gradient-to-br"] * {
+.light button[class*="bg-gradient-to-r"] *,
+.light a[class*="bg-gradient-to-r"] * {
   color: #ffffff !important;
 }
 
