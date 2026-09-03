@@ -203,18 +203,31 @@ export default function AdminCourses() {
 
     setIsSubmitting(true);
     try {
+      const payload = {
+        title: courseForm.title.trim(),
+        description: courseForm.description,
+        image: courseForm.image,
+        levelCode: courseForm.levelCode,
+        order: Number(courseForm.order) || 1,
+        offerActive: Boolean(courseForm.offerActive),
+        discountType: courseForm.discountType,
+        discountValue: Number(courseForm.discountValue) || 0,
+        offerStartDate: courseForm.offerStartDate || null,
+        offerEndDate: courseForm.offerEndDate || null,
+      };
+
       let res;
       if (editingCourse) {
         res = await fetch(`${API_BASE_URL}/courses/${editingCourse.id}`, {
           method: "PUT",
           headers,
-          body: JSON.stringify(courseForm),
+          body: JSON.stringify(payload),
         });
       } else {
         res = await fetch(`${API_BASE_URL}/courses`, {
           method: "POST",
           headers,
-          body: JSON.stringify(courseForm),
+          body: JSON.stringify(payload),
         });
       }
 
@@ -235,9 +248,13 @@ export default function AdminCourses() {
         });
         showSuccess(editingCourse ? "Course updated successfully!" : "New course created!");
         fetchCourses();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(`Failed to save course: ${errorData.message || res.statusText || "Server Error"}`);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Course save error:", err);
+      alert(`Error saving course: ${err.message || "Network issue"}`);
     } finally {
       setIsSubmitting(false);
     }
