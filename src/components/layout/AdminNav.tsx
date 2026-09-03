@@ -22,6 +22,7 @@ import {
   X,
   Sparkles,
   Bell,
+  ShoppingBag,
 } from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
@@ -48,6 +49,7 @@ const NAV_GROUPS = [
       { name: 'Special Offers', path: '/admin/offers', icon: <Sparkles size={14} /> },
       { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },
       { name: 'Badges & Rewards', path: '/admin/badges', icon: <Award size={14} /> },
+      { name: 'Merch Store Manager', path: '/admin/rewards', icon: <ShoppingBag size={14} /> },
       { name: 'Sales Records', path: '/admin/sales', icon: <IndianRupee size={14} /> },
     ]
   },
