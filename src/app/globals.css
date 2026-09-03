@@ -530,6 +530,11 @@ body {
   border: 1px solid #e2e8f0 !important;
 }
 
+.light #problem [class*="bg-slate-950"] p,
+.light #problem [class*="bg-slate-950"] span {
+  color: #1e293b !important;
+}
+
 .light #problem [class*="bg-slate-950"]:hover {
   border-color: #fca5a5 !important;
   box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.1) !important;
@@ -544,6 +549,31 @@ body {
   background-color: #fef2f2 !important;
   border-color: #fca5a5 !important;
   color: #dc2626 !important;
+}
+
+.light #problem h3,
+.light #problem h3 * {
+  color: #0f172a !important;
+}
+
+.light #problem .text-amber-400 {
+  color: #d97706 !important;
+}
+
+/* Fix bottom orange callout banner text color in Light Mode */
+.light #problem [class*="border-l-4"] {
+  background-color: #fff7ed !important;
+  border-color: #ea580c !important;
+}
+
+.light #problem [class*="border-l-4"] p,
+.light #problem [class*="border-l-4"] p * {
+  color: #0f172a !important;
+}
+
+.light #problem [class*="border-l-4"] .text-orange-400 {
+  color: #c2410c !important;
+  font-weight: 900 !important;
 }
 
 .light section:has([class*="Does This Sound Like You"]) {
