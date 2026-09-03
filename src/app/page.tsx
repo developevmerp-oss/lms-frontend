@@ -801,7 +801,7 @@ export default function HomePage() {
               </div>
 
               <div className="bg-slate-950 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-6 text-center shrink-0 w-full md:w-64 space-y-3 shadow-xl hover:-translate-y-1.5 transition-all duration-300">
-                <Flame size={40} className="text-orange-500 mx-auto animate-bounce" />
+                <Flame size={40} className="text-orange-500 fill-orange-500/20 mx-auto animate-bounce" />
                 <p className="text-2xl font-black text-white">90-Day</p>
                 <p className="text-xs text-orange-400 font-bold uppercase tracking-wider">Creation Sprint</p>
                 <Link

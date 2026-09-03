@@ -616,6 +616,43 @@ body {
   font-weight: 800 !important;
 }
 
+.light #artothon svg,
+.light #artothon .text-orange-500 {
+  color: #f97316 !important;
+  stroke: #f97316 !important;
+}
+
+/* Ensure ALL Lucide Icons retain vivid colors in Light Mode */
+.light svg[class*="text-orange-500"],
+.light .text-orange-500 svg {
+  color: #f97316 !important;
+  stroke: #f97316 !important;
+}
+
+.light svg[class*="text-orange-400"],
+.light .text-orange-400 svg {
+  color: #ea580c !important;
+  stroke: #ea580c !important;
+}
+
+.light svg[class*="text-amber"],
+.light [class*="text-amber"] svg {
+  color: #d97706 !important;
+  stroke: #d97706 !important;
+}
+
+.light svg[class*="text-emerald"],
+.light [class*="text-emerald"] svg {
+  color: #059669 !important;
+  stroke: #059669 !important;
+}
+
+.light svg[class*="text-cyan"],
+.light [class*="text-cyan"] svg {
+  color: #0284c7 !important;
+  stroke: #0284c7 !important;
+}
+
 .light section:has([class*="Does This Sound Like You"]) {
   background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.15) 0%, transparent 50%),
               radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.15) 0%, transparent 50%),
