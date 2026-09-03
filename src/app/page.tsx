@@ -1201,6 +1201,9 @@ export default function HomePage() {
                       <span className={`text-[10px] font-black border px-2.5 py-1 rounded-full uppercase tracking-wider block ${badgeClass}`}>
                         {card.badgeTag}
                       </span>
+                      <span className="text-xs font-black text-amber-400 font-mono">
+                        {dbLevel?.price || (card.code === "L0" ? "₹499" : card.code === "L1" ? "₹4,999" : card.code === "L2" ? "₹19,999" : card.code === "L3" ? "₹59,999" : "Custom")}
+                      </span>
                     </div>
 
                     <h3 className="text-lg md:text-xl font-bold text-white mb-2 leading-snug">

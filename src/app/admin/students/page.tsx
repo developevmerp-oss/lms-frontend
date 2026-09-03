@@ -87,8 +87,23 @@ export default function AdminStudents() {
     } catch (err) { console.error(err); }
   };
 
+  const [levelTiers, setLevelTiers] = useState<any[]>([]);
+
+  const fetchLevelTiers = async () => {
+    try {
+      const res = await fetch(`${API}/admin/levels`, { headers });
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) setLevelTiers(data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
-    if (token) { fetchStudents(); fetchAllCourses(); fetchAllBadges(); }
+    if (token) {
+      fetchStudents();
+      fetchAllCourses();
+      fetchAllBadges();
+      fetchLevelTiers();
+    }
   }, [token]);
 
 
@@ -540,10 +555,19 @@ export default function AdminStudents() {
                             onChange={e => setEditProfile({ ...editProfile, membershipLevel: e.target.value })}
                             className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors"
                           >
-                            <option value="L0">L0 - Fast Start</option>
-                            <option value="L1">L1 - Silver</option>
-                            <option value="L2">L2 - Gold</option>
-                            <option value="L3">L3 - Diamond/Masters</option>
+                            {(levelTiers.length > 0
+                              ? levelTiers
+                              : [
+                                  { code: 'L0', name: 'Fast Start', price: '₹499' },
+                                  { code: 'L1', name: 'Silver', price: '₹4,999' },
+                                  { code: 'L2', name: 'Gold', price: '₹19,999' },
+                                  { code: 'L3', name: 'Diamond/Masters', price: '₹59,999' },
+                                ]
+                            ).map((lt: any) => (
+                              <option key={lt.code} value={lt.code}>
+                                {lt.code} - {lt.name} ({lt.price || '₹499'})
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>

@@ -99,8 +99,21 @@ export default function AdminClassesPage() {
     }
   };
 
+  const [liveLevels, setLiveLevels] = useState<any[]>([]);
+
+  const fetchLiveLevels = async () => {
+    try {
+      const res = await fetch(`${API}/admin/levels`, { headers });
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) setLiveLevels(data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
-    if (token) fetchClasses();
+    if (token) {
+      fetchClasses();
+      fetchLiveLevels();
+    }
   }, [token]);
 
   const openCreateModal = () => {
@@ -488,10 +501,19 @@ export default function AdminClassesPage() {
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
                     >
                       <option value="All">All Membership Levels</option>
-                      <option value="L0">L0 Fast Track Only</option>
-                      <option value="L1">L1 Silver &amp; Above</option>
-                      <option value="L2">L2 Gold &amp; Above</option>
-                      <option value="L3">L3 Diamond Only</option>
+                      {(liveLevels.length > 0
+                        ? liveLevels
+                        : [
+                            { code: "L0", name: "Fast Track" },
+                            { code: "L1", name: "Silver" },
+                            { code: "L2", name: "Gold" },
+                            { code: "L3", name: "Diamond" },
+                          ]
+                      ).map((lvl) => (
+                        <option key={lvl.code} value={lvl.code}>
+                          {lvl.code} · {lvl.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

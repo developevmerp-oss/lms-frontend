@@ -172,6 +172,22 @@ export default function AdminCourses() {
     reader.readAsDataURL(file);
   };
 
+  const [levels, setLevels] = useState<any[]>([]);
+
+  const fetchLevels = () => {
+    if (!token) return;
+    fetch(`${API_BASE_URL}/admin/levels`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setLevels(data);
+        }
+      })
+      .catch((err) => console.error("Error fetching level tiers", err));
+  };
+
   const fetchCourses = () => {
     if (!token) return;
     setIsLoading(true);
@@ -193,8 +209,26 @@ export default function AdminCourses() {
   };
 
   useEffect(() => {
-    if (token) fetchCourses();
+    if (token) {
+      fetchCourses();
+      fetchLevels();
+    }
   }, [token]);
+
+  const getLevelConfig = (code: string) => {
+    const match = levels.find((l: any) => (l.code || "").toUpperCase() === (code || "").toUpperCase());
+    const fallback = LEVEL_TIER_CONFIG[code] || LEVEL_TIER_CONFIG.L0;
+    if (match) {
+      return {
+        name: match.name || fallback.name,
+        price: match.price || fallback.price,
+        color: fallback.color,
+        bg: fallback.bg,
+        border: fallback.border,
+      };
+    }
+    return fallback;
+  };
 
   // Handle Course Create / Update
   const handleSaveCourse = async (e: React.FormEvent) => {
@@ -491,10 +525,20 @@ export default function AdminCourses() {
             All Levels ({courses.length})
           </button>
 
-          {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
-            const cfg = LEVEL_TIER_CONFIG[lvl];
-            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
-            const isActive = activeLevelFilter === lvl;
+          {(levels.length > 0
+            ? levels.map((l) => ({ code: l.code, name: l.name, price: l.price || "₹499" }))
+            : [
+                { code: "L0", name: "Fast Track", price: "₹499" },
+                { code: "L1", name: "Silver Member", price: "₹4,999" },
+                { code: "L2", name: "Gold Member", price: "₹19,999" },
+                { code: "L3", name: "Diamond Club", price: "₹59,999" },
+                { code: "L3+", name: "Masters Club", price: "Custom" },
+              ]
+          ).map((lvlObj) => {
+            const lvl = lvlObj.code;
+            const cfg = getLevelConfig(lvl);
+            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl.toUpperCase()).length;
+            const isActive = activeLevelFilter.toUpperCase() === lvl.toUpperCase();
 
             return (
               <button
@@ -554,7 +598,7 @@ export default function AdminCourses() {
             {displayedCourses.map((course) => {
               const isSelected = selectedCourse?.id === course.id;
               const lvl = (course.levelCode || "L0").toUpperCase();
-              const cfg = LEVEL_TIER_CONFIG[lvl] || LEVEL_TIER_CONFIG.L0;
+              const cfg = getLevelConfig(lvl);
 
               return (
                 <div
@@ -850,11 +894,20 @@ export default function AdminCourses() {
                     onChange={(e) => setCourseForm({ ...courseForm, levelCode: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
                   >
-                    <option value="L0">L0 (Fast Track - ₹499)</option>
-                    <option value="L1">L1 (Silver - ₹4,999)</option>
-                    <option value="L2">L2 (Gold - ₹19,999)</option>
-                    <option value="L3">L3 (Diamond - ₹59,999)</option>
-                    <option value="L3+">L3+ (Masters Club)</option>
+                    {(levels.length > 0
+                      ? levels
+                      : [
+                          { code: "L0", name: "Fast Track", price: "₹499" },
+                          { code: "L1", name: "Silver Member", price: "₹4,999" },
+                          { code: "L2", name: "Gold Member", price: "₹19,999" },
+                          { code: "L3", name: "Diamond Club", price: "₹59,999" },
+                          { code: "L3+", name: "Masters Club", price: "Custom" },
+                        ]
+                    ).map((lvlObj) => (
+                      <option key={lvlObj.code} value={lvlObj.code}>
+                        {lvlObj.code} - {lvlObj.name} ({lvlObj.price || '₹499'})
+                      </option>
+                    ))}
                   </select>
                 </div>
 

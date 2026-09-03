@@ -94,8 +94,21 @@ export default function AdminOffersPage() {
     }
   };
 
+  const [liveLevels, setLiveLevels] = useState<any[]>([]);
+
+  const fetchLiveLevels = async () => {
+    try {
+      const res = await fetch(`${API}/admin/levels`, { headers });
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) setLiveLevels(data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
-    if (token) fetchOffers();
+    if (token) {
+      fetchOffers();
+      fetchLiveLevels();
+    }
   }, [token]);
 
   const openCreateModal = () => {
@@ -450,7 +463,13 @@ export default function AdminOffersPage() {
                     onChange={(e) => setFormData({ ...formData, levelCode: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-red-500"
                   >
-                    {LEVEL_OPTIONS.map((l) => (
+                    {(liveLevels.length > 0
+                      ? [
+                          ...liveLevels.map((l) => ({ code: l.code, name: `${l.code} · ${l.name} (${l.price || '₹499'})` })),
+                          { code: "ALL", name: "ALL · All Membership Tiers" },
+                        ]
+                      : LEVEL_OPTIONS
+                    ).map((l) => (
                       <option key={l.code} value={l.code}>
                         {l.name}
                       </option>

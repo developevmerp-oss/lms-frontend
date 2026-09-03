@@ -104,9 +104,41 @@ export default function AdminNotifications() {
     }
   };
 
+  const [liveLevels, setLiveLevels] = useState<any[]>([]);
+
+  const fetchLiveLevels = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/levels`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) setLiveLevels(data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
-    fetchHistory();
+    if (token) {
+      fetchHistory();
+      fetchLiveLevels();
+    }
   }, [token]);
+
+  const targetAudienceOptions = [
+    { id: "all", label: "All Students (Global Broadcast)", icon: "👥", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/30" },
+    ...(liveLevels.length > 0
+      ? liveLevels.map((l: any) => ({
+          id: l.code,
+          label: `${l.code}: ${l.name} (${l.price || '₹499'})`,
+          icon: l.icon || "⚡",
+          color: "text-amber-400",
+          bg: "bg-slate-500/10",
+          border: "border-slate-500/30",
+        }))
+      : TARGET_AUDIENCE_OPTIONS.slice(1, 5)
+    ),
+    { id: "webinar", label: "Webinar Leads & Attendees", icon: "🎟️", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
+  ];
 
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,7 +265,7 @@ export default function AdminNotifications() {
                   <Users size={14} className="text-orange-500" /> Select Target Student Segment:
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {TARGET_AUDIENCE_OPTIONS.map((opt) => (
+                  {targetAudienceOptions.map((opt) => (
                     <button
                       key={opt.id}
                       type="button"

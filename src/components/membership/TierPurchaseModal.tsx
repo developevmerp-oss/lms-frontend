@@ -174,6 +174,9 @@ export const TierPurchaseModal = ({
 
   const mergedTier: TierInfo = {
     ...baseTier,
+    name: liveTierMatch?.name || baseTier.name,
+    description: liveTierMatch?.description || baseTier.description,
+    icon: liveTierMatch?.icon || baseTier.icon,
     price: liveTierMatch?.price || baseTier.price,
     discountType: activeCampaignOffer?.discountType || liveTierMatch?.discountType || baseTier.discountType,
     discountValue: activeCampaignOffer?.discountValue || liveTierMatch?.discountValue || baseTier.discountValue,
