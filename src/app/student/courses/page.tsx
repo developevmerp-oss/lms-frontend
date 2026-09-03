@@ -99,6 +99,7 @@ export default function StudentCourses() {
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [activeVideoLesson, setActiveVideoLesson] = useState<{ title: string; videoUrl: string } | null>(null);
   const [activeLevelFilter, setActiveLevelFilter] = useState<string>("all");
+  const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
   
   // Purchase / Upgrade Modal State
   const [purchaseModal, setPurchaseModal] = useState<{ isOpen: boolean; tierCode: string }>({
@@ -232,29 +233,171 @@ export default function StudentCourses() {
           </div>
         ) : null}
 
-        {/* Upgrade Banner for students who want to purchase next levels directly */}
-        <div className="mb-8 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-orange-950/30 to-slate-900 border border-orange-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0">
-              <Sparkles size={20} />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-white">
-                Want to skip ahead? Purchase &amp; Unlock Any Level Directly
-              </h3>
-              <p className="text-xs text-slate-400">
-                You don't need to finish earlier modules — you can directly purchase Silver (₹4,999), Gold (₹19,999), or Diamond (₹59,999).
-              </p>
+        {/* Primary 4 Membership Level Cards Section */}
+        <div className="space-y-6 mb-12">
+          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3 text-xs text-slate-300">
+            <Sparkles size={18} className="text-orange-400 shrink-0" />
+            <span>
+              <strong>Membership Level Purchase Flow:</strong> Students purchase complete <strong>Membership Levels</strong> (L0, L1, L2, L3) — purchasing a level unlocks all masterclasses, tools, and community perks included in that level! Click on any Level Card to inspect its included courses.
+            </span>
+          </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
+                const cfg = LEVEL_TIER_CONFIG[lvl];
+                const isUnlocked = isCourseUnlocked(lvl);
+                const isCurrent = studentLevelCode === lvl;
+                const courseCount = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
+
+                return (
+                  <div
+                    key={lvl}
+                    className={`rounded-3xl p-6 flex flex-col justify-between border transition-all ${
+                      isCurrent
+                        ? "bg-gradient-to-b from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/80 shadow-2xl shadow-orange-500/20"
+                        : isUnlocked
+                        ? "bg-slate-900/90 border-slate-800"
+                        : "bg-slate-900/60 border-slate-800/80 hover:border-slate-700"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                          {lvl}
+                        </span>
+                        <span className="text-sm font-black text-white font-mono">{cfg.price}</span>
+                      </div>
+
+                      <h3 className="text-xl font-black text-white mb-2">{cfg.name}</h3>
+                      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                        {lvl === "L0" && "Foundational resin chemistry, bubble-free mixing, and essential art setup."}
+                        {lvl === "L1" && "Core casting techniques, marbling, lotus ponds, and first client sales."}
+                        {lvl === "L2" && "High-ticket geode wall art, luxury clocks, and 3D wave ripples."}
+                        {lvl === "L3" && "3D photo art, wood & resin tables, floral preservation, and trainer status."}
+                      </p>
+
+                      <div className="space-y-2 border-t border-slate-800/80 pt-4 text-xs text-slate-300">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 size={14} className={cfg.color} />
+                          <span>Includes {courseCount || (lvl === "L0" ? 3 : lvl === "L1" ? 5 : lvl === "L2" ? 4 : 4)} Masterclass Modules</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 size={14} className={cfg.color} />
+                          <span>Full Community Access</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 size={14} className={cfg.color} />
+                          <span>{lvl === "L3" ? "Exclusive XP & Rewards Access" : "Q&A & Support Vault"}</span>
+                        </div>
+                      </div>
+
+                      {/* Click to view included courses for information */}
+                      <button
+                        onClick={() => setExpandedLevel(lvl)}
+                        className="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <BookOpen size={13} className="text-orange-400" />
+                        <span>View Included Courses ({courseCount}) →</span>
+                      </button>
+                    </div>
+
+                    <div className="mt-5">
+                      {isCurrent ? (
+                        <div className="w-full py-3 bg-orange-500/20 text-orange-400 border border-orange-500/40 rounded-xl text-xs font-black text-center">
+                          ✓ Active Level Tier
+                        </div>
+                      ) : isUnlocked ? (
+                        <div className="w-full py-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-black text-center">
+                          ✓ Unlocked Level
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
+                          className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-md hover:scale-105 cursor-pointer"
+                        >
+                          Unlock {cfg.name} ({cfg.price})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <button
-            onClick={() => setPurchaseModal({ isOpen: true, tierCode: "L2" })}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-          >
-            View All Upgrade Tiers →
-          </button>
-        </div>
+        {/* Modal to view courses included inside a clicked Level */}
+        {expandedLevel && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl relative"
+            >
+              <button
+                onClick={() => setExpandedLevel(null)}
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              {(() => {
+                const cfg = LEVEL_TIER_CONFIG[expandedLevel];
+                const levelCourses = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === expandedLevel);
+                const isUnlocked = isCourseUnlocked(expandedLevel);
+
+                return (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                        {expandedLevel}
+                      </span>
+                      <h2 className="text-2xl font-black text-white">{cfg.name} Courses ({levelCourses.length})</h2>
+                      <span className="text-base font-black text-amber-400 font-mono ml-auto mr-12">{cfg.price}</span>
+                    </div>
+                    <p className="text-xs text-slate-400 mb-6">
+                      Below are the masterclass video modules included when you purchase the <strong>{cfg.name} ({expandedLevel})</strong> membership tier:
+                    </p>
+
+                    <div className="space-y-4">
+                      {levelCourses.map((c, i) => (
+                        <div key={c.id || i} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 font-black text-sm flex items-center justify-center shrink-0">
+                            #{i + 1}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-white mb-1">{c.title}</h4>
+                            <p className="text-xs text-slate-400 leading-relaxed">{c.description}</p>
+                          </div>
+                          {isUnlocked ? (
+                            <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold shrink-0">
+                              ✓ Unlocked
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-500 text-[10px] font-bold shrink-0 flex items-center gap-1">
+                              <Lock size={10} /> Locked
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {!isUnlocked && (
+                      <button
+                        onClick={() => {
+                          setExpandedLevel(null);
+                          setPurchaseModal({ isOpen: true, tierCode: expandedLevel });
+                        }}
+                        className="mt-6 w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-lg hover:scale-105 cursor-pointer"
+                      >
+                        Unlock Entire {cfg.name} Tier ({cfg.price}) Now →
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </motion.div>
+          </div>
+        )}
 
         {/* Level Filters */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
