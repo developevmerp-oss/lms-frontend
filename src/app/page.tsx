@@ -2,8 +2,6 @@
 
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import HeroVideoPlayer from "@/components/landing/HeroVideoPlayer";
-import { JordiTiltArtworkCard } from "@/components/landing/JordiTiltArtworkCard";
-import { GSAPStudentGallery } from "@/components/landing/GSAPStudentGallery";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config/api";
@@ -189,7 +187,6 @@ const VERIFIED_REVIEWS = [
 export default function HomePage() {
   const [levelTiers, setLevelTiers] = useState<any[]>([]);
   const [levelCourses, setLevelCourses] = useState<any[]>([]);
-  const [selectedArtworkModal, setSelectedArtworkModal] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchLevelData = async () => {
@@ -861,8 +858,65 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── SECTION 12: GSAP HORIZONTAL SCROLL STUDENT GALLERY ─── */}
-      <GSAPStudentGallery artworks={[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_2]} />
+      {/* ─── SECTION 12: STUDENT TRANSFORMATION ─── */}
+      <section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10">
+        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+            From “I Can't” To “I Created This.”
+          </h2>
+          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+            Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
+          </p>
+          <p className="text-orange-400 text-sm font-bold mt-2">
+            The transformation isn't just in what their hands can create. It's in what they start believing about themselves.
+          </p>
+        </div>
+
+        {/* Marquee Row 1 */}
+        <div className="relative mb-6">
+          <div className="animate-marquee-left gap-6">
+            {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
+              <div
+                key={`r1-${idx}`}
+                className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-orange-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
+              >
+                {/* Real Artwork Photo Only */}
+                <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
+                  <img
+                    src={art.image}
+                    alt="Student Resin Art"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Marquee Row 2 */}
+        <div className="relative">
+          <div className="animate-marquee-right gap-6">
+            {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
+              <div
+                key={`r2-${idx}`}
+                className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-cyan-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
+              >
+                {/* Real Artwork Photo Only */}
+                <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
+                  <img
+                    src={art.image}
+                    alt="Student Resin Art"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ─── SECTION 13: SOCIAL PROOF ─── */}
       <section className="py-24 px-6 relative z-10">
