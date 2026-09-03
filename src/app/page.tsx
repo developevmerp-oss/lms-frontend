@@ -1172,18 +1172,18 @@ export default function HomePage() {
               const badgeClass = card.code === "L3"
                 ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40"
                 : card.code === "L2"
-                ? "bg-orange-500/20 text-orange-400 border-orange-500/40"
-                : card.code === "L1"
-                ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
+                  ? "bg-orange-500/20 text-orange-400 border-orange-500/40"
+                  : card.code === "L1"
+                    ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                    : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
 
               const iconColor = card.code === "L3"
                 ? "text-cyan-400"
                 : card.code === "L2"
-                ? "text-orange-400"
-                : card.code === "L1"
-                ? "text-amber-400"
-                : "text-emerald-400";
+                  ? "text-orange-400"
+                  : card.code === "L1"
+                    ? "text-amber-400"
+                    : "text-emerald-400";
 
               return (
                 <div
@@ -1232,11 +1232,10 @@ export default function HomePage() {
 
                   <Link
                     href={card.buttonHref}
-                    className={`mt-6 w-full py-3 font-bold rounded-xl text-xs text-center block transition-all shadow-md ${
-                      isMainL3
+                    className={`mt-6 w-full py-3 font-bold rounded-xl text-xs text-center block transition-all shadow-md ${isMainL3
                         ? "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-black shadow-cyan-500/20 hover:scale-105"
                         : "bg-slate-800 hover:bg-slate-700 text-white"
-                    }`}
+                      }`}
                   >
                     {card.buttonText}
                   </Link>

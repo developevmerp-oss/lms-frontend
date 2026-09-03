@@ -1138,3 +1138,60 @@ body {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   EXACT STUDIO UI DESIGN ENGINE FROM REFERENCED NEW DIRECTORY (E:\scaloy\new)
+───────────────────────────────────────────────────────────── */
+.u-white-box {
+  background-color: var(--card-bg-solid);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.u-white-box:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+}
+
+.light .u-white-box {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+.light .u-white-box:hover {
+  border-color: #f97316;
+  box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.12);
+}
+
+.btn-main {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  border-radius: 999rem;
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+}
+
+.btn-main:hover {
+  transform: scale(1.04);
+}
+
+.t-pricing {
+  font-size: 2.75rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-family: var(--font-mono), monospace;
+}
+
+
