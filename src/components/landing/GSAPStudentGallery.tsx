@@ -1,15 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useState, useRef } from "react";
 import { JordiTiltArtworkCard } from "./JordiTiltArtworkCard";
 import { Sparkles, Eye, ArrowRight, CheckCircle2, ChevronRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface Artwork {
   title: string;
@@ -26,71 +20,34 @@ interface GSAPStudentGalleryProps {
 }
 
 export function GSAPStudentGallery({ artworks }: GSAPStudentGalleryProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !containerRef.current || !trackRef.current) return;
-
-    // Small delay to ensure layout is fully rendered
-    const timer = setTimeout(() => {
-      const track = trackRef.current;
-      const container = containerRef.current;
-
-      if (!track || !container) return;
-
-      const getScrollAmount = () => {
-        return -(track.scrollWidth - window.innerWidth + 96);
-      };
-
-      const ctx = gsap.context(() => {
-        gsap.to(track, {
-          x: getScrollAmount,
-          ease: "none",
-          scrollTrigger: {
-            trigger: container,
-            start: "top top",
-            end: () => `+=${track.scrollWidth}`,
-            pin: true,
-            scrub: 1,
-            invalidateOnRefresh: true,
-            anticipatePin: 1,
-          },
-        });
-      }, containerRef);
-
-      return () => ctx.revert();
-    }, 200);
-
-    return () => clearTimeout(timer);
-  }, [artworks]);
-
   const scrollLeft = () => {
     if (trackRef.current) {
-      trackRef.current.scrollBy({ left: -400, behavior: "smooth" });
+      trackRef.current.scrollBy({ left: -450, behavior: "smooth" });
     }
   };
 
   const scrollRight = () => {
     if (trackRef.current) {
-      trackRef.current.scrollBy({ left: 400, behavior: "smooth" });
+      trackRef.current.scrollBy({ left: 450, behavior: "smooth" });
     }
   };
 
   return (
-    <div ref={containerRef} className="w-full min-h-screen relative overflow-hidden bg-slate-950/80 py-12 flex flex-col justify-center border-y border-slate-800/80">
+    <div className="w-full relative overflow-hidden bg-slate-950/90 py-16 flex flex-col justify-center border-y border-slate-800/80">
       {/* Section Header */}
       <div className="max-w-7xl mx-auto px-6 mb-8 w-full flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">
-            Interactive Student Gallery (GSAP ScrollTrigger)
+            Real Transformations &amp; Student Masterpieces
           </span>
           <h2 className="text-3xl md:text-5xl font-black text-white">
             From “I Can't” To “I Created This.”
           </h2>
           <p className="text-slate-300 text-sm md:text-base mt-2 max-w-2xl">
-            Scroll down to explore real student resin art commissions, created by learners across Level 0 to Level 3.
+            Explore real student resin art commissions, created by learners across Level 0 to Level 3. Hover over any artwork to inspect details.
           </p>
         </div>
 
@@ -103,7 +60,7 @@ export function GSAPStudentGallery({ artworks }: GSAPStudentGalleryProps) {
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-xs font-mono font-bold text-orange-400 px-3 py-1 bg-slate-900 border border-slate-800 rounded-xl">
+          <span className="text-xs font-mono font-bold text-orange-400 px-3.5 py-1.5 bg-slate-900 border border-slate-800 rounded-xl">
             {artworks.length} Masterpieces
           </span>
           <button
@@ -116,11 +73,11 @@ export function GSAPStudentGallery({ artworks }: GSAPStudentGalleryProps) {
         </div>
       </div>
 
-      {/* ─── GSAP HORIZONTAL SCROLL TRACK ─── */}
-      <div className="w-full overflow-hidden">
+      {/* ─── SMOOTH 3D TILT HORIZONTAL SCROLL GALLERY TRACK ─── */}
+      <div className="w-full overflow-hidden py-4">
         <div
           ref={trackRef}
-          className="flex gap-6 px-6 md:px-12 items-center will-change-transform py-6 overflow-x-auto lg:overflow-x-visible scrollbar-none"
+          className="flex gap-6 px-6 md:px-12 items-center overflow-x-auto scrollbar-none py-4 scroll-smooth"
         >
           {artworks.map((art, idx) => (
             <JordiTiltArtworkCard
