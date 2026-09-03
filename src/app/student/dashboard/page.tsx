@@ -111,6 +111,7 @@ export default function StudentDashboard() {
                 level={getLevelName()} 
                 xp={stats.points} 
                 streak={stats.streak} 
+                weekStatus={stats.weekStatus}
                 progress={dynamicProgress} 
                 nextGoal={stats.nextGoal}
                 currentTier={stats.currentTier}

@@ -14,7 +14,9 @@ import {
   Gem,
   Palette,
   ShieldAlert,
-  Compass
+  Compass,
+  X,
+  Check
 } from 'lucide-react';
 
 interface WelcomeHeaderProps {
@@ -22,6 +24,7 @@ interface WelcomeHeaderProps {
   level: string;
   xp: number;
   streak: number;
+  weekStatus?: any[];
   progress: number;
   nextGoal?: string;
   currentTier?: any;
@@ -139,10 +142,19 @@ const getLevelBadgeConfig = (levelStr: string = '', currentTier?: any) => {
   };
 };
 
-export const WelcomeHeader = ({ user, level, xp, streak, progress, nextGoal, currentTier, badges = [], salesRecords = [] }: WelcomeHeaderProps) => {
+export const WelcomeHeader = ({ user, level, xp, streak, weekStatus = [], progress, nextGoal, currentTier, badges = [], salesRecords = [] }: WelcomeHeaderProps) => {
   const badgeConfig = getLevelBadgeConfig(level, currentTier);
   const totalRevenue = salesRecords.reduce((sum: number, s: any) => sum + (Number(s.amount) || 0), 0);
   const achievement = getAchievementBadge(xp, badges, totalRevenue);
+
+  const defaultDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const daysToRender = weekStatus && weekStatus.length === 7
+    ? weekStatus
+    : defaultDays.map((dayName, i) => ({
+        dayName,
+        status: i < Math.min(streak || 0, 7) ? 'completed' : 'future',
+        isToday: false
+      }));
 
   return (
     <motion.div 
@@ -228,18 +240,61 @@ export const WelcomeHeader = ({ user, level, xp, streak, progress, nextGoal, cur
                 <span className="text-orange-400 font-bold text-xs">{streak || 0}d</span>
               </div>
             </div>
-            <div className="flex gap-1 mt-2">
-              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
-                const isActive = i < Math.min(streak || 0, 7);
+            <div className="flex gap-1.5 mt-2">
+              {daysToRender.map((dayItem: any, i: number) => {
+                const { dayName, status, isToday } = dayItem;
+                
+                if (status === 'completed') {
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        title={`${dayName} - Completed`}
+                        className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-[0_0_10px_rgba(249,115,22,0.4)]"
+                      >
+                        <Flame size={11} className="text-slate-950 fill-slate-950" />
+                      </div>
+                      <span className="text-[9px] font-bold text-orange-400">{dayName}</span>
+                    </div>
+                  );
+                }
+
+                if (status === 'missed') {
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        title={`${dayName} - Missed Day`}
+                        className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/50 shadow-[0_0_8px_rgba(244,63,94,0.3)]"
+                      >
+                        <X size={12} className="text-rose-400 stroke-[3]" />
+                      </div>
+                      <span className="text-[9px] font-bold text-rose-400">{dayName}</span>
+                    </div>
+                  );
+                }
+
+                if (status === 'today_pending' || isToday) {
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        title={`${dayName} - Today`}
+                        className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-amber-500/20 text-amber-300 border-2 border-amber-400 animate-pulse"
+                      >
+                        {dayName}
+                      </div>
+                      <span className="text-[9px] font-bold text-amber-300">{dayName}</span>
+                    </div>
+                  );
+                }
+
                 return (
                   <div key={i} className="flex flex-col items-center gap-1">
-                    <div className={`w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-xs font-bold transition-all ${
-                      isActive
-                        ? 'bg-orange-500 text-white shadow-[0_0_10px_rgba(249,115,22,0.4)]'
-                        : 'bg-slate-900 text-slate-600 border border-slate-700'
-                    }`}>
-                      {isActive ? <Flame size={10} className="text-white fill-white" /> : day}
+                    <div
+                      title={`${dayName} - Upcoming`}
+                      className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-slate-900 text-slate-600 border border-slate-700/60"
+                    >
+                      {dayName}
                     </div>
+                    <span className="text-[9px] font-bold text-slate-500">{dayName}</span>
                   </div>
                 );
               })}
