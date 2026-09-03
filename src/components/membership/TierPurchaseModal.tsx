@@ -132,24 +132,24 @@ export const TierPurchaseModal = ({
   const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
 
   useEffect(() => {
-    if (isOpen && token) {
-      fetch(`${API_BASE_URL}/admin/levels`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    if (isOpen) {
+      fetch(`${API_BASE_URL}/dashboard/levels`)
         .then((r) => r.json())
         .then((data) => {
-          if (Array.isArray(data)) setLiveTiers(data);
+          if (Array.isArray(data) && data.length > 0) setLiveTiers(data);
         })
         .catch(() => {});
 
-      fetch(`${API_BASE_URL}/admin/offers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          if (Array.isArray(data)) setCampaignOffers(data);
+      if (token) {
+        fetch(`${API_BASE_URL}/admin/offers`, {
+          headers: { Authorization: `Bearer ${token}` },
         })
-        .catch(() => {});
+          .then((r) => r.json())
+          .then((data) => {
+            if (Array.isArray(data)) setCampaignOffers(data);
+          })
+          .catch(() => {});
+      }
     }
   }, [isOpen, token]);
 

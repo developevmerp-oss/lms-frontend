@@ -106,8 +106,17 @@ export default function StudentCourses() {
     isOpen: false,
     tierCode: "L1",
   });
+  
+  const [levelTiers, setLevelTiers] = useState<any[]>([]);
 
   const fetchStudentData = () => {
+    fetch(`${API_BASE_URL}/dashboard/levels`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setLevelTiers(data);
+      })
+      .catch(err => console.error("Error fetching level tiers", err));
+
     if (!token) return;
     
     fetch(`${API_BASE_URL}/dashboard/student`, {
@@ -142,6 +151,12 @@ export default function StudentCourses() {
   useEffect(() => {
     fetchStudentData();
   }, [token]);
+
+  const getTierPrice = (lvlCode: string): string => {
+    const found = levelTiers.find((t: any) => (t.code || "").toUpperCase() === lvlCode.toUpperCase());
+    if (found && found.price) return found.price;
+    return LEVEL_TIER_CONFIG[lvlCode]?.price || "₹499";
+  };
 
   const studentLevelCode = getLevelCode(stats.membershipLevel || stats.rank, stats.points || 0);
   const studentRankNum = LEVEL_HIERARCHY[studentLevelCode] ?? 0;
@@ -265,7 +280,7 @@ export default function StudentCourses() {
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                           {lvl}
                         </span>
-                        <span className="text-sm font-black text-white font-mono">{cfg.price}</span>
+                        <span className="text-sm font-black text-white font-mono">{getTierPrice(lvl)}</span>
                       </div>
 
                       <h3 className="text-xl font-black text-white mb-2">{cfg.name}</h3>
@@ -315,7 +330,7 @@ export default function StudentCourses() {
                           onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
                           className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-md hover:scale-105 cursor-pointer"
                         >
-                          Unlock {cfg.name} ({cfg.price})
+                          Unlock {cfg.name} ({getTierPrice(lvl)})
                         </button>
                       )}
                     </div>
@@ -352,7 +367,7 @@ export default function StudentCourses() {
                         {expandedLevel}
                       </span>
                       <h2 className="text-2xl font-black text-white">{cfg.name} Courses ({levelCourses.length})</h2>
-                      <span className="text-base font-black text-amber-400 font-mono ml-auto mr-12">{cfg.price}</span>
+                      <span className="text-base font-black text-amber-400 font-mono ml-auto mr-12">{getTierPrice(expandedLevel)}</span>
                     </div>
                     <p className="text-xs text-slate-400 mb-6">
                       Below are the masterclass video modules included when you purchase the <strong>{cfg.name} ({expandedLevel})</strong> membership tier:
