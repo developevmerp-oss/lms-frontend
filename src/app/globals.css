@@ -577,7 +577,7 @@ body {
 .animate-marquee-left {
   display: flex;
   width: max-content;
-  animation: marquee-left 35s linear infinite;
+  animation: marquee-left 95s linear infinite;
 }
 
 .animate-marquee-left:hover {
@@ -587,7 +587,7 @@ body {
 .animate-marquee-right {
   display: flex;
   width: max-content;
-  animation: marquee-right 40s linear infinite;
+  animation: marquee-right 105s linear infinite;
 }
 
 .animate-marquee-right:hover {
