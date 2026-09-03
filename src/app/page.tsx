@@ -3,6 +3,7 @@
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import HeroVideoPlayer from "@/components/landing/HeroVideoPlayer";
 import { JordiTiltArtworkCard } from "@/components/landing/JordiTiltArtworkCard";
+import { GSAPStudentGallery } from "@/components/landing/GSAPStudentGallery";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config/api";
@@ -860,111 +861,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── SECTION 12: STUDENT TRANSFORMATION ─── */}
-      <section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10">
-        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
-          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-            From “I Can't” To “I Created This.”
-          </h2>
-          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-            Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
-          </p>
-          <p className="text-orange-400 text-sm font-bold mt-2">
-            The transformation isn't just in what their hands can create. It's in what they start believing about themselves.
-          </p>
-        </div>
-
-        {/* Marquee Row 1 (Jordi Garreta 3D Tilt Cards) */}
-        <div className="relative mb-6">
-          <div className="animate-marquee-left gap-6 py-4">
-            {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
-              <JordiTiltArtworkCard
-                key={`r1-${idx}`}
-                art={art}
-                borderColor="hover:border-orange-500/60"
-                onInspect={(selected) => setSelectedArtworkModal(selected)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Marquee Row 2 (Jordi Garreta 3D Tilt Cards) */}
-        <div className="relative">
-          <div className="animate-marquee-right gap-6 py-4">
-            {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
-              <JordiTiltArtworkCard
-                key={`r2-${idx}`}
-                art={art}
-                borderColor="hover:border-cyan-500/60"
-                onInspect={(selected) => setSelectedArtworkModal(selected)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Full Screen Lightbox Modal for Selected Artwork */}
-        {selectedArtworkModal && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-fade-in">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 md:p-8 shadow-2xl relative overflow-hidden text-white">
-              <button
-                onClick={() => setSelectedArtworkModal(null)}
-                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-950 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer z-10"
-              >
-                ✕
-              </button>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                <div className="h-80 sm:h-96 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 relative">
-                  <img
-                    src={selectedArtworkModal.image}
-                    alt={selectedArtworkModal.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <span className="absolute top-3 left-3 bg-orange-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                    {selectedArtworkModal.badge}
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full">
-                    ✓ Verified Student Commission ({selectedArtworkModal.price})
-                  </div>
-
-                  <h3 className="text-2xl font-black text-white leading-tight">
-                    {selectedArtworkModal.title}
-                  </h3>
-
-                  <div className="space-y-2 text-xs text-slate-300 bg-slate-950 border border-slate-800 rounded-2xl p-4">
-                    <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                      <span className="text-slate-400">Created By Student:</span>
-                      <span className="font-bold text-white">{selectedArtworkModal.artist}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                      <span className="text-slate-400">Membership Tier:</span>
-                      <span className="font-bold text-orange-400">{selectedArtworkModal.level}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Technique:</span>
-                      <span className="font-semibold text-slate-200">{selectedArtworkModal.type}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <Link
-                      href="/webinar"
-                      onClick={() => setSelectedArtworkModal(null)}
-                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <span>Learn How To Create This Artwork →</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
+      {/* ─── SECTION 12: GSAP HORIZONTAL SCROLL STUDENT GALLERY ─── */}
+      <GSAPStudentGallery artworks={[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_2]} />
 
       {/* ─── SECTION 13: SOCIAL PROOF ─── */}
       <section className="py-24 px-6 relative z-10">
