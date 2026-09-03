@@ -276,6 +276,16 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
                       })
                     )}
                   </div>
+                  <div className="pt-3 mt-2 border-t border-slate-800 text-center">
+                    <Link
+                      href="/student/notifications"
+                      onClick={() => setShowNotifications(false)}
+                      className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center justify-center gap-1.5 transition-colors py-1 cursor-pointer"
+                    >
+                      <span>View All Notifications</span>
+                      <ChevronRight size={14} />
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

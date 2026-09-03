@@ -263,6 +263,14 @@ export default function StudentCourses() {
                 const isUnlocked = isCourseUnlocked(lvl);
                 const isCurrent = studentLevelCode === lvl;
                 const courseCount = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
+                const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
+                const levelDisplayName = liveLevel?.name || cfg.name;
+                const levelDisplayDesc = liveLevel?.description || (
+                  lvl === "L0" ? "Foundational resin chemistry, bubble-free mixing, and essential art setup." :
+                  lvl === "L1" ? "Core casting techniques, marbling, lotus ponds, and first client sales." :
+                  lvl === "L2" ? "High-ticket geode wall art, luxury clocks, and 3D wave ripples." :
+                  "3D photo art, wood & resin tables, floral preservation, and trainer status."
+                );
 
                 return (
                   <div
@@ -283,12 +291,9 @@ export default function StudentCourses() {
                         <span className="text-sm font-black text-white font-mono">{getTierPrice(lvl)}</span>
                       </div>
 
-                      <h3 className="text-xl font-black text-white mb-2">{cfg.name}</h3>
-                      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                        {lvl === "L0" && "Foundational resin chemistry, bubble-free mixing, and essential art setup."}
-                        {lvl === "L1" && "Core casting techniques, marbling, lotus ponds, and first client sales."}
-                        {lvl === "L2" && "High-ticket geode wall art, luxury clocks, and 3D wave ripples."}
-                        {lvl === "L3" && "3D photo art, wood & resin tables, floral preservation, and trainer status."}
+                      <h3 className="text-xl font-black text-white mb-2">{levelDisplayName}</h3>
+                      <p className="text-xs text-slate-400 mb-4 leading-relaxed line-clamp-3">
+                        {levelDisplayDesc}
                       </p>
 
                       <div className="space-y-2 border-t border-slate-800/80 pt-4 text-xs text-slate-300">

@@ -29,6 +29,7 @@ export default function StudentEventsPage() {
   const [joiningClassId, setJoiningClassId] = useState<string | null>(null);
   const [joinSuccessMsg, setJoinSuccessMsg] = useState<string>("");
   const [purchaseModal, setPurchaseModal] = useState({ isOpen: false, tierCode: "L1" });
+  const [levelTiers, setLevelTiers] = useState<any[]>([]);
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
@@ -54,6 +55,13 @@ export default function StudentEventsPage() {
       if (classesData.success && Array.isArray(classesData.data)) {
         setClassesList(classesData.data);
       }
+
+      fetch(`${API_BASE_URL}/dashboard/levels`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) setLevelTiers(data);
+        })
+        .catch(() => {});
     } catch (_) {}
     setLoading(false);
   };
@@ -179,7 +187,7 @@ export default function StudentEventsPage() {
               Live Masterclasses are Locked for Fast Track
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed mb-6">
-              Live interactive masterclasses, weekly Q&amp;A calls, and live portfolio reviews unlock when your account is upgraded to <strong>Silver (₹4,999)</strong>, <strong>Gold (₹19,999)</strong>, or <strong>Diamond (₹59,999)</strong>.
+              Live interactive masterclasses, weekly Q&amp;A calls, and live portfolio reviews unlock when your account is upgraded to <strong>Level 1 ({levelTiers.find((t: any) => (t.code || "").toUpperCase() === "L1")?.price || "₹4,999"})</strong>, <strong>Level 2 ({levelTiers.find((t: any) => (t.code || "").toUpperCase() === "L2")?.price || "₹19,999"})</strong>, or <strong>Level 3 ({levelTiers.find((t: any) => (t.code || "").toUpperCase() === "L3")?.price || "₹59,999"})</strong>.
             </p>
             <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 mb-6 text-left">
               <div className="flex justify-between text-xs font-bold text-slate-300">
