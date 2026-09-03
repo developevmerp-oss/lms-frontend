@@ -313,7 +313,7 @@ export default function HomePage() {
           {/* Luminous Top Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
             <Award size={14} className="text-orange-500" />
-            <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span>
+            <span>ISO 9001:2015 CERTIFIED ACADEMY • NEVER STOP CREATING</span>
           </div>
 
           {/* Hero Headline */}
@@ -861,9 +861,9 @@ export default function HomePage() {
       {/* ─── SECTION 12: STUDENT TRANSFORMATION ─── */}
       <section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10">
         <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
-          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
+          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Selected Works &amp; Masterpieces</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-            From “I Can't” To “I Created This.”
+            Selected Student Masterpieces — From “I Can't” To “I Created This.”
           </h2>
           <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
             Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
@@ -922,7 +922,7 @@ export default function HomePage() {
       <section className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Verified Track Record</span>
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">They Say It Better Than We Do</span>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
               54K+ Students Taught. 8K+ Orders Completed. 5★ Google Rating.
             </h2>
