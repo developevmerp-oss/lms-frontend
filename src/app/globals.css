@@ -576,6 +576,46 @@ body {
   font-weight: 900 !important;
 }
 
+/* Section 10: ART-O-THON Light Mode Overhaul */
+.light #artothon {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light #artothon [class*="bg-gradient-to-br"] {
+  background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%) !important;
+  border: 2px solid #fed7aa !important;
+  box-shadow: 0 20px 45px -10px rgba(249, 115, 22, 0.15) !important;
+}
+
+.light #artothon h2 {
+  color: #0f172a !important;
+}
+
+.light #artothon p {
+  color: #334155 !important;
+}
+
+.light #artothon .text-orange-400 {
+  color: #c2410c !important;
+}
+
+.light #artothon [class*="bg-slate-950"] {
+  background-color: #ffffff !important;
+  border: 1px solid #fed7aa !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
+}
+
+.light #artothon [class*="bg-slate-950"] p {
+  color: #0f172a !important;
+}
+
+.light #artothon [class*="bg-slate-950"] .text-orange-400 {
+  color: #c2410c !important;
+  font-weight: 800 !important;
+}
+
 .light section:has([class*="Does This Sound Like You"]) {
   background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.15) 0%, transparent 50%),
               radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.15) 0%, transparent 50%),

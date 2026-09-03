@@ -783,7 +783,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── SECTION 10: ART-O-THON ─── */}
-      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      <section id="artothon" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/40 rounded-3xl p-8 md:p-14 shadow-2xl hover:border-orange-500/60 transition-colors">
             <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
