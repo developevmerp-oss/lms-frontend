@@ -826,8 +826,8 @@ export default function AdminCourses() {
 
       {/* Course Modal (Create / Edit) */}
       {showCourseModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-white">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black text-white flex items-center gap-2">
                 <BookOpen className="text-orange-500" size={20} />
@@ -1103,8 +1103,8 @@ export default function AdminCourses() {
 
       {/* Chapter Modal (Create / Edit) */}
       {showChapterModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-white">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black text-white flex items-center gap-2">
                 <FileVideo className="text-orange-500" size={20} />
@@ -1230,8 +1230,8 @@ export default function AdminCourses() {
 
       {/* Video Preview Modal */}
       {previewVideoUrl && (
-        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 shadow-2xl text-white relative">
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white relative">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-black text-white flex items-center gap-2">
                 <Video className="text-orange-400" size={18} /> Video Lesson Player
