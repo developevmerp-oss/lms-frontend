@@ -546,6 +546,110 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   ULTRA-REFINED LIGHT MODE EXCLUSIVE POLISH (DARK MODE UNTOUCHED)
+───────────────────────────────────────────────────────────── */
+
+/* 1. Light Mode Vibrant Typography & Accent Text */
+.light .text-orange-400,
+.light .text-orange-300 {
+  color: #ea580c !important;
+}
+
+.light .text-amber-400,
+.light .text-amber-300 {
+  color: #d97706 !important;
+}
+
+.light .text-cyan-400,
+.light .text-cyan-300 {
+  color: #0284c7 !important;
+}
+
+.light .text-emerald-400,
+.light .text-emerald-300 {
+  color: #059669 !important;
+}
+
+.light .text-teal-400,
+.light .text-teal-300 {
+  color: #0d9488 !important;
+}
+
+/* 2. Light Mode Pill Badges & Inset Tags */
+.light [class*="bg-orange-500/10"],
+.light [class*="bg-orange-500/20"] {
+  background-color: #fff7ed !important;
+  color: #c2410c !important;
+  border-color: #fed7aa !important;
+}
+
+.light [class*="bg-amber-500/10"],
+.light [class*="bg-amber-500/20"] {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+.light [class*="bg-cyan-500/10"],
+.light [class*="bg-cyan-500/20"] {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+.light [class*="bg-emerald-500/10"],
+.light [class*="bg-emerald-500/20"] {
+  background-color: #f0fdf4 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+/* 3. Light Mode Inset Sub-panels (e.g., slate-950 inside cards) */
+.light .bg-slate-950,
+.light [class*="bg-slate-950"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* 4. Light Mode Section Alternating Lighting */
+.light section[class*="bg-slate-950/60"],
+.light section[class*="bg-slate-950"] {
+  background-color: #f1f5f9 !important;
+}
+
+/* 5. Light Mode Buttons - Secondary & Outlined */
+.light button[class*="bg-slate-800"],
+.light a[class*="bg-slate-800"] {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light button[class*="bg-slate-800"]:hover,
+.light a[class*="bg-slate-800"]:hover {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* 6. Light Mode Level Cards Highlighting */
+.light [class*="border-cyan-500/80"] {
+  border-color: #0284c7 !important;
+  box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.15) !important;
+  background-color: #ffffff !important;
+}
+
+/* 7. Light Mode Webinar Exclusive Elements */
+.light [class*="border-orange-500/40"],
+.light [class*="border-orange-500/30"] {
+  border-color: #fdba74 !important;
+}
+
+.light [class*="shadow-orange-500/20"],
+.light [class*="shadow-orange-500/30"] {
+  box-shadow: 0 12px 30px -5px rgba(234, 88, 12, 0.2) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
    CUSTOM ART STUDIO KEYFRAMES & ANIMATIONS
 ───────────────────────────────────────────────────────────── */
 @keyframes marquee-left {
