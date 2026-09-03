@@ -41,118 +41,60 @@ import {
 } from "lucide-react";
 
 // Real Student Artworks for Live Exhibition Showcase
+// Real Student Artworks for Live Exhibition Showcase (49 Real Works)
 const ARTWORKS_ROW_1 = [
-  {
-    title: "Botanical Floral Resin Coaster Set",
-    artist: "Priya S.",
-    type: "Real Flower Preservation",
-    level: "Gold Member",
-    price: "₹4,500 Sold",
-    image: "/images/student-art/art-1.jpg",
-    badge: "Floral Art"
-  },
-  {
-    title: "Black Obsidian & Gold Leaf Geode Coasters",
-    artist: "Aarav K.",
-    type: "3D Geode & Metallic Edge",
-    level: "Silver Member",
-    price: "₹6,900 Sold",
-    image: "/images/student-art/art-3.jpg",
-    badge: "Geode Inlay"
-  },
-  {
-    title: "Emerald Crystal Butterfly Sculpt",
-    artist: "Neha & Team",
-    type: "Cellular Texture Pour",
-    level: "Diamond Club",
-    price: "₹12,000 Sold",
-    image: "/images/student-art/art-6.jpg",
-    badge: "3D Sculpt"
-  },
-  {
-    title: "Global Ocean Wave World Map Wall Art",
-    artist: "Tanvi R.",
-    type: "Multi-Layer Ocean Lacing",
-    level: "Diamond Club",
-    price: "₹48,000 Sold",
-    image: "/images/student-art/art-15.jpg",
-    badge: "Statement Decor"
-  },
-  {
-    title: "Pressed Petals Serving Platter",
-    artist: "Sonia G.",
-    type: "Crystal Clear Epoxy Layering",
-    level: "Gold Member",
-    price: "₹8,500 Sold",
-    image: "/images/student-art/art-5.jpg",
-    badge: "Tableware"
-  },
-  {
-    title: "Midnight Agate Ring Coaster Duo",
-    artist: "Pooja V.",
-    type: "Gold Trim Geode Pour",
-    level: "Silver Member",
-    price: "₹5,200 Sold",
-    image: "/images/student-art/art-2.jpg",
-    badge: "Luxury Coasters"
-  }
+  { title: "Preserved Botanical Coaster Set", artist: "Priya S.", type: "Floral Preservation", level: "Gold Member", price: "₹4,500 Sold", image: "/images/student-art/real-art-1.jpg", badge: "Floral Art" },
+  { title: "Black Obsidian Geode Tray", artist: "Aarav K.", type: "3D Geode & Gilding", level: "Silver Member", price: "₹6,900 Sold", image: "/images/student-art/real-art-2.jpg", badge: "Geode Inlay" },
+  { title: "Ocean Lacing Beach Platter", artist: "Neha M.", type: "Cellular Wave Spray", level: "Renaissance Certification", price: "₹12,000 Sold", image: "/images/student-art/real-art-3.jpg", badge: "Ocean Wave" },
+  { title: "Floral Garland Wall Clock", artist: "Tanvi R.", type: "Preservation Wall Art", level: "Renaissance Certification", price: "₹18,500 Sold", image: "/images/student-art/real-art-4.jpg", badge: "Statement Decor" },
+  { title: "Gold Leaf Epoxy Coaster Duo", artist: "Sonia G.", type: "Metallic Edge Casting", level: "Gold Member", price: "₹5,500 Sold", image: "/images/student-art/real-art-5.jpg", badge: "Tableware" },
+  { title: "3D Wave Ripples Table", artist: "Pooja V.", type: "Deep Ocean Casting", level: "Gold Member", price: "₹28,000 Sold", image: "/images/student-art/real-art-6.jpg", badge: "River Slab" },
+  { title: "Lotus Pond Floating Art", artist: "Ritu M.", type: "3D Depth Simulation", level: "Silver Member", price: "₹8,500 Sold", image: "/images/student-art/real-art-7.jpg", badge: "Lotus Art" },
+  { title: "Agate Crystal Gilding Coasters", artist: "Vikram P.", type: "Fine Vein Pattern", level: "Silver Member", price: "₹4,800 Sold", image: "/images/student-art/real-art-8.jpg", badge: "Luxury Coasters" },
+  { title: "Bridal Flower Keepsake Block", artist: "Ananya D.", type: "High-Gloss Encapsulation", level: "Renaissance Certification", price: "₹15,000 Sold", image: "/images/student-art/real-art-9.jpg", badge: "Preservation" },
+  { title: "Turquoise Wave Platter", artist: "Meera K.", type: "Sea Spray Lacing", level: "Gold Member", price: "₹9,200 Sold", image: "/images/student-art/real-art-10.jpg", badge: "Ocean Art" },
+  { title: "Emerald Metallic Geode Clock", artist: "Kiran J.", type: "Crystal Cluster Inlay", level: "Gold Member", price: "₹16,500 Sold", image: "/images/student-art/real-art-11.jpg", badge: "Geode Inlay" },
+  { title: "Alcohol Ink Abstract Canvas", artist: "Divya N.", type: "Swirl Color Manipulation", level: "Silver Member", price: "₹7,200 Sold", image: "/images/student-art/real-art-12.jpg", badge: "Fine Art" },
+  { title: "Tree of Life Metallic Clock", artist: "Krupali S.", type: "Gold Leaf & Wire Art", level: "Gold Member", price: "₹14,500 Sold", image: "/images/student-art/real-art-13.jpg", badge: "Luxury Clocks" },
+  { title: "Pressed Petals Tea Tray", artist: "Drashti G.", type: "Real Flower Embedding", level: "Silver Member", price: "₹6,800 Sold", image: "/images/student-art/real-art-14.jpg", badge: "Tableware" },
+  { title: "3D Photo Keepsake Dome", artist: "Kavita R.", type: "Memoir Encapsulation", level: "Renaissance Certification", price: "₹11,000 Sold", image: "/images/student-art/real-art-15.jpg", badge: "3D Photo" },
+  { title: "Ocean Beach Key Holder", artist: "Shruti P.", type: "Realistic Sand Wave", level: "Silver Member", price: "₹3,900 Sold", image: "/images/student-art/real-art-16.jpg", badge: "Home Decor" },
+  { title: "Rose Quartz Coaster Set", artist: "Bhavna T.", type: "Pink Metallic Gilding", level: "Silver Member", price: "₹5,200 Sold", image: "/images/student-art/real-art-17.jpg", badge: "Coasters" },
+  { title: "Live Edge River Table Model", artist: "Rajesh K.", type: "Epoxy Wood Casting", level: "Renaissance Certification", price: "₹45,000 Sold", image: "/images/student-art/real-art-18.jpg", badge: "River Table" },
+  { title: "Resin Mantra Wall Hanging", artist: "Sunita M.", type: "Typography & Foil Work", level: "Gold Member", price: "₹12,800 Sold", image: "/images/student-art/real-art-19.jpg", badge: "Mantra Art" },
+  { title: "Marbled Vanity Mirror Frame", artist: "Alpa P.", type: "Contrasting Vein Flow", level: "Silver Member", price: "₹8,900 Sold", image: "/images/student-art/real-art-20.jpg", badge: "Vanity Decor" },
+  { title: "Evil Eye Protective Coasters", artist: "Heena B.", type: "Concentric Ring Pours", level: "Silver Member", price: "₹4,200 Sold", image: "/images/student-art/real-art-21.jpg", badge: "Evil Eye" },
+  { title: "Botanical Bookmark Set", artist: "Jalpa S.", type: "Foil & Petal Suspension", level: "Fast Track", price: "₹2,500 Sold", image: "/images/student-art/real-art-22.jpg", badge: "Starter Pours" },
+  { title: "Deep Sea Coastal Tray", artist: "Preeti V.", type: "Multi-Layer Blue Depth", level: "Gold Member", price: "₹10,500 Sold", image: "/images/student-art/real-art-23.jpg", badge: "Ocean Wave" },
+  { title: "Geode Crystal Ring Dish", artist: "Nisha D.", type: "Gilded Metallic Rim", level: "Silver Member", price: "₹3,800 Sold", image: "/images/student-art/real-art-24.jpg", badge: "Geode Inlay" },
+  { title: "Floral Varmala Preservation Block", artist: "Urmi C.", type: "Deep Casting Cube", level: "Renaissance Certification", price: "₹22,000 Sold", image: "/images/student-art/real-art-25.jpg", badge: "Preservation" }
 ];
 
 const ARTWORKS_ROW_2 = [
-  {
-    title: "Vintage Botanical Bloom Clock",
-    artist: "Ritu M.",
-    type: "Floral Preservation Wall Art",
-    level: "Diamond Club",
-    price: "₹18,500 Sold",
-    image: "/images/student-art/art-4.jpg",
-    badge: "Preservation"
-  },
-  {
-    title: "Sapphire Ocean Resin Desk Organizer",
-    artist: "Vikram P.",
-    type: "3-Tier Resin Wave Pour",
-    level: "Gold Member",
-    price: "₹9,800 Sold",
-    image: "/images/student-art/art-12.jpg",
-    badge: "Ocean Art"
-  },
-  {
-    title: "Rose Quartz Gold Foil Tray Set",
-    artist: "Ananya D.",
-    type: "Hand-Gilded Metallic Trim",
-    level: "Silver Member",
-    price: "₹7,500 Sold",
-    image: "/images/student-art/art-7.jpg",
-    badge: "Tableware"
-  },
-  {
-    title: "Caribbean Coral Lacing Wall Canvas",
-    artist: "Meera K.",
-    type: "Cell Lacing Masterpiece",
-    level: "Gold Member",
-    price: "₹24,000 Sold",
-    image: "/images/student-art/art-14.jpg",
-    badge: "Fine Art"
-  },
-  {
-    title: "Sunburst Agate Geode Serving Board",
-    artist: "Kiran J.",
-    type: "Gold Vein & Crystal Inlay",
-    level: "Gold Member",
-    price: "₹11,500 Sold",
-    image: "/images/student-art/art-10.jpg",
-    badge: "Geode Inlay"
-  },
-  {
-    title: "Deep Sea Coastal Resin Platter",
-    artist: "Divya N.",
-    type: "Wave Foam Pour",
-    level: "Silver Member",
-    price: "₹6,800 Sold",
-    image: "/images/student-art/art-8.jpg",
-    badge: "Ocean Wave"
-  }
+  { title: "Sunset Ocean Foam Canvas", artist: "Payal K.", type: "Coral Gradient Waves", level: "Gold Member", price: "₹13,500 Sold", image: "/images/student-art/real-art-26.jpg", badge: "Ocean Art" },
+  { title: "Gold Trim Marble Cheese Board", artist: "Trupti G.", type: "Epoxy Wood Finishing", level: "Silver Member", price: "₹7,500 Sold", image: "/images/student-art/real-art-27.jpg", badge: "Tableware" },
+  { title: "Crystal Agate Wall Decor", artist: "Kinjal B.", type: "3D Geode Inlay", level: "Gold Member", price: "₹19,000 Sold", image: "/images/student-art/real-art-28.jpg", badge: "Wall Canvas" },
+  { title: "Preserved Varmala Memory Frame", artist: "Sonali M.", type: "Wedding Garland Casting", level: "Renaissance Certification", price: "₹25,000 Sold", image: "/images/student-art/real-art-29.jpg", badge: "Preservation" },
+  { title: "Sapphire Wave Desk Clock", artist: "Riddhi N.", type: "High Gloss Sea Wave", level: "Gold Member", price: "₹11,200 Sold", image: "/images/student-art/real-art-30.jpg", badge: "Luxury Clocks" },
+  { title: "Cellular Texture Coaster Duo", artist: "Sheetal R.", type: "Heat Gun Cell Spray", level: "Silver Member", price: "₹4,900 Sold", image: "/images/student-art/real-art-31.jpg", badge: "Coasters" },
+  { title: "Black & Gold Vein Platter", artist: "Nidhi S.", type: "Marble Veining Pour", level: "Silver Member", price: "₹8,200 Sold", image: "/images/student-art/real-art-32.jpg", badge: "Tableware" },
+  { title: "Pressed Daisy Acrylic Block", artist: "Radhika K.", type: "Clear Flower Casting", level: "Fast Track", price: "₹3,200 Sold", image: "/images/student-art/real-art-33.jpg", badge: "Starter Art" },
+  { title: "Live Edge Resin Side Table", artist: "Darshan P.", type: "Teak Wood Deep Pour", level: "Renaissance Certification", price: "₹38,000 Sold", image: "/images/student-art/real-art-34.jpg", badge: "River Slab" },
+  { title: "3D Portrait Keepsake Slab", artist: "Aarti M.", type: "High Definition Photo Seal", level: "Renaissance Certification", price: "₹14,000 Sold", image: "/images/student-art/real-art-35.jpg", badge: "3D Photo" },
+  { title: "Coral Reef Wall Decor", artist: "Charmi H.", type: "Multi-Depth Ocean Layers", level: "Gold Member", price: "₹17,500 Sold", image: "/images/student-art/real-art-36.jpg", badge: "Ocean Wave" },
+  { title: "Metallic Leaf Incense Holder", artist: "Jignasa T.", type: "Silicone Mold Casting", level: "Fast Track", price: "₹2,800 Sold", image: "/images/student-art/real-art-37.jpg", badge: "Home Decor" },
+  { title: "Amethyst Crystal Geode Clock", artist: "Dipti N.", type: "Raw Quartz Embedment", level: "Gold Member", price: "₹15,800 Sold", image: "/images/student-art/real-art-38.jpg", badge: "Geode Inlay" },
+  { title: "Real Rose Resin Paperweight", artist: "Chintan V.", type: "Bubble-Free Sphere", level: "Silver Member", price: "₹4,500 Sold", image: "/images/student-art/real-art-39.jpg", badge: "Preservation" },
+  { title: "Ocean Beach Coaster Quad", artist: "Manshi L.", type: "Realistic Shoreline", level: "Silver Member", price: "₹6,400 Sold", image: "/images/student-art/real-art-40.jpg", badge: "Coasters" },
+  { title: "Lotus Pond Wall Medallion", artist: "Varsha B.", type: "Floating Lily Leaves", level: "Gold Member", price: "₹12,500 Sold", image: "/images/student-art/real-art-41.jpg", badge: "Lotus Art" },
+  { title: "Gilded Agate Serving Tray", artist: "Komal D.", type: "Gold Foil Rim Finish", level: "Silver Member", price: "₹8,900 Sold", image: "/images/student-art/real-art-42.jpg", badge: "Tableware" },
+  { title: "Bridal Bouquet Table Clock", artist: "Krupa P.", type: "Wedding Flower Clock", level: "Renaissance Certification", price: "₹21,000 Sold", image: "/images/student-art/real-art-43.jpg", badge: "Preservation" },
+  { title: "Deep Sea Wave Serving Platter", artist: "Hemangi K.", type: "Triple Lacing Spray", level: "Gold Member", price: "₹10,800 Sold", image: "/images/student-art/real-art-44.jpg", badge: "Ocean Wave" },
+  { title: "Emerald Marble Ring Dish", artist: "Dhwani S.", type: "Gold Veined Rim", level: "Silver Member", price: "₹3,500 Sold", image: "/images/student-art/real-art-45.jpg", badge: "Coasters" },
+  { title: "Resin Typography Quote Plaque", artist: "Falguni V.", type: "Gold Leaf Lettering", level: "Silver Member", price: "₹7,200 Sold", image: "/images/student-art/real-art-46.jpg", badge: "Mantra Art" },
+  { title: "Preserved Baby Keepsake Block", artist: "Riddhi J.", type: "First Booties & Ribbon", level: "Renaissance Certification", price: "₹16,500 Sold", image: "/images/student-art/real-art-47.jpg", badge: "Preservation" },
+  { title: "Turquoise Geode Wall Mirror", artist: "Sejal M.", type: "Large Format Geode", level: "Gold Member", price: "₹32,000 Sold", image: "/images/student-art/real-art-48.jpg", badge: "Geode Inlay" },
+  { title: "Ocean Shoreline Coffee Table", artist: "Vrajangna & Team", type: "Deep Ocean River Slab", level: "Renaissance Certification", price: "₹52,000 Sold", image: "/images/student-art/real-art-49.jpg", badge: "River Table" }
 ];
 
 // Verified Google Play Reviews
