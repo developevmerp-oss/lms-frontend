@@ -10,22 +10,16 @@ export const getApiUrl = (path: string): string => {
 export const getImageUrl = (url?: string): string => {
   if (!url || typeof url !== 'string') return '/images/placeholder-art.jpg';
   // Normalize Windows backslashes \ to standard web forward slashes /
-  const normalized = url.replace(/\\/g, '/');
-  if (normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('data:')) {
-    return normalized;
+  let clean = url.replace(/\\/g, '/');
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
+    return clean;
   }
-  const cleanUrl = normalized.startsWith('/') ? normalized : `/${normalized}`;
-  
-  // Detect live site vs local development
-  const isLiveSite = typeof window !== 'undefined' && window.location.hostname.includes('ravishingarthub.com');
-  
-  let origin = 'https://api.ravishingarthub.com';
-  if (!isLiveSite && API_BASE_URL.startsWith('http://localhost')) {
-    origin = 'http://localhost:5000';
-  } else if (API_BASE_URL && API_BASE_URL.startsWith('http')) {
-    origin = API_BASE_URL.replace(/\/api\/?$/, '');
-  }
+  if (!clean.startsWith('/')) clean = '/' + clean;
 
-  return `${origin}${cleanUrl}`;
+  // Local development vs Live production environment
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return `http://localhost:5000${clean}`;
+  }
+  return `https://api.ravishingarthub.com${clean}`;
 };
 
