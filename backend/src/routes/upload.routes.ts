@@ -5,15 +5,17 @@ import fs from 'fs';
 
 const router = Router();
 
-// Configure storage destination for videos
-const uploadsDir = path.join(__dirname, '../../uploads/videos');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const getUploadsDir = () => {
+  const dir = path.join(process.cwd(), 'uploads/videos');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return dir;
+};
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
+    cb(null, getUploadsDir());
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname) || '.mp4';

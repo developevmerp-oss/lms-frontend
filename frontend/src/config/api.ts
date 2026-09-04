@@ -9,10 +9,12 @@ export const getApiUrl = (path: string): string => {
 
 export const getImageUrl = (url?: string): string => {
   if (!url || typeof url !== 'string') return '/images/placeholder-art.jpg';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
+  // Normalize Windows backslashes \ to standard web forward slashes /
+  const normalized = url.replace(/\\/g, '/');
+  if (normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('data:')) {
+    return normalized;
   }
-  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  const cleanUrl = normalized.startsWith('/') ? normalized : `/${normalized}`;
   const origin = API_BASE_URL.replace(/\/api\/?$/, '');
   return `${origin}${cleanUrl}`;
 };

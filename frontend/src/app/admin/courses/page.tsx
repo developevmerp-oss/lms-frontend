@@ -1529,45 +1529,52 @@ export default function AdminCourses() {
       )}
 
       {/* Video Preview Modal */}
-      {previewVideoUrl && (
-        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white relative">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-black text-white flex items-center gap-2">
-                <Video className="text-orange-400" size={18} /> Video Lesson Player
-              </h3>
-              <button
-                onClick={() => setPreviewVideoUrl(null)}
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {previewVideoUrl && (() => {
+        const normalizedUrl = previewVideoUrl.replace(/\\/g, "/");
+        const lower = normalizedUrl.toLowerCase();
+        const isDirectVideo =
+          lower.startsWith("data:video") ||
+          lower.endsWith(".mp4") ||
+          lower.endsWith(".webm") ||
+          lower.endsWith(".mov") ||
+          lower.includes("uploads/");
 
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
-              {previewVideoUrl.startsWith("data:video") ||
-              previewVideoUrl.endsWith(".mp4") ||
-              previewVideoUrl.endsWith(".webm") ||
-              previewVideoUrl.endsWith(".mov") ||
-              previewVideoUrl.includes("/uploads/") ? (
-                <video
-                  src={getImageUrl(previewVideoUrl)}
-                  controls
-                  autoPlay
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <iframe
-                  src={formatEmbedUrl(previewVideoUrl)}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
+        return (
+          <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white relative">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Video className="text-orange-400" size={18} /> Video Lesson Player
+                </h3>
+                <button
+                  onClick={() => setPreviewVideoUrl(null)}
+                  className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
+                {isDirectVideo ? (
+                  <video
+                    src={getImageUrl(normalizedUrl)}
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <iframe
+                    src={formatEmbedUrl(normalizedUrl)}
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
