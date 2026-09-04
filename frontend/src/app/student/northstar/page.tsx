@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 
 export default function NorthstarTrackingPage() {
+  const { user, logout: handleLogout } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [salesRecords, setSalesRecords] = useState<any[]>([]);

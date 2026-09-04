@@ -23,6 +23,7 @@ import Link from "next/link";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
 export default function StudentEventsPage() {
+  const { user, logout: handleLogout } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
