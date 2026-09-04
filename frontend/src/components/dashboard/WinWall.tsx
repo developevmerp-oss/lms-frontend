@@ -48,7 +48,7 @@ export const WinWall = ({
   const [successMsg, setSuccessMsg] = useState('');
 
   const currentLevel = (user?.membershipLevel || 'L0').toUpperCase();
-  const isL3Diamond = currentLevel === 'L3' || (user?.rank || '').toUpperCase().includes('DIAMOND');
+  const isL3Diamond = currentLevel === 'L3' || currentLevel.includes('DIAMOND') || currentLevel.includes('RENAISSANCE') || (user?.rank || '').toUpperCase().includes('DIAMOND');
   const canPost = currentLevel !== 'L0'; // L0 Fast Track students can ONLY VIEW feed; L1, L2, L3 can post!
 
   // Keep synced with parent props

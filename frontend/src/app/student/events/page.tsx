@@ -111,7 +111,8 @@ export default function StudentEventsPage() {
     }
   };
 
-  const studentLevelCode = getLevelCode(stats?.membershipLevel, stats?.points || 0);
+  const effectiveLevel = user?.membershipLevel || stats?.membershipLevel || user?.rank;
+  const studentLevelCode = getLevelCode(effectiveLevel, stats?.points || 0);
   const isAccessible = ["L1", "L2", "L3", "L3+"].includes(studentLevelCode);
 
   const nowTime = Date.now();
@@ -121,8 +122,8 @@ export default function StudentEventsPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
       <StudentNav
-        user={stats}
-        level={stats?.membershipLevel || "Fast Track (L0)"}
+        user={user || stats}
+        level={effectiveLevel || "Fast Track (L0)"}
         points={stats?.points || 0}
         logout={handleLogout}
         notifications={stats?.notifications}

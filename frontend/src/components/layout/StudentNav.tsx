@@ -18,10 +18,10 @@ interface StudentNavProps {
 
 export function getLevelCode(levelName?: string, _points: number = 0): "L0" | "L1" | "L2" | "L3" | "L3+" {
   const normalized = (levelName || "").toUpperCase();
-  if (normalized.includes("L3+") || normalized.includes("MASTERS")) return "L3+";
-  if (normalized.includes("L3") || normalized.includes("DIAMOND")) return "L3";
-  if (normalized.includes("L2") || normalized.includes("GOLD")) return "L2";
-  if (normalized.includes("L1") || normalized.includes("SILVER")) return "L1";
+  if (normalized === "L3+" || normalized.includes("L3+") || normalized.includes("MASTERS") || normalized.includes("PILES")) return "L3+";
+  if (normalized === "L3" || normalized.includes("L3") || normalized.includes("DIAMOND") || normalized.includes("RENAISSANCE")) return "L3";
+  if (normalized === "L2" || normalized.includes("L2") || normalized.includes("GOLD") || normalized.includes("MASTER MEMBERSHIP")) return "L2";
+  if (normalized === "L1" || normalized.includes("L1") || normalized.includes("SILVER") || normalized.includes("EXPLORE")) return "L1";
   return "L0";
 }
 
@@ -47,7 +47,8 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
 
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const studentLevelCode = getLevelCode(level, points);
+  const effectiveLevel = user?.membershipLevel || user?.level || user?.rank || level;
+  const studentLevelCode = getLevelCode(effectiveLevel, points);
 
   const isEventsAccessible = ["L1", "L2", "L3", "L3+"].includes(studentLevelCode);
   const isNorthstarAccessible = ["L3", "L3+"].includes(studentLevelCode);

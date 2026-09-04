@@ -72,7 +72,7 @@ const getLevelBadgeConfig = (levelStr: string = '', currentTier?: any) => {
 
   const normalized = (levelStr || '').toLowerCase();
 
-  if (normalized.includes('diamond') || normalized.includes('l3') && !normalized.includes('+')) {
+  if (normalized.includes('diamond') || normalized.includes('renaissance') || (normalized.includes('l3') && !normalized.includes('+'))) {
     return {
       name: 'Diamond Club',
       code: 'L3',

@@ -158,7 +158,7 @@ export default function StudentCourses() {
     return LEVEL_TIER_CONFIG[lvlCode]?.price || "₹499";
   };
 
-  const studentLevelCode = getLevelCode(stats.membershipLevel || stats.rank, stats.points || 0);
+  const studentLevelCode = getLevelCode(user?.membershipLevel || stats.membershipLevel || stats.rank, stats.points || 0);
   const studentRankNum = LEVEL_HIERARCHY[studentLevelCode] ?? 0;
 
   const isCourseUnlocked = (courseLevel: string) => {
@@ -168,7 +168,7 @@ export default function StudentCourses() {
   };
 
   const getLevelName = () => {
-    return stats.membershipLevel || stats.rank || "Fast Track (L0)";
+    return user?.membershipLevel || stats.membershipLevel || stats.rank || "Fast Track (L0)";
   };
 
   const displayedCourses = courses.filter((c) => {

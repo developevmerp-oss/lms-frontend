@@ -122,7 +122,7 @@ export default function StudentProfile() {
 
       <StudentNav
         user={user}
-        level={currentTier ? `${currentTier.name} (${currentTier.code})` : 'Fast Start (L0)'}
+        level={user?.membershipLevel || (currentTier ? `${currentTier.name} (${currentTier.code})` : 'Fast Start (L0)')}
         points={currentPoints}
         logout={logout}
         notifications={stats.notifications}

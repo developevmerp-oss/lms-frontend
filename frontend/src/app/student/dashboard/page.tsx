@@ -76,6 +76,7 @@ export default function StudentDashboard() {
   }, [token]);
 
   const getLevelName = () => {
+    if (user?.membershipLevel) return user.membershipLevel;
     if (stats.membershipLevel) return stats.membershipLevel;
     if (stats.rank) return stats.rank;
     if (stats.currentTier?.name) {

@@ -113,8 +113,8 @@ export default function StudentRewards() {
 
         {/* L3 Diamond Club Exclusive Notice */}
         {(() => {
-          const uLvl = (user?.membershipLevel || user?.rank || "").toUpperCase();
-          const isL3 = uLvl.includes("L3") || uLvl.includes("DIAMOND");
+          const uLvl = (user?.membershipLevel || stats?.membershipLevel || user?.rank || "").toUpperCase();
+          const isL3 = uLvl.includes("L3") || uLvl.includes("DIAMOND") || uLvl.includes("RENAISSANCE");
           if (isL3) return null;
 
           return (

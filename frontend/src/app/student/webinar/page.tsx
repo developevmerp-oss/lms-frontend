@@ -116,8 +116,8 @@ export default function StudentWebinarPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
       <StudentNav
-        user={stats}
-        level={stats?.membershipLevel || "Fast Track (L0)"}
+        user={user || stats}
+        level={user?.membershipLevel || stats?.membershipLevel || "Fast Track (L0)"}
         points={stats?.points || 0}
         logout={logout}
         notifications={stats?.notifications}

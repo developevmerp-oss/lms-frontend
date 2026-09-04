@@ -313,7 +313,7 @@ export default function HomePage() {
           {/* Luminous Top Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
             <Award size={14} className="text-orange-500" />
-            <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span>
+            {/* <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span> */}
           </div>
 
           {/* Hero Headline */}
