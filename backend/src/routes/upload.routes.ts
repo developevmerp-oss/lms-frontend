@@ -14,10 +14,10 @@ const getUploadsDir = () => {
 };
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
+  destination: (_req: any, _file: any, cb: any) => {
     cb(null, getUploadsDir());
   },
-  filename: (_req, file, cb) => {
+  filename: (_req: any, file: any, cb: any) => {
     const ext = path.extname(file.originalname) || '.mp4';
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     cb(null, `video-${uniqueSuffix}${ext}`);
@@ -30,7 +30,7 @@ const upload = multer({
 });
 
 // Direct Multipart Video Upload Endpoint
-router.post('/video', upload.single('video'), (req, res) => {
+router.post('/video', upload.single('video'), (req: any, res: any) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No video file provided' });
