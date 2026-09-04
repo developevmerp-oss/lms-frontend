@@ -29,7 +29,7 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 
 export const PRESET_COURSE_BANNERS = [
   { name: "Ocean Waves", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80" },
@@ -1544,13 +1544,22 @@ export default function AdminCourses() {
               </button>
             </div>
 
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner">
-              {previewVideoUrl.startsWith("data:video") || previewVideoUrl.endsWith(".mp4") || previewVideoUrl.endsWith(".webm") ? (
-                <video src={previewVideoUrl} controls autoPlay className="w-full h-full object-contain" />
+            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
+              {previewVideoUrl.startsWith("data:video") ||
+              previewVideoUrl.endsWith(".mp4") ||
+              previewVideoUrl.endsWith(".webm") ||
+              previewVideoUrl.endsWith(".mov") ||
+              previewVideoUrl.includes("/uploads/") ? (
+                <video
+                  src={getImageUrl(previewVideoUrl)}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                />
               ) : (
                 <iframe
                   src={formatEmbedUrl(previewVideoUrl)}
-                  className="w-full h-full"
+                  className="w-full h-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
