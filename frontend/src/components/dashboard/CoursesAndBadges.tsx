@@ -8,6 +8,7 @@ interface CourseRecord {
   id: string;
   title: string;
   description?: string;
+  image?: string;
   UserCourse?: { progress: number; status: 'locked' | 'enrolled' | 'completed' };
 }
 
@@ -53,7 +54,11 @@ export const CoursesAndBadges = ({ badges, courses, allCourses = [] }: CoursesAn
         <div className="space-y-3 flex-1 overflow-y-auto pr-2">
           {enrolledCourses.map((course, i) => (
             <div key={i} className="flex items-center gap-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-xl cursor-pointer hover:bg-orange-500/20 transition-colors">
-              <Zap size={20} className="text-orange-400 shrink-0" />
+              {course.image ? (
+                <img src={course.image} alt={course.title} className="w-9 h-9 rounded-lg object-cover border border-orange-500/30 shrink-0" />
+              ) : (
+                <Zap size={20} className="text-orange-400 shrink-0" />
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-white font-medium truncate">{course.title}</p>
                 <div className="w-full bg-slate-800 rounded-full h-1.5 mt-1">

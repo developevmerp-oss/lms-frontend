@@ -14,7 +14,9 @@ import {
   Gem,
   Palette,
   ShieldAlert,
-  Compass
+  Compass,
+  X,
+  Check
 } from 'lucide-react';
 
 interface WelcomeHeaderProps {
@@ -22,10 +24,27 @@ interface WelcomeHeaderProps {
   level: string;
   xp: number;
   streak: number;
+  weekStatus?: any[];
   progress: number;
   nextGoal?: string;
   currentTier?: any;
+  badges?: any[];
+  salesRecords?: any[];
 }
+
+// Helper to get achievement badge symbol (Point 4: Starter, Art-o-thon Finisher, HOF, Artistry Pinnacle Award)
+const getAchievementBadge = (xp: number = 0, badges: any[] = [], totalRevenue: number = 0) => {
+  if (totalRevenue >= 500000 || badges.some((b: any) => b.name?.toLowerCase().includes('pinnacle'))) {
+    return { symbol: '👑', name: 'Artistry Pinnacle Award', color: 'text-amber-300', bg: 'bg-amber-500/20 border-amber-400/50' };
+  }
+  if (totalRevenue >= 100000 || badges.some((b: any) => b.name?.toLowerCase().includes('hof') || b.name?.toLowerCase().includes('hall of fame'))) {
+    return { symbol: '🏆', name: 'Hall Of Fame (HOF)', color: 'text-yellow-300', bg: 'bg-yellow-500/20 border-yellow-400/50' };
+  }
+  if (xp >= 200 || badges.some((b: any) => b.name?.toLowerCase().includes('art-o-thon') || b.name?.toLowerCase().includes('finisher'))) {
+    return { symbol: '🥈', name: 'Art-o-thon Finisher', color: 'text-slate-200', bg: 'bg-slate-400/20 border-slate-400/50' };
+  }
+  return { symbol: '🥉', name: 'Starter', color: 'text-orange-300', bg: 'bg-orange-500/20 border-orange-400/50' };
+};
 
 // Helper to get level-specific aesthetic, icons, colors, and badge
 const getLevelBadgeConfig = (levelStr: string = '', currentTier?: any) => {
@@ -100,11 +119,11 @@ const getLevelBadgeConfig = (levelStr: string = '', currentTier?: any) => {
       name: 'Silver Member',
       code: 'L1',
       icon: '🥈',
-      textColor: 'text-slate-200',
-      badgeBg: 'bg-gradient-to-r from-slate-400/20 to-slate-200/20',
+      textColor: 'text-slate-300',
+      badgeBg: 'bg-slate-500/20',
       borderColor: 'border-slate-400/40',
-      glowShadow: 'shadow-[0_0_12px_rgba(203,213,225,0.25)]',
-      gradient: 'from-slate-200 to-slate-400',
+      glowShadow: 'shadow-[0_0_15px_rgba(148,163,184,0.35)]',
+      gradient: 'from-slate-300 to-slate-400',
       pillBg: 'bg-slate-500/10 text-slate-300 border-slate-500/30'
     };
   }
@@ -115,7 +134,7 @@ const getLevelBadgeConfig = (levelStr: string = '', currentTier?: any) => {
     code: 'L0',
     icon: '⚡',
     textColor: 'text-emerald-300',
-    badgeBg: 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20',
+    badgeBg: 'bg-emerald-500/20',
     borderColor: 'border-emerald-500/40',
     glowShadow: 'shadow-[0_0_12px_rgba(16,185,129,0.25)]',
     gradient: 'from-emerald-400 to-teal-300',
@@ -123,8 +142,19 @@ const getLevelBadgeConfig = (levelStr: string = '', currentTier?: any) => {
   };
 };
 
-export const WelcomeHeader = ({ user, level, xp, streak, progress, nextGoal, currentTier }: WelcomeHeaderProps) => {
+export const WelcomeHeader = ({ user, level, xp, streak, weekStatus = [], progress, nextGoal, currentTier, badges = [], salesRecords = [] }: WelcomeHeaderProps) => {
   const badgeConfig = getLevelBadgeConfig(level, currentTier);
+  const totalRevenue = salesRecords.reduce((sum: number, s: any) => sum + (Number(s.amount) || 0), 0);
+  const achievement = getAchievementBadge(xp, badges, totalRevenue);
+
+  const defaultDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const daysToRender = weekStatus && weekStatus.length === 7
+    ? weekStatus
+    : defaultDays.map((dayName, i) => ({
+        dayName,
+        status: i < Math.min(streak || 0, 7) ? 'completed' : 'future',
+        isToday: false
+      }));
 
   return (
     <motion.div 
@@ -137,11 +167,20 @@ export const WelcomeHeader = ({ user, level, xp, streak, progress, nextGoal, cur
       
       <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
         <div>
-          {/* Header Title with Dynamic Level Icon */}
+          {/* Header Title with Dynamic Level Icon and Achievement Symbol */}
           <div className="flex items-center gap-3 flex-wrap mb-2">
             <h1 className="text-2xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-pink-500">
               Welcome back, {user?.name || "Student"}
             </h1>
+
+            {/* Achievement Symbol Badge (Starter / Art-o-thon / HOF / Pinnacle) */}
+            <div 
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl border ${achievement.bg} text-xs font-bold ${achievement.color} shadow-md backdrop-blur-md`}
+              title={`Achievement Award: ${achievement.name}`}
+            >
+              <span className="text-sm">{achievement.symbol}</span>
+              <span className="hidden sm:inline">{achievement.name}</span>
+            </div>
             
             {/* Dynamic Level Icon only - Links to Student Profile */}
             <Link href="/student/profile" title="View all completed levels & achievements">
@@ -201,18 +240,61 @@ export const WelcomeHeader = ({ user, level, xp, streak, progress, nextGoal, cur
                 <span className="text-orange-400 font-bold text-xs">{streak || 0}d</span>
               </div>
             </div>
-            <div className="flex gap-1 mt-2">
-              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
-                const isActive = i < Math.min(streak || 0, 7);
+            <div className="flex gap-1.5 mt-2">
+              {daysToRender.map((dayItem: any, i: number) => {
+                const { dayName, status, isToday } = dayItem;
+                
+                if (status === 'completed') {
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        title={`${dayName} - Completed`}
+                        className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-[0_0_10px_rgba(249,115,22,0.4)]"
+                      >
+                        <Flame size={11} className="text-slate-950 fill-slate-950" />
+                      </div>
+                      <span className="text-[9px] font-bold text-orange-400">{dayName}</span>
+                    </div>
+                  );
+                }
+
+                if (status === 'missed') {
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        title={`${dayName} - Missed Day`}
+                        className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/50 shadow-[0_0_8px_rgba(244,63,94,0.3)]"
+                      >
+                        <X size={12} className="text-rose-400 stroke-[3]" />
+                      </div>
+                      <span className="text-[9px] font-bold text-rose-400">{dayName}</span>
+                    </div>
+                  );
+                }
+
+                if (status === 'today_pending' || isToday) {
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        title={`${dayName} - Today`}
+                        className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-amber-500/20 text-amber-300 border-2 border-amber-400 animate-pulse"
+                      >
+                        {dayName}
+                      </div>
+                      <span className="text-[9px] font-bold text-amber-300">{dayName}</span>
+                    </div>
+                  );
+                }
+
                 return (
                   <div key={i} className="flex flex-col items-center gap-1">
-                    <div className={`w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-xs font-bold transition-all ${
-                      isActive
-                        ? 'bg-orange-500 text-white shadow-[0_0_10px_rgba(249,115,22,0.4)]'
-                        : 'bg-slate-900 text-slate-600 border border-slate-700'
-                    }`}>
-                      {isActive ? <Flame size={10} className="text-white fill-white" /> : day}
+                    <div
+                      title={`${dayName} - Upcoming`}
+                      className="w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-slate-900 text-slate-600 border border-slate-700/60"
+                    >
+                      {dayName}
                     </div>
+                    <span className="text-[9px] font-bold text-slate-500">{dayName}</span>
                   </div>
                 );
               })}

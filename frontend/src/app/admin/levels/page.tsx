@@ -18,7 +18,15 @@ import {
   Layers,
   ArrowRight,
   HelpCircle,
-  Eye
+  Eye,
+  Info,
+  IndianRupee,
+  Tag,
+  CreditCard,
+  Percent,
+  Flame,
+  Clock,
+  Calendar,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -26,13 +34,28 @@ interface LevelTier {
   id: string;
   code: string;
   name: string;
-  minPoints: number;
-  maxPoints: number | null;
+  price?: string;
+  minPoints?: number;
+  maxPoints?: number | null;
   icon: string;
   badgeColor: string;
   order: number;
   description?: string;
+  category?: string;
+  validityDays?: number | null;
+  isPublished?: boolean;
+  discountType?: "percentage" | "flat" | string | null;
+  discountValue?: number | null;
+  offerStartDate?: string | null;
+  offerEndDate?: string | null;
+  offerActive?: boolean;
+  offerTitle?: string | null;
 }
+
+const CATEGORY_OPTIONS = [
+  'Single Validity',
+  'Lifetime Validity',
+];
 
 const COLOR_OPTIONS = [
   { label: 'Emerald / Green', value: 'emerald', bg: 'bg-emerald-500', text: 'text-emerald-400', border: 'border-emerald-500/40' },
@@ -50,22 +73,38 @@ export default function AdminLevels() {
   const { token, user, logout } = useAuth();
   const [levels, setLevels] = useState<LevelTier[]>([]);
   const [students, setStudents] = useState<any[]>([]);
+  const [levelOffers, setLevelOffers] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isLoading, setIsLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Modal State
+  // Modal State for Level Tier
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTier, setEditingTier] = useState<LevelTier | null>(null);
   const [formData, setFormData] = useState({
     code: 'L1',
     name: '',
-    minPoints: 500,
-    maxPoints: 4999,
+    price: '₹4,999',
     icon: '🥈',
     badgeColor: 'slate',
     order: 1,
-    description: ''
+    description: '',
+    category: 'Single Validity',
+    validityDays: 15,
+    isPublished: true,
+  });
+
+  // Modal State for Quick Add Offer on Level Card
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [offerTargetCode, setOfferTargetCode] = useState("L1");
+  const [offerFormData, setOfferFormData] = useState({
+    title: "",
+    discountType: "percentage" as "percentage" | "flat",
+    discountValue: 20,
+    startDate: "",
+    endDate: "",
+    isActive: true,
   });
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -84,29 +123,33 @@ export default function AdminLevels() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch level tiers
       const resLevels = await fetch(`${API}/admin/levels`, { headers });
       const dataLevels = await resLevels.json();
       if (Array.isArray(dataLevels)) {
         setLevels(dataLevels);
       }
 
-      // Fetch students to calculate distribution
       const resStudents = await fetch(`${API}/admin/students`, { headers });
       const dataStudents = await resStudents.json();
       if (Array.isArray(dataStudents)) {
         setStudents(dataStudents);
       }
-    } catch (err) {
-      console.error("Error fetching levels:", err);
-      showError("Failed to fetch level configurations");
+
+      const resOffers = await fetch(`${API}/admin/offers`, { headers });
+      const dataOffers = await resOffers.json();
+      if (Array.isArray(dataOffers)) {
+        setLevelOffers(dataOffers);
+      }
+    } catch (err: any) {
+      console.error(err);
+      showError("Failed to fetch level config data.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) fetchData();
+    fetchData();
   }, [token]);
 
   const openCreateModal = () => {
@@ -115,12 +158,14 @@ export default function AdminLevels() {
     setFormData({
       code: `L${nextOrder}`,
       name: '',
-      minPoints: levels.length > 0 ? (levels[levels.length - 1].maxPoints || 10000) + 1 : 0,
-      maxPoints: 9999,
+      price: '₹499',
       icon: '🏆',
       badgeColor: 'amber',
       order: nextOrder,
-      description: ''
+      description: '',
+      category: 'Single Validity',
+      validityDays: 15,
+      isPublished: true,
     });
     setIsModalOpen(true);
   };
@@ -130,12 +175,14 @@ export default function AdminLevels() {
     setFormData({
       code: tier.code,
       name: tier.name,
-      minPoints: tier.minPoints,
-      maxPoints: tier.maxPoints || 0,
-      icon: tier.icon || '⚡',
-      badgeColor: tier.badgeColor || 'emerald',
-      order: tier.order,
-      description: tier.description || ''
+      price: tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : '₹59,999'),
+      icon: tier.icon || '⭐',
+      badgeColor: tier.badgeColor || 'amber',
+      order: tier.order || 0,
+      description: tier.description || '',
+      category: tier.category || 'Single Validity',
+      validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 15,
+      isPublished: tier.isPublished !== false,
     });
     setIsModalOpen(true);
   };
@@ -143,210 +190,376 @@ export default function AdminLevels() {
   const handleSaveTier = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.code.trim()) {
-      showError("Please fill in level code and name");
+      showError("Tier Code and Name are required");
       return;
     }
 
     try {
+      const payload = {
+        code: formData.code.trim().toUpperCase(),
+        name: formData.name.trim(),
+        price: formData.price.trim(),
+        minPoints: 0,
+        maxPoints: null,
+        icon: formData.icon,
+        badgeColor: formData.badgeColor,
+        order: formData.order,
+        description: formData.description.trim(),
+        category: formData.category,
+        validityDays: Number(formData.validityDays) || 0,
+        isPublished: Boolean(formData.isPublished),
+      };
+
+      let res;
       if (editingTier) {
-        // Update existing tier
-        const res = await fetch(`${API}/admin/levels/${editingTier.id}`, {
+        res = await fetch(`${API}/admin/levels/${editingTier.id}`, {
           method: 'PUT',
           headers,
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error("Failed to update tier");
-        showSuccess(`Level "${formData.name}" updated successfully!`);
       } else {
-        // Create new tier
-        const res = await fetch(`${API}/admin/levels`, {
+        res = await fetch(`${API}/admin/levels`, {
           method: 'POST',
           headers,
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error("Failed to create tier");
-        showSuccess(`Level "${formData.name}" created successfully!`);
       }
 
-      setIsModalOpen(false);
-      await fetchData();
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess(editingTier ? "Level tier & price updated successfully!" : "New level tier created!");
+        setIsModalOpen(false);
+        fetchData();
+      } else {
+        showError(data.message || "Failed to save level tier");
+      }
     } catch (err: any) {
-      console.error(err);
-      showError(err.message || "Error saving level tier");
+      showError(err.message || "An error occurred");
     }
   };
 
-  const handleDeleteTier = async (tierId: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete level "${name}"?`)) return;
+  const openAddOfferForLevelModal = (code: string) => {
+    setOfferTargetCode(code);
+    setOfferFormData({
+      title: "",
+      discountType: "percentage",
+      discountValue: 20,
+      startDate: new Date().toISOString().slice(0, 16),
+      endDate: "",
+      isActive: true,
+    });
+    setIsOfferModalOpen(true);
+  };
+
+  const handleSaveOfferForLevel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offerFormData.title.trim()) {
+      showError("Offer Campaign Title is required.");
+      return;
+    }
+
     try {
-      const res = await fetch(`${API}/admin/levels/${tierId}`, {
+      const res = await fetch(`${API}/admin/offers`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          ...offerFormData,
+          levelCode: offerTargetCode,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to create offer");
+
+      showSuccess(`🎉 Offer added to ${offerTargetCode} successfully!`);
+      setIsOfferModalOpen(false);
+      fetchData();
+    } catch (err: any) {
+      showError(err?.message || "Failed to add campaign offer.");
+    }
+  };
+
+  const handleDeleteTier = async (id: string, code: string) => {
+    if (!confirm(`Are you sure you want to delete tier "${code}"?`)) return;
+    try {
+      const res = await fetch(`${API}/admin/levels/${id}`, {
         method: 'DELETE',
         headers
       });
-      if (!res.ok) throw new Error("Failed to delete tier");
-      showSuccess(`Level "${name}" deleted`);
-      await fetchData();
+      if (res.ok) {
+        showSuccess(`Tier ${code} deleted successfully`);
+        fetchData();
+      } else {
+        showError("Failed to delete tier");
+      }
     } catch (err: any) {
-      console.error(err);
-      showError("Error deleting level");
+      showError(err.message || "An error occurred");
     }
   };
 
-  // Helper to count students in this tier
-  const getStudentCountInTier = (tier: LevelTier) => {
+  const getStudentCountForTier = (tierCode: string) => {
     return students.filter(s => {
-      const pts = s.points || 0;
-      if (tier.maxPoints !== null && tier.maxPoints !== undefined && tier.maxPoints > 0) {
-        return pts >= tier.minPoints && pts <= tier.maxPoints;
-      }
-      return pts >= tier.minPoints;
+      const code = (s.rank || s.membershipLevel || '').toUpperCase();
+      return code.includes(tierCode.toUpperCase());
     }).length;
   };
 
-  const getColorTheme = (colorName: string) => {
-    return COLOR_OPTIONS.find(c => c.value === colorName) || COLOR_OPTIONS[0];
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white font-sans">
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1500px] mx-auto p-4 md:p-8 space-y-6">
+      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
         
-        {/* Header Title Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-3xl relative overflow-hidden shadow-xl">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-inner">
-                <Trophy size={22} />
-              </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                Level & Tier Configuration
-              </h1>
-            </div>
-            <p className="text-slate-400 text-sm max-w-2xl">
-              Configure student membership tiers, customize minimum XP requirements, and assign badge icons & colors. Changes immediately reflect across all student headers and leaderboards.
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
+              <Trophy size={13} className="text-orange-400" /> Membership Tier Hierarchy &amp; Pricing
+            </span>
+            <h1 className="text-3xl font-black text-white flex items-center gap-3">
+              Membership Level &amp; Price Settings
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm">
+              Manage level titles, customize offer prices (₹499, ₹4,999, ₹19,999, ₹59,999), and edit access privileges.
             </p>
           </div>
 
           <button
             onClick={openCreateModal}
-            className="relative z-10 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm px-6 py-3.5 rounded-2xl transition-all shadow-lg shadow-orange-500/25 flex items-center gap-2 shrink-0 hover:scale-105"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-6 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer self-start md:self-auto"
           >
-            <Plus size={18} className="stroke-[3]" /> Add Level Tier
+            <Plus size={18} /> Create New Level Tier
           </button>
         </div>
 
-        {/* Notifications */}
+        {/* Alert Messages */}
         {successMsg && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold rounded-2xl flex items-center gap-2 animate-fade-in shadow-lg">
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
             <CheckCircle2 size={18} /> {successMsg}
           </div>
         )}
-        {errorMsg && (
-          <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm font-bold rounded-2xl flex items-center gap-2 animate-fade-in shadow-lg">
-            <CheckCircle2 size={18} /> {errorMsg}
+
+        {/* Razorpay Gateway Live Settings */}
+        <div className="mb-6 p-5 rounded-3xl bg-slate-900 border border-orange-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0">
+              <CreditCard size={20} />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white flex items-center gap-2">
+                Razorpay Payment Gateway Integration
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  Live &amp; Test Supported
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Configure your Razorpay Key ID and Secret to collect direct UPI, Card, and Netbanking payments.
+              </p>
+            </div>
           </div>
-        )}
+
+          <button
+            onClick={() => {
+              const keyId = prompt("Enter your Razorpay Key ID (e.g. rzp_live_xxx or rzp_test_xxx):");
+              if (!keyId) return;
+              const keySecret = prompt("Enter your Razorpay Key Secret:");
+              if (!keySecret) return;
+
+              fetch(`${API}/payments/config`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ keyId, keySecret }),
+              })
+                .then((r) => r.json())
+                .then((d) => {
+                  if (d.success) {
+                    showSuccess("Razorpay API keys updated successfully!");
+                  } else {
+                    showError(d.message || "Failed to update keys");
+                  }
+                })
+                .catch((e) => showError("Connection error"));
+            }}
+            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer whitespace-nowrap"
+          >
+            ⚙️ Configure Razorpay Keys
+          </button>
+        </div>
+
+        {/* Info Note */}
+        <div className="mb-6 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-300 text-xs md:text-sm flex items-center gap-3">
+          <Info size={18} className="text-orange-400 shrink-0" />
+          <span>
+            <strong>Dynamic Level Pricing:</strong> Click <strong>"Edit Tier &amp; Price"</strong> on any level card below to update its <strong>Offer Price</strong>, title, badge color, or description. Changes immediately reflect across the entire portal.
+          </span>
+        </div>
+
+        {/* Category Filter Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
+          {['All', ...CATEGORY_OPTIONS].map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                selectedCategory === cat
+                  ? 'bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              {cat === 'All' ? '🌟 All Categories' : `📂 ${cat}`}
+            </button>
+          ))}
+        </div>
 
         {/* Level Tiers Grid */}
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500">Loading configured level tiers...</div>
+          <div className="p-16 text-center text-slate-500">Loading level configurations...</div>
+        ) : levels.length === 0 ? (
+          <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
+            <Trophy size={40} className="text-slate-600 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-white mb-1">No Level Tiers Configured</h3>
+            <p className="text-sm text-slate-400 mb-4">Create your first level tier to configure membership access.</p>
+            <button
+              onClick={openCreateModal}
+              className="bg-orange-500 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl"
+            >
+              + Create Level Tier
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {levels.map((tier, idx) => {
-              const theme = getColorTheme(tier.badgeColor);
-              const studentCount = getStudentCountInTier(tier);
+            {levels
+              .filter((tier) => selectedCategory === 'All' || (tier.category || 'General') === selectedCategory)
+              .map((tier) => {
+              const studentCount = getStudentCountForTier(tier.code);
+              const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
+              const displayPrice = tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : tier.code === 'L3' ? '₹59,999' : 'Custom');
+              const validityText = !tier.validityDays || tier.validityDays === 0 ? '♾️ Lifetime Access' : `⏳ ${tier.validityDays} Days Access`;
+              const isPub = tier.isPublished !== false;
 
               return (
                 <div
-                  key={tier.id || idx}
-                  className={`bg-slate-900 border ${theme.border} rounded-3xl p-6 relative overflow-hidden shadow-xl flex flex-col justify-between hover:border-orange-500/40 transition-all duration-300 group`}
+                  key={tier.id}
+                  className={`rounded-3xl border ${isPub ? 'border-slate-800 bg-slate-900/90' : 'border-slate-800/60 bg-slate-950/60 opacity-80'} p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl`}
                 >
                   <div>
-                    {/* Top Tier Meta */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-2xl ${theme.bg}/20 border ${theme.border} flex items-center justify-center text-2xl shadow-inner`}>
-                          {tier.icon}
-                        </div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl">{tier.icon || '⭐'}</span>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-black px-2.5 py-0.5 rounded-md bg-slate-800 text-white border border-slate-700">
-                              {tier.code}
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-orange-400 uppercase tracking-widest block">
+                              {tier.code} Tier
                             </span>
-                            <span className={`text-xs font-bold ${theme.text}`}>
-                              Tier #{idx + 1}
+                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${isPub ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}`}>
+                              {isPub ? 'Live' : 'Unpublished'}
                             </span>
                           </div>
-                          <h3 className="text-xl font-black text-white mt-0.5">{tier.name}</h3>
+                          <h3 className="text-lg font-black text-white">{tier.name}</h3>
                         </div>
                       </div>
 
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => openEditModal(tier)}
-                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                          title="Edit level"
-                        >
-                          <Edit2 size={15} />
-                        </button>
-                        {levels.length > 1 && (
-                          <button
-                            onClick={() => handleDeleteTier(tier.id, tier.name)}
-                            className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
-                            title="Delete level"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-sm font-black text-amber-400 font-mono bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                          <Tag size={12} /> {displayPrice}
+                        </span>
 
-                    {/* Threshold Points Box */}
-                    <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 mb-4">
-                      <div className="flex justify-between items-center text-xs text-slate-400 mb-1">
-                        <span>Required XP Range:</span>
-                        <span className="font-mono text-white font-bold">
-                          {tier.minPoints.toLocaleString()} XP
-                          {tier.maxPoints ? ` → ${tier.maxPoints.toLocaleString()} XP` : ' and above'}
+                        {tier.offerActive && (
+                          <div className="flex flex-col items-end gap-0.5">
+                            {tier.offerTitle && (
+                              <span className="text-[9px] font-extrabold text-red-400 uppercase tracking-tight">
+                                🎁 {tier.offerTitle}
+                              </span>
+                            )}
+                            <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
+                              <Flame size={10} />
+                              {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
+                            </span>
+                          </div>
+                        )}
+
+                        <span className="text-[10px] text-slate-500 font-bold">
+                          Order #{tier.order}
                         </span>
                       </div>
-                      
-                      {/* Mini Bar */}
-                      <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-                        <div
-                          className={`h-full ${theme.bg} rounded-full`}
-                          style={{ width: `${Math.min(100, Math.max(15, (tier.minPoints / (levels[levels.length - 1].minPoints || 1)) * 100))}%` }}
-                        />
-                      </div>
                     </div>
 
-                    {/* Description */}
-                    {tier.description && (
-                      <p className="text-xs text-slate-400 mb-4 leading-relaxed line-clamp-2">
-                        {tier.description}
-                      </p>
-                    )}
+                    {/* Category & Validity Strip */}
+                    <div className="flex items-center gap-2 mb-3 text-[11px] font-bold">
+                      <span className="bg-slate-800/80 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">
+                        📂 {tier.category || 'General'}
+                      </span>
+                      <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-2.5 py-1 rounded-lg">
+                        {validityText}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                      {tier.description || "Full membership tier benefits and unlocked portal privileges."}
+                    </p>
+
+                    <div className="rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 mb-3 flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Assigned Members:</span>
+                      <span className="font-black text-white flex items-center gap-1">
+                        <Users size={13} className="text-orange-400" /> {studentCount} Students
+                      </span>
+                    </div>
+
+                    {/* Level Offers Box (Multiple Offers per Level) */}
+                    {(() => {
+                      const offersForLevel = levelOffers.filter(o => o.levelCode === tier.code || o.levelCode === 'ALL');
+                      return (
+                        <div className="my-3 p-3 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-black text-slate-300 flex items-center gap-1.5">
+                              <Tag size={12} className="text-red-400" /> Level Offers ({offersForLevel.length})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => openAddOfferForLevelModal(tier.code)}
+                              className="px-2.5 py-1 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-black transition-all cursor-pointer flex items-center gap-1"
+                            >
+                              + Add Offer
+                            </button>
+                          </div>
+
+                          {offersForLevel.length > 0 ? (
+                            <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
+                              {offersForLevel.map((off) => (
+                                <div key={off.id} className="flex items-center justify-between text-[11px] bg-slate-900/90 p-2 rounded-xl border border-slate-800/80">
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="text-red-400">🎁</span>
+                                    <span className="font-bold text-white truncate">{off.title}</span>
+                                  </div>
+                                  <span className="font-black text-red-400 font-mono text-[10px] shrink-0 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded-md">
+                                    {off.discountType === 'percentage' ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-500 font-medium">No campaign offers added for {tier.code} yet.</p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
 
-                  {/* Footer Badge Preview & Students Count */}
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                      <Users size={14} className="text-slate-500" />
-                      <span><strong>{studentCount}</strong> student{studentCount === 1 ? '' : 's'} in tier</span>
-                    </div>
-
-                    {/* Live Badge Preview */}
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border ${theme.border} ${theme.bg}/10 text-xs font-black ${theme.text}`}>
-                      <span>{tier.icon}</span>
-                      <span>{tier.code}</span>
-                    </div>
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
+                    <button
+                      onClick={() => openEditModal(tier)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                    >
+                      <Edit2 size={13} /> Edit Tier &amp; Price
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTier(tier.id, tier.code)}
+                      className="text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
+                      title="Delete Tier"
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </div>
-
                 </div>
               );
             })}
@@ -361,11 +574,11 @@ export default function AdminLevels() {
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
                   <Trophy className="text-orange-400" size={20} />
-                  {editingTier ? `Edit Level (${editingTier.code})` : 'Create New Level Tier'}
+                  {editingTier ? `Edit Level & Price (${editingTier.code})` : 'Create New Level Tier'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
@@ -400,33 +613,103 @@ export default function AdminLevels() {
                   </div>
                 </div>
 
-                {/* Min & Max Points */}
+                {/* Base Price & Hierarchy Order */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Minimum XP Required</label>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Base Price / Fee (₹)</label>
                     <input
-                      type="number"
-                      value={formData.minPoints}
-                      onChange={(e) => setFormData({ ...formData, minPoints: parseInt(e.target.value) || 0 })}
-                      placeholder="0"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-orange-500"
-                      required
+                      type="text"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="e.g. ₹4,999"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Maximum XP (Optional)</label>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Hierarchy Order #</label>
                     <input
                       type="number"
-                      value={formData.maxPoints || ''}
-                      onChange={(e) => setFormData({ ...formData, maxPoints: e.target.value ? parseInt(e.target.value) : 0 })}
-                      placeholder="Leave blank for highest tier"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-orange-500"
+                      value={formData.order}
+                      onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                      placeholder="0, 1, 2, 3..."
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
                     />
                   </div>
                 </div>
 
-                {/* Icon Selection & Color */}
+                {/* Category & Validity Configuration */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Validity Category</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => {
+                        const cat = e.target.value;
+                        setFormData({
+                          ...formData,
+                          category: cat,
+                          validityDays: cat === 'Lifetime Validity' ? 0 : (formData.validityDays > 0 ? formData.validityDays : 15),
+                        });
+                      }}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                    >
+                      {CATEGORY_OPTIONS.map((c) => (
+                        <option key={c} value={c}>
+                          {c === 'Single Validity' ? '⏱️ Single Validity (Day-wise)' : '♾️ Lifetime Validity (Permanent)'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    {formData.category === 'Single Validity' ? (
+                      <>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                          Validity Period (Days)
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={formData.validityDays || 15}
+                          onChange={(e) => setFormData({ ...formData, validityDays: Math.max(1, parseInt(e.target.value) || 1) })}
+                          placeholder="e.g. 15"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-orange-500 font-mono font-bold"
+                        />
+                        <p className="text-[10px] text-amber-400 mt-1">
+                          ⏳ Automatically unpublishes/expires {formData.validityDays || 15} days after student purchase.
+                        </p>
+                      </>
+                    ) : (
+                      <div className="h-full flex flex-col justify-end">
+                        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-2 text-emerald-400 text-xs font-bold">
+                          ♾️ Permanent Lifetime Access
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Published / Active Toggle */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <div>
+                    <span className="text-xs font-bold text-white block">Publish / Live on Portal</span>
+                    <span className="text-[10px] text-slate-400">Uncheck to unpublish this level from public storefront</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.isPublished}
+                      onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
+
+
+
+                {/* Icon Selection */}
                 <div>
                   <label className="block text-xs font-bold text-slate-400 mb-1.5">Choose Icon / Emoji</label>
                   <div className="flex flex-wrap gap-2 mb-2">
@@ -435,7 +718,7 @@ export default function AdminLevels() {
                         key={i}
                         type="button"
                         onClick={() => setFormData({ ...formData, icon: em })}
-                        className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all ${
+                        className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all cursor-pointer ${
                           formData.icon === em
                             ? 'bg-orange-500/20 border-orange-500 scale-110'
                             : 'bg-slate-950 border-slate-800 hover:border-slate-700'
@@ -449,7 +732,7 @@ export default function AdminLevels() {
                     type="text"
                     value={formData.icon}
                     onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    placeholder="Or type custom emoji/icon"
+                    placeholder="Or type custom emoji"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                   />
                 </div>
@@ -463,7 +746,7 @@ export default function AdminLevels() {
                         key={c.value}
                         type="button"
                         onClick={() => setFormData({ ...formData, badgeColor: c.value })}
-                        className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                        className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                           formData.badgeColor === c.value
                             ? 'bg-slate-800 border-white text-white shadow-md'
                             : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
@@ -478,51 +761,140 @@ export default function AdminLevels() {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Description (Optional)</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Description &amp; Access Privileges</label>
+                  <textarea
+                    rows={2}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="e.g. Master core techniques and launch your first sale"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                    placeholder="e.g. Access to live interactive masterclasses, weekly Q&A calls, and replay vault."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-orange-500 resize-none"
                   />
                 </div>
 
-                {/* Live Preview Box */}
-                <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] text-slate-500 block">Live Student Badge Preview</span>
-                    <span className="text-sm font-bold text-white">{formData.name || 'Level Name'}</span>
-                  </div>
-                  <div className={`px-3 py-1 rounded-xl border ${getColorTheme(formData.badgeColor).border} ${getColorTheme(formData.badgeColor).bg}/10 font-black text-xs ${getColorTheme(formData.badgeColor).text} flex items-center gap-1.5`}>
-                    <span>{formData.icon}</span>
-                    <span>{formData.code || 'L0'}</span>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="pt-3 border-t border-slate-800 flex justify-end gap-3">
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                  <button
+                    type="submit"
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    {editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                    className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs rounded-xl transition-all shadow-lg shadow-orange-500/20"
-                  >
-                    {editingTier ? 'Save Changes' : 'Create Level Tier'}
-                  </button>
                 </div>
-
               </form>
-
             </div>
           </div>
         )}
 
+        {/* Quick Add Offer Modal directly for Level Card */}
+        {isOfferModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-slate-900 p-6 sm:p-7 shadow-2xl text-white">
+              <button
+                onClick={() => setIsOfferModalOpen(false)}
+                className="absolute right-4 top-4 text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
+                  <Tag size={18} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">
+                    Add Campaign Offer for {offerTargetCode}
+                  </h3>
+                  <p className="text-xs text-slate-400">Create another offer deal for {offerTargetCode} tier</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveOfferForLevel} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Offer Campaign Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={offerFormData.title}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, title: e.target.value })}
+                    placeholder="e.g. Diwali Flash Sale 20% OFF"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-bold"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Discount Type</label>
+                    <select
+                      value={offerFormData.discountType}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, discountType: e.target.value as any })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                    >
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="flat">Flat (₹)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Discount Value</label>
+                    <input
+                      type="number"
+                      min="0"
+                      required
+                      value={offerFormData.discountValue}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, discountValue: parseFloat(e.target.value) || 0 })}
+                      placeholder={offerFormData.discountType === "percentage" ? "20 for 20%" : "1000 for ₹1,000"}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-red-400 font-mono font-bold focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Start Date &amp; Time</label>
+                    <input
+                      type="datetime-local"
+                      value={offerFormData.startDate}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, startDate: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">End Date &amp; Time</label>
+                    <input
+                      type="datetime-local"
+                      value={offerFormData.endDate}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, endDate: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
+                  >
+                    + Add Offer to {offerTargetCode}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsOfferModalOpen(false)}
+                    className="px-4 bg-slate-800 text-slate-300 font-semibold text-xs h-10 rounded-xl cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

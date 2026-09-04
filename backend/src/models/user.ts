@@ -18,6 +18,10 @@ export interface UserAttributes {
   phone?: string;
   bio?: string;
   avatarUrl?: string;
+  lastRoutineDate?: string;
+  lastLoginAt?: Date | null;
+  activeDaysHistory?: string[];
+  membershipExpiresAt?: Date | null;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -30,7 +34,9 @@ interface User extends UserAttributes {
   readonly updatedAt: Date;
 }
 
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {}User.init(
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {}
+
+User.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -55,7 +61,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM('admin', 'student'),
+      type: DataTypes.STRING,
       defaultValue: 'student',
       allowNull: false,
     },
@@ -68,7 +74,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
       defaultValue: 0,
     },
     membershipLevel: {
-      type: DataTypes.ENUM('L0', 'L1', 'L2', 'L3'),
+      type: DataTypes.STRING,
       defaultValue: 'L0',
     },
     rank: {
@@ -93,6 +99,22 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     },
     avatarUrl: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    lastRoutineDate: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    lastLoginAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    activeDaysHistory: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    membershipExpiresAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

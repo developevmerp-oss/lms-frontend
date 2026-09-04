@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../models';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { clearLevelTierCache } from './dashboard.controller';
 
 const { User, Skill, Badge, UserBadge, Portfolio, Milestone, SalesRecord, Course, UserCourse, Notification, CommunityWin, LevelTier } = db;
 
@@ -54,10 +55,19 @@ export const getStudentById = async (req: AuthRequest, res: Response): Promise<a
 export const updateStudent = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { studentId } = req.params;
-    const { name, points, xpPoints, streak, membershipLevel, rank, city } = req.body;
+    const { name, points, xpPoints, streak, membershipLevel, rank, city, membershipExpiresAt } = req.body;
     const student = await User.findByPk(studentId);
     if (!student) return res.status(404).json({ message: 'Student not found' });
-    await student.update({ name, points, xpPoints, streak, membershipLevel, rank, city });
+    await student.update({
+      name: name !== undefined ? name : student.name,
+      points: points !== undefined ? points : student.points,
+      xpPoints: xpPoints !== undefined ? xpPoints : student.xpPoints,
+      streak: streak !== undefined ? streak : student.streak,
+      membershipLevel: membershipLevel !== undefined ? membershipLevel : student.membershipLevel,
+      rank: rank !== undefined ? rank : student.rank,
+      city: city !== undefined ? city : student.city,
+      membershipExpiresAt: membershipExpiresAt !== undefined ? (membershipExpiresAt ? new Date(membershipExpiresAt) : null) : student.membershipExpiresAt,
+    });
     return res.status(200).json(student);
   } catch (error) {
     console.error('Error updating student:', error);
@@ -150,14 +160,80 @@ const DEFAULT_BADGES = [
 
 export const getAllBadges = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    let badges = await Badge.findAll();
+    let badges = await Badge.findAll({
+      order: [['pointsRequired', 'ASC'], ['name', 'ASC']]
+    });
     if (!badges || badges.length === 0) {
       await Badge.bulkCreate(DEFAULT_BADGES);
-      badges = await Badge.findAll();
+      badges = await Badge.findAll({
+        order: [['pointsRequired', 'ASC'], ['name', 'ASC']]
+      });
     }
     return res.status(200).json(badges);
   } catch (error) {
     console.error('Error fetching badges:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// CREATE a new badge
+export const createBadge = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { name, icon, color, description, pointsRequired } = req.body;
+    if (!name) return res.status(400).json({ message: 'Badge name is required' });
+
+    const badge = await Badge.create({
+      name: name.trim(),
+      icon: icon || '🎨',
+      color: color || 'orange',
+      description: description || '',
+      pointsRequired: parseInt(pointsRequired) || 0,
+    });
+
+    return res.status(201).json(badge);
+  } catch (error) {
+    console.error('Error creating badge:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// UPDATE an existing badge
+export const updateBadge = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { badgeId } = req.params;
+    const { name, icon, color, description, pointsRequired } = req.body;
+
+    const badge = await Badge.findByPk(badgeId);
+    if (!badge) return res.status(404).json({ message: 'Badge not found' });
+
+    await badge.update({
+      name: name !== undefined ? name.trim() : badge.name,
+      icon: icon !== undefined ? icon : badge.icon,
+      color: color !== undefined ? color : badge.color,
+      description: description !== undefined ? description : badge.description,
+      pointsRequired: pointsRequired !== undefined ? parseInt(pointsRequired) : badge.pointsRequired,
+    });
+
+    return res.status(200).json(badge);
+  } catch (error) {
+    console.error('Error updating badge:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// DELETE a badge
+export const deleteBadge = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { badgeId } = req.params;
+    const badge = await Badge.findByPk(badgeId);
+    if (!badge) return res.status(404).json({ message: 'Badge not found' });
+
+    await UserBadge.destroy({ where: { badgeId } });
+    await badge.destroy();
+
+    return res.status(200).json({ message: 'Badge deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting badge:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -167,6 +243,15 @@ export const awardBadge = async (req: AuthRequest, res: Response): Promise<any> 
   try {
     const { studentId } = req.params;
     const { badgeId } = req.body;
+
+    if (studentId === 'all') {
+      const students = await User.findAll({ where: { role: 'student' } });
+      for (const st of students) {
+        await UserBadge.findOrCreate({ where: { userId: st.id, badgeId } });
+      }
+      return res.status(200).json({ message: 'Badge awarded to all students successfully' });
+    }
+
     const existing = await UserBadge.findOne({ where: { userId: studentId, badgeId } });
     if (existing) return res.status(409).json({ message: 'Badge already awarded to this student' });
     await UserBadge.create({ userId: studentId, badgeId });
@@ -282,16 +367,24 @@ export const getAllNotifications = async (req: AuthRequest, res: Response): Prom
 // CREATE community win
 export const createCommunityWin = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const { studentName, achievement, likes, timeAgo } = req.body;
+    const { studentName, achievement, title, likes, timeAgo, image, imageUrl, salesAmount, technique } = req.body;
 
-    if (!studentName || !achievement) {
-      return res.status(400).json({ message: 'studentName and achievement are required' });
+    const name = studentName || 'Patel Vrajangna (Admin)';
+    const mainTitle = achievement || title;
+
+    if (!mainTitle) {
+      return res.status(400).json({ message: 'Achievement title is required' });
     }
 
+    let fullAchievement = mainTitle;
+    if (salesAmount) fullAchievement += ` (₹${Number(salesAmount).toLocaleString('en-IN')} sale!)`;
+    if (technique) fullAchievement += ` • Technique: ${technique}`;
+
     const win = await CommunityWin.create({
-      studentName,
-      achievement,
+      studentName: name,
+      achievement: fullAchievement,
       likes: likes || 0,
+      image: image || imageUrl || null,
       timeAgo: timeAgo || 'Just now'
     });
     return res.status(201).json(win);
@@ -329,25 +422,25 @@ export const deleteCommunityWin = async (req: AuthRequest, res: Response): Promi
 // ===== LEVEL & TIER SETTINGS MANAGEMENT =====
 
 const DEFAULT_LEVELS = [
-  { code: 'L0', name: 'Fast Start', minPoints: 0, maxPoints: 499, icon: '⚡', badgeColor: 'emerald', order: 0, description: 'Resin basics and first 5 creations' },
-  { code: 'L1', name: 'Silver Member', minPoints: 500, maxPoints: 4999, icon: '🥈', badgeColor: 'slate', order: 1, description: 'Core techniques and first client sale' },
-  { code: 'L2', name: 'Gold Member', minPoints: 5000, maxPoints: 9999, icon: '🏆', badgeColor: 'amber', order: 2, description: '₹25K–₹50K monthly revenue and custom orders' },
-  { code: 'L3', name: 'Diamond Club', minPoints: 10000, maxPoints: 49999, icon: '💎', badgeColor: 'cyan', order: 3, description: 'Scale beyond ₹50K/month and corporate contracts' },
-  { code: 'L3+', name: 'Masters Club', minPoints: 50000, maxPoints: null, icon: '👑', badgeColor: 'purple', order: 4, description: 'Offline city workshops and signature brand empire' },
+  { code: 'L0', name: 'Fast Track', price: '₹499', minPoints: 0, maxPoints: 499, icon: '⚡', badgeColor: 'emerald', order: 0, description: 'Resin fundamentals, safety protocols, and foundational finishing techniques.' },
+  { code: 'L1', name: 'Silver Member', price: '₹4,999', minPoints: 500, maxPoints: 4999, icon: '🥈', badgeColor: 'slate', order: 1, description: 'Coasters, fridge magnets, marbling, lotus pond, and beach theme creations.' },
+  { code: 'L2', name: 'Gold Member', price: '₹19,999', minPoints: 5000, maxPoints: 9999, icon: '🏆', badgeColor: 'amber', order: 2, description: 'Geode art, vein effect, Tree of Life clocks, and 3D wave masterclasses.' },
+  { code: 'L3', name: 'Diamond Club', price: '₹59,999', minPoints: 10000, maxPoints: 49999, icon: '💎', badgeColor: 'cyan', order: 3, description: 'River wood tables, bridal varmala preservation, 3D photo art, concrete candles, and business scaling.' },
+  { code: 'L3+', name: 'Masters Club', price: 'Exclusive', minPoints: 50000, maxPoints: null, icon: '👑', badgeColor: 'purple', order: 4, description: 'City workshops, franchise license, bespoke mentorship, and signature brand.' },
 ];
 
 // GET all configured level tiers (with auto-seeding if empty)
 export const getAllLevelTiers = async (req: Request, res: Response): Promise<any> => {
   try {
     let levels = await LevelTier.findAll({
-      order: [['minPoints', 'ASC'], ['order', 'ASC']]
+      order: [['order', 'ASC'], ['minPoints', 'ASC']]
     });
 
     if (!levels || levels.length === 0) {
       // Auto-seed default levels
       await LevelTier.bulkCreate(DEFAULT_LEVELS);
       levels = await LevelTier.findAll({
-        order: [['minPoints', 'ASC'], ['order', 'ASC']]
+        order: [['order', 'ASC'], ['minPoints', 'ASC']]
       });
     }
 
@@ -361,23 +454,53 @@ export const getAllLevelTiers = async (req: Request, res: Response): Promise<any
 // CREATE a new level tier
 export const createLevelTier = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const { code, name, minPoints, maxPoints, icon, badgeColor, order, description } = req.body;
+    const {
+      code,
+      name,
+      price,
+      minPoints,
+      maxPoints,
+      icon,
+      badgeColor,
+      order,
+      description,
+      category,
+      validityDays,
+      isPublished,
+      discountType,
+      discountValue,
+      offerStartDate,
+      offerEndDate,
+      offerActive,
+      offerTitle,
+    } = req.body;
 
-    if (!code || !name || minPoints === undefined) {
-      return res.status(400).json({ message: 'Code, name, and minPoints are required' });
+    if (!code || !name) {
+      return res.status(400).json({ message: 'Code and name are required' });
     }
 
     const tier = await LevelTier.create({
       code,
       name,
-      minPoints: Number(minPoints),
+      price: price || '₹499',
+      minPoints: Number(minPoints) || 0,
       maxPoints: maxPoints !== undefined && maxPoints !== null && maxPoints !== '' ? Number(maxPoints) : null,
       icon: icon || '⚡',
       badgeColor: badgeColor || 'emerald',
       order: Number(order) || 0,
-      description: description || ''
+      description: description || '',
+      category: category || 'General',
+      validityDays: validityDays !== undefined && validityDays !== null ? Number(validityDays) : 0,
+      isPublished: isPublished !== undefined ? Boolean(isPublished) : true,
+      discountType: discountType || null,
+      discountValue: discountValue !== undefined && discountValue !== null ? parseFloat(discountValue) : 0,
+      offerStartDate: offerStartDate ? new Date(offerStartDate) : null,
+      offerEndDate: offerEndDate ? new Date(offerEndDate) : null,
+      offerActive: Boolean(offerActive),
+      offerTitle: offerTitle || 'Special Level Offer',
     });
 
+    clearLevelTierCache();
     return res.status(201).json(tier);
   } catch (error) {
     console.error('Error creating level tier:', error);
@@ -389,7 +512,26 @@ export const createLevelTier = async (req: AuthRequest, res: Response): Promise<
 export const updateLevelTier = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { levelId } = req.params;
-    const { code, name, minPoints, maxPoints, icon, badgeColor, order, description } = req.body;
+    const {
+      code,
+      name,
+      price,
+      minPoints,
+      maxPoints,
+      icon,
+      badgeColor,
+      order,
+      description,
+      category,
+      validityDays,
+      isPublished,
+      discountType,
+      discountValue,
+      offerStartDate,
+      offerEndDate,
+      offerActive,
+      offerTitle,
+    } = req.body;
 
     const tier = await LevelTier.findByPk(levelId);
     if (!tier) return res.status(404).json({ message: 'Level tier not found' });
@@ -397,14 +539,25 @@ export const updateLevelTier = async (req: AuthRequest, res: Response): Promise<
     await tier.update({
       code: code !== undefined ? code : tier.code,
       name: name !== undefined ? name : tier.name,
+      price: price !== undefined ? price : tier.price,
       minPoints: minPoints !== undefined ? Number(minPoints) : tier.minPoints,
       maxPoints: maxPoints !== undefined ? (maxPoints !== null && maxPoints !== '' ? Number(maxPoints) : null) : tier.maxPoints,
       icon: icon !== undefined ? icon : tier.icon,
       badgeColor: badgeColor !== undefined ? badgeColor : tier.badgeColor,
       order: order !== undefined ? Number(order) : tier.order,
-      description: description !== undefined ? description : tier.description
+      description: description !== undefined ? description : tier.description,
+      category: category !== undefined ? category : tier.category,
+      validityDays: validityDays !== undefined ? Number(validityDays) : tier.validityDays,
+      isPublished: isPublished !== undefined ? Boolean(isPublished) : tier.isPublished,
+      discountType: discountType !== undefined ? discountType : tier.discountType,
+      discountValue: discountValue !== undefined ? parseFloat(discountValue) : tier.discountValue,
+      offerStartDate: offerStartDate !== undefined ? (offerStartDate ? new Date(offerStartDate) : null) : tier.offerStartDate,
+      offerEndDate: offerEndDate !== undefined ? (offerEndDate ? new Date(offerEndDate) : null) : tier.offerEndDate,
+      offerActive: offerActive !== undefined ? Boolean(offerActive) : tier.offerActive,
+      offerTitle: offerTitle !== undefined ? offerTitle : tier.offerTitle,
     });
 
+    clearLevelTierCache();
     return res.status(200).json(tier);
   } catch (error) {
     console.error('Error updating level tier:', error);
@@ -420,9 +573,127 @@ export const deleteLevelTier = async (req: AuthRequest, res: Response): Promise<
     if (!tier) return res.status(404).json({ message: 'Level tier not found' });
 
     await tier.destroy();
+    clearLevelTierCache();
     return res.status(200).json({ message: 'Level tier deleted successfully' });
   } catch (error) {
     console.error('Error deleting level tier:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// GET Level-wise Revenue Analytics
+export const getRevenueByTier = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const tiers: any[] = await LevelTier.findAll({ order: [['order', 'ASC']] });
+    const students: any[] = await User.findAll({ where: { role: 'student' } });
+    const sales: any[] = await SalesRecord.findAll();
+
+    const tierBreakdown = tiers.map((tier: any) => {
+      const tierCode = (tier.code || '').toUpperCase();
+      const enrolledCount = students.filter(
+        (s: any) => (s.membershipLevel || 'L0').toUpperCase() === tierCode
+      ).length;
+
+      const numPrice = parseInt((tier.price || '0').replace(/[^0-9]/g, '')) || 0;
+      const estimatedRevenue = enrolledCount * numPrice;
+
+      return {
+        id: tier.id,
+        code: tier.code,
+        name: tier.name,
+        price: tier.price || '₹0',
+        numericPrice: numPrice,
+        enrolledCount,
+        estimatedRevenue,
+        icon: tier.icon || '⚡',
+        badgeColor: tier.badgeColor || 'emerald',
+        category: tier.category || 'General',
+        isPublished: tier.isPublished !== false,
+      };
+    });
+
+    const totalRevenue = tierBreakdown.reduce((sum: number, t: any) => sum + t.estimatedRevenue, 0);
+
+    return res.status(200).json({
+      totalRevenue,
+      totalStudents: students.length,
+      totalSalesRecords: sales.length,
+      tiers: tierBreakdown,
+    });
+  } catch (error: any) {
+    console.error('Error fetching revenue by tier:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// ===== TARGETED BROADCAST NOTIFICATIONS =====
+
+// SEND targeted broadcast notification (all, L0, L1, L2, L3, webinar)
+export const broadcastNotification = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const { title, message, targetAudience, type, link } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({ message: 'Title and message are required' });
+    }
+
+    let targetUsers: any[] = [];
+    if (targetAudience === 'all' || !targetAudience) {
+      targetUsers = await User.findAll({ where: { role: 'student' } });
+    } else if (['L0', 'L1', 'L2', 'L3'].includes(targetAudience)) {
+      targetUsers = await User.findAll({
+        where: {
+          role: 'student',
+          membershipLevel: targetAudience,
+        },
+      });
+    } else if (targetAudience === 'webinar') {
+      // Send to all students / webinar registrants
+      targetUsers = await User.findAll({ where: { role: 'student' } });
+    }
+
+    if (targetUsers.length === 0) {
+      return res.status(200).json({
+        message: `No active students found in target group: ${targetAudience}`,
+        count: 0,
+      });
+    }
+
+    const notificationsToCreate = targetUsers.map((u) => ({
+      userId: u.id,
+      title,
+      message,
+      type: type || 'info',
+      link: link || '',
+      targetAudience: targetAudience || 'all',
+      isRead: false,
+    }));
+
+    await Notification.bulkCreate(notificationsToCreate);
+
+    return res.status(200).json({
+      message: `Notification broadcasted successfully to ${notificationsToCreate.length} students (${targetAudience})!`,
+      count: notificationsToCreate.length,
+    });
+  } catch (error: any) {
+    console.error('Error broadcasting notification:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error?.message });
+  }
+};
+
+// GET recent notifications history
+export const getNotificationBroadcasts = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+    const notifications = await Notification.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'name', 'email', 'membershipLevel'] },
+      ],
+    });
+    return res.status(200).json(notifications);
+  } catch (error: any) {
+    console.error('Error fetching notification broadcasts:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

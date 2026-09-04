@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { IndianRupee, Plus, Trash2, TrendingUp, BarChart2 } from "lucide-react";
+import { IndianRupee, Trash2, TrendingUp, BarChart2, Info, ShieldCheck } from "lucide-react";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -14,7 +14,6 @@ export default function AdminSalesRecords() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStudentId, setSelectedStudentId] = useState("all");
   const [successMsg, setSuccessMsg] = useState("");
-  const [newSale, setNewSale] = useState({ studentId: "", amount: "", productName: "", date: "" });
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
@@ -41,22 +40,11 @@ export default function AdminSalesRecords() {
     setTimeout(() => setSuccessMsg(""), 3000);
   };
 
-  const addSale = async () => {
-    if (!newSale.studentId || !newSale.amount || !newSale.productName) return;
-    await fetch(`${API}/admin/students/${newSale.studentId}/sales`, {
-      method: 'POST', headers,
-      body: JSON.stringify({ amount: parseFloat(newSale.amount), productName: newSale.productName, date: newSale.date || new Date().toISOString() })
-    });
-    setNewSale({ studentId: "", amount: "", productName: "", date: "" });
-    await fetchData();
-    showSuccess("Sale added!");
-  };
-
   const deleteSale = async (recordId: string) => {
-    if (!confirm("Delete this sales record?")) return;
+    if (!confirm("Delete this sales record from the platform?")) return;
     await fetch(`${API}/admin/sales/${recordId}`, { method: 'DELETE', headers });
     await fetchData();
-    showSuccess("Sale deleted!");
+    showSuccess("Sales record deleted!");
   };
 
   const displayedSales = allSales.filter(s => selectedStudentId === "all" || s.studentId === selectedStudentId);
@@ -68,22 +56,32 @@ export default function AdminSalesRecords() {
     <div className="min-h-screen bg-slate-950 text-white">
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-8">
-        <header className="flex justify-between items-center mb-8">
+      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <IndianRupee className="text-green-500" /> Sales Records
+              <IndianRupee className="text-green-500" /> Student Revenue &amp; Sales Monitor
             </h1>
-            <p className="text-slate-400 mt-2">Track all student sales and income across the platform.</p>
+            <p className="text-slate-400 mt-2">
+              Review live client orders and commercial revenue logged directly by students.
+            </p>
           </div>
           {successMsg && (
-            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full">
+            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full self-start md:self-auto">
               ✓ {successMsg}
             </span>
           )}
         </header>
 
-        {/* Stats */}
+        {/* Info Note: Student Self-Reporting */}
+        <div className="mb-6 p-4 rounded-2xl bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs md:text-sm font-semibold flex items-center gap-3">
+          <Info size={18} className="text-orange-400 shrink-0" />
+          <span>
+            <strong>Student Self-Reported Sales:</strong> Revenue records are entered directly by students through the <strong>Northstar Tracking System (/student/northstar)</strong> and the <strong>Win Wall</strong>. Admin has read-only oversight with moderation controls.
+          </span>
+        </div>
+
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Platform Revenue", value: `₹${totalAll.toLocaleString('en-IN')}`, color: "text-green-400", icon: <TrendingUp size={20} /> },
@@ -100,34 +98,12 @@ export default function AdminSalesRecords() {
           ))}
         </div>
 
-        {/* Add Sale */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 mb-6 shadow-xl">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Plus size={18} className="text-green-500" /> Add Sales Record</h2>
-          <div className="flex gap-3 flex-wrap">
-            <select value={newSale.studentId} onChange={e => setNewSale({ ...newSale, studentId: e.target.value })}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-green-500 transition-colors min-w-[180px]">
-              <option value="">-- Select Student --</option>
-              {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-            <input type="text" placeholder="Product name" value={newSale.productName} onChange={e => setNewSale({ ...newSale, productName: e.target.value })}
-              className="flex-1 min-w-[150px] bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-green-500 transition-colors" />
-            <input type="number" placeholder="Amount (₹)" value={newSale.amount} onChange={e => setNewSale({ ...newSale, amount: e.target.value })}
-              className="w-36 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-green-500 transition-colors" />
-            <input type="date" value={newSale.date} onChange={e => setNewSale({ ...newSale, date: e.target.value })}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-green-500 transition-colors" />
-            <button onClick={addSale} disabled={!newSale.studentId || !newSale.amount || !newSale.productName}
-              className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl font-bold transition-colors">
-              <Plus size={16} /> Add Sale
-            </button>
-          </div>
-        </div>
-
         {/* Filter */}
         <div className="flex items-center gap-3 mb-4">
           <span className="text-slate-500 text-sm">Filter by student:</span>
           <select value={selectedStudentId} onChange={e => setSelectedStudentId(e.target.value)}
             className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-orange-500">
-            <option value="all">All Students</option>
+            <option value="all">All Students ({allSales.length} total entries)</option>
             {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
@@ -135,15 +111,15 @@ export default function AdminSalesRecords() {
         {/* Sales Table */}
         <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
           <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <div className="col-span-4">Product</div>
+            <div className="col-span-4">Product / Commission</div>
             <div className="col-span-3">Student</div>
             <div className="col-span-2 text-right">Amount</div>
             <div className="col-span-2">Date</div>
-            <div className="col-span-1 text-right">Del</div>
+            <div className="col-span-1 text-right">Action</div>
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-slate-500">Loading records...</div>
+            <div className="p-12 text-center text-slate-500">Loading student records...</div>
           ) : displayedSales.length === 0 ? (
             <div className="p-12 text-center text-slate-500">No sales records found.</div>
           ) : (
@@ -162,7 +138,11 @@ export default function AdminSalesRecords() {
                     {s.date ? new Date(s.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                   </div>
                   <div className="col-span-1 flex justify-end">
-                    <button onClick={() => deleteSale(s.id)} className="text-slate-600 hover:text-red-400 transition-colors p-1">
+                    <button
+                      onClick={() => deleteSale(s.id)}
+                      className="text-slate-600 hover:text-red-400 transition-colors p-1.5 cursor-pointer"
+                      title="Delete entry"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>

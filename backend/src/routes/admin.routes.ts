@@ -10,12 +10,17 @@ import {
   addSalesRecord,
   deleteSalesRecord,
   getAllBadges,
+  createBadge,
+  updateBadge,
+  deleteBadge,
   awardBadge,
   removeBadgeFromStudent,
   updateStudentSkills,
   enrollStudentInCourse,
   sendNotification,
   getAllNotifications,
+  broadcastNotification,
+  getNotificationBroadcasts,
   createCommunityWin,
   getAllCommunityWins,
   deleteCommunityWin,
@@ -23,12 +28,31 @@ import {
   createLevelTier,
   updateLevelTier,
   deleteLevelTier,
+  getRevenueByTier,
 } from '../controllers/admin.controller';
+import {
+  getAllOffers,
+  createOffer,
+  updateOffer,
+  toggleOffer,
+  deleteOffer,
+  getActiveOffers,
+} from '../controllers/offer.controller';
 
 const router = Router();
 
+// Public active offers endpoint
+router.get('/offers/active', getActiveOffers);
+
 // All admin routes require auth + admin role
 router.use(authenticate, requireAdmin);
+
+// Offers Module (Separate Module)
+router.get('/offers', getAllOffers);
+router.post('/offers', createOffer);
+router.put('/offers/:id', updateOffer);
+router.patch('/offers/:id/toggle', toggleOffer);
+router.delete('/offers/:id', deleteOffer);
 
 // Students
 router.get('/students', getAllStudents);
@@ -46,6 +70,9 @@ router.delete('/sales/:recordId', deleteSalesRecord);
 
 // Badges
 router.get('/badges', getAllBadges);
+router.post('/badges', createBadge);
+router.put('/badges/:badgeId', updateBadge);
+router.delete('/badges/:badgeId', deleteBadge);
 router.post('/students/:studentId/badges', awardBadge);
 router.delete('/students/:studentId/badges/:badgeId', removeBadgeFromStudent);
 
@@ -56,6 +83,7 @@ router.put('/students/:studentId/skills', updateStudentSkills);
 router.post('/students/:studentId/courses', enrollStudentInCourse);
 
 // Notifications
+router.post('/notifications/broadcast', broadcastNotification);
 router.post('/students/:studentId/notifications', sendNotification);
 router.get('/notifications', getAllNotifications);
 
@@ -69,6 +97,7 @@ router.get('/levels', getAllLevelTiers);
 router.post('/levels', createLevelTier);
 router.put('/levels/:levelId', updateLevelTier);
 router.delete('/levels/:levelId', deleteLevelTier);
+router.get('/revenue-by-tier', getRevenueByTier);
 
 export default router;
 

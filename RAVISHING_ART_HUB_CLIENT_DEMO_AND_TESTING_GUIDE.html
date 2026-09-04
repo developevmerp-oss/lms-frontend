@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ravishing Art Hub — LMS Client Demo & Testing Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    :root {
+      --primary: #f97316;
+      --primary-dark: #ea580c;
+      --slate-950: #020617;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-400: #94a3b8;
+      --slate-200: #e2e8f0;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      line-height: 1.6;
+      padding: 40px 20px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      border-bottom: 2px solid #1e293b;
+      padding-bottom: 24px;
+      margin-bottom: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      color: #fb923c;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid var(--primary);
+      padding-left: 14px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fb923c;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .print-btn {
+      background: linear-gradient(135deg, #f97316, #f59e0b);
+      color: #020617;
+      font-weight: 800;
+      font-size: 13px;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+      transition: all 0.2s;
+    }
+
+    .print-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 20px -3px rgba(249, 115, 22, 0.4);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 28px 0;
+      font-size: 13px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+    }
+
+    th {
+      background: #1e293b;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 16px;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e293b;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .card {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .badge-admin {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .badge-student {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #1e293b;
+      color: #fb923c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: #1e293b;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #fca5a5;
+      font-size: 12px;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 10mm;
+      }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      body {
+        background-color: #0b0f19 !important;
+        color: #e2e8f0 !important;
+        padding: 0 !important;
+      }
+      .container {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+        max-width: 100% !important;
+      }
+      .print-btn {
+        display: none !important;
+      }
+      .header {
+        border-bottom: 2px solid #1e293b !important;
+      }
+      .card {
+        background: #0b1120 !important;
+        border: 1px solid #1e293b !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        margin-bottom: 18px !important;
+      }
+      table {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      th {
+        background: #1e293b !important;
+        color: #ffffff !important;
+      }
+      td {
+        background: #0f172a !important;
+        color: #cbd5e1 !important;
+        border-bottom: 1px solid #1e293b !important;
+      }
+      h1, h2, h3 {
+        color: #ffffff !important;
+      }
+      h3 {
+        color: #fb923c !important;
+      }
+      code {
+        background: #1e293b !important;
+        color: #fca5a5 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Header -->
+    <div class="header">
+      <div>
+        <div class="logo-badge">🎨 Ravishing Art Hub LMS</div>
+        <h1>Complete Client Demo &amp; Testing Guide</h1>
+        <p style="margin-top: 6px; margin-bottom: 0;">Comprehensive step-by-step verification guide for all platform modules, workflows, and permissions.</p>
+      </div>
+
+      <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+
+    <!-- Credentials Section -->
+    <h2>🔑 1. Demo Login Credentials</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Portal URL</th>
+          <th>Demo Email</th>
+          <th>Password</th>
+          <th>Access Capabilities</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="role-badge badge-admin">👑 Admin / Mentor</span></td>
+          <td><code>/login</code></td>
+          <td><strong>admin@ravishingarthub.com</strong></td>
+          <td><code>admin123</code></td>
+          <td>Full control over 30 courses, live classes, attendance rosters, level pricing, badges, student CRM, artwork grading, and sales analytics.</td>
+        </tr>
+        <tr>
+          <td><span class="role-badge badge-student">🌱 Student (L0 Fast Start)</span></td>
+          <td><code>/login</code></td>
+          <td><em>Any registered student</em></td>
+          <td><code>student123</code></td>
+          <td>Foundational video courses, daily routine checklist, XP gamification, Community Win Wall, Webinar Hub.</td>
+        </tr>
+        <tr>
+          <td><span class="role-badge badge-student">🥈 Student (L1 Silver)</span></td>
+          <td><code>/login</code></td>
+          <td><em>Upgraded student</em></td>
+          <td>User password</td>
+          <td>5 Core project courses (Coasters, Marbling, Ocean Waves) + Live Classes &amp; Attendance XP.</td>
+        </tr>
+        <tr>
+          <td><span class="role-badge badge-student">💎 Student (L3 Diamond)</span></td>
+          <td><code>/login</code></td>
+          <td><em>Upgraded student</em></td>
+          <td>User password</td>
+          <td>All 30 Master courses (Tables, Bridal Varmala, Reels Mastery) + Northstar Revenue Tracker.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Module Walkthrough -->
+    <h2>🧭 2. Step-by-Step Module Testing Guide</h2>
+
+    <!-- Module 1 -->
+    <div class="card">
+      <h3>Module 1: Public Funnel &amp; Webinar Lead Capture</h3>
+      <p><strong>URL:</strong> <code>/</code> (Landing Page) &amp; <code>/thank-you</code> (Thank You &amp; Direct Fast Track Upgrade)</p>
+      
+      <p style="color: #34d399; font-weight: 700; font-size: 12px;">📱 STUDENT / VISITOR EXPERIENCE:</p>
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div>Open the landing page (<code>/</code>), explore the interactive Canva presentation, student reviews, and dynamic social proof notifications.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div>Fill out the <strong>Free Webinar Registration Form</strong> (Name, Email, WhatsApp Phone, City, Art Goal) and submit.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div>Instantly redirected to <strong>Thank You Page (<code>/thank-you</code>)</strong> with <strong>Option 1 (Fast Start Bundle ₹499 via Razorpay)</strong> or <strong>Option 2 (Join VIP WhatsApp Group &amp; Prep Video)</strong>.</div>
+      </div>
+
+      <p style="color: #fb923c; font-weight: 700; font-size: 12px; margin-top: 16px;">👑 ADMIN EXPERIENCE (<code>/admin/webinar</code>):</p>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div>Open <strong>Webinar Leads CRM</strong> to view the newly captured student lead in real-time with phone, city, and challenge notes.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <div>Schedule new webinars, set date/time, Zoom meeting URLs, and VIP WhatsApp group invites.</div>
+      </div>
+    </div>
+
+    <!-- Module 2 -->
+    <div class="card">
+      <h3>Module 2: Student Dashboard &amp; Daily Gamification</h3>
+      <p><strong>URL:</strong> <code>/student/dashboard</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div><strong>Daily Routine Checklist:</strong> Check off daily habits (e.g. <em>"Mix resin with 3:1 ratio"</em>) &rarr; XP increments immediately (+25 XP per habit).</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div><strong>Community Win Wall:</strong> Post artwork photos, first sales achievements, and like/comment on fellow student posts in real-time.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div><strong>XP &amp; Streak Progress:</strong> Displays active login streak, rank title, and points progress bar.</div>
+      </div>
+    </div>
+
+    <!-- Module 3 -->
+    <div class="card">
+      <h3>Module 3: Sequential 30 Courses &amp; Direct Tier Upgrades</h3>
+      <p><strong>URL:</strong> <code>/student/courses</code> &amp; <code>/admin/courses</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div><strong>30 Curriculum Courses:</strong> Structured sequentially across 4 levels (L0 Fast Start: 3 courses, L1 Silver: 5 courses, L2 Gold: 4 courses, L3 Diamond: 18 courses).</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div><strong>Direct Tier Upgrades:</strong> Locked courses feature a <strong>"🔒 Purchase &amp; Unlock Tier"</strong> button connected to Razorpay, allowing students to skip sequential levels at any time.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div><strong>Admin Course &amp; Pricing Controls:</strong> Admin can edit video URLs, re-order lessons (<code>/admin/courses</code>), and adjust live tier offer prices (<code>/admin/levels</code>).</div>
+      </div>
+    </div>
+
+    <!-- Module 4 -->
+    <div class="card">
+      <h3>Module 4: Online Classes &amp; Live Attendance Tracking</h3>
+      <p><strong>URL:</strong> <code>/student/classes</code> &amp; <code>/admin/classes</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div><strong>Student One-Click Join:</strong> Student clicks <strong>"🎥 Join Live Class &amp; Mark Attendance"</strong> &rarr; Automatically logs attendance in database, awards <strong>+50 XP</strong>, and launches Zoom room.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div><strong>Admin Live Attendance Roster:</strong> Admin opens <code>/admin/classes</code> &rarr; Clicks <strong>"View Attendance Roster"</strong> to see all attended students with join timestamps, email, and tier badge.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div><strong>Replays:</strong> Concluded classes display a <strong>"You Attended"</strong> badge and allow students to watch recorded class video replays.</div>
+      </div>
+    </div>
+
+    <!-- Module 5 -->
+    <div class="card">
+      <h3>Module 5: Dedicated Webinar Masterclass Hub</h3>
+      <p><strong>URL:</strong> <code>/student/webinar</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div>Lists all live webinars scheduled by the Admin with live countdown timers and seat availability.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div>Includes direct buttons for <strong>Join Live Zoom Webinar</strong>, <strong>Join VIP WhatsApp</strong>, and <strong>Watch Prep Video</strong>.</div>
+      </div>
+    </div>
+
+    <!-- Module 6 -->
+    <div class="card">
+      <h3>Module 6: Badges &amp; Gamification Management</h3>
+      <p><strong>URL:</strong> <code>/admin/badges</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div>Admin creates custom badges with emojis (🎨, 💰, 💎, 👑, 🔥, 🌊, 💐, ⏰), custom titles, color palettes, and XP requirements.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div>Admin awards badges to <strong>All Students in 1-Click</strong> or to specific students.</div>
+      </div>
+    </div>
+
+    <!-- Module 7 -->
+    <div class="card">
+      <h3>Module 7: Artwork Submissions &amp; Mentoring Center</h3>
+      <p><strong>URL:</strong> <code>/admin/mentoring</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div>Students upload finished artwork photos directly within course modules.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div>Admin reviews artwork on 6 core criteria (Resin Basics, Mixing, Colour Theory, Finishing, Creativity, Professional Quality), submits critique, and awards <strong>+500 XP</strong>.</div>
+      </div>
+    </div>
+
+    <!-- Module 8 -->
+    <div class="card">
+      <h3>Module 8: Northstar Revenue &amp; Business Tracker</h3>
+      <p><strong>URL:</strong> <code>/student/northstar</code> &amp; <code>/admin/sales</code></p>
+      
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div>Students calculate 90-day income projections based on resin clock and table pricing.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div>Students log customer invoices; Admin tracks student business milestones across ₹10,000, ₹50,000, and ₹1,00,000 tiers.</div>
+      </div>
+    </div>
+
+    <!-- Dynamic vs Static Audit -->
+    <h2>🔍 3. Platform Dynamic Data Audit</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Module / Feature</th>
+          <th>Dynamic Status</th>
+          <th>Backend Architecture</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Authentication &amp; User Accounts</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td>JWT Token + PostgreSQL <code>Users</code> Table</td>
+        </tr>
+        <tr>
+          <td><strong>Webinar Leads &amp; Event CRM</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>WebinarRegistrations</code> &amp; <code>WebinarEvents</code> Tables</td>
+        </tr>
+        <tr>
+          <td><strong>30 Curriculum Courses &amp; Lessons</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>Courses</code> &amp; <code>Chapters</code> Tables</td>
+        </tr>
+        <tr>
+          <td><strong>Live Level Pricing &amp; Razorpay Keys</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>LevelTiers</code> Table + Razorpay Gateway API</td>
+        </tr>
+        <tr>
+          <td><strong>Online Classes &amp; Live Attendance</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>LiveClasses</code> &amp; <code>ClassAttendances</code> Tables</td>
+        </tr>
+        <tr>
+          <td><strong>Badge Creation &amp; Direct Awarding</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>Badges</code> &amp; <code>UserBadges</code> Tables</td>
+        </tr>
+        <tr>
+          <td><strong>Daily Routine &amp; XP Points System</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>Users.xpPoints</code> &amp; <code>Users.points</code> DB columns</td>
+        </tr>
+        <tr>
+          <td><strong>Mentoring Reviews &amp; Portfolio Grading</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>Portfolios</code> &amp; <code>Skills</code> Tables</td>
+        </tr>
+        <tr>
+          <td><strong>Community Win Wall &amp; Social Feed</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>CommunityWins</code> Table</td>
+        </tr>
+        <tr>
+          <td><strong>Student Sales &amp; Revenue Milestones</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">✅ 100% Dynamic</span></td>
+          <td><code>SalesRecords</code> &amp; <code>Milestones</code> Tables</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 36px; font-size: 12px; color: #64748b;">
+      © 2026 Ravishing Art Hub LMS Platform. All Rights Reserved.
+    </p>
+
+  </div>
+
+</body>
+</html>

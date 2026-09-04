@@ -14,10 +14,48 @@ interface Reward {
   imageUrl: string;
 }
 
+const DEFAULT_REWARDS: Reward[] = [
+  {
+    id: 'reward-1',
+    title: 'Exclusive Resin Art Templates & Cutouts',
+    description: 'Download ready-to-print vector templates, clock dial bases, and coaster cutout designs.',
+    pointCost: 500,
+    imageUrl: '',
+  },
+  {
+    id: 'reward-2',
+    title: 'Live Masterclass Workshop (10% Off)',
+    description: 'Get an exclusive 10% discount pass for upcoming VIP live interactive workshops.',
+    pointCost: 1000,
+    imageUrl: '',
+  },
+  {
+    id: 'reward-3',
+    title: 'Store Merchandise & Materials (15% Off)',
+    description: 'Claim 15% discount coupon on pigments, silicone molds, crystal glass, and tools.',
+    pointCost: 1500,
+    imageUrl: '',
+  },
+  {
+    id: 'reward-4',
+    title: '1-on-1 Consulting & Portfolio Review',
+    description: 'Personalized 30-minute private portfolio critique and art business roadmap with Vrajangna Patel.',
+    pointCost: 2000,
+    imageUrl: '',
+  },
+  {
+    id: 'reward-5',
+    title: 'Complete Brand Success Kit',
+    description: 'All-in-one packaging guidelines, pricing calculator spreadsheet, and legal client contract templates.',
+    pointCost: 3000,
+    imageUrl: '',
+  },
+];
+
 export const RewardsStore = ({ currentPoints, onRedeem }: { currentPoints: number, onRedeem: () => void }) => {
   const { token } = useAuth();
-  const [rewards, setRewards] = useState<Reward[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [rewards, setRewards] = useState<Reward[]>(DEFAULT_REWARDS);
+  const [isLoading, setIsLoading] = useState(false);
   const [redeeming, setRedeeming] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,7 +65,7 @@ export const RewardsStore = ({ currentPoints, onRedeem }: { currentPoints: numbe
       })
         .then(res => res.json())
         .then(data => {
-          if (Array.isArray(data)) setRewards(data);
+          if (Array.isArray(data) && data.length > 0) setRewards(data);
           setIsLoading(false);
         })
         .catch(err => {

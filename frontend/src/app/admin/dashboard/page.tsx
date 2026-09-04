@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus } from "lucide-react";
+import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus, IndianRupee, Sparkles, Tag, ArrowUpRight } from "lucide-react";
 import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
@@ -18,14 +18,22 @@ export default function AdminDashboard() {
     pendingAssignments: 0,
     rewardsDistributed: 0,
   });
+  const [revenueData, setRevenueData] = useState<{ totalRevenue: number; totalStudents: number; tiers: any[] }>({
+    totalRevenue: 0,
+    totalStudents: 0,
+    tiers: [],
+  });
   const [students, setStudents] = useState<any[]>([]);
   const [wins, setWins] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [notifTitle, setNotifTitle] = useState("");
   const [notifMessage, setNotifMessage] = useState("");
-  const [winName, setWinName] = useState("");
+  const [winName, setWinName] = useState("Patel Vrajangna (Admin)");
   const [winAchievement, setWinAchievement] = useState("");
+  const [winSalesAmount, setWinSalesAmount] = useState("");
+  const [winTechnique, setWinTechnique] = useState("");
+  const [winImage, setWinImage] = useState("");
   const [sending, setSending] = useState(false);
   const [postingWin, setPostingWin] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'notifications' | 'wins'>('overview');
@@ -33,22 +41,36 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+  const handleAdminFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setWinImage(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   useEffect(() => {
     if (!token) return;
     setIsLoading(true);
 
-    // Fire all 4 fetches in parallel
+    // Fire all fetches in parallel
     Promise.all([
       fetch(`${API}/dashboard/admin`, { headers }).then(r => r.json()),
       fetch(`${API}/admin/students`, { headers }).then(r => r.json()),
       fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json()),
       fetch(`${API}/admin/notifications`, { headers }).then(r => r.json()),
+      fetch(`${API}/admin/revenue-by-tier`, { headers }).then(r => r.json()),
     ])
-      .then(([statsData, studentsData, winsData, notifsData]) => {
+      .then(([statsData, studentsData, winsData, notifsData, revData]) => {
         if (statsData && !statsData.message) setStats(statsData);
         if (Array.isArray(studentsData)) setStudents(studentsData);
         if (Array.isArray(winsData)) setWins(winsData);
         if (Array.isArray(notifsData)) setNotifications(notifsData);
+        if (revData && revData.tiers) setRevenueData(revData);
       })
       .catch(err => console.error('Admin dashboard fetch error:', err))
       .finally(() => setIsLoading(false));
@@ -75,18 +97,28 @@ export default function AdminDashboard() {
   };
 
   const handlePostWin = async () => {
-    if (!winName || !winAchievement) return;
+    if (!winAchievement) return;
     setPostingWin(true);
     try {
       const res = await fetch(`${API}/admin/community-wins`, {
         method: 'POST', headers,
-        body: JSON.stringify({ studentName: winName, achievement: winAchievement, timeAgo: 'Just now' })
+        body: JSON.stringify({ 
+          studentName: winName || 'Patel Vrajangna (Admin)', 
+          achievement: winAchievement, 
+          salesAmount: winSalesAmount,
+          technique: winTechnique,
+          image: winImage,
+          timeAgo: 'Just now' 
+        })
       });
       if (res.ok) {
-        const newWin = await res.json();
-        setWins(prev => [newWin, ...prev]);
-        setWinName('');
+        const updatedWins = await fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json());
+        if (Array.isArray(updatedWins)) setWins(updatedWins);
+        setWinName('Patel Vrajangna (Admin)');
         setWinAchievement('');
+        setWinSalesAmount('');
+        setWinTechnique('');
+        setWinImage('');
       }
     } finally {
       setPostingWin(false);
@@ -154,8 +186,77 @@ export default function AdminDashboard() {
           isLoading ? (
             <AdminTableSkeleton rows={6} cols={6} />
           ) : (
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users size={20} className="text-blue-400" /> All Students</h2>
+            <div className="space-y-6">
+              {/* Level-Wise Revenue Analytics Card */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                      <IndianRupee size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black text-white flex items-center gap-2">
+                        Course &amp; Level-Wise Revenue Breakdown
+                        <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded-full">
+                          Real-time
+                        </span>
+                      </h2>
+                      <p className="text-xs text-slate-400">Track earnings, active subscribers, and tier market share.</p>
+                    </div>
+                  </div>
+
+                  <div className="text-right sm:text-right">
+                    <span className="text-xs font-semibold text-slate-400">Total Platform Value:</span>
+                    <p className="text-2xl font-black text-emerald-400 font-mono">
+                      ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Level Tier Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {revenueData.tiers.map((t) => {
+                    const sharePct = revenueData.totalRevenue > 0 ? Math.round((t.estimatedRevenue / revenueData.totalRevenue) * 100) : 0;
+
+                    return (
+                      <div key={t.id} className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">{t.icon}</span>
+                              <span className="text-xs font-black text-white">{t.name}</span>
+                            </div>
+                            <span className="text-[10px] font-black text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/30">
+                              {t.code}
+                            </span>
+                          </div>
+
+                          <div className="flex items-baseline justify-between gap-2 mt-3">
+                            <span className="text-xs text-slate-400">{t.enrolledCount} Students</span>
+                            <span className="text-xs font-mono font-bold text-amber-400">{t.price}</span>
+                          </div>
+
+                          <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2">
+                            <div
+                              className="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full transition-all"
+                              style={{ width: `${Math.max(5, sharePct)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-3 pt-2.5 border-t border-slate-900 flex items-center justify-between text-xs">
+                          <span className="text-slate-500 text-[10px]">{sharePct}% Share</span>
+                          <span className="font-black text-emerald-400 font-mono">₹{t.estimatedRevenue.toLocaleString("en-IN")}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* All Students Table */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users size={20} className="text-blue-400" /> All Students</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -201,6 +302,7 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+          </div>
           )
         )}
 
@@ -286,32 +388,138 @@ export default function AdminDashboard() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Student</label>
+                  <label className="text-sm font-semibold text-slate-400 block mb-2">Author (Admin or Select Student)</label>
                   <select
                     value={winName}
                     onChange={e => setWinName(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500"
+                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 font-bold"
                   >
-                    <option value="">-- Choose a student --</option>
+                    <option value="Patel Vrajangna (Admin)">👑 Patel Vrajangna (Admin Announcement)</option>
                     {students.map(s => (
-                      <option key={s.id} value={s.name}>{s.name} ({s.email})</option>
+                      <option key={s.id} value={s.name}>🎓 Student: {s.name} ({s.email})</option>
                     ))}
                   </select>
                 </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Sales Amount (₹ optional)</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 4500"
+                      value={winSalesAmount}
+                      onChange={e => setWinSalesAmount(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Technique Used</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ocean Wave Lacing"
+                      value={winTechnique}
+                      onChange={e => setWinTechnique(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Achievement</label>
+                  <label className="text-sm font-semibold text-slate-400 block mb-2">Achievement / Story</label>
                   <textarea
                     value={winAchievement}
                     onChange={e => setWinAchievement(e.target.value)}
                     placeholder="e.g. Got her first corporate order for 50 custom clocks!"
                     rows={3}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 resize-none"
+                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 resize-none text-xs"
                   />
                 </div>
+
+                {/* Browser File Upload (Image, Video, Document) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400 block">Upload File (Image, Video, Document)</label>
+                  <input
+                    type="file"
+                    accept="image/*,video/*,.pdf,.doc,.docx"
+                    onChange={handleAdminFileSelect}
+                    className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500/20 file:text-pink-400 hover:file:bg-pink-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1"
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Or paste external file / image URL..."
+                    value={winImage}
+                    onChange={e => setWinImage(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2 text-xs focus:outline-none focus:border-pink-500 mt-1"
+                  />
+
+                  {winImage && (
+                    <div className="mt-2 p-2 rounded-xl bg-slate-950 border border-slate-800 relative">
+                      <button
+                        type="button"
+                        onClick={() => setWinImage('')}
+                        className="absolute right-2 top-2 bg-slate-900 text-slate-400 hover:text-white p-1 rounded-lg z-10 text-xs"
+                      >
+                        ✕
+                      </button>
+
+                      {/* Preview Box */}
+                      {(() => {
+                        const mediaUrl = winImage;
+                        if (!mediaUrl) return null;
+
+                        const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                          (() => {
+                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                            const match = mediaUrl.match(regExp);
+                            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                          })()
+                        ) : null;
+
+                        if (ytEmbed) {
+                          return (
+                            <div className="mt-2 rounded-xl overflow-hidden border border-slate-800 aspect-video bg-black shadow-lg">
+                              <iframe src={ytEmbed} title="YouTube Preview" allowFullScreen className="w-full h-full border-0" />
+                            </div>
+                          );
+                        }
+
+                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov)$/i.test(mediaUrl);
+                        if (isVideo) {
+                          return <video src={mediaUrl} controls className="max-h-36 rounded-lg w-full object-cover mt-2 bg-black" />;
+                        }
+
+                        const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl);
+                        if (isDoc) {
+                          return (
+                            <div className="p-3 text-xs font-bold text-pink-400 flex items-center gap-2 mt-2 bg-slate-900 border border-slate-800 rounded-xl">
+                              📄 Attached Document / File Ready!
+                            </div>
+                          );
+                        }
+
+                        const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                        const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+
+                        if (isWebUrl && !isDirectImage) {
+                          return (
+                            <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2 mt-2 bg-slate-900 border border-slate-800 rounded-xl truncate">
+                              🔗 External Web Link: <span className="text-white underline truncate">{mediaUrl}</span>
+                            </div>
+                          );
+                        }
+
+                        return <img src={mediaUrl} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover mt-2 border border-slate-800" />;
+                      })()}
+                    </div>
+                  )}
+                </div>
+
                 <button
                   onClick={handlePostWin}
-                  disabled={postingWin || !winName || !winAchievement}
-                  className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  disabled={postingWin || !winAchievement}
+                  className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Heart size={16} /> {postingWin ? 'Posting...' : 'Post Win to Wall'}
                 </button>
@@ -328,22 +536,124 @@ export default function AdminDashboard() {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold shrink-0">
                       {w.studentName?.charAt(0)}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-bold text-white text-sm">{w.studentName}</h4>
-                          <p className="text-xs text-slate-300 mt-1">{w.achievement}</p>
+                          <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                            {w.studentName}
+                            {w.studentName?.includes('Admin') && (
+                              <span className="text-[10px] font-bold text-pink-400 bg-pink-500/10 border border-pink-500/30 px-2 py-0.5 rounded-md">Admin</span>
+                            )}
+                          </h4>
+                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">{w.achievement}</p>
                         </div>
                         <button
                           onClick={() => handleDeleteWin(w.id)}
-                          className="text-slate-600 hover:text-red-400 transition-colors p-1 ml-2 shrink-0"
+                          className="text-slate-600 hover:text-red-400 transition-colors p-1 ml-2 shrink-0 cursor-pointer"
                         >
                           <Trash2 size={14} />
                         </button>
                       </div>
+
+                      {/* Attached Photo / Video / Document / YouTube / External Link */}
+                      {(() => {
+                        const mediaUrl = w.image;
+                        if (!mediaUrl) return null;
+
+                        const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                          (() => {
+                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                            const match = mediaUrl.match(regExp);
+                            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                          })()
+                        ) : null;
+
+                        if (ytEmbed) {
+                          return (
+                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video shadow-lg">
+                              <iframe
+                                src={ytEmbed}
+                                title="YouTube Video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-full border-0"
+                              />
+                            </div>
+                          );
+                        }
+
+                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
+                        if (isVideo) {
+                          return (
+                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black shadow-lg">
+                              <video src={mediaUrl} controls className="w-full max-h-56 object-contain bg-black" />
+                            </div>
+                          );
+                        }
+
+                        const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
+                        if (isDoc) {
+                          return (
+                            <div className="mt-2 p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                              <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                                <div className="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-bold shrink-0 text-sm">
+                                  📄
+                                </div>
+                                <div className="truncate min-w-0">
+                                  <p className="text-xs font-bold text-white truncate">Attached Document / File</p>
+                                  <p className="text-[10px] text-slate-400">Click to download or view</p>
+                                </div>
+                              </div>
+                              <a
+                                href={mediaUrl}
+                                download="community-file"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-300 text-[11px] font-bold transition-all shrink-0"
+                              >
+                                Download File
+                              </a>
+                            </div>
+                          );
+                        }
+
+                        const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                        const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+
+                        if (isWebUrl && !isDirectImage) {
+                          return (
+                            <div className="mt-2 p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                              <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
+                                  🔗
+                                </div>
+                                <div className="truncate min-w-0">
+                                  <p className="text-xs font-bold text-white truncate">External Web Link</p>
+                                  <p className="text-[10px] text-slate-400 truncate">{mediaUrl}</p>
+                                </div>
+                              </div>
+                              <a
+                                href={mediaUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
+                              >
+                                Open Link ↗
+                              </a>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 max-h-64 shadow-lg">
+                            <img src={mediaUrl} alt="Attachment" className="w-full h-full max-h-64 object-cover" />
+                          </div>
+                        );
+                      })()}
+
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs text-pink-400">❤️ {w.likes}</span>
-                        <span className="text-xs text-slate-500">{w.timeAgo}</span>
+                        <span className="text-xs text-slate-500">· {w.timeAgo}</span>
                       </div>
                     </div>
                   </div>

@@ -11,7 +11,11 @@ export interface User {
   email: string;
   role: "admin" | "student";
   points?: number;
+  xpPoints?: number;
   streak?: number;
+  membershipLevel?: string;
+  rank?: string;
+  lastLoginAt?: string;
   avatarUrl?: string;
   city?: string;
   phone?: string;
@@ -90,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (newUser.role === "admin") {
       router.push("/admin/dashboard");
     } else {
-      router.push("/student/dashboard");
+      router.push("/student/feed");
     }
   };
 

@@ -1,11 +1,12 @@
-﻿"use client";
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LogOut, Trophy, Bell, Menu, X, ChevronRight } from 'lucide-react';
-
-import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut, Trophy, Bell, Menu, X, ChevronRight, Lock, Sparkles, User, ShoppingBag, Calendar, Target, BookOpen, LayoutDashboard, Video } from "lucide-react";
+import { ProfileUpdateModal } from "@/components/profile/ProfileUpdateModal";
+import { AccessLockModal } from "@/components/layout/AccessLockModal";
 
 interface StudentNavProps {
   user: any;
@@ -15,33 +16,131 @@ interface StudentNavProps {
   notifications?: any[];
 }
 
+export function getLevelCode(levelName?: string, _points: number = 0): "L0" | "L1" | "L2" | "L3" | "L3+" {
+  const normalized = (levelName || "").toUpperCase();
+  if (normalized.includes("L3+") || normalized.includes("MASTERS")) return "L3+";
+  if (normalized.includes("L3") || normalized.includes("DIAMOND")) return "L3";
+  if (normalized.includes("L2") || normalized.includes("GOLD")) return "L2";
+  if (normalized.includes("L1") || normalized.includes("SILVER")) return "L1";
+  return "L0";
+}
+
 export const StudentNav = ({ user, level, points, logout, notifications = [] }: StudentNavProps) => {
   const pathname = usePathname();
+  const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [lockModal, setLockModal] = useState<{
+    isOpen: boolean;
+    featureName: string;
+    requiredLevel: string;
+    requiredPoints: number;
+    description: string;
+  }>({
+    isOpen: false,
+    featureName: "",
+    requiredLevel: "",
+    requiredPoints: 0,
+    description: "",
+  });
+
   const notifRef = useRef<HTMLDivElement>(null);
 
+  const studentLevelCode = getLevelCode(level, points);
+
+  const isEventsAccessible = ["L1", "L2", "L3", "L3+"].includes(studentLevelCode);
+  const isNorthstarAccessible = ["L3", "L3+"].includes(studentLevelCode);
+
   const navLinks = [
-    { name: 'Command Center', path: '/student/dashboard' },
-    { name: 'My Journey', path: '/student/courses' },
-    { name: 'Daily Tasks', path: '/student/tasks' },
-    { name: 'Leaderboard', path: '/student/leaderboard' },
-    { name: 'Rewards Store', path: '/student/rewards' },
+    {
+      name: "Dashboard",
+      path: "/student/dashboard",
+      icon: LayoutDashboard,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Student overview dashboard, stats, daily habits checklist, sales chart, and rewards.",
+    },
+    {
+      name: "Feed",
+      path: "/student/feed",
+      icon: Sparkles,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Dedicated sisterhood community feed with live posts, photos, videos, and comments.",
+    },
+    {
+      name: "Courses",
+      path: "/student/courses",
+      icon: BookOpen,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Structured video masterclasses, assignments, and practical resin modules.",
+    },
+    {
+      name: "Live Classes",
+      path: "/student/classes",
+      icon: Video,
+      isAccessible: isEventsAccessible,
+      requiredLevel: "L1 (Silver)",
+      requiredPoints: 500,
+      description: "Live interactive coaching calls, weekly mentor Q&A, and attendance XP unlock at Level 1 (Silver Membership).",
+    },
+    {
+      name: "Webinar",
+      path: "/student/webinar",
+      icon: Sparkles,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Live Webinar registration details, Zoom link, VIP WhatsApp group, and preparation workshop video.",
+    },
+    {
+      name: "Northstar",
+      path: "/student/northstar",
+      icon: Target,
+      isAccessible: isNorthstarAccessible,
+      requiredLevel: "L3 (Diamond)",
+      requiredPoints: 10000,
+      description: "Northstar revenue tracking, sales goal projections, and 90-day business KPI scorecards unlock at Level 3 (Diamond Membership).",
+    },
+    {
+      name: "Merch store",
+      path: "/student/rewards",
+      icon: ShoppingBag,
+      isAccessible: true,
+      requiredLevel: "L0",
+      requiredPoints: 0,
+      description: "Exclusive resin art kits, pigments, molds, silicone tools, and official merchandise.",
+    },
   ];
 
-  // Close notification dropdown when clicking outside
+  const handleNavClick = (link: any, e: React.MouseEvent) => {
+    if (!link.isAccessible) {
+      e.preventDefault();
+      setLockModal({
+        isOpen: true,
+        featureName: link.name,
+        requiredLevel: link.requiredLevel,
+        requiredPoints: link.requiredPoints,
+        description: link.description,
+      });
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifications(false);
       }
     };
-    if (showNotifications) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (showNotifications) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showNotifications]);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
@@ -51,186 +150,209 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
   return (
     <>
       <ProfileUpdateModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
-      <nav className="w-full bg-slate-900 border-b border-slate-800 shadow-xl sticky top-0 z-40">
+
+      <AccessLockModal
+        isOpen={lockModal.isOpen}
+        onClose={() => setLockModal(prev => ({ ...prev, isOpen: false }))}
+        featureName={lockModal.featureName}
+        requiredLevel={lockModal.requiredLevel}
+        requiredPoints={lockModal.requiredPoints}
+        currentLevel={level || "Fast Track (L0)"}
+        currentPoints={points || 0}
+        description={lockModal.description}
+      />
+
+      <nav className="w-full bg-slate-950/95 border-b border-slate-800 shadow-2xl sticky top-0 z-40 backdrop-blur-xl">
         <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
 
-          {/* Left: Logo */}
-          <div className="flex items-center gap-4 md:gap-12">
-            <Link href="/student/dashboard" className="flex items-center shrink-0">
-              <img
-                src="/logo.png"
-                alt="Ravishing Art Hub"
-                className="h-9 md:h-11 w-auto object-contain"
-              />
-            </Link>
+          {/* Left: Logo + Top 5 Navigation Buttons */}
+          <div className="flex items-center gap-4 lg:gap-8">
+            <BrandLogo href="/student/dashboard" size="sm" />
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-1.5">
               {navLinks.map((link) => {
                 const isActive = pathname === link.path;
                 return (
                   <Link
                     key={link.name}
-                    href={link.path}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${isActive
-                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
-                      }`}
+                    href={link.isAccessible ? link.path : "#"}
+                    onClick={(e) => handleNavClick(link, e)}
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
+                        : link.isAccessible
+                        ? "text-slate-300 hover:text-white hover:bg-slate-800/80"
+                        : "text-slate-400 hover:text-slate-300 hover:bg-slate-900/60 opacity-80"
+                    }`}
                   >
-                    {link.name}
+                    <span>{link.name}</span>
+                    {!link.isAccessible && (
+                      <span className="flex items-center justify-center size-5 rounded-md bg-slate-800 border border-slate-700 text-amber-400 text-[10px] ml-1">
+                        <Lock size={11} />
+                      </span>
+                    )}
                   </Link>
                 );
               })}
             </div>
           </div>
 
-          {/* Right Section */}
-          <div className="flex items-center gap-2 md:gap-4">
-
-            {/* XP & Level Pill (Desktop) */}
-            <Link href="/student/profile" className="hidden sm:flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/40 rounded-2xl px-3 py-1.5 transition-colors">
-              <Trophy size={14} className="text-amber-400" />
+          {/* Right Section: Level & XP Badge + Notifications + Profile */}
+          <div className="flex items-center gap-2 md:gap-3">
+            {/* XP & Level Pill */}
+            <Link
+              href="/student/profile"
+              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-orange-500/50 rounded-xl px-3 py-1.5 transition-colors shadow-sm"
+            >
+              <Trophy size={15} className="text-amber-400 shrink-0" />
               <div className="text-xs">
-                <span className="font-extrabold text-white font-mono">{points.toLocaleString()} XP</span>
-                <span className="text-slate-400 mx-1">·</span>
-                <span className="font-bold text-orange-400">{level}</span>
+                <span className="font-black text-white font-mono">{points.toLocaleString()} XP</span>
+                <span className="text-slate-500 mx-1">·</span>
+                <span className="font-bold text-orange-400">{studentLevelCode}</span>
               </div>
             </Link>
 
-            {/* Notifications Dropdown */}
+            {/* Notifications */}
             <div className="relative" ref={notifRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-orange-500/30 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors relative"
+                className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-orange-500/40 text-slate-300 hover:text-white flex items-center justify-center transition-colors relative cursor-pointer"
               >
-                <Bell size={17} />
+                <Bell size={18} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-900 text-[9px] font-black text-white flex items-center justify-center">
-                    {unreadCount > 9 ? '9+' : unreadCount}
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    {unreadCount}
                   </span>
                 )}
               </button>
 
               {showNotifications && (
-                <div className="absolute top-full right-0 mt-3 w-72 md:w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50">
-                  <div className="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-800/50">
-                    <h3 className="font-bold text-white text-sm">Notifications</h3>
-                    <button className="text-xs text-orange-500 hover:text-orange-400 font-semibold">Mark all read</button>
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-4 z-50 text-white">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Notifications</h4>
+                    <span className="text-xs text-orange-400 font-semibold">{unreadCount} new</span>
                   </div>
-                  <div className="max-h-72 overflow-y-auto">
-                    {notifications.length > 0 ? (
-                      notifications.map((n, idx) => (
-                        <div key={n.id || idx} className={`px-4 py-3 border-b border-slate-800 last:border-0 hover:bg-slate-800/30 transition-colors cursor-pointer ${(!n.isRead && !n.read) ? 'bg-orange-500/5' : ''}`}>
-                          <h4 className={`text-sm font-bold mb-0.5 ${(!n.isRead && !n.read) ? 'text-white' : 'text-slate-300'}`}>{n.title}</h4>
-                          <p className="text-xs text-slate-400 leading-relaxed">{n.message}</p>
-                        </div>
-                      ))
+                  <div className="max-h-72 overflow-y-auto space-y-2.5">
+                    {notifications.length === 0 ? (
+                      <p className="text-xs text-slate-500 text-center py-6">No notifications yet</p>
                     ) : (
-                      <div className="px-4 py-8 text-center text-slate-500 text-sm">No notifications</div>
+                      notifications.map((n, i) => {
+                        const content = (
+                          <div
+                            key={i}
+                            className={`p-3 rounded-xl border text-xs transition-all ${
+                              n.link
+                                ? "bg-slate-950/80 border-slate-800 hover:border-orange-500/50 hover:bg-slate-950 cursor-pointer group"
+                                : "bg-slate-950/60 border-slate-800/80"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="text-[10px] font-black text-orange-400 uppercase tracking-wider">
+                                {n.type === "offer" ? "🔥 Special Offer" : n.type === "event" ? "🎥 Live Class" : "📢 Update"}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-mono">
+                                {n.createdAt ? new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Today"}
+                              </span>
+                            </div>
+                            <p className="font-bold text-white mb-0.5 group-hover:text-orange-300 transition-colors">{n.title}</p>
+                            <p className="text-slate-400 leading-relaxed text-[11px]">{n.message}</p>
+                            {n.link && (
+                              <div className="mt-2 text-[10px] font-bold text-amber-400 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                                <span>Open Page</span>
+                                <span>→</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+
+                        return n.link ? (
+                          <Link key={i} href={n.link} onClick={() => setShowNotifications(false)}>
+                            {content}
+                          </Link>
+                        ) : (
+                          <div key={i}>{content}</div>
+                        );
+                      })
                     )}
+                  </div>
+                  <div className="pt-3 mt-2 border-t border-slate-800 text-center">
+                    <Link
+                      href="/student/notifications"
+                      onClick={() => setShowNotifications(false)}
+                      className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center justify-center gap-1.5 transition-colors py-1 cursor-pointer"
+                    >
+                      <span>View All Notifications</span>
+                      <ChevronRight size={14} />
+                    </Link>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* User Avatar & Profile Trigger (desktop) */}
-            <div className="hidden sm:flex items-center gap-3">
-              <Link href="/student/profile" className="text-right hidden md:block group" title="View Profile & Achievements">
-                <p className="text-sm font-bold text-white leading-tight group-hover:text-orange-400 transition-colors">{user?.name || "Student"}</p>
-                <p className="text-[11px] text-slate-400">My Profile</p>
-              </Link>
+            {/* Profile Dropdown / Modal Trigger */}
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-orange-500/40 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              title="Edit Profile"
+            >
+              <User size={18} />
+            </button>
 
-              <button
-                onClick={() => setIsProfileModalOpen(true)}
-                className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-orange-500 shadow-lg shadow-orange-500/20 cursor-pointer hover:scale-105 transition-transform shrink-0 bg-slate-800 flex items-center justify-center text-sm font-bold text-white"
-                title="Click to edit profile & photo"
-              >
-                {user?.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt={user?.name || "Student"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{user?.name?.charAt(0).toUpperCase() || "S"}</span>
-                )}
-              </button>
-            </div>
-
-            {/* Logout (desktop) */}
+            {/* Logout */}
             <button
               onClick={logout}
-              className="hidden sm:flex w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-red-500/20 border border-slate-200 dark:border-slate-700 hover:border-red-500/30 text-slate-600 dark:text-slate-400 hover:text-red-500 items-center justify-center transition-colors"
+              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut size={17} />
             </button>
 
-            {/* Hamburger (mobile only) */}
+            {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+              className="lg:hidden w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center cursor-pointer"
             >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu Drawer */}
+        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-slate-900 border-t border-slate-800 shadow-2xl">
-            {/* User info row */}
-            <div
-              onClick={() => { setIsProfileModalOpen(true); setMobileMenuOpen(false); }}
-              className="flex items-center gap-3 px-4 py-4 border-b border-slate-800 bg-slate-950/50 cursor-pointer hover:bg-slate-800/30 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-orange-500 shrink-0 bg-slate-800 flex items-center justify-center text-sm font-bold text-white">
-                {user?.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt={user?.name || "Student"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{user?.name?.charAt(0).toUpperCase() || "S"}</span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-white text-sm truncate">{user?.name || "Student"}</p>
-                <p className="text-xs text-orange-400 font-bold">Edit Profile & Photo ⚙️</p>
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); logout?.(); }}
-                className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/30 text-slate-400 hover:text-red-400 flex items-center justify-center transition-colors shrink-0"
-              >
-                <LogOut size={17} />
-              </button>
-            </div>
-
-            {/* Nav links */}
-            <div className="py-2 px-2">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.path;
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.path}
-                    className={`flex items-center justify-between px-4 py-3.5 rounded-xl mb-1 text-sm font-bold transition-all ${isActive
-                        ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                      }`}
-                  >
+          <div className="lg:hidden border-t border-slate-800 bg-slate-950 px-4 py-4 space-y-2 animate-in slide-in-from-top duration-200">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.path;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.isAccessible ? link.path : "#"}
+                  onClick={(e) => handleNavClick(link, e)}
+                  className={`flex items-center justify-between p-3 rounded-xl text-sm font-bold transition-all ${
+                    isActive
+                      ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950"
+                      : link.isAccessible
+                      ? "text-slate-200 hover:bg-slate-900"
+                      : "text-slate-500 bg-slate-900/40"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <link.icon size={18} />
                     {link.name}
-                    <ChevronRight size={16} className="text-slate-500" />
-                  </Link>
-                );
-              })}
-            </div>
+                  </span>
+                  {!link.isAccessible ? (
+                    <span className="flex items-center gap-1 text-xs text-amber-400">
+                      <Lock size={13} /> {link.requiredLevel}
+                    </span>
+                  ) : (
+                    <ChevronRight size={16} className="opacity-60" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         )}
       </nav>
     </>
   );
 };
-
-

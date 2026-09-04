@@ -19,6 +19,11 @@ import SalesRecord from './salesRecord';
 import Notification from './notification';
 import CommunityWin from './communityWin';
 import LevelTier from './levelTier';
+import WebinarRegistration from './webinarRegistration';
+import WebinarEvent from './webinarEvent';
+import LiveClass from './liveClass';
+import ClassAttendance from './classAttendance';
+import LevelOffer from './levelOffer';
 
 const db: any = {};
 
@@ -44,8 +49,13 @@ db.SalesRecord = SalesRecord;
 db.Notification = Notification;
 db.CommunityWin = CommunityWin;
 db.LevelTier = LevelTier;
+db.WebinarRegistration = WebinarRegistration;
+db.WebinarEvent = WebinarEvent;
+db.LiveClass = LiveClass;
+db.ClassAttendance = ClassAttendance;
+db.LevelOffer = LevelOffer;
 
-// Setup manual associations that aren't defined in the classes
+// Setup manual associations
 User.hasOne(Skill, { foreignKey: 'userId', as: 'skills' });
 Skill.belongsTo(User, { foreignKey: 'userId' });
 
@@ -66,6 +76,17 @@ SalesRecord.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
 Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Webinar associations
+WebinarEvent.hasMany(WebinarRegistration, { foreignKey: 'webinarEventId', as: 'registrations' });
+WebinarRegistration.belongsTo(WebinarEvent, { foreignKey: 'webinarEventId', as: 'webinarEvent' });
+
+// Live Class & Attendance associations
+LiveClass.hasMany(ClassAttendance, { foreignKey: 'classId', as: 'attendances' });
+ClassAttendance.belongsTo(LiveClass, { foreignKey: 'classId', as: 'class' });
+
+User.hasMany(ClassAttendance, { foreignKey: 'userId', as: 'classAttendances' });
+ClassAttendance.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 // Setup associations
 Object.keys(db).forEach((modelName) => {
