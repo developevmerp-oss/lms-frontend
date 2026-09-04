@@ -320,6 +320,28 @@ export default function AdminCourses() {
 
     setIsSubmitting(true);
     try {
+      let finalVideoUrl = chapterForm.videoUrl.trim();
+      let finalPdfUrl = chapterForm.pdfUrl.trim();
+
+      // Auto-fix if user pasted video link inside the PDF field by mistake
+      if (!finalVideoUrl && finalPdfUrl) {
+        const lower = finalPdfUrl.toLowerCase();
+        if (
+          lower.includes("youtube.com") ||
+          lower.includes("youtu.be") ||
+          lower.includes("vimeo.com") ||
+          lower.includes("drive.google.com") ||
+          lower.includes("/uploads/videos/") ||
+          lower.endsWith(".mp4") ||
+          lower.endsWith(".webm") ||
+          lower.endsWith(".mov") ||
+          lower.startsWith("data:video")
+        ) {
+          finalVideoUrl = finalPdfUrl;
+          finalPdfUrl = "";
+        }
+      }
+
       let res;
       if (editingChapter) {
         res = await fetch(`${API_BASE_URL}/courses/chapters/${editingChapter.id}`, {
@@ -327,8 +349,8 @@ export default function AdminCourses() {
           headers,
           body: JSON.stringify({
             title: chapterForm.title,
-            videoUrl: chapterForm.videoUrl,
-            pdfUrl: chapterForm.pdfUrl,
+            videoUrl: finalVideoUrl,
+            pdfUrl: finalPdfUrl,
           }),
         });
       } else if (showChapterModal) {
@@ -337,8 +359,8 @@ export default function AdminCourses() {
           headers,
           body: JSON.stringify({
             title: chapterForm.title,
-            videoUrl: chapterForm.videoUrl,
-            pdfUrl: chapterForm.pdfUrl,
+            videoUrl: finalVideoUrl,
+            pdfUrl: finalPdfUrl,
           }),
         });
       }
@@ -833,11 +855,31 @@ export default function AdminCourses() {
                               <button
                                 onClick={() => {
                                   setEditingChapter(chapter);
+                                  const isVideoLink = (url: string) =>
+                                    url &&
+                                    (url.includes("youtube.com") ||
+                                      url.includes("youtu.be") ||
+                                      url.includes("vimeo.com") ||
+                                      url.includes("drive.google.com") ||
+                                      url.includes("/uploads/videos/") ||
+                                      url.endsWith(".mp4") ||
+                                      url.endsWith(".webm") ||
+                                      url.endsWith(".mov") ||
+                                      url.startsWith("data:video"));
+
+                                  let vUrl = chapter.videoUrl || "";
+                                  let pUrl = chapter.pdfUrl || "";
+
+                                  if (!vUrl && isVideoLink(pUrl)) {
+                                    vUrl = pUrl;
+                                    pUrl = "";
+                                  }
+
                                   setChapterForm({
                                     title: chapter.title,
-                                    videoType: "url",
-                                    videoUrl: chapter.videoUrl || "",
-                                    pdfUrl: chapter.pdfUrl || "",
+                                    videoType: vUrl.startsWith("http") || vUrl.includes("youtube") || vUrl.includes("drive") ? "url" : "upload",
+                                    videoUrl: vUrl,
+                                    pdfUrl: pUrl,
                                   });
                                   setShowChapterModal(course.id);
                                 }}
@@ -979,11 +1021,31 @@ export default function AdminCourses() {
                       <button
                         onClick={() => {
                           setEditingChapter(chapter);
+                          const isVideoLink = (url: string) =>
+                            url &&
+                            (url.includes("youtube.com") ||
+                              url.includes("youtu.be") ||
+                              url.includes("vimeo.com") ||
+                              url.includes("drive.google.com") ||
+                              url.includes("/uploads/videos/") ||
+                              url.endsWith(".mp4") ||
+                              url.endsWith(".webm") ||
+                              url.endsWith(".mov") ||
+                              url.startsWith("data:video"));
+
+                          let vUrl = chapter.videoUrl || "";
+                          let pUrl = chapter.pdfUrl || "";
+
+                          if (!vUrl && isVideoLink(pUrl)) {
+                            vUrl = pUrl;
+                            pUrl = "";
+                          }
+
                           setChapterForm({
                             title: chapter.title,
-                            videoType: "url",
-                            videoUrl: chapter.videoUrl || "",
-                            pdfUrl: chapter.pdfUrl || "",
+                            videoType: vUrl.startsWith("http") || vUrl.includes("youtube") || vUrl.includes("drive") ? "url" : "upload",
+                            videoUrl: vUrl,
+                            pdfUrl: pUrl,
                           });
                           setShowChapterModal(selectedCourse.id);
                         }}
