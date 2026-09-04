@@ -16,11 +16,16 @@ export const getImageUrl = (url?: string): string => {
   }
   const cleanUrl = normalized.startsWith('/') ? normalized : `/${normalized}`;
   
-  let baseUrl = API_BASE_URL;
-  if (!baseUrl || !baseUrl.startsWith('http')) {
-    baseUrl = 'https://api.ravishingarthub.com/api';
+  // Detect live site vs local development
+  const isLiveSite = typeof window !== 'undefined' && window.location.hostname.includes('ravishingarthub.com');
+  
+  let origin = 'https://api.ravishingarthub.com';
+  if (!isLiveSite && API_BASE_URL.startsWith('http://localhost')) {
+    origin = 'http://localhost:5000';
+  } else if (API_BASE_URL && API_BASE_URL.startsWith('http')) {
+    origin = API_BASE_URL.replace(/\/api\/?$/, '');
   }
-  const origin = baseUrl.replace(/\/api\/?$/, '');
+
   return `${origin}${cleanUrl}`;
 };
 
