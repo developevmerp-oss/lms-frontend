@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { StudentNav, getLevelCode } from "@/components/layout/StudentNav";
 import { API_BASE_URL } from "@/config/api";
 import {
