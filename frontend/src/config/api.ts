@@ -15,7 +15,12 @@ export const getImageUrl = (url?: string): string => {
     return normalized;
   }
   const cleanUrl = normalized.startsWith('/') ? normalized : `/${normalized}`;
-  const origin = API_BASE_URL.replace(/\/api\/?$/, '');
+  
+  let baseUrl = API_BASE_URL;
+  if (!baseUrl || !baseUrl.startsWith('http')) {
+    baseUrl = 'https://api.ravishingarthub.com/api';
+  }
+  const origin = baseUrl.replace(/\/api\/?$/, '');
   return `${origin}${cleanUrl}`;
 };
 
