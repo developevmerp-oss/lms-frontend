@@ -1557,7 +1557,13 @@ export default function AdminCourses() {
               <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
                 {isDirectVideo ? (
                   <video
-                    src={getImageUrl(normalizedUrl)}
+                    src={
+                      normalizedUrl.startsWith("http") || normalizedUrl.startsWith("data:")
+                        ? normalizedUrl
+                        : typeof window !== "undefined" && window.location.hostname === "localhost"
+                        ? `http://localhost:5000${normalizedUrl.startsWith("/") ? normalizedUrl : "/" + normalizedUrl}`
+                        : `https://api.ravishingarthub.com${normalizedUrl.startsWith("/") ? normalizedUrl : "/" + normalizedUrl}`
+                    }
                     controls
                     autoPlay
                     className="w-full h-full object-contain"
