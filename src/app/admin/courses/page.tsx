@@ -29,7 +29,7 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 
 export const PRESET_COURSE_BANNERS = [
   { name: "Ocean Waves", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80" },
@@ -318,8 +318,46 @@ export default function AdminCourses() {
     e.preventDefault();
     if (!chapterForm.title.trim()) return;
 
+    if (uploadingVideo) {
+      alert("Please wait for your video file to finish uploading before saving!");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      let finalVideoUrl = chapterForm.videoUrl.trim();
+      let finalPdfUrl = chapterForm.pdfUrl.trim();
+
+      // Auto-fix if user pasted video link inside the PDF field by mistake
+      if (!finalVideoUrl && finalPdfUrl) {
+        const lower = finalPdfUrl.toLowerCase();
+        if (
+          lower.includes("youtube.com") ||
+          lower.includes("youtu.be") ||
+          lower.includes("vimeo.com") ||
+          lower.includes("drive.google.com") ||
+          lower.includes("/uploads/videos/") ||
+          lower.endsWith(".mp4") ||
+          lower.endsWith(".webm") ||
+          lower.endsWith(".mov") ||
+          lower.startsWith("data:video")
+        ) {
+          finalVideoUrl = finalPdfUrl;
+          finalPdfUrl = "";
+        }
+      }
+
+      // Clean up pdfUrl if user typed plain text (like "anil") instead of a URL or PDF link
+      if (
+        finalPdfUrl &&
+        !finalPdfUrl.includes("http") &&
+        !finalPdfUrl.includes("drive") &&
+        !finalPdfUrl.includes("/") &&
+        !finalPdfUrl.toLowerCase().endsWith(".pdf")
+      ) {
+        finalPdfUrl = "";
+      }
+
       let res;
       if (editingChapter) {
         res = await fetch(`${API_BASE_URL}/courses/chapters/${editingChapter.id}`, {
@@ -327,8 +365,8 @@ export default function AdminCourses() {
           headers,
           body: JSON.stringify({
             title: chapterForm.title,
-            videoUrl: chapterForm.videoUrl,
-            pdfUrl: chapterForm.pdfUrl,
+            videoUrl: finalVideoUrl,
+            pdfUrl: finalPdfUrl,
           }),
         });
       } else if (showChapterModal) {
@@ -337,8 +375,8 @@ export default function AdminCourses() {
           headers,
           body: JSON.stringify({
             title: chapterForm.title,
-            videoUrl: chapterForm.videoUrl,
-            pdfUrl: chapterForm.pdfUrl,
+            videoUrl: finalVideoUrl,
+            pdfUrl: finalPdfUrl,
           }),
         });
       }
@@ -757,6 +795,128 @@ export default function AdminCourses() {
                       <Plus size={14} /> + Add Chapter / Video Lesson
                     </button>
                   </div>
+
+                  {/* Inline Expanded Chapters Accordion */}
+                  {isSelected && (
+                    <div className="mt-4 pt-4 border-t border-orange-500/30 space-y-3 bg-slate-950/90 p-4 rounded-2xl animate-in fade-in">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <span className="text-xs font-black text-orange-400 flex items-center gap-1.5">
+                          <Layers size={13} /> Chapters in this Course ({course.chapters?.length || 0})
+                        </span>
+                        <button
+                          onClick={() => {
+                            setEditingChapter(null);
+                            setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                            setShowChapterModal(course.id);
+                          }}
+                          className="text-[10px] font-bold bg-orange-500 text-slate-950 px-2 py-0.5 rounded-md hover:bg-orange-600 cursor-pointer"
+                        >
+                          + Add Lesson
+                        </button>
+                      </div>
+
+                      {(course.chapters || []).length === 0 ? (
+                        <div className="text-center py-6 border border-dashed border-slate-800 rounded-xl">
+                          <p className="text-slate-500 text-xs mb-2">No video lessons added yet.</p>
+                          <button
+                            onClick={() => {
+                              setEditingChapter(null);
+                              setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                              setShowChapterModal(course.id);
+                            }}
+                            className="bg-orange-500/20 text-orange-400 border border-orange-500/40 text-[11px] font-bold px-3 py-1 rounded-lg cursor-pointer"
+                          >
+                            + Add First Lesson Video
+                          </button>
+                        </div>
+                      ) : (
+                        course.chapters.map((chapter: any, chIndex: number) => (
+                          <div
+                            key={chapter.id}
+                            className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span className="w-6 h-6 rounded-full bg-orange-500/20 text-orange-400 text-[11px] font-bold flex items-center justify-center shrink-0">
+                                {chIndex + 1}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="font-bold text-white text-xs truncate">{chapter.title}</p>
+                                <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                                  {chapter.videoUrl ? (
+                                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                                      <FileVideo size={10} /> Video Attached
+                                    </span>
+                                  ) : (
+                                    <span className="text-slate-600">No Video</span>
+                                  )}
+                                  {chapter.pdfUrl && (
+                                    <span className="text-blue-400 font-semibold flex items-center gap-1">
+                                      <FileText size={10} /> PDF
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              {chapter.videoUrl && (
+                                <button
+                                  onClick={() => setPreviewVideoUrl(chapter.videoUrl)}
+                                  className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 cursor-pointer"
+                                  title="Preview Video"
+                                >
+                                  <Play size={12} className="fill-orange-400" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setEditingChapter(chapter);
+                                  const isVideoLink = (url: string) =>
+                                    url &&
+                                    (url.includes("youtube.com") ||
+                                      url.includes("youtu.be") ||
+                                      url.includes("vimeo.com") ||
+                                      url.includes("drive.google.com") ||
+                                      url.includes("/uploads/videos/") ||
+                                      url.endsWith(".mp4") ||
+                                      url.endsWith(".webm") ||
+                                      url.endsWith(".mov") ||
+                                      url.startsWith("data:video"));
+
+                                  let vUrl = chapter.videoUrl || "";
+                                  let pUrl = chapter.pdfUrl || "";
+
+                                  if (!vUrl && isVideoLink(pUrl)) {
+                                    vUrl = pUrl;
+                                    pUrl = "";
+                                  }
+
+                                  setChapterForm({
+                                    title: chapter.title,
+                                    videoType: vUrl.startsWith("http") || vUrl.includes("youtube") || vUrl.includes("drive") ? "url" : "upload",
+                                    videoUrl: vUrl,
+                                    pdfUrl: pUrl,
+                                  });
+                                  setShowChapterModal(course.id);
+                                }}
+                                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer"
+                                title="Edit Lesson"
+                              >
+                                <Edit2 size={12} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteChapter(chapter.id)}
+                                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 border border-slate-700 cursor-pointer"
+                                title="Delete Lesson"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -877,11 +1037,31 @@ export default function AdminCourses() {
                       <button
                         onClick={() => {
                           setEditingChapter(chapter);
+                          const isVideoLink = (url: string) =>
+                            url &&
+                            (url.includes("youtube.com") ||
+                              url.includes("youtu.be") ||
+                              url.includes("vimeo.com") ||
+                              url.includes("drive.google.com") ||
+                              url.includes("/uploads/videos/") ||
+                              url.endsWith(".mp4") ||
+                              url.endsWith(".webm") ||
+                              url.endsWith(".mov") ||
+                              url.startsWith("data:video"));
+
+                          let vUrl = chapter.videoUrl || "";
+                          let pUrl = chapter.pdfUrl || "";
+
+                          if (!vUrl && isVideoLink(pUrl)) {
+                            vUrl = pUrl;
+                            pUrl = "";
+                          }
+
                           setChapterForm({
                             title: chapter.title,
-                            videoType: "url",
-                            videoUrl: chapter.videoUrl || "",
-                            pdfUrl: chapter.pdfUrl || "",
+                            videoType: vUrl.startsWith("http") || vUrl.includes("youtube") || vUrl.includes("drive") ? "url" : "upload",
+                            videoUrl: vUrl,
+                            pdfUrl: pUrl,
                           });
                           setShowChapterModal(selectedCourse.id);
                         }}
@@ -1285,6 +1465,20 @@ export default function AdminCourses() {
                     )}
                   </div>
                 )}
+                {chapterForm.videoUrl && (
+                  <div className="mt-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-400 font-bold">
+                    <span className="flex items-center gap-1.5 truncate">
+                      <CheckCircle2 size={14} className="shrink-0" /> Video Attached: {chapterForm.videoUrl.length > 40 ? chapterForm.videoUrl.slice(0, 40) + "..." : chapterForm.videoUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewVideoUrl(chapterForm.videoUrl)}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/40 text-[10px] uppercase font-black cursor-pointer shrink-0 ml-2"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1303,10 +1497,20 @@ export default function AdminCourses() {
               <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer"
+                  disabled={isSubmitting || uploadingVideo}
+                  className={`flex-1 py-3 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer ${
+                    uploadingVideo || isSubmitting
+                      ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                      : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950"
+                  }`}
                 >
-                  {isSubmitting ? "Saving..." : editingChapter ? "Update Lesson" : "Save Lesson"}
+                  {uploadingVideo
+                    ? "⏳ Video Uploading... Please Wait"
+                    : isSubmitting
+                    ? "Saving..."
+                    : editingChapter
+                    ? "Update Lesson"
+                    : "Save Lesson"}
                 </button>
                 <button
                   type="button"
@@ -1325,36 +1529,58 @@ export default function AdminCourses() {
       )}
 
       {/* Video Preview Modal */}
-      {previewVideoUrl && (
-        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white relative">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-black text-white flex items-center gap-2">
-                <Video className="text-orange-400" size={18} /> Video Lesson Player
-              </h3>
-              <button
-                onClick={() => setPreviewVideoUrl(null)}
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {previewVideoUrl && (() => {
+        const normalizedUrl = previewVideoUrl.replace(/\\/g, "/");
+        const lower = normalizedUrl.toLowerCase();
+        const isDirectVideo =
+          lower.startsWith("data:video") ||
+          lower.endsWith(".mp4") ||
+          lower.endsWith(".webm") ||
+          lower.endsWith(".mov") ||
+          lower.includes("uploads/");
 
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner">
-              {previewVideoUrl.startsWith("data:video") || previewVideoUrl.endsWith(".mp4") || previewVideoUrl.endsWith(".webm") ? (
-                <video src={previewVideoUrl} controls autoPlay className="w-full h-full object-contain" />
-              ) : (
-                <iframe
-                  src={formatEmbedUrl(previewVideoUrl)}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
+        return (
+          <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white relative">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Video className="text-orange-400" size={18} /> Video Lesson Player
+                </h3>
+                <button
+                  onClick={() => setPreviewVideoUrl(null)}
+                  className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
+                {isDirectVideo ? (
+                  <video
+                    src={
+                      normalizedUrl.startsWith("http") || normalizedUrl.startsWith("data:")
+                        ? normalizedUrl
+                        : typeof window !== "undefined" && window.location.hostname === "localhost"
+                        ? `http://localhost:5000${normalizedUrl.startsWith("/") ? normalizedUrl : "/" + normalizedUrl}`
+                        : `https://api.ravishingarthub.com${normalizedUrl.startsWith("/") ? normalizedUrl : "/" + normalizedUrl}`
+                    }
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <iframe
+                    src={formatEmbedUrl(normalizedUrl)}
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

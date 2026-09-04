@@ -9,11 +9,17 @@ export const getApiUrl = (path: string): string => {
 
 export const getImageUrl = (url?: string): string => {
   if (!url || typeof url !== 'string') return '/images/placeholder-art.jpg';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
+  // Normalize Windows backslashes \ to standard web forward slashes /
+  let clean = url.replace(/\\/g, '/');
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
+    return clean;
   }
-  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-  const origin = API_BASE_URL.replace(/\/api\/?$/, '');
-  return `${origin}${cleanUrl}`;
+  if (!clean.startsWith('/')) clean = '/' + clean;
+
+  // Local development vs Live production environment
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return `http://localhost:5000${clean}`;
+  }
+  return `https://api.ravishingarthub.com${clean}`;
 };
 
