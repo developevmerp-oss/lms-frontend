@@ -141,7 +141,16 @@ export const getMe = async (req: any, res: Response): Promise<any> => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json({ user });
+    const userObj = user.toJSON ? user.toJSON() : (user as any);
+    const normalizedUser = {
+      ...userObj,
+      membershipLevel: userObj.membershipLevel || 'L0',
+    };
+
+    res.status(200).json({
+      user: normalizedUser,
+      ...normalizedUser,
+    });
   } catch (error) {
     console.error('GetMe error:', error);
     res.status(500).json({ message: 'Internal server error' });

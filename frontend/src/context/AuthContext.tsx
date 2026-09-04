@@ -49,7 +49,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       if (res.ok) {
-        const freshUser = await res.json();
+        const data = await res.json();
+        const freshUser = data?.user || data;
         setUser(freshUser);
         localStorage.setItem("user", JSON.stringify(freshUser));
       }
@@ -66,7 +67,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedToken && storedUser) {
       setToken(storedToken);
       try {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed?.user || parsed);
       } catch (e) {
         console.error(e);
       }
@@ -75,8 +77,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { Authorization: `Bearer ${storedToken}` }
       })
         .then(res => res.ok ? res.json() : null)
-        .then(freshUser => {
-          if (freshUser) {
+        .then(data => {
+          if (data) {
+            const freshUser = data.user || data;
             setUser(freshUser);
             localStorage.setItem("user", JSON.stringify(freshUser));
           }
