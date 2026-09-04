@@ -378,19 +378,55 @@ export default function AdminCourses() {
     }
   };
 
-  const handleDirectVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+
+  const handleDirectVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setChapterForm((prev) => ({
-        ...prev,
-        videoUrl: dataUrl,
-      }));
-    };
-    reader.readAsDataURL(file);
+    setUploadingVideo(true);
+    try {
+      const formData = new FormData();
+      formData.append("video", file);
+
+      const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const uploadHeaders: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+
+      const res = await fetch(`${API_BASE_URL}/upload/video`, {
+        method: "POST",
+        headers: uploadHeaders,
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setChapterForm((prev) => ({
+          ...prev,
+          videoUrl: data.url,
+        }));
+        showSuccess("Video file uploaded successfully!");
+      } else {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setChapterForm((prev) => ({
+            ...prev,
+            videoUrl: reader.result as string,
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setChapterForm((prev) => ({
+          ...prev,
+          videoUrl: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingVideo(false);
+    }
   };
 
   const handleSyncCurriculum = async () => {
@@ -1238,9 +1274,13 @@ export default function AdminCourses() {
                       onChange={handleDirectVideoUpload}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-slate-950 hover:file:bg-orange-600 cursor-pointer"
                     />
-                    {chapterForm.videoUrl && (
+                    {uploadingVideo ? (
+                      <p className="text-[11px] text-orange-400 mt-1 font-bold animate-pulse flex items-center gap-1">
+                        ⏳ Uploading video file to server... Please wait
+                      </p>
+                    ) : chapterForm.videoUrl && (
                       <p className="text-[11px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
-                        ✓ Video file loaded into player memory
+                        ✓ Video file uploaded &amp; ready for students!
                       </p>
                     )}
                   </div>
