@@ -349,6 +349,9 @@ export default function AdminCourses() {
         setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
         showSuccess(editingChapter ? "Chapter updated successfully!" : "Chapter added to course!");
         fetchCourses();
+      } else {
+        const errData = await res?.json().catch(() => ({}));
+        alert(errData?.message || `Failed to save chapter (Status ${res?.status || "Unknown"})`);
       }
     } catch (err) {
       console.error(err);
