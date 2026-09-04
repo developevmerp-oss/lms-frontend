@@ -23,7 +23,7 @@ import {
 import Link from "next/link";
 
 export default function NorthstarTrackingPage() {
-  const { user, logout: handleLogout } = useAuth();
+  const { user, logout } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [salesRecords, setSalesRecords] = useState<any[]>([]);
@@ -63,9 +63,7 @@ export default function NorthstarTrackingPage() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/login";
+    logout();
   };
 
   const handleAddSale = async (e: React.FormEvent) => {

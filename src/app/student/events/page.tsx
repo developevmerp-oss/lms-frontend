@@ -23,7 +23,7 @@ import Link from "next/link";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
 export default function StudentEventsPage() {
-  const { user, logout: handleLogout } = useAuth();
+  const { user, logout } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
@@ -73,9 +73,7 @@ export default function StudentEventsPage() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/login";
+    logout();
   };
 
   const handleJoinClass = async (classId: string, meetingUrl?: string) => {
