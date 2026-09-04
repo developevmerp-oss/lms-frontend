@@ -318,6 +318,11 @@ export default function AdminCourses() {
     e.preventDefault();
     if (!chapterForm.title.trim()) return;
 
+    if (uploadingVideo) {
+      alert("Please wait for your video file to finish uploading before saving!");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let finalVideoUrl = chapterForm.videoUrl.trim();
@@ -340,6 +345,17 @@ export default function AdminCourses() {
           finalVideoUrl = finalPdfUrl;
           finalPdfUrl = "";
         }
+      }
+
+      // Clean up pdfUrl if user typed plain text (like "anil") instead of a URL or PDF link
+      if (
+        finalPdfUrl &&
+        !finalPdfUrl.includes("http") &&
+        !finalPdfUrl.includes("drive") &&
+        !finalPdfUrl.includes("/") &&
+        !finalPdfUrl.toLowerCase().endsWith(".pdf")
+      ) {
+        finalPdfUrl = "";
       }
 
       let res;
@@ -1449,6 +1465,20 @@ export default function AdminCourses() {
                     )}
                   </div>
                 )}
+                {chapterForm.videoUrl && (
+                  <div className="mt-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-400 font-bold">
+                    <span className="flex items-center gap-1.5 truncate">
+                      <CheckCircle2 size={14} className="shrink-0" /> Video Attached: {chapterForm.videoUrl.length > 40 ? chapterForm.videoUrl.slice(0, 40) + "..." : chapterForm.videoUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewVideoUrl(chapterForm.videoUrl)}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/40 text-[10px] uppercase font-black cursor-pointer shrink-0 ml-2"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1467,10 +1497,20 @@ export default function AdminCourses() {
               <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer"
+                  disabled={isSubmitting || uploadingVideo}
+                  className={`flex-1 py-3 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer ${
+                    uploadingVideo || isSubmitting
+                      ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                      : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950"
+                  }`}
                 >
-                  {isSubmitting ? "Saving..." : editingChapter ? "Update Lesson" : "Save Lesson"}
+                  {uploadingVideo
+                    ? "⏳ Video Uploading... Please Wait"
+                    : isSubmitting
+                    ? "Saving..."
+                    : editingChapter
+                    ? "Update Lesson"
+                    : "Save Lesson"}
                 </button>
                 <button
                   type="button"
