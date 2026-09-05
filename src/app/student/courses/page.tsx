@@ -64,6 +64,7 @@ export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; co
 };
 
 const LEVEL_HIERARCHY: Record<string, number> = {
+  GENERAL: -1,
   L0: 0,
   L1: 1,
   L2: 2,
@@ -164,11 +165,13 @@ export default function StudentCourses() {
 
   const isCourseUnlocked = (courseLevel: string) => {
     if (stats.isExpired) return false;
+    if (studentLevelCode === "GENERAL") return false;
     const requiredNum = LEVEL_HIERARCHY[courseLevel.toUpperCase()] ?? 0;
     return studentRankNum >= requiredNum;
   };
 
   const getLevelName = () => {
+    if (studentLevelCode === "GENERAL") return "General Member";
     return effectiveLevelName || "Fast Track (L0)";
   };
 

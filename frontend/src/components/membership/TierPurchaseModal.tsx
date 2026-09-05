@@ -112,19 +112,23 @@ interface TierPurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
   targetTierCode?: string;
+  preselectedTier?: string;
   currentLevel?: string;
   onUpgradeSuccess?: () => void;
+  onSuccess?: () => void;
 }
 
 export const TierPurchaseModal = ({
   isOpen,
   onClose,
   targetTierCode = "L1",
+  preselectedTier,
   currentLevel = "L0 Fast Track",
   onUpgradeSuccess,
+  onSuccess,
 }: TierPurchaseModalProps) => {
   const { user, token } = useAuth();
-  const [selectedCode, setSelectedCode] = useState<string>(targetTierCode);
+  const [selectedCode, setSelectedCode] = useState<string>(preselectedTier || targetTierCode);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -133,6 +137,7 @@ export const TierPurchaseModal = ({
 
   useEffect(() => {
     if (isOpen) {
+      setSelectedCode(preselectedTier || targetTierCode);
       fetch(`${API_BASE_URL}/dashboard/levels`)
         .then((r) => r.json())
         .then((data) => {
@@ -221,6 +226,7 @@ export const TierPurchaseModal = ({
         setIsProcessing(false);
         setSuccessMsg(`🎉 Payment successful! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`);
         if (onUpgradeSuccess) onUpgradeSuccess();
+        if (onSuccess) onSuccess();
         setTimeout(() => {
           onClose();
           window.location.reload();

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { StudentNav } from "@/components/layout/StudentNav";
+import { StudentNav, getLevelCode } from "@/components/layout/StudentNav";
 import {
   Sparkles,
   Calendar,
@@ -19,7 +19,8 @@ import {
   ArrowRight,
   Search,
   Check,
-  X
+  X,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { API_BASE_URL } from "@/config/api";
@@ -113,17 +114,40 @@ export default function StudentWebinarPage() {
     (w) => new Date(w.scheduledAt).getTime() < nowTime && w.status !== "live"
   );
 
+  const effectiveLevel = user?.membershipLevel || stats?.membershipLevel || "GENERAL";
+  const studentLevelCode = getLevelCode(effectiveLevel);
+  const isGeneral = studentLevelCode === "GENERAL";
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
       <StudentNav
         user={user || stats}
-        level={user?.membershipLevel || stats?.membershipLevel || "Fast Track (L0)"}
+        level={isGeneral ? "General Member" : (user?.membershipLevel || stats?.membershipLevel || "Fast Track (L0)")}
         points={stats?.points || 0}
         logout={logout}
         notifications={stats?.notifications}
       />
 
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
+        {isGeneral ? (
+          <div className="py-16 px-4 max-w-2xl mx-auto text-center space-y-6">
+            <div className="w-16 h-16 rounded-3xl bg-orange-500/20 border-2 border-orange-500/40 flex items-center justify-center text-orange-400 mx-auto shadow-2xl">
+              <Lock size={32} />
+            </div>
+            <h1 className="text-3xl font-black text-white">Live Webinar Hub is Locked</h1>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Live masterclass schedules, Zoom calls, VIP WhatsApp groups, and workshop preparation videos are exclusively available for enrolled Fast Track (Level 0) and higher members. Upgrade to Fast Track now to unlock live masterclasses and community perks.
+            </p>
+            <button
+              onClick={() => setPurchaseModal(true)}
+              className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-sm shadow-xl flex items-center gap-2 mx-auto hover:scale-105 transition-all cursor-pointer"
+            >
+              <Zap size={16} />
+              Unlock Fast Track (₹499)
+            </button>
+          </div>
+        ) : (
+          <>
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -401,6 +425,8 @@ export default function StudentWebinarPage() {
             </div>
           </div>
         )}
+        </>
+        )}
       </main>
 
       {/* Upgrade Modal */}
@@ -408,7 +434,11 @@ export default function StudentWebinarPage() {
         isOpen={purchaseModal}
         onClose={() => setPurchaseModal(false)}
         targetTierCode="L0"
-        currentLevel={stats?.membershipLevel || "Fast Track (L0)"}
+        currentLevel={isGeneral ? "General Member" : (stats?.membershipLevel || user?.membershipLevel || "Fast Track (L0)")}
+        onUpgradeSuccess={() => {
+          setPurchaseModal(false);
+          fetchData();
+        }}
       />
     </div>
   );

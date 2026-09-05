@@ -16,13 +16,15 @@ interface StudentNavProps {
   notifications?: any[];
 }
 
-export function getLevelCode(levelName?: string, _points: number = 0): "L0" | "L1" | "L2" | "L3" | "L3+" {
+export function getLevelCode(levelName?: string, _points: number = 0): "GENERAL" | "L0" | "L1" | "L2" | "L3" | "L3+" {
   const normalized = (levelName || "").toUpperCase();
+  if (normalized.includes("GENERAL")) return "GENERAL";
   if (normalized === "L3+" || normalized.includes("L3+") || normalized.includes("MASTERS") || normalized.includes("PILES")) return "L3+";
   if (normalized === "L3" || normalized.includes("L3") || normalized.includes("DIAMOND") || normalized.includes("RENAISSANCE")) return "L3";
   if (normalized === "L2" || normalized.includes("L2") || normalized.includes("GOLD") || normalized.includes("MASTER MEMBERSHIP")) return "L2";
   if (normalized === "L1" || normalized.includes("L1") || normalized.includes("SILVER") || normalized.includes("EXPLORE")) return "L1";
-  return "L0";
+  if (normalized === "L0" || normalized.includes("L0") || normalized.includes("FAST TRACK") || normalized.includes("FAST START")) return "L0";
+  return "GENERAL";
 }
 
 export const StudentNav = ({ user, level, points, logout, notifications = [] }: StudentNavProps) => {
@@ -50,6 +52,8 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
   const effectiveLevel = user?.membershipLevel || user?.level || user?.rank || level;
   const studentLevelCode = getLevelCode(effectiveLevel, points);
 
+  const isGeneral = studentLevelCode === "GENERAL";
+  const isL0Accessible = !isGeneral;
   const isEventsAccessible = ["L1", "L2", "L3", "L3+"].includes(studentLevelCode);
   const isNorthstarAccessible = ["L3", "L3+"].includes(studentLevelCode);
 
@@ -58,17 +62,17 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       name: "Dashboard",
       path: "/student/dashboard",
       icon: LayoutDashboard,
-      isAccessible: true,
-      requiredLevel: "L0",
+      isAccessible: isL0Accessible,
+      requiredLevel: "Level 0 (Fast Track)",
       requiredPoints: 0,
-      description: "Student overview dashboard, stats, daily habits checklist, sales chart, and rewards.",
+      description: "Student dashboard, stats, daily routine checklist, sales chart, and rewards unlock with Level 0 (Fast Track).",
     },
     {
       name: "Feed",
       path: "/student/feed",
       icon: Sparkles,
       isAccessible: true,
-      requiredLevel: "L0",
+      requiredLevel: "General",
       requiredPoints: 0,
       description: "Dedicated sisterhood community feed with live posts, photos, videos, and comments.",
     },
@@ -77,7 +81,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       path: "/student/courses",
       icon: BookOpen,
       isAccessible: true,
-      requiredLevel: "L0",
+      requiredLevel: "General",
       requiredPoints: 0,
       description: "Structured video masterclasses, assignments, and practical resin modules.",
     },
@@ -94,10 +98,10 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       name: "Webinar",
       path: "/student/webinar",
       icon: Sparkles,
-      isAccessible: true,
-      requiredLevel: "L0",
+      isAccessible: isL0Accessible,
+      requiredLevel: "Level 0 (Fast Track)",
       requiredPoints: 0,
-      description: "Live Webinar registration details, Zoom link, VIP WhatsApp group, and preparation workshop video.",
+      description: "Live Webinar registration details, Zoom link, VIP WhatsApp group, and preparation workshop video unlock with Level 0 (Fast Track).",
     },
     {
       name: "Northstar",
@@ -112,10 +116,10 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       name: "Merch store",
       path: "/student/rewards",
       icon: ShoppingBag,
-      isAccessible: true,
-      requiredLevel: "L0",
+      isAccessible: isL0Accessible,
+      requiredLevel: "Level 0 (Fast Track)",
       requiredPoints: 0,
-      description: "Exclusive resin art kits, pigments, molds, silicone tools, and official merchandise.",
+      description: "Exclusive resin art kits, pigments, molds, silicone tools, and official merchandise unlock with Level 0 (Fast Track).",
     },
   ];
 
@@ -210,7 +214,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
               <div className="text-xs">
                 <span className="font-black text-white font-mono">{points.toLocaleString()} XP</span>
                 <span className="text-slate-500 mx-1">·</span>
-                <span className="font-bold text-orange-400">{studentLevelCode}</span>
+                <span className="font-bold text-orange-400">{studentLevelCode === "GENERAL" ? "General" : studentLevelCode}</span>
               </div>
             </Link>
 

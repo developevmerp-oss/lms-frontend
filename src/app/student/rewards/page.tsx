@@ -3,15 +3,18 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
-import { Gift, Star, ShieldAlert, Sparkles, AlertCircle } from "lucide-react";
+import { Gift, Star, ShieldAlert, Sparkles, AlertCircle, Lock, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { API_BASE_URL } from "@/config/api";
+import { getLevelCode } from "@/components/layout/StudentNav";
+import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
 export default function StudentRewards() {
   const { user, token, logout } = useAuth();
   const [rewards, setRewards] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({ points: 0, notifications: [] });
   const [isRedeeming, setIsRedeeming] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const fetchData = async () => {
     if (!token) return;
@@ -73,7 +76,12 @@ export default function StudentRewards() {
     }
   };
 
+  const effectiveLevel = user?.membershipLevel || user?.rank || "";
+  const studentLevelCode = getLevelCode(effectiveLevel, stats.points || 0);
+  const isGeneral = studentLevelCode === "GENERAL";
+
   const getLevelName = (points: number) => {
+    if (isGeneral) return "General Member";
     if (points < 500) return "Fast Start (L0)";
     if (points < 5000) return "Silver Member (L1)";
     if (points < 10000) return "Gold Member (L2)";
@@ -92,6 +100,34 @@ export default function StudentRewards() {
       />
 
       <main className="flex-1 max-w-[1400px] mx-auto w-full p-4 md:p-8">
+        {isGeneral ? (
+          <div className="py-12 px-4 max-w-2xl mx-auto text-center space-y-6">
+            <div className="w-16 h-16 rounded-3xl bg-pink-500/20 border-2 border-pink-500/40 flex items-center justify-center text-pink-400 mx-auto shadow-2xl">
+              <Lock size={32} />
+            </div>
+            <h1 className="text-3xl font-black text-white">Rewards Store is Locked for General Members</h1>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              General members cannot redeem physical merch or mentoring calls without active Level enrollment. Upgrade to Fast Track (Level 0) or above to unlock the Rewards Store and earn XP.
+            </p>
+            <button
+              onClick={() => setShowUpgradeModal(true)}
+              className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-sm shadow-xl flex items-center gap-2 mx-auto hover:scale-105 transition-all cursor-pointer"
+            >
+              <Zap size={16} />
+              Unlock Fast Track (₹499)
+            </button>
+            <TierPurchaseModal
+              isOpen={showUpgradeModal}
+              onClose={() => setShowUpgradeModal(false)}
+              preselectedTier="L0"
+              onSuccess={() => {
+                setShowUpgradeModal(false);
+                fetchData();
+              }}
+            />
+          </div>
+        ) : (
+        <>
         <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6">
           <div>
             <h1 className="text-2xl md:text-5xl font-black text-white flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
@@ -188,6 +224,8 @@ export default function StudentRewards() {
             );
           })}
         </div>
+        </>
+        )}
       </main>
     </div>
   );
