@@ -158,7 +158,8 @@ export default function StudentCourses() {
     return LEVEL_TIER_CONFIG[lvlCode]?.price || "₹499";
   };
 
-  const studentLevelCode = getLevelCode(user?.membershipLevel || stats.membershipLevel || stats.rank, stats.points || 0);
+  const effectiveLevelName = user?.membershipLevel || user?.level || stats.membershipLevel || stats.rank || user?.rank || "";
+  const studentLevelCode = getLevelCode(effectiveLevelName, stats.points || 0);
   const studentRankNum = LEVEL_HIERARCHY[studentLevelCode] ?? 0;
 
   const isCourseUnlocked = (courseLevel: string) => {
@@ -168,7 +169,7 @@ export default function StudentCourses() {
   };
 
   const getLevelName = () => {
-    return user?.membershipLevel || stats.membershipLevel || stats.rank || "Fast Track (L0)";
+    return effectiveLevelName || "Fast Track (L0)";
   };
 
   const displayedCourses = courses.filter((c) => {
@@ -335,7 +336,7 @@ export default function StudentCourses() {
                           onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
                           className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-md hover:scale-105 cursor-pointer"
                         >
-                          Unlock {cfg.name} ({getTierPrice(lvl)})
+                          Unlock {levelDisplayName} ({getTierPrice(lvl)})
                         </button>
                       )}
                     </div>
@@ -437,6 +438,8 @@ export default function StudentCourses() {
             const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
             const isActive = activeLevelFilter === lvl;
             const isUnlocked = isCourseUnlocked(lvl);
+            const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
+            const levelDisplayName = liveLevel?.name || cfg.name;
 
             return (
               <button
@@ -451,7 +454,7 @@ export default function StudentCourses() {
                 <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${isActive ? "bg-slate-950 text-orange-400" : `${cfg.bg} ${cfg.color}`}`}>
                   {lvl}
                 </span>
-                <span>{cfg.name}</span>
+                <span>{levelDisplayName}</span>
                 {!isUnlocked && <Lock size={12} className="text-slate-500" />}
                 <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
                   {count}
