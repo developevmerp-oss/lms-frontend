@@ -576,6 +576,117 @@ body {
   font-weight: 900 !important;
 }
 
+/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO (#mentor) IN LIGHT MODE ─── */
+.light #mentor {
+  background-color: transparent !important;
+}
+
+/* 1. Main Mentor Feature Card in Light Mode */
+.light #mentor .bg-slate-900,
+.light #mentor [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.07), 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* 2. Headings & Names */
+.light #mentor h2,
+.light #mentor h3,
+.light #mentor h4 {
+  color: #0f172a !important;
+}
+
+.light #mentor p {
+  color: #334155 !important;
+}
+
+.light #mentor .text-slate-200,
+.light #mentor .text-slate-300 {
+  color: #334155 !important;
+}
+
+/* 3. Subtitles, Roles & Mentor Badges */
+.light #mentor .text-orange-400,
+.light #mentor .text-orange-500 {
+  color: #ea580c !important;
+}
+
+/* 4. Stat Pills (54K+ Students, 8K+ Orders, 5.0 Google) */
+.light #mentor [class*="bg-slate-950/60"],
+.light #mentor .mentor-stat-pill {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light #mentor [class*="bg-slate-950/60"] p:last-child,
+.light #mentor .mentor-stat-pill p:last-child {
+  color: #64748b !important;
+}
+
+/* 5. Luxury Quote Callout Box in Light Mode */
+.light #mentor [class*="border-orange-500"][class*="border-l-4"],
+.light #mentor .mentor-quote-box {
+  background-color: #fff7ed !important;
+  border-top-color: #fed7aa !important;
+  border-right-color: #fed7aa !important;
+  border-bottom-color: #fed7aa !important;
+  border-left-color: #ea580c !important;
+}
+
+.light #mentor [class*="border-orange-500"][class*="border-l-4"] p,
+.light #mentor .mentor-quote-box p {
+  color: #9a3412 !important;
+}
+
+.light #mentor [class*="border-orange-500"][class*="border-l-4"] p:last-child,
+.light #mentor .mentor-quote-box .author-cite {
+  color: #c2410c !important;
+}
+
+/* 6. Photo Overlay Chip (Floating Verified Mentor Badge on Photo) */
+.light #mentor .absolute [class*="bg-slate-950"],
+.light #mentor .absolute [class*="backdrop-blur"],
+.light #mentor .photo-overlay-chip {
+  background-color: rgba(15, 23, 42, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.light #mentor .absolute [class*="bg-slate-950"] *,
+.light #mentor .absolute [class*="backdrop-blur"] *,
+.light #mentor .photo-overlay-chip * {
+  color: #ffffff !important;
+}
+
+.light #mentor .absolute [class*="bg-slate-950"] .text-orange-400,
+.light #mentor .absolute [class*="backdrop-blur"] .text-orange-400,
+.light #mentor .photo-overlay-chip .text-orange-400 {
+  color: #fb923c !important;
+}
+
+.light #mentor .absolute [class*="bg-slate-950"] .text-cyan-400,
+.light #mentor .absolute [class*="backdrop-blur"] .text-cyan-400,
+.light #mentor .photo-overlay-chip .text-cyan-400 {
+  color: #38bdf8 !important;
+}
+
+.light #mentor .absolute [class*="bg-slate-950"] .text-purple-400,
+.light #mentor .absolute [class*="backdrop-blur"] .text-purple-400,
+.light #mentor .photo-overlay-chip .text-purple-400 {
+  color: #c084fc !important;
+}
+
+.light #mentor .absolute [class*="bg-slate-950"] .text-emerald-400,
+.light #mentor .absolute [class*="backdrop-blur"] .text-emerald-400,
+.light #mentor .photo-overlay-chip .text-emerald-400 {
+  color: #4ade80 !important;
+}
+
+/* 7. Bottom Recognition Cards Image Background in Light Mode */
+.light #mentor .h-56.bg-slate-950 {
+  background-color: #e2e8f0 !important;
+}
+
 /* Section 10: ART-O-THON Light Mode Overhaul */
 .light #artothon {
   background-color: #f8fafc !important;

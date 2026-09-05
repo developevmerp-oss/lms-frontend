@@ -671,7 +671,7 @@ export default function HomePage() {
                     alt="Vrajangna Patel - Resin Art & Business Coach"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center justify-center gap-1.5 shadow-md">
+                  <div className="photo-overlay-chip absolute bottom-2.5 left-2.5 right-2.5 bg-slate-950/85 backdrop-blur-md border border-white/20 rounded-xl px-2.5 py-1.5 flex items-center justify-center gap-1.5 shadow-md">
                     <ShieldCheck size={14} className="text-orange-400" />
                     <span className="text-[11px] font-black text-white uppercase tracking-wider">Verified Mentor</span>
                   </div>
@@ -684,15 +684,15 @@ export default function HomePage() {
 
                 {/* 3 Quick Metric Badges */}
                 <div className="grid grid-cols-3 gap-2 w-full max-w-xs mt-4">
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                  <div className="mentor-stat-pill bg-slate-950/60 border border-slate-800 rounded-xl p-2">
                     <p className="text-sm sm:text-base font-black text-orange-400">54K+</p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase">Students</p>
                   </div>
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                  <div className="mentor-stat-pill bg-slate-950/60 border border-slate-800 rounded-xl p-2">
                     <p className="text-sm sm:text-base font-black text-cyan-400">8K+</p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase">Orders</p>
                   </div>
-                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                  <div className="mentor-stat-pill bg-slate-950/60 border border-slate-800 rounded-xl p-2">
                     <p className="text-sm sm:text-base font-black text-amber-400">5.0 ★</p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase">Google</p>
                   </div>
@@ -727,11 +727,11 @@ export default function HomePage() {
                 </p>
 
                 {/* Luxury Quote Callout */}
-                <div className="bg-slate-950/50 border-l-4 border-orange-500 rounded-r-2xl p-5 border-y border-r border-slate-800/80 shadow-sm">
+                <div className="mentor-quote-box bg-slate-950/50 border-l-4 border-orange-500 rounded-r-2xl p-5 border-y border-r border-slate-800/80 shadow-sm">
                   <p className="text-sm md:text-base text-orange-300/90 font-bold italic leading-relaxed">
                     "Because I believe every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
                   </p>
-                  <p className="text-xs text-slate-400 font-semibold mt-1.5 not-italic">
+                  <p className="author-cite text-xs text-slate-400 font-semibold mt-1.5 not-italic">
                     — Vrajangna Patel, Founder &amp; Coach
                   </p>
                 </div>
