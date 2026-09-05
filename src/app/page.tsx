@@ -311,10 +311,10 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto text-center">
 
           {/* Luminous Top Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+          {/* <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
             <Award size={14} className="text-orange-500" />
-            {/* <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span> */}
-          </div>
+            { <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span> }
+        </div> */}
 
           {/* Hero Headline */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.15] mb-6 text-white">
@@ -382,10 +382,10 @@ export default function HomePage() {
           <HeroVideoPlayer />
 
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 2: THE REAL PROBLEM ─── */}
-      <section id="problem" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section id="problem" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-red-400 text-xs font-black uppercase tracking-widest block mb-2">The Real Challenge</span>
@@ -431,10 +431,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 3: THE REFRAME ─── */}
-      <section className="py-24 px-6 relative z-10">
+      < section className="py-24 px-6 relative z-10" >
         <div className="max-w-5xl mx-auto text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Mindset</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
@@ -478,10 +478,10 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 4: DOES THIS SOUND LIKE YOU? ─── */}
-      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Self Reflection</span>
@@ -546,10 +546,10 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 5: ABOUT VRAJANGNA ─── */}
-      <section id="mentor" className="py-24 px-6 relative z-10">
+      < section id="mentor" className="py-24 px-6 relative z-10" >
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-14 shadow-2xl">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -648,10 +648,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 6: SOCIAL PROOF ─── */}
-      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Verified Track Record</span>
@@ -714,10 +714,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 7: VISIBLE GROWTH ─── */}
-      <section className="py-24 px-6 relative z-10">
+      < section className="py-24 px-6 relative z-10" >
         <div className="max-w-5xl mx-auto text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Gamified Progress Tracking</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
@@ -755,10 +755,10 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 8: YOUR JOURNEY ─── */}
-      <section className="py-20 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section className="py-20 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Zero Barrier To Start</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
@@ -794,10 +794,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 9: THE PATH ─── */}
-      <section id="path" className="py-24 px-6 relative z-10">
+      < section id="path" className="py-24 px-6 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Framework</span>
@@ -855,10 +855,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 10: WHAT YOU WILL LEARN ─── */}
-      <section id="curriculum" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section id="curriculum" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Curriculum + Outcomes</span>
@@ -916,10 +916,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 11: SIX DIMENSIONS OF SUCCESS ─── */}
-      <section id="dimensions" className="py-24 px-6 relative z-10">
+      < section id="dimensions" className="py-24 px-6 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Holistic Development</span>
@@ -948,10 +948,10 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 12: ART-O-THON ─── */}
-      <section id="artothon" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section id="artothon" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-5xl mx-auto">
           <div className="bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/40 rounded-3xl p-8 md:p-14 shadow-2xl hover:border-orange-500/60 transition-colors">
             <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
@@ -982,10 +982,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 13: COMMUNITY ─── */}
-      <section id="community" className="py-24 px-6 relative z-10">
+      < section id="community" className="py-24 px-6 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Sisterhood &amp; Support</span>
@@ -1024,10 +1024,10 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 14: STUDENT TRANSFORMATION ─── */}
-      <section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10">
+      < section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10" >
         <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
@@ -1084,10 +1084,10 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
-      <section id="membership" className="py-24 px-6 relative z-10">
+      < section id="membership" className="py-24 px-6 relative z-10" >
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Level Progression</span>
@@ -1244,10 +1244,10 @@ export default function HomePage() {
             })}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 16: FREE MASTERCLASS ─── */}
-      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      < section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Free Training Invitation</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
@@ -1283,10 +1283,10 @@ export default function HomePage() {
             Join The Free Masterclass
           </Link>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 17: FINAL EMOTIONAL CTA ─── */}
-      <section className="py-24 px-6 relative overflow-hidden z-10">
+      < section className="py-24 px-6 relative overflow-hidden z-10" >
         <div className="absolute inset-0 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent pointer-events-none" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/40 animate-float">
@@ -1323,10 +1323,10 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ─── SECTION 18: FOOTER / CLOSING STATEMENT ─── */}
-      <footer className="bg-slate-950 border-t border-slate-800/80 py-16 px-6 relative z-10 text-slate-400">
+      < footer className="bg-slate-950 border-t border-slate-800/80 py-16 px-6 relative z-10 text-slate-400" >
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pb-12 border-b border-slate-800/80">
             <div className="space-y-3">
@@ -1364,7 +1364,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 }
