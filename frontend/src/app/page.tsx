@@ -654,90 +654,67 @@ export default function HomePage() {
 
       {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── */}
       <section id="mentor" className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          {/* Main 2-Column Split: Sticky Left Mentor Card + Scrolling Right Portfolio & Bio */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div className="max-w-6xl mx-auto space-y-14">
 
-            {/* ── LEFT COLUMN: STICKY MENTOR PROFILE CARD ── */}
-            <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-5 self-start">
-              <div className="bg-gradient-to-b from-slate-900/95 via-slate-900/90 to-slate-950/95 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
-                <div className="absolute -top-20 -left-20 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          {/* ── PART A: EXECUTIVE MENTOR FEATURE CARD ── */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute -top-24 -left-24 w-56 h-56 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-56 h-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Mentor Photo Container */}
-                <div className="relative aspect-[4/4.5] w-full rounded-2xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 mb-5 group">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              
+              {/* Left Column: Portrait & Authority Metrics */}
+              <div className="lg:col-span-4 flex flex-col items-center text-center">
+                <div className="relative w-52 h-52 sm:w-60 sm:h-60 rounded-3xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 mb-4 group">
                   <img
                     src="/images/mentor/vrajangna-portrait.jpg"
                     alt="Vrajangna Patel - Resin Art & Business Coach"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
-
-                  {/* Floating Identity Chip on Portrait */}
-                  <div className="absolute bottom-3 left-3 right-3 bg-slate-950/85 backdrop-blur-md border border-white/10 rounded-xl px-3.5 py-2.5 flex items-center justify-between shadow-lg">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="text-base font-black text-white">Vrajangna Patel</h3>
-                        <ShieldCheck size={14} className="text-orange-400" />
-                      </div>
-                      <p className="text-[11px] text-orange-400 font-semibold tracking-wide">
-                        Founder &amp; Resin Art Business Coach
-                      </p>
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-500/40 px-2 py-0.5 rounded-full">
-                      ⭐ Mentor
-                    </span>
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center justify-center gap-1.5 shadow-md">
+                    <ShieldCheck size={14} className="text-orange-400" />
+                    <span className="text-[11px] font-black text-white uppercase tracking-wider">Verified Mentor</span>
                   </div>
                 </div>
 
-                {/* Quick Authority Badges / Stats */}
-                <div className="grid grid-cols-3 gap-2 text-center mb-5">
-                  <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5">
-                    <p className="text-base font-black text-orange-400">54K+</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Students</p>
+                <h3 className="text-2xl font-black text-white">Vrajangna Patel</h3>
+                <p className="text-xs text-orange-400 font-bold uppercase tracking-wider mt-1">
+                  Founder &amp; Resin Art Business Coach
+                </p>
+
+                {/* 3 Quick Metric Badges */}
+                <div className="grid grid-cols-3 gap-2 w-full max-w-xs mt-4">
+                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                    <p className="text-sm sm:text-base font-black text-orange-400">54K+</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">Students</p>
                   </div>
-                  <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5">
-                    <p className="text-base font-black text-cyan-400">8K+</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Orders</p>
+                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                    <p className="text-sm sm:text-base font-black text-cyan-400">8K+</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">Orders</p>
                   </div>
-                  <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5">
-                    <p className="text-base font-black text-amber-400">5.0 ★</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Google</p>
+                  <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                    <p className="text-sm sm:text-base font-black text-amber-400">5.0 ★</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">Google</p>
                   </div>
                 </div>
 
-                {/* Mentor Quote */}
-                <blockquote className="border-l-2 border-orange-500/80 pl-3.5 py-1 mb-5">
-                  <p className="text-xs sm:text-[13px] text-slate-300 italic leading-relaxed">
-                    "Every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
-                  </p>
-                  <cite className="block text-[11px] text-orange-400/90 font-bold mt-1.5 not-italic">
-                    — Vrajangna Patel
-                  </cite>
-                </blockquote>
-
-                {/* Sticky CTA Button */}
                 <Link
                   href="/webinar"
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider py-3.5 px-4 rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 group transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full max-w-xs mt-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider py-3 px-4 rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 group transition-all hover:scale-105"
                 >
-                  <Sparkles size={14} className="text-slate-950" />
+                  <Sparkles size={13} className="text-slate-950" />
                   <span>Join Live Masterclass</span>
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
-            </div>
 
-            {/* ── RIGHT COLUMN: SCROLLING PORTFOLIO & RECOGNITION ── */}
-            <div className="lg:col-span-7 space-y-8">
-
-              {/* Bio & Vision Story */}
-              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 md:p-9 shadow-xl space-y-4">
+              {/* Right Column: Story & Vision */}
+              <div className="lg:col-span-8 space-y-5">
                 <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full">
-                  <Sparkles size={13} className="animate-pulse" /> Proven Track Record &amp; Coaching
+                  <Sparkles size={13} className="animate-pulse" /> Meet Your Mentor &amp; Coach
                 </div>
 
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight">
+                <h2 className="text-2xl md:text-4xl font-black text-white leading-tight">
                   Meet Vrajangna — Your Resin Art &amp; Business Coach
                 </h2>
 
@@ -746,132 +723,172 @@ export default function HomePage() {
                 </p>
 
                 <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-                  My mission goes far beyond teaching technique. I help women, homemakers, and aspiring entrepreneurs believe in their creative power, master commercial-grade resin finishes, and turn that craft into a source of personal respect and financial independence.
+                  My goal isn't just to teach you how to make Resin Art. My goal is to help you believe that your creativity can become something meaningful, valuable and truly yours.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {/* Luxury Quote Callout */}
+                <div className="bg-slate-950/50 border-l-4 border-orange-500 rounded-r-2xl p-5 border-y border-r border-slate-800/80 shadow-sm">
+                  <p className="text-sm md:text-base text-orange-300/90 font-bold italic leading-relaxed">
+                    "Because I believe every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
+                  </p>
+                  <p className="text-xs text-slate-400 font-semibold mt-1.5 not-italic">
+                    — Vrajangna Patel, Founder &amp; Coach
+                  </p>
+                </div>
+
+                {/* 4 Feature Checkmarks */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
-                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <CheckCircle2 size={16} className="text-orange-400 shrink-0" />
                     <span>6+ Years Professional Experience</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
-                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <CheckCircle2 size={16} className="text-orange-400 shrink-0" />
                     <span>Nationally Recognized Art Coach</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
-                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <CheckCircle2 size={16} className="text-orange-400 shrink-0" />
                     <span>Step-by-Step Business Frameworks</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
-                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <CheckCircle2 size={16} className="text-orange-400 shrink-0" />
                     <span>Hands-On Lifetime Community</span>
                   </div>
                 </div>
               </div>
 
-              {/* Portfolio Accolade Cards Stack */}
-              <div className="space-y-6">
+            </div>
+          </div>
 
-                {/* 1. Hall of Fame Award */}
-                <div className="bg-slate-900/90 border border-slate-800 hover:border-orange-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
-                  <div className="h-72 sm:h-80 overflow-hidden relative">
-                    <img
-                      src="/images/mentor/hall-of-fame-award.jpg"
-                      alt="Vrajangna Patel Hall of Fame Award"
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                    <span className="absolute top-4 left-4 bg-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
-                      <Trophy size={13} /> Hall of Fame Award
-                    </span>
-                  </div>
-                  <div className="p-6 sm:p-7 space-y-2">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <h3 className="font-black text-white text-lg sm:text-xl">Hall of Fame Felicitation 2022–23</h3>
-                      <span className="text-xs font-bold text-orange-400 bg-orange-500/10 border border-orange-500/30 px-2.5 py-1 rounded-lg">Freedom Retreat</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Awarded national stage recognition by India's leading coach Siddharth Rajsekar at Freedom Retreat for establishing one of the country's most vibrant and student-centric creative academies.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 2. Diamond Club Award */}
-                <div className="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
-                  <div className="h-72 sm:h-80 overflow-hidden relative">
-                    <img
-                      src="/images/mentor/diamond-award.jpg"
-                      alt="Vrajangna Patel Diamond Awards"
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                    <span className="absolute top-4 left-4 bg-cyan-400 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
-                      <Gem size={13} /> Diamond Club Felicitation
-                    </span>
-                  </div>
-                  <div className="p-6 sm:p-7 space-y-2">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <h3 className="font-black text-white text-lg sm:text-xl">Diamond Club Top Mentor Award</h3>
-                      <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1 rounded-lg">Elite Recognition</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Felicitated with the Diamond status for impacting thousands of households by teaching high-margin resin craft, floral preservation, and order fulfillment systems.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. Published Author Feature */}
-                <div className="bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
-                  <div className="h-72 sm:h-80 overflow-hidden relative">
-                    <img
-                      src="/images/mentor/author-feature.jpg"
-                      alt="Vrajangna Patel Published Author"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                    <span className="absolute top-4 left-4 bg-purple-400 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
-                      <BookOpen size={13} /> Published Author
-                    </span>
-                  </div>
-                  <div className="p-6 sm:p-7 space-y-2">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <h3 className="font-black text-white text-lg sm:text-xl">Authored in "I Can Coach" Book</h3>
-                      <span className="text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-2.5 py-1 rounded-lg">Published Work</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Featured alongside top educators nationwide, detailing her transformation from crafting at a small kitchen table to operating a premier art academy and mentoring 54,000+ creators.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 4. Hands-on Mentorship & Live Workshops */}
-                <div className="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
-                  <div className="h-72 sm:h-80 overflow-hidden relative">
-                    <img
-                      src="/images/mentor/live-workshop.jpg"
-                      alt="Vrajangna Patel Live Workshop Mentorship"
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                    <span className="absolute top-4 left-4 bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
-                      <Users size={13} /> Live Interactive Coaching
-                    </span>
-                  </div>
-                  <div className="p-6 sm:p-7 space-y-2">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <h3 className="font-black text-white text-lg sm:text-xl">Weekly Live Sessions &amp; Personal Feedback</h3>
-                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-lg">Hands-on Support</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Every student receives real-time guidance, artwork critique, formula troubleshooting, and client pricing blueprints directly in our interactive live workshops and community calls.
-                    </p>
-                  </div>
-                </div>
-
-              </div>
+          {/* ── PART B: 4-CARD PORTFOLIO & RECOGNITION SHOWCASE ── */}
+          <div>
+            <div className="text-center max-w-3xl mx-auto mb-10">
+              <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Proven Track Record</span>
+              <h3 className="text-2xl md:text-3xl font-black text-white mb-2">
+                Real Milestones, Awards &amp; National Recognition
+              </h3>
+              <p className="text-slate-400 text-xs sm:text-sm">
+                From national stage honors to published author features — a verified track record of creative and business excellence.
+              </p>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              {/* Card 1: Hall of Fame */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-orange-500/50 hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
+                <div>
+                  <div className="h-56 overflow-hidden relative bg-slate-950">
+                    <img
+                      src="/images/mentor/hall-of-fame-award.jpg"
+                      alt="Hall of Fame Award 2022-23"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-white/15 text-orange-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                      <Trophy size={11} className="text-orange-400" /> Hall of Fame
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h4 className="font-bold text-white text-base mb-1.5">Hall of Fame 2022–23</h4>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Awarded on the main national stage by Siddharth Rajsekar at Freedom Retreat for coaching thousands of creators.
+                    </p>
+                  </div>
+                </div>
+                <div className="px-5 pb-5 pt-1">
+                  <span className="text-[10px] font-bold text-orange-400/90 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md inline-block">
+                    National Recognition
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: Diamond Club */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-cyan-500/50 hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
+                <div>
+                  <div className="h-56 overflow-hidden relative bg-slate-950">
+                    <img
+                      src="/images/mentor/diamond-award.jpg"
+                      alt="Diamond Club Felicitation"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-white/15 text-cyan-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                      <Gem size={11} className="text-cyan-400" /> Diamond Club
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h4 className="font-bold text-white text-base mb-1.5">Diamond Club Felicitation</h4>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Honored for transforming home-based artists into sustainable commercial business owners.
+                    </p>
+                  </div>
+                </div>
+                <div className="px-5 pb-5 pt-1">
+                  <span className="text-[10px] font-bold text-cyan-400/90 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md inline-block">
+                    Elite Coaching Milestone
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 3: Published Author */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-purple-500/50 hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
+                <div>
+                  <div className="h-56 overflow-hidden relative bg-slate-950">
+                    <img
+                      src="/images/mentor/author-feature.jpg"
+                      alt="Published Author in I Can Coach"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-white/15 text-purple-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                      <BookOpen size={11} className="text-purple-400" /> Published Author
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h4 className="font-bold text-white text-base mb-1.5">"I Can Coach" Feature</h4>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Chronicled her inspiring journey from amateur resin hobbyist to a leading educator across India.
+                    </p>
+                  </div>
+                </div>
+                <div className="px-5 pb-5 pt-1">
+                  <span className="text-[10px] font-bold text-purple-400/90 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md inline-block">
+                    Published Work
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 4: Live Mentorship */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-emerald-500/50 hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between">
+                <div>
+                  <div className="h-56 overflow-hidden relative bg-slate-950">
+                    <img
+                      src="/images/mentor/live-workshop.jpg"
+                      alt="Live Hands-on Mentorship & Workshops"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <span className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-white/15 text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                      <Users size={11} className="text-emerald-400" /> Live Mentorship
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <h4 className="font-bold text-white text-base mb-1.5">Weekly Live Guidance</h4>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Real-time artwork reviews, chemistry problem-solving, and direct coaching in high-energy sessions.
+                    </p>
+                  </div>
+                </div>
+                <div className="px-5 pb-5 pt-1">
+                  <span className="text-[10px] font-bold text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md inline-block">
+                    Hands-On Support
+                  </span>
+                </div>
+              </div>
+
+            </div>
           </div>
+
         </div>
       </section>
 
