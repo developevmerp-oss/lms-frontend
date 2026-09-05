@@ -217,6 +217,7 @@ export default function HomePage() {
   const sixDimensions = [
     {
       title: "Skill",
+      outcomeTag: "Professional Quality",
       icon: Brush,
       color: "from-orange-500 to-amber-500",
       border: "border-orange-500/40",
@@ -225,6 +226,7 @@ export default function HomePage() {
     },
     {
       title: "Creativity",
+      outcomeTag: "Artistic Expression",
       icon: Palette,
       color: "from-purple-500 to-pink-500",
       border: "border-purple-500/40",
@@ -233,6 +235,7 @@ export default function HomePage() {
     },
     {
       title: "Identity",
+      outcomeTag: "Recognized Brand",
       icon: Crown,
       color: "from-cyan-500 to-blue-500",
       border: "border-cyan-500/40",
@@ -241,6 +244,7 @@ export default function HomePage() {
     },
     {
       title: "Business",
+      outcomeTag: "Commercial Income",
       icon: Briefcase,
       color: "from-emerald-500 to-teal-500",
       border: "border-emerald-500/40",
@@ -249,6 +253,7 @@ export default function HomePage() {
     },
     {
       title: "Impact",
+      outcomeTag: "Customer Value",
       icon: Globe,
       color: "from-rose-500 to-red-500",
       border: "border-rose-500/40",
@@ -257,6 +262,7 @@ export default function HomePage() {
     },
     {
       title: "Personal Growth",
+      outcomeTag: "Confidence & Pride",
       icon: Sparkles,
       color: "from-amber-400 to-yellow-500",
       border: "border-amber-400/40",
@@ -385,7 +391,7 @@ export default function HomePage() {
       </section >
 
       {/* ─── SECTION 2: THE REAL PROBLEM ─── */}
-      < section id="problem" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
+      <section id="problem" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-red-400 text-xs font-black uppercase tracking-widest block mb-2">The Real Challenge</span>
@@ -397,44 +403,95 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl space-y-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <AlertCircle className="text-amber-400 animate-pulse" size={22} />
-              You may still be wondering:
-            </h3>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 sm:p-10 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-slate-800">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
+                <AlertCircle className="text-amber-400 animate-pulse shrink-0" size={22} />
+                <span>You may still be wondering:</span>
+              </h3>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700">
+                6 Common Roadblocks
+              </span>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                "What to learn next & which techniques to master",
-                "What exact products to create for maximum demand",
-                "How to develop your own signature recognizable style",
-                "How to showcase your artwork with confidence",
-                "How to get consistent, high-paying orders",
-                "How to turn your creative skill into predictable income"
+                {
+                  badge: "Curriculum Void",
+                  icon: Compass,
+                  question: "What to learn next & which techniques to master",
+                  color: "text-amber-400",
+                  badgeBg: "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                },
+                {
+                  badge: "Product Demand",
+                  icon: Target,
+                  question: "What exact products to create for maximum demand",
+                  color: "text-rose-400",
+                  badgeBg: "bg-rose-500/15 text-rose-300 border-rose-500/30"
+                },
+                {
+                  badge: "Signature Style",
+                  icon: Palette,
+                  question: "How to develop your own signature recognizable style",
+                  color: "text-purple-400",
+                  badgeBg: "bg-purple-500/15 text-purple-300 border-purple-500/30"
+                },
+                {
+                  badge: "Portfolio Proof",
+                  icon: Award,
+                  question: "How to showcase your artwork with confidence",
+                  color: "text-cyan-400",
+                  badgeBg: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+                },
+                {
+                  badge: "Order Consistency",
+                  icon: Briefcase,
+                  question: "How to get consistent, high-paying orders",
+                  color: "text-emerald-400",
+                  badgeBg: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                },
+                {
+                  badge: "Income Blueprint",
+                  icon: TrendingUp,
+                  question: "How to turn your creative skill into predictable income",
+                  color: "text-orange-400",
+                  badgeBg: "bg-orange-500/15 text-orange-300 border-orange-500/30"
+                }
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 hover:border-red-500/40 hover:-translate-y-1 transition-all duration-300 shadow-md"
+                  className="flex items-start gap-3.5 bg-slate-950/80 border border-slate-800 rounded-2xl p-4 hover:border-orange-500/40 hover:-translate-y-1 transition-all duration-300 shadow-md group"
                 >
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-xs font-bold shrink-0 mt-0.5">
-                    ?
+                  <div className={`w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 ${item.color} group-hover:scale-110 transition-transform shadow-sm`}>
+                    <item.icon size={18} />
                   </div>
-                  <p className="text-sm text-slate-300 leading-snug">{item}</p>
+                  <div className="space-y-1 min-w-0">
+                    <span className={`inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${item.badgeBg}`}>
+                      {item.badge}
+                    </span>
+                    <p className="text-sm text-slate-300 leading-snug">
+                      {item.question}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border-l-4 border-orange-500 rounded-r-2xl p-6 shadow-inner">
+            <div className="mt-8 bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-slate-950 border-l-4 border-orange-500 rounded-r-2xl p-6 shadow-inner flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
+                <Lightbulb size={22} />
+              </div>
               <p className="text-base md:text-lg font-bold text-white leading-relaxed">
-                The problem isn't your talent. <span className="text-orange-400">The problem is that nobody gave you a clear path.</span>
+                The problem isn't your talent. <span className="text-orange-400 font-black underline decoration-orange-500/50 underline-offset-4">The problem is that nobody gave you a clear path.</span>
               </p>
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 3: THE REFRAME ─── */}
-      < section className="py-24 px-6 relative z-10" >
+      <section className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Mindset</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
@@ -445,25 +502,39 @@ export default function HomePage() {
           </p>
 
           {/* The Vehicle Progression Map */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl mb-12">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 items-center">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl mb-12">
+            <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800 flex-wrap gap-2 text-left">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                6-Stage Progression Flow
+              </span>
+              <span className="text-xs font-bold text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/30">
+                From Passion to Freedom ➔
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 items-stretch">
               {[
-                { title: "Passion", desc: "Creative spark", icon: Flame, color: "text-orange-400", hoverColor: "hover:border-orange-500/60" },
-                { title: "Skill", desc: "Technique mastery", icon: Brush, color: "text-amber-400", hoverColor: "hover:border-amber-500/60" },
-                { title: "Signature", desc: "Unique style", icon: Sparkles, color: "text-yellow-400", hoverColor: "hover:border-yellow-500/60" },
-                { title: "Portfolio", desc: "Showcase proof", icon: Layers, color: "text-emerald-400", hoverColor: "hover:border-emerald-500/60" },
-                { title: "Income", desc: "Monetization", icon: DollarSign, color: "text-cyan-400", hoverColor: "hover:border-cyan-500/60" },
-                { title: "Freedom", desc: "Self-identity", icon: Trophy, color: "text-purple-400", hoverColor: "hover:border-purple-500/60" }
+                { step: "01", title: "Passion", desc: "Creative spark", icon: Flame, color: "text-orange-400", hoverColor: "hover:border-orange-500/60" },
+                { step: "02", title: "Skill", desc: "Technique mastery", icon: Brush, color: "text-amber-400", hoverColor: "hover:border-amber-500/60" },
+                { step: "03", title: "Signature", desc: "Unique style", icon: Sparkles, color: "text-yellow-400", hoverColor: "hover:border-yellow-500/60" },
+                { step: "04", title: "Portfolio", desc: "Showcase proof", icon: Layers, color: "text-emerald-400", hoverColor: "hover:border-emerald-500/60" },
+                { step: "05", title: "Income", desc: "Monetization", icon: DollarSign, color: "text-cyan-400", hoverColor: "hover:border-cyan-500/60" },
+                { step: "06", title: "Freedom", desc: "Self-identity", icon: Trophy, color: "text-purple-400", hoverColor: "hover:border-purple-500/60" }
               ].map((step, idx) => (
                 <div
                   key={idx}
-                  className={`bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center group ${step.hoverColor} hover:-translate-y-1.5 transition-all duration-300 shadow-md`}
+                  className={`bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center group ${step.hoverColor} hover:-translate-y-1.5 transition-all duration-300 shadow-md flex flex-col justify-between relative`}
                 >
-                  <div className={`w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mx-auto mb-2 ${step.color} group-hover:scale-110 transition-transform duration-300`}>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block mb-1">
+                    Stage {step.step}
+                  </span>
+                  <div className={`w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mx-auto mb-2 ${step.color} group-hover:scale-110 transition-transform duration-300 border border-slate-800`}>
                     <step.icon size={20} />
                   </div>
-                  <p className="font-bold text-white text-sm">{step.title}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{step.desc}</p>
+                  <div>
+                    <p className="font-bold text-white text-sm">{step.title}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{step.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -478,10 +549,10 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 4: DOES THIS SOUND LIKE YOU? ─── */}
-      < section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
+      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Self Reflection</span>
@@ -497,45 +568,78 @@ export default function HomePage() {
             {/* Card 1 */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
-                  1
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
+                    1
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-300 bg-orange-500/15 border border-orange-500/30 px-2.5 py-1 rounded-full">
+                    Stage: The Explorer
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">
+                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
                   You Love Creating, But You Don't Know What To Focus On.
                 </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
                   You keep learning different techniques from scattered videos but still feel confused about what you should master next to make real progress.
                 </p>
+              </div>
+              <div className="pt-4 border-t border-slate-800/80">
+                <div className="flex items-center gap-2 text-xs font-semibold text-orange-400">
+                  <CheckCircle2 size={15} />
+                  <span>Solution: Structured Step-by-Step Curriculum</span>
+                </div>
               </div>
             </div>
 
             {/* Card 2 */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl mb-6 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-300">
-                  2
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-300">
+                    2
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 rounded-full">
+                    Stage: The Creator
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">
+                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
                   You Create Beautiful Work, But You're Not Getting Consistent Orders.
                 </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
                   You know your creations have value, but you don't know how to consistently attract the right customers and convert your creativity into predictable income.
                 </p>
+              </div>
+              <div className="pt-4 border-t border-slate-800/80">
+                <div className="flex items-center gap-2 text-xs font-semibold text-amber-400">
+                  <CheckCircle2 size={15} />
+                  <span>Solution: Client Acquisition &amp; Order Pricing</span>
+                </div>
               </div>
             </div>
 
             {/* Card 3 */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-yellow-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-black text-xl mb-6 group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-slate-950 transition-all duration-300">
-                  3
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-black text-xl group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-slate-950 transition-all duration-300">
+                    3
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-yellow-300 bg-yellow-500/15 border border-yellow-500/30 px-2.5 py-1 rounded-full">
+                    Stage: The Visionary
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">
+                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
                   You Want Your Own Identity and Income—Not Another Hobby.
                 </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
                   You want people to recognise you for your talent, you want something that is truly yours and you want your creativity to contribute to your financial freedom.
                 </p>
+              </div>
+              <div className="pt-4 border-t border-slate-800/80">
+                <div className="flex items-center gap-2 text-xs font-semibold text-yellow-400">
+                  <CheckCircle2 size={15} />
+                  <span>Solution: Signature Brand &amp; Lifetime Mentorship</span>
+                </div>
               </div>
             </div>
           </div>
@@ -546,7 +650,7 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── */}
       <section id="mentor" className="py-24 px-6 relative z-10">
@@ -879,7 +983,7 @@ export default function HomePage() {
       </section >
 
       {/* ─── SECTION 8: YOUR JOURNEY ─── */}
-      < section className="py-20 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
+      <section className="py-20 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Zero Barrier To Start</span>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
@@ -887,17 +991,37 @@ export default function HomePage() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg">
-              <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
-              <p className="text-sm text-slate-300">You don't need to be an expert to begin.</p>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-black text-red-400 bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 rounded-full">
+                  ✕ Not Needed
+                </span>
+                <BookOpen size={16} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
+              </div>
+              <h4 className="text-sm font-bold text-white mb-1">No Prior Art Degree</h4>
+              <p className="text-xs sm:text-sm text-slate-300">You don't need to be an expert to begin.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg">
-              <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
-              <p className="text-sm text-slate-300">You don't need an expensive or perfect setup.</p>
+
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-black text-red-400 bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 rounded-full">
+                  ✕ Not Needed
+                </span>
+                <Palette size={16} className="text-slate-500 group-hover:text-amber-400 transition-colors" />
+              </div>
+              <h4 className="text-sm font-bold text-white mb-1">No Fancy Art Studio</h4>
+              <p className="text-xs sm:text-sm text-slate-300">You don't need an expensive or perfect setup.</p>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg">
-              <div className="text-orange-400 font-black text-lg mb-1">✕ Not Needed</div>
-              <p className="text-sm text-slate-300">You don't need thousands of social media followers.</p>
+
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-black text-red-400 bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 rounded-full">
+                  ✕ Not Needed
+                </span>
+                <Users size={16} className="text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              </div>
+              <h4 className="text-sm font-bold text-white mb-1">No Social Follower Base</h4>
+              <p className="text-xs sm:text-sm text-slate-300">You don't need thousands of social media followers.</p>
             </div>
           </div>
 
@@ -915,10 +1039,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 9: THE PATH ─── */}
-      < section id="path" className="py-24 px-6 relative z-10" >
+      <section id="path" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Framework</span>
@@ -930,56 +1054,97 @@ export default function HomePage() {
             </p>
           </div>
 
+          {/* 4-Stage Connected Roadmap Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Step 1 */}
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group">
               <div>
-                <span className="text-xs font-black text-orange-400 uppercase tracking-widest block mb-2">Stage 01</span>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-black text-orange-400 uppercase tracking-widest bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 rounded-full">
+                    Stage 01
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500">25% Path</span>
+                </div>
                 <h3 className="text-lg font-black text-white mb-3 group-hover:text-orange-300 transition-colors">Skill → Creation</h3>
-                <p className="text-slate-300 text-xs leading-relaxed">
+                <p className="text-slate-300 text-xs leading-relaxed mb-4">
                   Learn the right techniques and develop the confidence to create professional-grade resin art from zero.
                 </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800/80">
+                <span className="text-[11px] font-semibold text-orange-400/90 flex items-center gap-1.5">
+                  <CheckCircle2 size={13} /> Milestone: First 3 Practical Pours
+                </span>
               </div>
             </div>
 
             {/* Step 2 */}
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl group">
               <div>
-                <span className="text-xs font-black text-amber-400 uppercase tracking-widest block mb-2">Stage 02</span>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+                    Stage 02
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500">50% Path</span>
+                </div>
                 <h3 className="text-lg font-black text-white mb-3 group-hover:text-amber-300 transition-colors">Creation → Signature</h3>
-                <p className="text-slate-300 text-xs leading-relaxed">
+                <p className="text-slate-300 text-xs leading-relaxed mb-4">
                   Discover your creative strengths and develop a distinct style that feels uniquely and unmistakably yours.
                 </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800/80">
+                <span className="text-[11px] font-semibold text-amber-400/90 flex items-center gap-1.5">
+                  <CheckCircle2 size={13} /> Milestone: Signature Color Palette
+                </span>
               </div>
             </div>
 
             {/* Step 3 */}
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-yellow-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 shadow-xl group">
               <div>
-                <span className="text-xs font-black text-yellow-400 uppercase tracking-widest block mb-2">Stage 03</span>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-black text-yellow-400 uppercase tracking-widest bg-yellow-500/10 border border-yellow-500/30 px-2.5 py-0.5 rounded-full">
+                    Stage 03
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500">75% Path</span>
+                </div>
                 <h3 className="text-lg font-black text-white mb-3 group-hover:text-yellow-300 transition-colors">Signature → Portfolio</h3>
-                <p className="text-slate-300 text-xs leading-relaxed">
+                <p className="text-slate-300 text-xs leading-relaxed mb-4">
                   Build a collection of creations that represents your skills and helps you showcase your work with total confidence.
                 </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800/80">
+                <span className="text-[11px] font-semibold text-yellow-400/90 flex items-center gap-1.5">
+                  <CheckCircle2 size={13} /> Milestone: Commercial Artwork Catalog
+                </span>
               </div>
             </div>
 
             {/* Step 4 */}
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-emerald-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group">
               <div>
-                <span className="text-xs font-black text-emerald-400 uppercase tracking-widest block mb-2">Stage 04</span>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                    Stage 04
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-500">100% Path</span>
+                </div>
                 <h3 className="text-lg font-black text-white mb-3 group-hover:text-emerald-300 transition-colors">Portfolio → Income</h3>
-                <p className="text-slate-300 text-xs leading-relaxed">
+                <p className="text-slate-300 text-xs leading-relaxed mb-4">
                   Learn how to position, present and monetize your creations so your skill becomes an income-generating business.
                 </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800/80">
+                <span className="text-[11px] font-semibold text-emerald-400/90 flex items-center gap-1.5">
+                  <CheckCircle2 size={13} /> Milestone: Consistent Paying Clients
+                </span>
               </div>
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 10: WHAT YOU WILL LEARN ─── */}
-      < section id="curriculum" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
+      <section id="curriculum" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Curriculum + Outcomes</span>
@@ -993,54 +1158,82 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Pillar 1 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
-                <Brush size={24} />
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
+                  <Brush size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-orange-300 transition-colors">Master Resin Art Techniques</h3>
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-orange-300 transition-colors">Master Resin Art Techniques</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.
-              </p>
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800/80">
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Bubble-Free Chemistry</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Ocean Foam &amp; Waves</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Geode Crystal Inlays</span>
+              </div>
             </div>
 
             {/* Pillar 2 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-purple-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-slate-950 transition-all duration-300">
-                <Palette size={24} />
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-purple-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-slate-950 transition-all duration-300">
+                  <Palette size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">Develop Your Signature Style</h3>
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">Develop Your Signature Style</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.
-              </p>
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800/80">
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Color Psychology</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Distinct Compositions</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Signature Identity</span>
+              </div>
             </div>
 
             {/* Pillar 3 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-cyan-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all duration-300">
-                <Layers size={24} />
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-cyan-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all duration-300">
+                  <Layers size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">Build a Portfolio You Are Proud Of</h3>
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">Build a Portfolio You Are Proud Of</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.
-              </p>
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800/80">
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Commercial Finishes</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Client Lookbooks</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ High-End Packaging</span>
+              </div>
             </div>
 
             {/* Pillar 4 */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-emerald-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300">
-                <TrendingUp size={24} />
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-emerald-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300">
+                  <TrendingUp size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">Learn How To Monetize Your Skill</h3>
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">Learn How To Monetize Your Skill</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.
-              </p>
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800/80">
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Commission Pricing</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Client Acquisition</span>
+                <span className="text-xs bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1 rounded-xl">✓ Repeat Order Flywheel</span>
+              </div>
             </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 11: SIX DIMENSIONS OF SUCCESS ─── */}
-      < section id="dimensions" className="py-24 px-6 relative z-10" >
+      <section id="dimensions" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Holistic Development</span>
@@ -1059,8 +1252,13 @@ export default function HomePage() {
                 className={`bg-slate-900/90 border ${dim.border} ${dim.hoverBorder} rounded-3xl p-7 flex flex-col justify-between hover:scale-[1.03] hover:-translate-y-1.5 transition-all duration-300 shadow-xl group`}
               >
                 <div>
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${dim.color} flex items-center justify-center text-slate-950 font-black mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <dim.icon size={22} />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${dim.color} flex items-center justify-center text-slate-950 font-black shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <dim.icon size={22} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700">
+                      {dim.outcomeTag}
+                    </span>
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{dim.title}</h3>
                   <p className="text-slate-300 text-sm leading-relaxed">{dim.desc}</p>
@@ -1069,7 +1267,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 12: ART-O-THON ─── */}
       < section id="artothon" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
