@@ -46,6 +46,7 @@ export const WinWall = ({
     notes: '',
     imageUrl: '',
   });
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [posting, setPosting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -56,6 +57,13 @@ export const WinWall = ({
   // General & L0 Fast Track members have VIEW-ONLY access to the feed. Only L1, L2, L3+ can post and comment.
   const canPost = !isGeneral && !isL0;
 
+  const getMediaUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    const backendBase = API_BASE_URL.replace(/\/api\/?$/, '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   // Keep synced with parent props
   React.useEffect(() => {
     if (communityWins && communityWins.length > 0) {
@@ -63,20 +71,37 @@ export const WinWall = ({
     }
   }, [communityWins]);
 
-  const handleFileBrowserSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Reuses the same upload pattern as admin/courses — uploads to /upload/video,
+  // gets back a server URL, stores it in imageUrl. NO readAsDataURL = no browser freeze.
+  const handleFileBrowserSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setWinForm((prev) => ({
-          ...prev,
-          imageUrl: event.target?.result as string,
-        }));
+    setUploadingFile(true);
+    try {
+      const formData = new FormData();
+      formData.append('video', file); // field name 'video' matches the upload route
+
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/upload/video`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        // Store the server-side URL — works for images, videos, and docs
+        setWinForm((prev) => ({ ...prev, imageUrl: data.url }));
+      } else {
+        alert('File upload failed. Please use an external URL instead.');
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Upload failed. Please check your connection or paste an external URL.');
+    } finally {
+      setUploadingFile(false);
+    }
   };
 
   const handlePostWin = async (e: React.FormEvent) => {
@@ -92,6 +117,8 @@ export const WinWall = ({
 
     const token = localStorage.getItem('token');
     try {
+      // Always JSON — file was already uploaded in handleFileBrowserSelect,
+      // so imageUrl is either a server path (/uploads/videos/...) or an external URL
       const res = await fetch(`${API_BASE_URL}/dashboard/community-wins`, {
         method: 'POST',
         headers: {
@@ -117,8 +144,13 @@ export const WinWall = ({
           setSuccessMsg('');
           if (onWinAdded) onWinAdded();
         }, 1800);
+      } else {
+        setSuccessMsg(data.message || '❌ Failed to post win. Please try again.');
       }
-    } catch (_) {}
+    } catch (err) {
+      console.error('Post win error:', err);
+      setSuccessMsg('❌ Network error. Please check your connection and try again.');
+    }
     setPosting(false);
   };
 
@@ -297,7 +329,7 @@ export const WinWall = ({
                         );
                       }
 
-                      const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
+                      const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
                       const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
                       const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
                       const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
@@ -305,7 +337,7 @@ export const WinWall = ({
                       if (isVideo) {
                         return (
                           <div className="rounded-2xl overflow-hidden border border-slate-800 bg-black mt-2 shadow-lg">
-                            <video src={mediaUrl} controls className="w-full max-h-64 object-contain bg-black" />
+                            <video src={getMediaUrl(mediaUrl)} controls className="w-full max-h-64 object-contain bg-black" />
                           </div>
                         );
                       }
@@ -323,7 +355,7 @@ export const WinWall = ({
                               </div>
                             </div>
                             <a
-                              href={mediaUrl}
+                              href={getMediaUrl(mediaUrl)}
                               download="community-file"
                               target="_blank"
                               rel="noreferrer"
@@ -361,7 +393,7 @@ export const WinWall = ({
 
                       return (
                         <div className="rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950 mt-2 max-h-80 shadow-lg">
-                          <img src={mediaUrl} alt="Post attachment" className="w-full h-full max-h-80 object-cover hover:scale-102 transition-transform duration-300" />
+                          <img src={getMediaUrl(mediaUrl)} alt="Post attachment" className="w-full h-full max-h-80 object-cover hover:scale-102 transition-transform duration-300" />
                         </div>
                       );
                     })()}
@@ -523,12 +555,20 @@ export const WinWall = ({
                   </label>
 
                   <div className="flex flex-col gap-2">
-                    <input
-                      type="file"
-                      accept="image/*,video/*,.pdf,.doc,.docx"
-                      onChange={handleFileBrowserSelect}
-                      className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500/20 file:text-orange-400 hover:file:bg-orange-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1"
-                    />
+                    <label className="relative w-full">
+                      <input
+                        type="file"
+                        accept="image/*,video/*,.pdf,.doc,.docx"
+                        onChange={handleFileBrowserSelect}
+                        disabled={uploadingFile}
+                        className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500/20 file:text-orange-400 hover:file:bg-orange-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1 disabled:opacity-50"
+                      />
+                      {uploadingFile && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-slate-950/80 rounded-xl text-xs font-bold text-orange-400">
+                          ⏳ Uploading file...
+                        </span>
+                      )}
+                    </label>
 
                     <input
                       type="text"
@@ -539,7 +579,7 @@ export const WinWall = ({
                     />
                   </div>
 
-                  {/* File Preview */}
+                  {/* Preview — shows after file is uploaded to server or URL is typed */}
                   {winForm.imageUrl && (
                     <div className="mt-2 p-2 rounded-xl bg-slate-950 border border-slate-800 relative">
                       <button
@@ -550,13 +590,17 @@ export const WinWall = ({
                         <X size={12} />
                       </button>
 
-                      {winForm.imageUrl.startsWith('data:video') || winForm.imageUrl.match(/\.(mp4|webm|mov)$/i) ? (
-                        <video src={winForm.imageUrl} controls className="max-h-36 rounded-lg w-full object-cover" />
-                      ) : winForm.imageUrl.startsWith('data:image') || winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp)$/i) || winForm.imageUrl.startsWith('data:') ? (
-                        <img src={winForm.imageUrl} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover" />
+                      {winForm.imageUrl.match(/\.(mp4|webm|mov|m4v)$/i) || winForm.imageUrl.includes('/uploads/videos/') ? (
+                        <video src={getMediaUrl(winForm.imageUrl)} controls className="max-h-36 rounded-lg w-full object-contain bg-black" />
+                      ) : winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) ? (
+                        <img src={getMediaUrl(winForm.imageUrl)} alt="Preview" className="max-h-36 rounded-lg w-full object-cover" />
+                      ) : winForm.imageUrl.startsWith('http') ? (
+                        <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2">
+                          🔗 External link attached
+                        </div>
                       ) : (
-                        <div className="p-3 text-xs font-bold text-orange-400 flex items-center gap-2">
-                          📄 Document / File attached successfully!
+                        <div className="p-3 text-xs font-bold text-emerald-400 flex items-center gap-2">
+                          ✅ File uploaded successfully!
                         </div>
                       )}
                     </div>
@@ -577,8 +621,8 @@ export const WinWall = ({
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     type="submit"
-                    disabled={posting}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
+                    disabled={posting || uploadingFile}
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {posting ? 'Publishing...' : `Publish Win ${isL3Diamond ? '(+100 XP)' : ''}`}
                   </button>

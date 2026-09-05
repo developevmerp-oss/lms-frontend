@@ -36,21 +36,46 @@ export default function AdminDashboard() {
   const [winImage, setWinImage] = useState("");
   const [sending, setSending] = useState(false);
   const [postingWin, setPostingWin] = useState(false);
+  const [uploadingWinFile, setUploadingWinFile] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'notifications' | 'wins'>('overview');
 
   const [isLoading, setIsLoading] = useState(true);
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-  const handleAdminFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const getMediaUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    const backendBase = API.replace(/\/api\/?$/, '');
+    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  const handleAdminFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setWinImage(event.target.result as string);
+
+    setUploadingWinFile(true);
+    try {
+      const formData = new FormData();
+      formData.append('video', file);
+
+      const res = await fetch(`${API}/upload/video`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setWinImage(data.url);
+      } else {
+        alert('File upload failed. Please try an external URL instead.');
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('File upload error:', err);
+      alert('File upload failed. Please check your connection or use an external URL.');
+    } finally {
+      setUploadingWinFile(false);
+    }
   };
 
   useEffect(() => {
@@ -439,12 +464,20 @@ export default function AdminDashboard() {
                 {/* Browser File Upload (Image, Video, Document) */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-400 block">Upload File (Image, Video, Document)</label>
-                  <input
-                    type="file"
-                    accept="image/*,video/*,.pdf,.doc,.docx"
-                    onChange={handleAdminFileSelect}
-                    className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500/20 file:text-pink-400 hover:file:bg-pink-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1"
-                  />
+                  <label className="relative block w-full">
+                    <input
+                      type="file"
+                      accept="image/*,video/*,.pdf,.doc,.docx"
+                      onChange={handleAdminFileSelect}
+                      disabled={uploadingWinFile}
+                      className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500/20 file:text-pink-400 hover:file:bg-pink-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1 disabled:opacity-50"
+                    />
+                    {uploadingWinFile && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-slate-950/80 rounded-xl text-xs font-bold text-pink-400">
+                        ⏳ Uploading file... please wait
+                      </span>
+                    )}
+                  </label>
 
                   <input
                     type="text"
@@ -485,9 +518,9 @@ export default function AdminDashboard() {
                           );
                         }
 
-                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov)$/i.test(mediaUrl);
+                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
                         if (isVideo) {
-                          return <video src={mediaUrl} controls className="max-h-36 rounded-lg w-full object-cover mt-2 bg-black" />;
+                          return <video src={getMediaUrl(mediaUrl)} controls className="max-h-36 rounded-lg w-full object-contain mt-2 bg-black" />;
                         }
 
                         const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl);
@@ -510,7 +543,7 @@ export default function AdminDashboard() {
                           );
                         }
 
-                        return <img src={mediaUrl} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover mt-2 border border-slate-800" />;
+                        return <img src={getMediaUrl(mediaUrl)} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover mt-2 border border-slate-800" />;
                       })()}
                     </div>
                   )}
@@ -518,10 +551,10 @@ export default function AdminDashboard() {
 
                 <button
                   onClick={handlePostWin}
-                  disabled={postingWin || !winAchievement}
+                  disabled={postingWin || uploadingWinFile || !winAchievement}
                   className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Heart size={16} /> {postingWin ? 'Posting...' : 'Post Win to Wall'}
+                  <Heart size={16} /> {uploadingWinFile ? 'Uploading file...' : postingWin ? 'Posting...' : 'Post Win to Wall'}
                 </button>
               </div>
             </div>
@@ -582,11 +615,11 @@ export default function AdminDashboard() {
                           );
                         }
 
-                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl);
+                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
                         if (isVideo) {
                           return (
                             <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black shadow-lg">
-                              <video src={mediaUrl} controls className="w-full max-h-56 object-contain bg-black" />
+                              <video src={getMediaUrl(mediaUrl)} controls className="w-full max-h-56 object-contain bg-black" />
                             </div>
                           );
                         }
@@ -605,7 +638,7 @@ export default function AdminDashboard() {
                                 </div>
                               </div>
                               <a
-                                href={mediaUrl}
+                                href={getMediaUrl(mediaUrl)}
                                 download="community-file"
                                 target="_blank"
                                 rel="noreferrer"
@@ -646,7 +679,7 @@ export default function AdminDashboard() {
 
                         return (
                           <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 max-h-64 shadow-lg">
-                            <img src={mediaUrl} alt="Attachment" className="w-full h-full max-h-64 object-cover" />
+                            <img src={getMediaUrl(mediaUrl)} alt="Attachment" className="w-full h-full max-h-64 object-cover" />
                           </div>
                         );
                       })()}
