@@ -548,107 +548,228 @@ export default function HomePage() {
         </div>
       </section >
 
-      {/* ─── SECTION 5: ABOUT VRAJANGNA ─── */}
-      < section id="mentor" className="py-24 px-6 relative z-10" >
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-14 shadow-2xl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-              <div className="lg:col-span-4 text-center">
-                <div className="relative w-48 h-48 sm:w-60 sm:h-60 mx-auto mb-4 rounded-3xl overflow-hidden border-2 border-orange-500/50 shadow-2xl shadow-orange-500/30 group">
+      {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── */}
+      <section id="mentor" className="py-24 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          {/* Main 2-Column Split: Sticky Left Mentor Card + Scrolling Right Portfolio & Bio */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+            {/* ── LEFT COLUMN: STICKY MENTOR PROFILE CARD ── */}
+            <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-5 self-start">
+              <div className="bg-gradient-to-b from-slate-900/95 via-slate-900/90 to-slate-950/95 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
+                <div className="absolute -top-20 -left-20 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                {/* Mentor Photo Container */}
+                <div className="relative aspect-[4/4.5] w-full rounded-2xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 mb-5 group">
                   <img
                     src="/images/mentor/vrajangna-portrait.jpg"
                     alt="Vrajangna Patel - Resin Art & Business Coach"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Floating Identity Chip on Portrait */}
+                  <div className="absolute bottom-3 left-3 right-3 bg-slate-950/85 backdrop-blur-md border border-white/10 rounded-xl px-3.5 py-2.5 flex items-center justify-between shadow-lg">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-base font-black text-white">Vrajangna Patel</h3>
+                        <ShieldCheck size={14} className="text-orange-400" />
+                      </div>
+                      <p className="text-[11px] text-orange-400 font-semibold tracking-wide">
+                        Founder &amp; Resin Art Business Coach
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-500/40 px-2 py-0.5 rounded-full">
+                      ⭐ Mentor
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-black text-white">Vrajangna Patel</h3>
-                <p className="text-xs text-orange-400 font-bold mt-1 uppercase tracking-wider">
-                  Founder &amp; Resin Art Business Coach
-                </p>
+
+                {/* Quick Authority Badges / Stats */}
+                <div className="grid grid-cols-3 gap-2 text-center mb-5">
+                  <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5">
+                    <p className="text-base font-black text-orange-400">54K+</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Students</p>
+                  </div>
+                  <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5">
+                    <p className="text-base font-black text-cyan-400">8K+</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Orders</p>
+                  </div>
+                  <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5">
+                    <p className="text-base font-black text-amber-400">5.0 ★</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Google</p>
+                  </div>
+                </div>
+
+                {/* Mentor Quote */}
+                <blockquote className="border-l-2 border-orange-500/80 pl-3.5 py-1 mb-5">
+                  <p className="text-xs sm:text-[13px] text-slate-300 italic leading-relaxed">
+                    "Every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
+                  </p>
+                  <cite className="block text-[11px] text-orange-400/90 font-bold mt-1.5 not-italic">
+                    — Vrajangna Patel
+                  </cite>
+                </blockquote>
+
+                {/* Sticky CTA Button */}
+                <Link
+                  href="/webinar"
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider py-3.5 px-4 rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 group transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Sparkles size={14} className="text-slate-950" />
+                  <span>Join Live Masterclass</span>
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
+            </div>
 
-              <div className="lg:col-span-8 space-y-5">
-                <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
-                  <Sparkles size={13} className="animate-pulse" /> Meet Your Mentor &amp; Coach
+            {/* ── RIGHT COLUMN: SCROLLING PORTFOLIO & RECOGNITION ── */}
+            <div className="lg:col-span-7 space-y-8">
+
+              {/* Bio & Vision Story */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 md:p-9 shadow-xl space-y-4">
+                <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full">
+                  <Sparkles size={13} className="animate-pulse" /> Proven Track Record &amp; Coaching
                 </div>
 
-                <h3 className="text-2xl md:text-4xl font-black text-white leading-tight">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight">
                   Meet Vrajangna — Your Resin Art &amp; Business Coach
-                </h3>
+                </h2>
 
                 <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-                  I'm Vrajangna Patel, founder of Ravishing Art Hub and a Resin Art Business Coach. Over the years, I've helped thousands of women discover their creativity, master Resin Art and explore how their skills can become a source of identity and financial freedom.
+                  I'm Vrajangna Patel, founder of Ravishing Art Hub and a dedicated Resin Art Business Coach. Over the past 6+ years, I've transformed my passion for resin craft into an award-winning creative enterprise — and guided over <strong className="text-white font-bold">54,000+ creators</strong> across India and abroad.
                 </p>
 
                 <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-                  My goal isn't just to teach you how to make Resin Art. My goal is to help you believe that your creativity can become something meaningful, valuable and truly yours.
+                  My mission goes far beyond teaching technique. I help women, homemakers, and aspiring entrepreneurs believe in their creative power, master commercial-grade resin finishes, and turn that craft into a source of personal respect and financial independence.
                 </p>
 
-                <p className="text-orange-400 font-bold text-sm md:text-base">
-                  "Because I believe every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
-                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <span>6+ Years Professional Experience</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <span>Nationally Recognized Art Coach</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <span>Step-by-Step Business Frameworks</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                    <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
+                    <span>Hands-On Lifetime Community</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Real Mentor Recognition Photos Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-orange-500/50 hover:-translate-y-1.5 transition-all duration-300">
-              <div className="h-64 overflow-hidden relative">
-                <img
-                  src="/images/mentor/hall-of-fame-award.jpg"
-                  alt="Vrajangna Patel Hall of Fame Award"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                <span className="absolute top-4 left-4 bg-orange-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                  🏆 Hall of Fame Award
-                </span>
-              </div>
-              <div className="p-5">
-                <h4 className="font-bold text-white text-base">Hall of Fame 2022–23</h4>
-                <p className="text-xs text-slate-400 mt-1">Recognized on stage by Siddharth Rajsekar at Freedom Retreat.</p>
+              {/* Portfolio Accolade Cards Stack */}
+              <div className="space-y-6">
+
+                {/* 1. Hall of Fame Award */}
+                <div className="bg-slate-900/90 border border-slate-800 hover:border-orange-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
+                  <div className="h-72 sm:h-80 overflow-hidden relative">
+                    <img
+                      src="/images/mentor/hall-of-fame-award.jpg"
+                      alt="Vrajangna Patel Hall of Fame Award"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    <span className="absolute top-4 left-4 bg-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
+                      <Trophy size={13} /> Hall of Fame Award
+                    </span>
+                  </div>
+                  <div className="p-6 sm:p-7 space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h3 className="font-black text-white text-lg sm:text-xl">Hall of Fame Felicitation 2022–23</h3>
+                      <span className="text-xs font-bold text-orange-400 bg-orange-500/10 border border-orange-500/30 px-2.5 py-1 rounded-lg">Freedom Retreat</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      Awarded national stage recognition by India's leading coach Siddharth Rajsekar at Freedom Retreat for establishing one of the country's most vibrant and student-centric creative academies.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. Diamond Club Award */}
+                <div className="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
+                  <div className="h-72 sm:h-80 overflow-hidden relative">
+                    <img
+                      src="/images/mentor/diamond-award.jpg"
+                      alt="Vrajangna Patel Diamond Awards"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    <span className="absolute top-4 left-4 bg-cyan-400 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
+                      <Gem size={13} /> Diamond Club Felicitation
+                    </span>
+                  </div>
+                  <div className="p-6 sm:p-7 space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h3 className="font-black text-white text-lg sm:text-xl">Diamond Club Top Mentor Award</h3>
+                      <span className="text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1 rounded-lg">Elite Recognition</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      Felicitated with the Diamond status for impacting thousands of households by teaching high-margin resin craft, floral preservation, and order fulfillment systems.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3. Published Author Feature */}
+                <div className="bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
+                  <div className="h-72 sm:h-80 overflow-hidden relative">
+                    <img
+                      src="/images/mentor/author-feature.jpg"
+                      alt="Vrajangna Patel Published Author"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    <span className="absolute top-4 left-4 bg-purple-400 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
+                      <BookOpen size={13} /> Published Author
+                    </span>
+                  </div>
+                  <div className="p-6 sm:p-7 space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h3 className="font-black text-white text-lg sm:text-xl">Authored in "I Can Coach" Book</h3>
+                      <span className="text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-2.5 py-1 rounded-lg">Published Work</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      Featured alongside top educators nationwide, detailing her transformation from crafting at a small kitchen table to operating a premier art academy and mentoring 54,000+ creators.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 4. Hands-on Mentorship & Live Workshops */}
+                <div className="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
+                  <div className="h-72 sm:h-80 overflow-hidden relative">
+                    <img
+                      src="/images/mentor/live-workshop.jpg"
+                      alt="Vrajangna Patel Live Workshop Mentorship"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    <span className="absolute top-4 left-4 bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
+                      <Users size={13} /> Live Interactive Coaching
+                    </span>
+                  </div>
+                  <div className="p-6 sm:p-7 space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h3 className="font-black text-white text-lg sm:text-xl">Weekly Live Sessions &amp; Personal Feedback</h3>
+                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-lg">Hands-on Support</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      Every student receives real-time guidance, artwork critique, formula troubleshooting, and client pricing blueprints directly in our interactive live workshops and community calls.
+                    </p>
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-cyan-500/50 hover:-translate-y-1.5 transition-all duration-300">
-              <div className="h-64 overflow-hidden relative">
-                <img
-                  src="/images/mentor/diamond-award.jpg"
-                  alt="Vrajangna Patel Diamond Awards"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                <span className="absolute top-4 left-4 bg-cyan-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                  💎 Diamond Club Felicitation
-                </span>
-              </div>
-              <div className="p-5">
-                <h4 className="font-bold text-white text-base">Diamond Awardee</h4>
-                <p className="text-xs text-slate-400 mt-1">Awarded top mentor status for empowering thousands of artists.</p>
-              </div>
-            </div>
-
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-xl group hover:border-purple-500/50 hover:-translate-y-1.5 transition-all duration-300">
-              <div className="h-64 overflow-hidden relative">
-                <img
-                  src="/images/mentor/author-feature.jpg"
-                  alt="Vrajangna Patel Published Author"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                <span className="absolute top-4 left-4 bg-purple-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg">
-                  📖 Published Author
-                </span>
-              </div>
-              <div className="p-5">
-                <h4 className="font-bold text-white text-base">"I Can Coach" Transformation</h4>
-                <p className="text-xs text-slate-400 mt-1">Featured as a leading Resin Art Business Coach across India.</p>
-              </div>
-            </div>
           </div>
         </div>
-      </section >
+      </section>
 
       {/* ─── SECTION 6: SOCIAL PROOF ─── */}
       < section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
