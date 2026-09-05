@@ -15,6 +15,7 @@ export interface User {
   streak?: number;
   membershipLevel?: string;
   rank?: string;
+  level?: string;
   lastLoginAt?: string;
   avatarUrl?: string;
   city?: string;
