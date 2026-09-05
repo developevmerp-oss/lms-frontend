@@ -1305,4 +1305,131 @@ body {
   font-family: var(--font-mono), monospace;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 5: MENTOR & PORTFOLIO - FLAWLESS LIGHT & DARK THEME CONTRAST
+   ───────────────────────────────────────────────────────────────────────────── */
 
+/* Dark Mode Defaults */
+.mentor-sticky-card {
+  background-color: #0f172a;
+  border-color: #1e293b;
+}
+
+.mentor-stat-pill {
+  background-color: rgba(15, 23, 42, 0.7);
+  border-color: #334155;
+}
+
+.mentor-quote-box {
+  background-color: rgba(2, 6, 23, 0.6);
+  border-color: #1e293b;
+  border-left-color: #f97316;
+}
+
+.photo-overlay-chip {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.photo-overlay-chip * {
+  color: #ffffff !important;
+}
+
+.photo-overlay-chip .mentor-subtitle {
+  color: #fb923c !important;
+}
+
+.photo-overlay-chip .mentor-chip-tag {
+  color: #fed7aa !important;
+  background-color: rgba(249, 115, 22, 0.3) !important;
+  border-color: rgba(249, 115, 22, 0.5) !important;
+}
+
+/* Light Mode Overrides */
+.light .mentor-sticky-card {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08) !important;
+}
+
+.light .mentor-sticky-card h3 {
+  color: #0f172a !important;
+}
+
+.light .mentor-stat-pill {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light .mentor-stat-pill .stat-label {
+  color: #64748b !important;
+}
+
+.light .mentor-quote-box {
+  background-color: #fff7ed !important;
+  border-color: #fed7aa !important;
+  border-left-color: #ea580c !important;
+}
+
+.light .mentor-quote-box .quote-text {
+  color: #9a3412 !important;
+}
+
+.light .mentor-quote-box .quote-cite {
+  color: #c2410c !important;
+}
+
+/* Photo chip ALWAYS stays dark glass with white text on top of the mentor photo */
+.light .photo-overlay-chip {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.light .photo-overlay-chip * {
+  color: #ffffff !important;
+}
+
+.light .photo-overlay-chip .mentor-subtitle {
+  color: #fb923c !important;
+}
+
+.light .photo-overlay-chip .mentor-chip-tag {
+  color: #ffedd5 !important;
+  background-color: rgba(249, 115, 22, 0.35) !important;
+  border-color: rgba(249, 115, 22, 0.6) !important;
+}
+
+/* Right side bio card in light mode */
+.light .mentor-bio-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06) !important;
+}
+
+.light .mentor-bio-card h2 {
+  color: #0f172a !important;
+}
+
+.light .mentor-bio-card p {
+  color: #334155 !important;
+}
+
+.light .mentor-check-item {
+  color: #1e293b !important;
+}
+
+/* Right side accolade cards in light mode */
+.light .mentor-accolade-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06) !important;
+}
+
+.light .mentor-accolade-card h3 {
+  color: #0f172a !important;
+}
+
+.light .mentor-accolade-card p {
+  color: #475569 !important;
+}
