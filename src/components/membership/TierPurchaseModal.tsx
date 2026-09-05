@@ -60,7 +60,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   },
   {
     code: "L1",
-    name: "Silver Member",
+    name: "Explore Membership",
     numericPrice: 4999,
     price: "₹4,999",
     originalPrice: "₹9,999",
@@ -76,7 +76,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   },
   {
     code: "L2",
-    name: "Gold Member",
+    name: "Master Membership",
     numericPrice: 19999,
     price: "₹19,999",
     originalPrice: "₹34,999",
@@ -92,7 +92,7 @@ export const TIERS_CATALOG: TierInfo[] = [
   },
   {
     code: "L3",
-    name: "Diamond Club",
+    name: "Renaissance Certification",
     numericPrice: 59999,
     price: "₹59,999",
     originalPrice: "₹99,999",
@@ -270,6 +270,10 @@ export const TierPurchaseModal = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {TIERS_CATALOG.map((tier) => {
               const isSelected = selectedCode === tier.code;
+              const liveMatch = liveTiers.find((lt) => (lt.code || lt.levelCode || "").toUpperCase() === tier.code.toUpperCase());
+              const displayName = liveMatch?.name || tier.name;
+              const displayPrice = liveMatch?.price || tier.price;
+
               return (
                 <button
                   key={tier.code}
@@ -282,14 +286,14 @@ export const TierPurchaseModal = ({
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-lg">{tier.icon}</span>
+                    <span className="text-lg">{liveMatch?.icon || tier.icon}</span>
                     <span className="text-[11px] font-black text-orange-400 uppercase">
                       {tier.code}
                     </span>
                   </div>
-                  <h4 className="text-xs font-black text-white truncate">{tier.name}</h4>
+                  <h4 className="text-xs font-black text-white truncate">{displayName}</h4>
                   <div className="text-xs font-black text-amber-400 font-mono mt-1">
-                    {tier.price}
+                    {displayPrice}
                   </div>
                 </button>
               );
