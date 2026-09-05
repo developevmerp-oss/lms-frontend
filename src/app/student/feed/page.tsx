@@ -70,7 +70,7 @@ export default function StudentFeedPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Community Feed (8 Cols) */}
           <div className="lg:col-span-8">
-            <WinWall communityWins={wins} onWinAdded={fetchData} />
+            <WinWall communityWins={wins} onWinAdded={fetchData} membershipLevel={user?.membershipLevel} />
           </div>
 
           {/* Right Side: Badges Spotlight & Diamond Gamification (4 Cols - Sticky) */}

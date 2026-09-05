@@ -57,6 +57,8 @@ export default function AdminStudents() {
   const [skillsForm, setSkillsForm] = useState<any>({});
   const [allCourses, setAllCourses] = useState<any[]>([]);
   const [allBadges, setAllBadges] = useState<any[]>([]);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const API = API_BASE_URL;
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -135,7 +137,7 @@ export default function AdminStudents() {
 
   const openStudent = (s: Student) => {
     setSelectedStudent(s);
-    setEditProfile({ name: s.name, points: s.points, xpPoints: s.xpPoints, streak: s.streak, membershipLevel: s.membershipLevel, city: s.city || '' });
+    setEditProfile({ name: s.name, points: s.points, xpPoints: s.xpPoints, streak: s.streak, membershipLevel: s.membershipLevel || 'GENERAL', city: s.city || '' });
     setSkillsForm(s.skills || { resinBasics: 0, mixing: 0, colourTheory: 0, finishing: 0, creativity: 0, professionalQuality: 0 });
     setActiveTab('profile');
   };
@@ -166,6 +168,32 @@ export default function AdminStudents() {
       showSuccess("Profile updated!");
     } catch (err) { console.error(err); }
     setIsSaving(false);
+  };
+
+  // Delete / Soft-delete student
+  const handleDeleteStudent = async () => {
+    if (!selectedStudent) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`${API}/admin/students/${selectedStudent.id}`, {
+        method: 'DELETE',
+        headers,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess(data.message || "Student removed successfully!");
+        setDeleteConfirmOpen(false);
+        setSelectedStudent(null);
+        await fetchStudents();
+      } else {
+        alert(data.message || "Failed to delete student");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Error deleting student: " + err.message);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Toggle milestone complete
@@ -476,6 +504,16 @@ export default function AdminStudents() {
                       <Send size={13} /> {reEngageSending ? 'Sending...' : 'Send Reminder'}
                     </button>
 
+                    {/* Delete Student Quick Action */}
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                      className="px-3.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Soft delete student from software"
+                    >
+                      <Trash2 size={13} /> Delete Student
+                    </button>
+
                     <div className="text-right">
                       <p className="text-orange-400 font-black">{(selectedStudent.points || 0).toLocaleString()} XP</p>
                       <p className="text-slate-500 text-xs">🔥 {selectedStudent.streak || 0} day streak</p>
@@ -551,10 +589,11 @@ export default function AdminStudents() {
                         <div>
                           <label className="block text-xs text-slate-500 mb-1.5 uppercase tracking-wider font-semibold">Membership Level</label>
                           <select
-                            value={editProfile.membershipLevel || 'L0'}
+                            value={editProfile.membershipLevel || 'GENERAL'}
                             onChange={e => setEditProfile({ ...editProfile, membershipLevel: e.target.value })}
                             className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors"
                           >
+                            <option value="GENERAL">GENERAL - General Member (Preview / Free)</option>
                             {(levelTiers.length > 0
                               ? levelTiers
                               : [
@@ -571,13 +610,23 @@ export default function AdminStudents() {
                           </select>
                         </div>
                       </div>
-                      <button
-                        onClick={saveProfile}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 rounded-xl font-bold transition-colors shadow-lg shadow-orange-500/20"
-                      >
-                        <Save size={16} /> {isSaving ? 'Saving...' : 'Save Profile'}
-                      </button>
+                      <div className="flex items-center justify-between pt-2">
+                        <button
+                          onClick={saveProfile}
+                          disabled={isSaving}
+                          className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 rounded-xl font-bold transition-colors shadow-lg shadow-orange-500/20 cursor-pointer"
+                        >
+                          <Save size={16} /> {isSaving ? 'Saving...' : 'Save Profile'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setDeleteConfirmOpen(true)}
+                          className="flex items-center gap-2 px-4 py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 hover:text-rose-300 rounded-xl font-bold text-xs transition-colors cursor-pointer"
+                        >
+                          <Trash2 size={16} /> Delete Student
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -978,6 +1027,44 @@ export default function AdminStudents() {
                 className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
               >
                 {isAdding ? 'Creating...' : <><UserPlus size={16} /> Create Student</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmOpen && selectedStudent && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 mx-auto">
+              <Trash2 size={24} />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-black text-white">Delete Student Account?</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Are you sure you want to soft delete <strong className="text-white">{selectedStudent.name}</strong> (<span className="text-orange-400 font-mono">{selectedStudent.email}</span>)?
+              </p>
+              <p className="text-[11px] text-rose-400/90 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl text-left">
+                ⚠️ Soft-deleting will remove this student from active student lists, leaderboards, feeds, attendance, and all software modules while preserving safe data audit history.
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmOpen(false)}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteStudent}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs transition-colors cursor-pointer shadow-lg shadow-rose-600/30 flex items-center justify-center gap-1.5"
+              >
+                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
               </button>
             </div>
           </div>

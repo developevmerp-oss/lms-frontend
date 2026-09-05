@@ -87,20 +87,55 @@ export default function StudentProfile() {
       ];
 
   const currentPoints = stats.points || 0;
-  const currentTier = stats.currentTier || levelTiers[0];
+  const rawLevel = (user?.membershipLevel || stats.membershipLevel || stats.currentTier?.code || '').toUpperCase();
+  const isGeneral = !rawLevel || rawLevel === 'GENERAL' || rawLevel.includes('GENERAL');
+
+  const TIER_ORDER_MAP: Record<string, number> = {
+    GENERAL: -1,
+    L0: 0,
+    L1: 1,
+    L2: 2,
+    L3: 3,
+    "L3+": 4,
+  };
+
+  const getStudentLevelCode = () => {
+    if (isGeneral) return 'GENERAL';
+    if (rawLevel.includes('L3+') || rawLevel.includes('MASTERS')) return 'L3+';
+    if (rawLevel.includes('L3') || rawLevel.includes('DIAMOND') || rawLevel.includes('RENAISSANCE')) return 'L3';
+    if (rawLevel.includes('L2') || rawLevel.includes('GOLD')) return 'L2';
+    if (rawLevel.includes('L1') || rawLevel.includes('SILVER')) return 'L1';
+    if (rawLevel.includes('L0') || rawLevel.includes('FAST START') || rawLevel.includes('FAST TRACK') || rawLevel.includes('BRONZE')) return 'L0';
+    return 'GENERAL';
+  };
+
+  const studentLevelCode = getStudentLevelCode();
+  const studentLevelOrder = TIER_ORDER_MAP[studentLevelCode] ?? -1;
+
+  const currentTier = isGeneral
+    ? { code: 'GENERAL', name: 'General Member', icon: '🌱', minPoints: 0, maxPoints: null, badgeColor: 'slate', order: -1 }
+    : (stats.currentTier || levelTiers[0]);
 
   // Helper to determine status of each level
   const getLevelStatus = (tier: LevelTier, index: number) => {
-    if (tier.maxPoints && currentPoints > tier.maxPoints) {
-      return 'completed'; // Level finished and graduated
+    const tierCode = (tier.code || '').toUpperCase();
+    const tierOrder = tier.order !== undefined ? tier.order : (TIER_ORDER_MAP[tierCode] ?? index);
+
+    if (studentLevelOrder === -1) {
+      // General member: all curriculum tiers are locked
+      return 'locked';
     }
-    if (currentPoints >= tier.minPoints && (!tier.maxPoints || currentPoints <= tier.maxPoints)) {
-      return 'current'; // Active level
+
+    if (tierOrder < studentLevelOrder) {
+      return 'completed'; // Prerequisite tier cleared
     }
-    return 'locked'; // Future level
+    if (tierOrder === studentLevelOrder) {
+      return 'current'; // Currently active membership tier
+    }
+    return 'locked'; // Higher tier to unlock
   };
 
-  const completedLevelsCount = levelTiers.filter(t => getLevelStatus(t, 0) === 'completed').length;
+  const completedLevelsCount = levelTiers.filter((t, idx) => getLevelStatus(t, idx) === 'completed').length;
 
   const colorClasses: Record<string, { bg: string; text: string; border: string; glow: string }> = {
     emerald: { bg: 'bg-emerald-500', text: 'text-emerald-400', border: 'border-emerald-500/40', glow: 'shadow-emerald-500/20' },
@@ -122,7 +157,7 @@ export default function StudentProfile() {
 
       <StudentNav
         user={user}
-        level={user?.membershipLevel || (currentTier ? `${currentTier.name} (${currentTier.code})` : 'Fast Start (L0)')}
+        level={isGeneral ? 'General Member' : (user?.membershipLevel || (currentTier ? `${currentTier.name} (${currentTier.code})` : 'Fast Start (L0)'))}
         points={currentPoints}
         logout={logout}
         notifications={stats.notifications}
@@ -146,7 +181,7 @@ export default function StudentProfile() {
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
                 ) : (
-                  <span>{currentTier?.icon || '🎨'}</span>
+                  <span>{isGeneral ? '🌱' : (currentTier?.icon || '🎨')}</span>
                 )}
                 <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold text-white">
                   Change 📷
@@ -158,10 +193,17 @@ export default function StudentProfile() {
                   <h1 className="text-2xl md:text-3xl font-extrabold text-white">
                     {user?.name || "Student Artist"}
                   </h1>
-                  <span className="px-3 py-1 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-black flex items-center gap-1.5 shadow-sm">
-                    <span>{currentTier?.icon || '⚡'}</span>
-                    {currentTier?.name} ({currentTier?.code})
-                  </span>
+                  {isGeneral ? (
+                    <span className="px-3 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-xs font-black flex items-center gap-1.5 shadow-sm">
+                      <span>🌱</span>
+                      General Member
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-black flex items-center gap-1.5 shadow-sm">
+                      <span>{currentTier?.icon || '⚡'}</span>
+                      {currentTier?.name} ({currentTier?.code})
+                    </span>
+                  )}
                 </div>
                 <p className="text-slate-400 text-sm">{user?.email}</p>
                 <div className="flex items-center gap-3 mt-2 flex-wrap">

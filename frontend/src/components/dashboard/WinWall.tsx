@@ -27,9 +27,11 @@ interface WinItem {
 export const WinWall = ({
   communityWins = [],
   onWinAdded,
+  membershipLevel,
 }: {
   communityWins?: any[];
   onWinAdded?: () => void;
+  membershipLevel?: string;
 }) => {
   const { user } = useAuth();
   const [wins, setWins] = useState<any[]>(communityWins);
@@ -47,9 +49,12 @@ export const WinWall = ({
   const [posting, setPosting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const currentLevel = (user?.membershipLevel || 'L0').toUpperCase();
-  const isL3Diamond = currentLevel === 'L3' || currentLevel.includes('DIAMOND') || currentLevel.includes('RENAISSANCE') || (user?.rank || '').toUpperCase().includes('DIAMOND');
-  const canPost = currentLevel !== 'L0'; // L0 Fast Track students can ONLY VIEW feed; L1, L2, L3 can post!
+  const effectiveLevel = (membershipLevel || user?.membershipLevel || user?.rank || user?.level || 'GENERAL').toUpperCase();
+  const isGeneral = effectiveLevel === 'GENERAL' || effectiveLevel.includes('GENERAL');
+  const isL0 = effectiveLevel === 'L0' || effectiveLevel.includes('FAST START') || effectiveLevel.includes('FAST TRACK') || effectiveLevel.includes('BRONZE');
+  const isL3Diamond = effectiveLevel === 'L3' || effectiveLevel.includes('DIAMOND') || effectiveLevel.includes('RENAISSANCE') || (user?.rank || '').toUpperCase().includes('DIAMOND');
+  // General & L0 Fast Track members have VIEW-ONLY access to the feed. Only L1, L2, L3+ can post and comment.
+  const canPost = !isGeneral && !isL0;
 
   // Keep synced with parent props
   React.useEffect(() => {
@@ -76,6 +81,10 @@ export const WinWall = ({
 
   const handlePostWin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canPost) {
+      alert("General and Level 0 members have view-only access to the feed. Upgrade to Level 1 or above to share wins.");
+      return;
+    }
     if (!winForm.title) return;
 
     setPosting(true);
@@ -115,7 +124,11 @@ export const WinWall = ({
 
   const handleAddComment = async (winId: string) => {
     const text = commentText[winId];
-    if (!text || !text.trim()) return;
+    if (!text || !text.trim() || commenting) return;
+    if (!canPost) {
+      alert("General and Level 0 members have view-only access to the feed. Upgrade to Level 1 or above to comment.");
+      return;
+    }
 
     setCommenting(true);
     const token = localStorage.getItem('token');
@@ -197,7 +210,7 @@ export const WinWall = ({
                 <Plus size={13} /> Post a Win {isL3Diamond && '(+100 XP)'}
               </button>
             ) : (
-              <span className="text-[10px] font-bold text-slate-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1 cursor-default" title="L0 Fast Track Members can view all posts from students & admin. Upgrade to L1 to post!">
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-950/90 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-default shadow-inner" title="General and Level 0 members have view-only access to community feed. Upgrade to L1 to post!">
                 🔒 View Only Mode
               </span>
             )}
@@ -390,24 +403,30 @@ export const WinWall = ({
                           <p className="text-[10px] text-slate-500">No comments yet. Say congratulations!</p>
                         )}
 
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            placeholder="Write a supportive comment..."
-                            value={commentText[win.id] || ''}
-                            onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
-                            onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
-                            className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none focus:border-orange-500"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleAddComment(win.id)}
-                            disabled={commenting}
-                            className="px-2.5 py-1 bg-orange-500 text-slate-950 rounded-lg font-bold text-[11px] hover:bg-orange-600 transition-colors cursor-pointer shrink-0"
-                          >
-                            <Send size={11} />
-                          </button>
-                        </div>
+                        {canPost ? (
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Write a supportive comment..."
+                              value={commentText[win.id] || ''}
+                              onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
+                              className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none focus:border-orange-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleAddComment(win.id)}
+                              disabled={commenting}
+                              className="px-2.5 py-1 bg-orange-500 text-slate-950 rounded-lg font-bold text-[11px] hover:bg-orange-600 transition-colors cursor-pointer shrink-0"
+                            >
+                              <Send size={11} />
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-slate-500 italic py-1">
+                            🔒 Upgrade to Level 1 or above to participate in comments &amp; discussions.
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
