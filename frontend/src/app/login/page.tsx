@@ -7,6 +7,7 @@ import { Eye, EyeOff, Sparkles, ArrowRight, Zap, RefreshCw, AlertCircle } from "
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { API_BASE_URL } from "@/config/api";
+import { ForgotPasswordModal } from "@/components/auth/ForgotPasswordModal";
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const [serverStatus, setServerStatus] = useState<"checking" | "ready" | "slow">("checking");
   const [wakeSeconds, setWakeSeconds] = useState(0);
   const { login } = useAuth();
@@ -164,9 +166,13 @@ function LoginContent() {
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
                   Password
                 </label>
-                <Link href="#" className="text-xs text-orange-400 hover:text-orange-300 font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotModalOpen(true)}
+                  className="text-xs text-orange-400 hover:text-orange-300 font-semibold cursor-pointer transition-colors"
+                >
                   Forgot password?
-                </Link>
+                </button>
               </div>
               <div className="relative">
                 <input
@@ -214,6 +220,18 @@ function LoginContent() {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Interactive Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotModalOpen}
+        onClose={() => setIsForgotModalOpen(false)}
+        initialEmail={email}
+        onSuccess={(resetEmail) => {
+          setEmail(resetEmail);
+          setPassword("");
+          setSuccessMsg("Password reset successfully! Please sign in with your new password.");
+        }}
+      />
     </div>
   );
 }
