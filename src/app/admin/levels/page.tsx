@@ -107,6 +107,12 @@ export default function AdminLevels() {
     isActive: true,
   });
 
+  // Razorpay Gateway Config State
+  const [isRazorpayModalOpen, setIsRazorpayModalOpen] = useState(false);
+  const [activeRazorpayKey, setActiveRazorpayKey] = useState("");
+  const [isKeyConfigured, setIsKeyConfigured] = useState(false);
+  const [rzpForm, setRzpForm] = useState({ keyId: "", keySecret: "" });
+
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
 
@@ -140,6 +146,16 @@ export default function AdminLevels() {
       if (Array.isArray(dataOffers)) {
         setLevelOffers(dataOffers);
       }
+
+      // Fetch Razorpay configuration status
+      try {
+        const resKey = await fetch(`${API}/payments/key`, { headers });
+        const dataKey = await resKey.json();
+        if (dataKey) {
+          setActiveRazorpayKey(dataKey.keyId || "");
+          setIsKeyConfigured(!!dataKey.isConfigured);
+        }
+      } catch (_) {}
     } catch (err: any) {
       console.error(err);
       showError("Failed to fetch level config data.");
@@ -345,41 +361,33 @@ export default function AdminLevels() {
               <CreditCard size={20} />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white flex items-center gap-2">
-                Razorpay Payment Gateway Integration
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  Live &amp; Test Supported
-                </span>
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-black text-white">
+                  Razorpay Payment Gateway Integration
+                </h3>
+                {isKeyConfigured ? (
+                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Live Key Active: {activeRazorpayKey}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    ⚠️ Using Dummy Fallback Key ({activeRazorpayKey || 'None'})
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Configure your Razorpay Key ID and Secret to collect direct UPI, Card, and Netbanking payments.
+                Saved keys persist permanently in the database across all server restarts.
               </p>
             </div>
           </div>
 
           <button
             onClick={() => {
-              const keyId = prompt("Enter your Razorpay Key ID (e.g. rzp_live_xxx or rzp_test_xxx):");
-              if (!keyId) return;
-              const keySecret = prompt("Enter your Razorpay Key Secret:");
-              if (!keySecret) return;
-
-              fetch(`${API}/payments/config`, {
-                method: "POST",
-                headers,
-                body: JSON.stringify({ keyId, keySecret }),
-              })
-                .then((r) => r.json())
-                .then((d) => {
-                  if (d.success) {
-                    showSuccess("Razorpay API keys updated successfully!");
-                  } else {
-                    showError(d.message || "Failed to update keys");
-                  }
-                })
-                .catch((e) => showError("Connection error"));
+              setRzpForm({ keyId: activeRazorpayKey.includes('1DP5mmOlF5G5ag') ? '' : activeRazorpayKey, keySecret: '' });
+              setIsRazorpayModalOpen(true);
             }}
-            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer whitespace-nowrap"
+            className="px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer whitespace-nowrap flex items-center gap-2 transition-transform hover:scale-105"
           >
             ⚙️ Configure Razorpay Keys
           </button>
@@ -887,6 +895,124 @@ export default function AdminLevels() {
                     type="button"
                     onClick={() => setIsOfferModalOpen(false)}
                     className="px-4 bg-slate-800 text-slate-300 font-semibold text-xs h-10 rounded-xl cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Razorpay Credentials Modal */}
+        {isRazorpayModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+                    <CreditCard size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-white">Configure Razorpay Gateway</h3>
+                    <p className="text-xs text-slate-400">Keys persist permanently in Postgres database</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsRazorpayModalOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!rzpForm.keyId.trim()) {
+                    showError("Key ID is required");
+                    return;
+                  }
+                  if (!rzpForm.keySecret.trim()) {
+                    showError("Key Secret is required");
+                    return;
+                  }
+
+                  fetch(`${API}/payments/config`, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                      keyId: rzpForm.keyId.trim(),
+                      keySecret: rzpForm.keySecret.trim(),
+                    }),
+                  })
+                    .then((r) => r.json())
+                    .then((d) => {
+                      if (d.success) {
+                        showSuccess("Razorpay credentials saved to database permanently!");
+                        setActiveRazorpayKey(d.keyId || rzpForm.keyId);
+                        setIsKeyConfigured(true);
+                        setIsRazorpayModalOpen(false);
+                      } else {
+                        showError(d.message || "Failed to update keys");
+                      }
+                    })
+                    .catch(() => showError("Connection error to backend"));
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    Razorpay Key ID <span className="text-orange-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="rzp_test_... or rzp_live_..."
+                    value={rzpForm.keyId}
+                    onChange={(e) => setRzpForm({ ...rzpForm, keyId: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono placeholder-slate-600 outline-none focus:border-orange-500"
+                  />
+                  <span className="text-[11px] text-slate-500 mt-1 block">
+                    Starts with <code className="text-orange-400">rzp_test_</code> (Test mode) or <code className="text-emerald-400">rzp_live_</code> (Live mode).
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    Razorpay Key Secret <span className="text-orange-400">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter Key Secret provided by Razorpay"
+                    value={rzpForm.keySecret}
+                    onChange={(e) => setRzpForm({ ...rzpForm, keySecret: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono placeholder-slate-600 outline-none focus:border-orange-500"
+                  />
+                  <span className="text-[11px] text-slate-500 mt-1 block">
+                    Used to cryptographically sign orders and verify genuine student transactions.
+                  </span>
+                </div>
+
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1">
+                  <p className="font-semibold text-slate-300">💡 Tip for Production (Render):</p>
+                  <p className="text-[11px]">
+                    You can also add <code className="text-orange-400">RAZORPAY_KEY_ID</code> and <code className="text-orange-400">RAZORPAY_KEY_SECRET</code> in Render Dashboard &gt; lms-backend &gt; Environment for permanent cloud deployment.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg cursor-pointer"
+                  >
+                    💾 Save &amp; Persist Configuration
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsRazorpayModalOpen(false)}
+                    className="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm h-11 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
