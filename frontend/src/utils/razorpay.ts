@@ -23,8 +23,9 @@ export const loadRazorpayScript = (): Promise<boolean> => {
 
 export interface PaymentOptions {
   amount: number; // in INR (e.g. 499, 4999, 19999, 59999)
-  tierCode: string; // e.g. 'L0', 'L1', 'L2', 'L3'
-  tierName: string; // e.g. 'Fast Track', 'Silver Member'
+  tierCode: string; // e.g. 'L0', 'L1', 'L2', 'L3' or 'COURSE'
+  tierName: string; // e.g. 'Fast Track', 'Silver Member' or course title
+  courseId?: string; // Optional: when purchasing an individual standalone course
   email?: string;
   name?: string;
   phone?: string;
@@ -36,6 +37,7 @@ export const processRazorpayPayment = async ({
   amount,
   tierCode,
   tierName,
+  courseId,
   email,
   name,
   phone,
@@ -58,6 +60,7 @@ export const processRazorpayPayment = async ({
         amount,
         tierCode,
         tierName,
+        courseId: courseId || undefined,
         customerEmail: email || "student@ravishingarthub.com",
         customerPhone: phone || "9999999999",
         customerName: name || "Art Student",
@@ -96,6 +99,7 @@ export const processRazorpayPayment = async ({
           razorpay_signature: signature,
           tierCode,
           tierName,
+          courseId: courseId || undefined,
           amount,
           email: email || "student@ravishingarthub.com",
           name: name || "Art Student",

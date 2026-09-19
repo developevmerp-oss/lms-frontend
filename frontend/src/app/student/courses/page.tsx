@@ -25,6 +25,7 @@ import {
 import { motion } from "framer-motion";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 import { getComputedTierPricing, getCourseResolvedOffer } from "@/utils/tierPricing";
+import { processRazorpayPayment } from "@/utils/razorpay";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -51,6 +52,7 @@ export function getCourseOffer(course: any, basePriceStr: string) {
     discountValue: course.discountValue,
     originalPrice: `₹${numPrice.toLocaleString("en-IN")}`,
     discountedPrice: `₹${finalPrice.toLocaleString("en-IN")}`,
+    discountedNum: finalPrice,
     discountLabel: course.discountType === "percentage" ? `${course.discountValue}% OFF` : `₹${course.discountValue} OFF`,
     offerEndDate: course.offerEndDate,
   };
@@ -103,11 +105,16 @@ export default function StudentCourses() {
   const [activeLevelFilter, setActiveLevelFilter] = useState<string>("all");
   const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
   
-  // Purchase / Upgrade Modal State
+  // Membership Level Purchase Modal State
   const [purchaseModal, setPurchaseModal] = useState<{ isOpen: boolean; tierCode: string }>({
     isOpen: false,
     tierCode: "L1",
   });
+
+  // Individual Course Purchase Modal State
+  const [individualCourseModal, setIndividualCourseModal] = useState<any | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [purchaseSuccessMsg, setPurchaseSuccessMsg] = useState("");
   
   const [levelTiers, setLevelTiers] = useState<any[]>([]);
   const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
@@ -151,6 +158,7 @@ export default function StudentCourses() {
             membershipExpiresAt: data.membershipExpiresAt,
             isExpired: data.isExpired,
             daysRemaining: data.daysRemaining,
+            courses: data.courses || [],
           });
         }
       })
@@ -180,11 +188,61 @@ export default function StudentCourses() {
   const studentLevelCode = getLevelCode(effectiveLevelName, stats.points || 0);
   const studentRankNum = LEVEL_HIERARCHY[studentLevelCode] ?? 0;
 
-  const isCourseUnlocked = (courseLevel: string) => {
+  // Unlocking checks
+  const isLevelUnlocked = (lvlCode: string) => {
     if (stats.isExpired) return false;
     if (studentLevelCode === "GENERAL") return false;
-    const requiredNum = LEVEL_HIERARCHY[courseLevel.toUpperCase()] ?? 0;
+    const requiredNum = LEVEL_HIERARCHY[lvlCode.toUpperCase()] ?? 0;
     return studentRankNum >= requiredNum;
+  };
+
+  const isCourseUnlocked = (course: any) => {
+    if (!course) return false;
+    // Check direct enrollment in user's enrolled courses list
+    if (stats.courses?.some((sc: any) => sc.id === course.id)) {
+      return true;
+    }
+    // Standalone course without level tier requires direct purchase
+    const lvl = course.levelCode;
+    if (!lvl || lvl.toUpperCase() === "NONE") {
+      return false;
+    }
+    // Level-based course (L0, L1, L2, L3) unlocked if student has active level membership
+    return isLevelUnlocked(lvl);
+  };
+
+  const handlePurchaseIndividualCourse = async (course: any) => {
+    if (!course) return;
+    const basePriceStr = course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "₹999";
+    const offer = getCourseOffer(course, basePriceStr);
+    const payableAmount = offer ? offer.discountedNum : (parseInt(basePriceStr.replace(/[^0-9]/g, "")) || 999);
+
+    setIsProcessingPayment(true);
+    try {
+      await processRazorpayPayment({
+        amount: payableAmount,
+        tierCode: "COURSE",
+        tierName: course.title,
+        courseId: course.id,
+        email: user?.email,
+        name: user?.name,
+        phone: user?.phone,
+        onSuccess: () => {
+          setIndividualCourseModal(null);
+          setPurchaseSuccessMsg(`🎉 Success! You now have lifetime access to "${course.title}". Start learning now!`);
+          setTimeout(() => setPurchaseSuccessMsg(""), 6000);
+          fetchStudentData();
+        },
+        onFailure: (err: any) => {
+          alert(`Payment could not be completed: ${err?.message || err}`);
+        },
+      });
+    } catch (err: any) {
+      console.error("Individual course payment error:", err);
+      alert(err.message || "Payment process failed.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const getLevelName = () => {
@@ -194,7 +252,10 @@ export default function StudentCourses() {
 
   const displayedCourses = courses.filter((c) => {
     if (activeLevelFilter === "all") return true;
-    return (c.levelCode || "L0").toUpperCase() === activeLevelFilter.toUpperCase();
+    if (activeLevelFilter === "NONE") {
+      return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
+    }
+    return (c.levelCode || "").toUpperCase() === activeLevelFilter.toUpperCase();
   });
 
   return (
@@ -228,6 +289,12 @@ export default function StudentCourses() {
             <Zap size={16} /> Upgrade Membership Level
           </button>
         </header>
+
+        {purchaseSuccessMsg && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2 animate-fadeIn">
+            <CheckCircle2 size={18} /> {purchaseSuccessMsg}
+          </div>
+        )}
 
         {/* Student Expiry Alert Banner (Single Validity) */}
         {stats.isExpired ? (
@@ -282,7 +349,7 @@ export default function StudentCourses() {
               {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
                 const cfg = LEVEL_TIER_CONFIG[lvl];
                 const tierPricing = getComputedTierPricing(lvl, levelTiers, campaignOffers);
-                const isUnlocked = isCourseUnlocked(lvl);
+                const isUnlocked = isLevelUnlocked(lvl);
                 const isCurrent = studentLevelCode === lvl;
                 const courseCount = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
                 const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
@@ -398,7 +465,7 @@ export default function StudentCourses() {
                 const cfg = LEVEL_TIER_CONFIG[expandedLevel];
                 const tierPricing = getComputedTierPricing(expandedLevel, levelTiers, campaignOffers);
                 const levelCourses = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === expandedLevel);
-                const isUnlocked = isCourseUnlocked(expandedLevel);
+                const isUnlocked = isLevelUnlocked(expandedLevel);
 
                 return (
                   <div>
@@ -435,7 +502,7 @@ export default function StudentCourses() {
                             <h4 className="text-sm font-bold text-white mb-1">{c.title}</h4>
                             <p className="text-xs text-slate-400 leading-relaxed">{c.description}</p>
                           </div>
-                          {isUnlocked ? (
+                          {isCourseUnlocked(c) ? (
                             <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold shrink-0">
                               ✓ Unlocked
                             </span>
@@ -466,7 +533,7 @@ export default function StudentCourses() {
           </div>
         )}
 
-        {/* Level Filters */}
+        {/* Level & Individual Course Filters */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
           <button
             onClick={() => setActiveLevelFilter("all")}
@@ -479,11 +546,27 @@ export default function StudentCourses() {
             All Courses ({courses.length})
           </button>
 
+          {/* Standalone / Individual Masterclasses Tab Filter */}
+          <button
+            onClick={() => setActiveLevelFilter("NONE")}
+            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+              activeLevelFilter === "NONE"
+                ? "bg-purple-600 text-white font-black shadow-lg shadow-purple-500/20"
+                : "bg-slate-900 border border-slate-800 text-purple-300 hover:text-white"
+            }`}
+          >
+            <Sparkles size={13} className="text-purple-400" />
+            <span>Individual Masterclasses</span>
+            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-purple-300">
+              {courses.filter((c) => !c.levelCode || c.levelCode.toUpperCase() === "NONE").length}
+            </span>
+          </button>
+
           {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
             const cfg = LEVEL_TIER_CONFIG[lvl];
             const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
             const isActive = activeLevelFilter === lvl;
-            const isUnlocked = isCourseUnlocked(lvl);
+            const isUnlocked = isLevelUnlocked(lvl);
             const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
             const levelDisplayName = liveLevel?.name || cfg.name;
 
@@ -513,11 +596,23 @@ export default function StudentCourses() {
         {/* Courses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedCourses.map((course, idx) => {
-            const lvl = (course.levelCode || "L0").toUpperCase();
-            const cfg = LEVEL_TIER_CONFIG[lvl] || LEVEL_TIER_CONFIG.L0;
-            const unlocked = isCourseUnlocked(lvl);
-            const tierPricing = getComputedTierPricing(lvl, levelTiers, campaignOffers);
-            const offer = getCourseResolvedOffer(course, tierPricing);
+            const isStandalone = !course.levelCode || course.levelCode.toUpperCase() === "NONE";
+            const lvl = isStandalone ? "NONE" : (course.levelCode || "L0").toUpperCase();
+            const cfg = LEVEL_TIER_CONFIG[lvl] || { name: "Individual Course", price: "Custom", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" };
+            const unlocked = isCourseUnlocked(course);
+
+            // Standalone course price & offer calculation
+            const basePriceStr = isStandalone 
+              ? (course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "₹999")
+              : getTierPrice(lvl);
+            
+            const tierPricing = !isStandalone ? getComputedTierPricing(lvl, levelTiers, campaignOffers) : null;
+            const offer = isStandalone 
+              ? getCourseOffer(course, basePriceStr) 
+              : getCourseResolvedOffer(course, tierPricing!);
+            
+            const displayOriginalPrice = offer ? offer.originalPrice : (tierPricing?.finalPrice || basePriceStr);
+            const displayFinalPrice = offer ? offer.discountedPrice : (tierPricing?.finalPrice || basePriceStr);
 
             return (
               <motion.div 
@@ -550,9 +645,9 @@ export default function StudentCourses() {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
 
                     {/* Top Overlay Badges */}
-                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                      <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${cfg.bg} ${cfg.color} ${cfg.border}`}>
-                        {lvl} • {tierPricing.name || cfg.name}
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+                      <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${isStandalone ? "bg-purple-500/20 text-purple-300 border-purple-500/40" : `${cfg.bg} ${cfg.color} ${cfg.border}`}`}>
+                        {isStandalone ? "✨ Standalone Masterclass" : `${lvl} • ${tierPricing?.name || cfg.name}`}
                       </span>
 
                       {offer && (
@@ -567,12 +662,12 @@ export default function StudentCourses() {
                       {!unlocked ? (
                         offer ? (
                           <div className="flex items-center gap-1.5 bg-slate-950/90 border border-red-500/50 px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
-                            <span className="text-[10px] text-slate-400 line-through">{offer.originalPrice}</span>
-                            <span className="text-[11px] font-black text-amber-300">{offer.discountedPrice}</span>
+                            <span className="text-[10px] text-slate-400 line-through">{displayOriginalPrice}</span>
+                            <span className="text-[11px] font-black text-amber-300">{displayFinalPrice}</span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-black text-amber-300 bg-slate-950/85 border border-amber-500/40 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
-                            <Lock size={10} /> {tierPricing.finalPrice}
+                          <span className={`text-[10px] font-black bg-slate-950/85 border px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md ${isStandalone ? "text-purple-300 border-purple-500/40" : "text-amber-300 border-amber-500/40"}`}>
+                            <Lock size={10} /> {displayFinalPrice}
                           </span>
                         )
                       ) : (
@@ -614,6 +709,16 @@ export default function StudentCourses() {
                     <span>📂 Open Course Lessons</span>
                     <ChevronRight size={14} />
                   </button>
+                ) : isStandalone ? (
+                  <button
+                    onClick={() => setIndividualCourseModal(course)}
+                    className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
+                  >
+                    <Sparkles size={14} className="text-amber-300" />
+                    <span>
+                      Unlock Course Standalone ({displayFinalPrice})
+                    </span>
+                  </button>
                 ) : (
                   <button
                     onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
@@ -622,10 +727,10 @@ export default function StudentCourses() {
                     <Lock size={13} className="text-amber-400 group-hover:text-slate-950" />
                     {offer ? (
                       <span>
-                        Purchase &amp; Unlock {tierPricing.name} (Offer: {offer.discountedPrice})
+                        Purchase &amp; Unlock {tierPricing?.name} (Offer: {displayFinalPrice})
                       </span>
                     ) : (
-                      <span>Purchase &amp; Unlock {tierPricing.name} ({tierPricing.finalPrice})</span>
+                      <span>Purchase &amp; Unlock {tierPricing?.name} ({displayFinalPrice})</span>
                     )}
                   </button>
                 )}
@@ -670,7 +775,9 @@ export default function StudentCourses() {
                 </div>
                 <div className="min-w-0">
                   <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block">
-                    Tier: {selectedCourse.levelCode || "L0"} ({LEVEL_TIER_CONFIG[selectedCourse.levelCode || "L0"]?.name})
+                    {!selectedCourse.levelCode || selectedCourse.levelCode.toUpperCase() === "NONE"
+                      ? "Individual Masterclass (Permanent Access)"
+                      : `Tier: ${selectedCourse.levelCode} (${LEVEL_TIER_CONFIG[selectedCourse.levelCode]?.name || "Level Course"})`}
                   </span>
                   <h2 className="text-lg sm:text-xl font-black text-white truncate">{selectedCourse.title}</h2>
                 </div>
@@ -774,6 +881,114 @@ export default function StudentCourses() {
           </div>
         </div>
       )}
+
+      {/* Individual Standalone Course Purchase Modal */}
+      {individualCourseModal && (() => {
+        const c = individualCourseModal;
+        const basePriceStr = c.price ? (c.price.startsWith("₹") ? c.price : `₹${c.price}`) : "₹999";
+        const offer = getCourseOffer(c, basePriceStr);
+        const originalPriceStr = offer ? offer.originalPrice : basePriceStr;
+        const finalPriceStr = offer ? offer.discountedPrice : basePriceStr;
+
+        return (
+          <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-slate-900 border border-purple-500/40 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden text-white"
+            >
+              {/* Header Banner */}
+              <div className="relative w-full h-44 bg-slate-950 overflow-hidden border-b border-slate-800">
+                {c.image ? (
+                  <img src={c.image} alt={c.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-950 via-slate-950 to-slate-900 flex items-center justify-center">
+                    <BookOpen size={48} className="text-purple-400" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                <button
+                  onClick={() => setIndividualCourseModal(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+                <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/40 backdrop-blur-md">
+                    ✨ Individual Masterclass
+                  </span>
+                  {offer && (
+                    <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                      <Flame size={11} /> {offer.discountLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <h3 className="text-xl font-black text-white mb-1">{c.title}</h3>
+                  <p className="text-xs text-slate-400 line-clamp-2">
+                    {c.description || "Comprehensive masterclass with high-definition videos and step-by-step guidance."}
+                  </p>
+                </div>
+
+                {/* Benefits */}
+                <div className="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-500/20 space-y-2 text-xs text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
+                    <span>Instant permanent unlock — lifetime access to this course</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
+                    <span>Includes all {c.chapters?.length || 0} HD video lessons &amp; study notes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
+                    <span>Standalone purchase — no level membership or renewal required</span>
+                  </div>
+                </div>
+
+                {/* Pricing Summary */}
+                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block font-semibold">Total Payable</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-amber-400 font-mono">{finalPriceStr}</span>
+                      {offer && (
+                        <span className="text-xs text-slate-500 line-through font-mono">{originalPriceStr}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md font-bold">
+                      One-Time Payment
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={() => handlePurchaseIndividualCourse(c)}
+                    disabled={isProcessingPayment}
+                    className="flex-1 py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg shadow-purple-900/40 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles size={15} className="text-amber-300" />
+                    <span>{isProcessingPayment ? "Processing Payment..." : `Proceed to Pay ${finalPriceStr} via Razorpay`}</span>
+                  </button>
+                  <button
+                    onClick={() => setIndividualCourseModal(null)}
+                    disabled={isProcessingPayment}
+                    className="px-4 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        );
+      })()}
 
       {/* Purchase / Upgrade Tier Modal */}
       <TierPurchaseModal

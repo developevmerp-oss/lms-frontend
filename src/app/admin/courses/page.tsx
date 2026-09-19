@@ -124,6 +124,7 @@ export default function AdminCourses() {
     description: "",
     image: "",
     levelCode: "L0",
+    price: "",
     order: 1,
     offerActive: false,
     discountType: "percentage" as "percentage" | "flat",
@@ -216,6 +217,15 @@ export default function AdminCourses() {
   }, [token]);
 
   const getLevelConfig = (code: string) => {
+    if (!code || code.toUpperCase() === "NONE") {
+      return {
+        name: "Individual Course",
+        price: "Custom Price",
+        color: "text-purple-400",
+        bg: "bg-purple-500/10",
+        border: "border-purple-500/30",
+      };
+    }
     const match = levels.find((l: any) => (l.code || "").toUpperCase() === (code || "").toUpperCase());
     const fallback = LEVEL_TIER_CONFIG[code] || LEVEL_TIER_CONFIG.L0;
     if (match) {
@@ -237,11 +247,13 @@ export default function AdminCourses() {
 
     setIsSubmitting(true);
     try {
+      const isStandalone = !courseForm.levelCode || courseForm.levelCode === "NONE";
       const payload = {
         title: courseForm.title.trim(),
         description: courseForm.description,
         image: courseForm.image,
-        levelCode: courseForm.levelCode,
+        levelCode: isStandalone ? null : courseForm.levelCode,
+        price: isStandalone ? courseForm.price.trim() : null,
         order: Number(courseForm.order) || 1,
         offerActive: Boolean(courseForm.offerActive),
         discountType: courseForm.discountType,
@@ -273,6 +285,7 @@ export default function AdminCourses() {
           description: "",
           image: "",
           levelCode: "L0",
+          price: "",
           order: 1,
           offerActive: false,
           discountType: "percentage",
@@ -530,7 +543,10 @@ export default function AdminCourses() {
 
   const displayedCourses = courses.filter((c) => {
     if (activeLevelFilter === "all") return true;
-    return (c.levelCode || "L0").toUpperCase() === activeLevelFilter.toUpperCase();
+    if (activeLevelFilter === "NONE") {
+      return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
+    }
+    return (c.levelCode || "").toUpperCase() === activeLevelFilter.toUpperCase();
   });
 
   return (
@@ -541,11 +557,11 @@ export default function AdminCourses() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <BookOpen size={13} className="text-orange-400" /> Sequential Level Curriculum
+              <BookOpen size={13} className="text-orange-400" /> Sequential Level & Individual Curriculum
             </span>
-            <h1 className="text-3xl font-black text-white">Level-Wise Course Management</h1>
+            <h1 className="text-3xl font-black text-white">Course Management</h1>
             <p className="text-slate-400 mt-1 text-sm">
-              Organize course videos sequentially across L0 (Starter), L1 (Silver), L2 (Gold), and L3 (Diamond).
+              Organize sequential level-wise courses (L0-L3) or create standalone individual courses with custom pricing.
             </p>
           </div>
 
@@ -567,6 +583,7 @@ export default function AdminCourses() {
                   description: "",
                   image: "",
                   levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
+                  price: "",
                   order: courses.filter((c) => (c.levelCode || "L0") === (activeLevelFilter === "all" ? "L0" : activeLevelFilter)).length + 1 || 1,
                   offerActive: false,
                   discountType: "percentage",
@@ -599,7 +616,25 @@ export default function AdminCourses() {
                 : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
             }`}
           >
-            All Levels ({courses.length})
+            All Courses ({courses.length})
+          </button>
+
+          {/* Standalone / Individual Courses Filter Tab */}
+          <button
+            onClick={() => setActiveLevelFilter("NONE")}
+            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+              activeLevelFilter === "NONE"
+                ? "bg-purple-600 text-white font-black shadow-lg shadow-purple-500/20"
+                : "bg-slate-900 border border-slate-800 text-purple-300 hover:text-white"
+            }`}
+          >
+            <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${activeLevelFilter === "NONE" ? "bg-slate-950 text-purple-300" : "bg-purple-500/20 text-purple-400"}`}>
+              NONE
+            </span>
+            <span>Individual / Standalone</span>
+            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
+              {courses.filter((c) => !c.levelCode || c.levelCode.toUpperCase() === "NONE").length}
+            </span>
           </button>
 
           {(levels.length > 0
@@ -614,7 +649,7 @@ export default function AdminCourses() {
           ).map((lvlObj) => {
             const lvl = lvlObj.code;
             const cfg = getLevelConfig(lvl);
-            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl.toUpperCase()).length;
+            const count = courses.filter((c) => (c.levelCode || "").toUpperCase() === lvl.toUpperCase()).length;
             const isActive = activeLevelFilter.toUpperCase() === lvl.toUpperCase();
 
             return (
@@ -646,8 +681,12 @@ export default function AdminCourses() {
         ) : displayedCourses.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl p-8">
             <BookOpen size={48} className="text-slate-700 mb-4" />
-            <h3 className="text-lg font-bold text-white mb-1">No Courses Found in this Tier</h3>
-            <p className="text-slate-400 text-sm mb-4">Click "Create New Course" to add a course to {activeLevelFilter}.</p>
+            <h3 className="text-lg font-bold text-white mb-1">No Courses Found</h3>
+            <p className="text-slate-400 text-sm mb-4">
+              {activeLevelFilter === "NONE"
+                ? "No standalone individual courses yet. Click below to create one with a custom price."
+                : `Click "Create New Course" to add a course to ${activeLevelFilter}.`}
+            </p>
             <button
               onClick={() => {
                 setEditingCourse(null);
@@ -656,6 +695,7 @@ export default function AdminCourses() {
                   description: "",
                   image: "",
                   levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
+                  price: "",
                   order: 1,
                   offerActive: false,
                   discountType: "percentage",
@@ -674,8 +714,12 @@ export default function AdminCourses() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedCourses.map((course) => {
               const isSelected = selectedCourse?.id === course.id;
-              const lvl = (course.levelCode || "L0").toUpperCase();
+              const isStandalone = !course.levelCode || course.levelCode.toUpperCase() === "NONE";
+              const lvl = isStandalone ? "NONE" : (course.levelCode || "L0").toUpperCase();
               const cfg = getLevelConfig(lvl);
+              const displayPrice = isStandalone
+                ? (course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "Price not set")
+                : cfg.price;
 
               return (
                 <div
@@ -701,9 +745,9 @@ export default function AdminCourses() {
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                       
                       {/* Top Overlay Badges */}
-                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${cfg.bg} ${cfg.color} ${cfg.border}`}>
-                          {lvl} • {cfg.name}
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${isStandalone ? "bg-purple-500/20 text-purple-300 border-purple-500/40" : `${cfg.bg} ${cfg.color} ${cfg.border}`}`}>
+                          {isStandalone ? "✨ Individual Course" : `${lvl} • ${cfg.name}`}
                         </span>
 
                         {course.offerActive && (
@@ -722,7 +766,8 @@ export default function AdminCourses() {
                               title: course.title,
                               description: course.description || "",
                               image: course.image || "",
-                              levelCode: course.levelCode || "L0",
+                              levelCode: course.levelCode || "NONE",
+                              price: course.price ? course.price.replace(/[^0-9]/g, "") : "",
                               order: course.order || 0,
                               offerActive: Boolean(course.offerActive),
                               discountType: course.discountType || "percentage",
@@ -747,8 +792,8 @@ export default function AdminCourses() {
                       </div>
 
                       <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-                        <span className="text-[11px] text-amber-400 font-mono font-bold">
-                          {cfg.price}
+                        <span className={`text-[11px] font-mono font-bold ${isStandalone ? "text-purple-300" : "text-amber-400"}`}>
+                          {displayPrice}
                         </span>
                         <span className="text-[10px] text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-700 font-semibold">
                           #{course.order || 1}
@@ -934,10 +979,12 @@ export default function AdminCourses() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-black uppercase tracking-wider text-orange-400">
-                      Tier: {selectedCourse.levelCode || "L0"}
+                      Tier: {!selectedCourse.levelCode || selectedCourse.levelCode === "NONE" ? "Individual Course" : selectedCourse.levelCode}
                     </span>
                     <span className="text-xs text-slate-400 font-mono">
-                      ({LEVEL_TIER_CONFIG[selectedCourse.levelCode || "L0"]?.price || "₹499"})
+                      ({!selectedCourse.levelCode || selectedCourse.levelCode === "NONE"
+                        ? (selectedCourse.price ? (selectedCourse.price.startsWith("₹") ? selectedCourse.price : `₹${selectedCourse.price}`) : "Custom Price")
+                        : (LEVEL_TIER_CONFIG[selectedCourse.levelCode]?.price || "₹499")})
                     </span>
                   </div>
                   <h2 className="text-2xl font-black text-white flex items-center gap-2">
@@ -1113,6 +1160,7 @@ export default function AdminCourses() {
                     onChange={(e) => setCourseForm({ ...courseForm, levelCode: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
                   >
+                    <option value="NONE">✨ None (Individual / Standalone Course)</option>
                     {(levels.length > 0
                       ? levels
                       : [
@@ -1140,6 +1188,34 @@ export default function AdminCourses() {
                   />
                 </div>
               </div>
+
+              {/* Conditional Price Text Box for Standalone Courses */}
+              {(!courseForm.levelCode || courseForm.levelCode === "NONE") && (
+                <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/40 space-y-2 animate-fadeIn">
+                  <label className="block text-xs font-black text-purple-300 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Tag size={13} className="text-purple-400" /> Individual Course Price (₹) *
+                    </span>
+                    <span className="text-[10px] text-purple-400 font-normal">
+                      Purchased standalone without level membership
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">₹</span>
+                    <input
+                      type="text"
+                      required
+                      value={courseForm.price}
+                      onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                      className="w-full bg-slate-950 border border-purple-500/50 rounded-xl pl-8 pr-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-purple-400 placeholder-slate-600 shadow-inner"
+                      placeholder="e.g. 999 or 1499"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Students will purchase this course individually at this price. Any active discount configured below will apply on top of this course price.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-1.5">Course Title</label>
