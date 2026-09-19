@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
+import { getComputedTierPricing, getCourseResolvedOffer } from "@/utils/tierPricing";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -109,6 +110,7 @@ export default function StudentCourses() {
   });
   
   const [levelTiers, setLevelTiers] = useState<any[]>([]);
+  const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
 
   const fetchStudentData = () => {
     fetch(`${API_BASE_URL}/dashboard/levels`)
@@ -117,6 +119,21 @@ export default function StudentCourses() {
         if (Array.isArray(data) && data.length > 0) setLevelTiers(data);
       })
       .catch(err => console.error("Error fetching level tiers", err));
+
+    fetch(`${API_BASE_URL}/dashboard/offers`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setCampaignOffers(data);
+        else if (data && Array.isArray(data.offers)) setCampaignOffers(data.offers);
+      })
+      .catch(() => {
+        fetch(`${API_BASE_URL}/admin/offers/active`)
+          .then(res => res.json())
+          .then(data => {
+            if (Array.isArray(data)) setCampaignOffers(data);
+          })
+          .catch(() => {});
+      });
 
     if (!token) return;
     
@@ -264,11 +281,12 @@ export default function StudentCourses() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
                 const cfg = LEVEL_TIER_CONFIG[lvl];
+                const tierPricing = getComputedTierPricing(lvl, levelTiers, campaignOffers);
                 const isUnlocked = isCourseUnlocked(lvl);
                 const isCurrent = studentLevelCode === lvl;
                 const courseCount = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
                 const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
-                const levelDisplayName = liveLevel?.name || cfg.name;
+                const levelDisplayName = tierPricing.name || liveLevel?.name || cfg.name;
                 const levelDisplayDesc = liveLevel?.description || (
                   lvl === "L0" ? "Foundational resin chemistry, bubble-free mixing, and essential art setup." :
                   lvl === "L1" ? "Core casting techniques, marbling, lotus ponds, and first client sales." :
@@ -292,7 +310,19 @@ export default function StudentCourses() {
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                           {lvl}
                         </span>
-                        <span className="text-sm font-black text-white font-mono">{getTierPrice(lvl)}</span>
+                        <div className="flex flex-col items-end">
+                          {tierPricing.hasOffer ? (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[11px] text-slate-500 line-through font-mono">{tierPricing.originalPrice}</span>
+                              <span className="text-sm font-black text-amber-400 font-mono">{tierPricing.finalPrice}</span>
+                              <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow-sm">
+                                {tierPricing.discountLabel}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm font-black text-white font-mono">{tierPricing.finalPrice}</span>
+                          )}
+                        </div>
                       </div>
 
                       <h3 className="text-xl font-black text-white mb-2">{levelDisplayName}</h3>
@@ -339,7 +369,7 @@ export default function StudentCourses() {
                           onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
                           className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-md hover:scale-105 cursor-pointer"
                         >
-                          Unlock {levelDisplayName} ({getTierPrice(lvl)})
+                          Unlock {levelDisplayName} ({tierPricing.hasOffer ? `Offer: ${tierPricing.finalPrice}` : tierPricing.finalPrice})
                         </button>
                       )}
                     </div>
@@ -366,6 +396,7 @@ export default function StudentCourses() {
 
               {(() => {
                 const cfg = LEVEL_TIER_CONFIG[expandedLevel];
+                const tierPricing = getComputedTierPricing(expandedLevel, levelTiers, campaignOffers);
                 const levelCourses = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === expandedLevel);
                 const isUnlocked = isCourseUnlocked(expandedLevel);
 
@@ -375,11 +406,23 @@ export default function StudentCourses() {
                       <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                         {expandedLevel}
                       </span>
-                      <h2 className="text-2xl font-black text-white">{cfg.name} Courses ({levelCourses.length})</h2>
-                      <span className="text-base font-black text-amber-400 font-mono ml-auto mr-12">{getTierPrice(expandedLevel)}</span>
+                      <h2 className="text-2xl font-black text-white">{tierPricing.name} Courses ({levelCourses.length})</h2>
+                      <div className="ml-auto mr-12 flex items-baseline gap-2">
+                        {tierPricing.hasOffer ? (
+                          <>
+                            <span className="text-xs text-slate-500 line-through font-mono">{tierPricing.originalPrice}</span>
+                            <span className="text-base font-black text-amber-400 font-mono">{tierPricing.finalPrice}</span>
+                            <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded shadow">
+                              {tierPricing.discountLabel}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-base font-black text-amber-400 font-mono">{tierPricing.finalPrice}</span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs text-slate-400 mb-6">
-                      Below are the masterclass video modules included when you purchase the <strong>{cfg.name} ({expandedLevel})</strong> membership tier:
+                      Below are the masterclass video modules included when you purchase the <strong>{tierPricing.name} ({expandedLevel})</strong> membership tier:
                     </p>
 
                     <div className="space-y-4">
@@ -413,7 +456,7 @@ export default function StudentCourses() {
                         }}
                         className="mt-6 w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-lg hover:scale-105 cursor-pointer"
                       >
-                        Unlock Entire {cfg.name} Tier ({cfg.price}) Now →
+                        Unlock Entire {tierPricing.name} Tier ({tierPricing.hasOffer ? `Offer: ${tierPricing.finalPrice}` : tierPricing.finalPrice}) Now →
                       </button>
                     )}
                   </div>
@@ -473,6 +516,8 @@ export default function StudentCourses() {
             const lvl = (course.levelCode || "L0").toUpperCase();
             const cfg = LEVEL_TIER_CONFIG[lvl] || LEVEL_TIER_CONFIG.L0;
             const unlocked = isCourseUnlocked(lvl);
+            const tierPricing = getComputedTierPricing(lvl, levelTiers, campaignOffers);
+            const offer = getCourseResolvedOffer(course, tierPricing);
 
             return (
               <motion.div 
@@ -507,39 +552,29 @@ export default function StudentCourses() {
                     {/* Top Overlay Badges */}
                     <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
                       <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${cfg.bg} ${cfg.color} ${cfg.border}`}>
-                        {lvl} • {cfg.name}
+                        {lvl} • {tierPricing.name || cfg.name}
                       </span>
 
-                      {(() => {
-                        const offer = getCourseOffer(course, cfg.price);
-                        if (!offer) return null;
-                        return (
-                          <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1 animate-pulse">
-                            <Flame size={10} />
-                            {offer.discountLabel}
-                          </span>
-                        );
-                      })()}
+                      {offer && (
+                        <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1 animate-pulse">
+                          <Flame size={10} />
+                          {offer.discountLabel}
+                        </span>
+                      )}
                     </div>
 
                     <div className="absolute top-2.5 right-2.5">
                       {!unlocked ? (
-                        (() => {
-                          const offer = getCourseOffer(course, cfg.price);
-                          if (offer) {
-                            return (
-                              <div className="flex items-center gap-1.5 bg-slate-950/90 border border-red-500/50 px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
-                                <span className="text-[10px] text-slate-400 line-through">{offer.originalPrice}</span>
-                                <span className="text-[11px] font-black text-amber-300">{offer.discountedPrice}</span>
-                              </div>
-                            );
-                          }
-                          return (
-                            <span className="text-[10px] font-black text-amber-300 bg-slate-950/85 border border-amber-500/40 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
-                              <Lock size={10} /> {cfg.price}
-                            </span>
-                          );
-                        })()
+                        offer ? (
+                          <div className="flex items-center gap-1.5 bg-slate-950/90 border border-red-500/50 px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
+                            <span className="text-[10px] text-slate-400 line-through">{offer.originalPrice}</span>
+                            <span className="text-[11px] font-black text-amber-300">{offer.discountedPrice}</span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-black text-amber-300 bg-slate-950/85 border border-amber-500/40 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
+                            <Lock size={10} /> {tierPricing.finalPrice}
+                          </span>
+                        )
                       ) : (
                         <span className="text-[10px] font-black text-emerald-400 bg-slate-950/85 border border-emerald-500/30 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
                           <CheckCircle2 size={10} /> Unlocked
@@ -585,17 +620,13 @@ export default function StudentCourses() {
                     className="w-full py-3 px-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-orange-500 hover:to-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer group"
                   >
                     <Lock size={13} className="text-amber-400 group-hover:text-slate-950" />
-                    {(() => {
-                      const offer = getCourseOffer(course, cfg.price);
-                      if (offer) {
-                        return (
-                          <span>
-                            Purchase &amp; Unlock {cfg.name} (Offer: {offer.discountedPrice})
-                          </span>
-                        );
-                      }
-                      return <span>Purchase &amp; Unlock {cfg.name} ({cfg.price})</span>;
-                    })()}
+                    {offer ? (
+                      <span>
+                        Purchase &amp; Unlock {tierPricing.name} (Offer: {offer.discountedPrice})
+                      </span>
+                    ) : (
+                      <span>Purchase &amp; Unlock {tierPricing.name} ({tierPricing.finalPrice})</span>
+                    )}
                   </button>
                 )}
               </motion.div>

@@ -20,6 +20,7 @@ import { Trophy, Sparkles, Lock, ArrowRight, Zap, BookOpen } from "lucide-react"
 import Link from "next/link";
 import { getLevelCode } from "@/components/layout/StudentNav";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
+import { getComputedTierPricing } from "@/utils/tierPricing";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -79,10 +80,30 @@ export default function StudentDashboard() {
   }, [token]);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [liveTiers, setLiveTiers] = useState<any[]>([]);
+  const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/dashboard/levels`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setLiveTiers(data);
+      })
+      .catch(() => {});
+
+    fetch(`${API_BASE_URL}/dashboard/offers`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setCampaignOffers(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const effectiveLevel = user?.membershipLevel || stats.membershipLevel || user?.rank || stats.rank || "";
   const studentLevelCode = getLevelCode(effectiveLevel, stats.points || 0);
   const isGeneral = studentLevelCode === "GENERAL";
+
+  const l0Pricing = getComputedTierPricing("L0", liveTiers, campaignOffers);
 
   const getLevelName = () => {
     if (isGeneral) return "General Member";
@@ -159,7 +180,7 @@ export default function StudentDashboard() {
                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-2xl text-base shadow-xl shadow-orange-500/25 flex items-center justify-center gap-2 hover:scale-105 transition-all cursor-pointer"
               >
                 <Zap size={18} />
-                Unlock Fast Track (₹499)
+                Unlock {l0Pricing.name} ({l0Pricing.hasOffer ? `Offer: ${l0Pricing.finalPrice}` : l0Pricing.finalPrice})
               </button>
               <Link
                 href="/student/feed"

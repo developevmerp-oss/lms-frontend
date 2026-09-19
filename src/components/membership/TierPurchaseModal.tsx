@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { processRazorpayPayment } from "@/utils/razorpay";
 import { API_BASE_URL } from "@/config/api";
+import { getComputedTierPricing, parseNumericPrice } from "@/utils/tierPricing";
 
 export interface TierInfo {
   code: "L0" | "L1" | "L2" | "L3" | "L3+";
@@ -145,31 +146,45 @@ export const TierPurchaseModal = ({
         })
         .catch(() => {});
 
-      if (token) {
-        fetch(`${API_BASE_URL}/admin/offers`, {
-          headers: { Authorization: `Bearer ${token}` },
+      // Fetch active offers using public dashboard endpoint or active admin offers
+      fetch(`${API_BASE_URL}/dashboard/offers`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setCampaignOffers(data);
+          else if (data && Array.isArray(data.offers)) setCampaignOffers(data.offers);
         })
-          .then((r) => r.json())
-          .then((data) => {
-            if (Array.isArray(data)) setCampaignOffers(data);
-          })
-          .catch(() => {});
-      }
+        .catch(() => {
+          fetch(`${API_BASE_URL}/admin/offers/active`)
+            .then((r) => r.json())
+            .then((data) => {
+              if (Array.isArray(data)) setCampaignOffers(data);
+            })
+            .catch(() => {});
+        });
     }
-  }, [isOpen, token]);
+  }, [isOpen, preselectedTier, targetTierCode]);
 
   if (!isOpen) return null;
 
   const baseTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
-  const liveTierMatch = liveTiers.find((lt) => lt.code === selectedCode);
+  const liveTierMatch = liveTiers.find(
+    (lt) => (lt.code || lt.levelCode || "").toUpperCase() === selectedCode.toUpperCase()
+  );
+
+  // Dynamic base price extracted from live database
+  const dynamicBasePriceStr = liveTierMatch?.price || baseTier.price;
+  const dynamicBaseNumericPrice = parseNumericPrice(dynamicBasePriceStr) || baseTier.numericPrice;
+  const formattedBasePrice = `₹${dynamicBaseNumericPrice.toLocaleString("en-IN")}`;
 
   // Check separate offers module for ALL matching active campaign offers
   const now = new Date();
   const matchingOffers = campaignOffers.filter((co) => {
-    if (!co.isActive) return false;
-    if (co.levelCode !== "ALL" && co.levelCode !== selectedCode) return false;
+    if (!co || co.isActive === false) return false;
+    const coLevel = (co.levelCode || "").toUpperCase();
+    if (coLevel !== "ALL" && coLevel !== selectedCode.toUpperCase()) return false;
     if (co.startDate && new Date(co.startDate) > now) return false;
     if (co.endDate && new Date(co.endDate) < now) return false;
+    if (!co.discountValue || parseFloat(co.discountValue) <= 0) return false;
     return true;
   });
 
@@ -182,9 +197,11 @@ export const TierPurchaseModal = ({
     name: liveTierMatch?.name || baseTier.name,
     description: liveTierMatch?.description || baseTier.description,
     icon: liveTierMatch?.icon || baseTier.icon,
-    price: liveTierMatch?.price || baseTier.price,
+    price: formattedBasePrice,
+    numericPrice: dynamicBaseNumericPrice,
+    originalPrice: liveTierMatch?.originalPrice || baseTier.originalPrice || formattedBasePrice,
     discountType: activeCampaignOffer?.discountType || liveTierMatch?.discountType || baseTier.discountType,
-    discountValue: activeCampaignOffer?.discountValue || liveTierMatch?.discountValue || baseTier.discountValue,
+    discountValue: activeCampaignOffer?.discountValue ? parseFloat(activeCampaignOffer.discountValue) : liveTierMatch?.discountValue || baseTier.discountValue,
     offerStartDate: activeCampaignOffer?.startDate || liveTierMatch?.offerStartDate || baseTier.offerStartDate,
     offerEndDate: activeCampaignOffer?.endDate || liveTierMatch?.offerEndDate || baseTier.offerEndDate,
     offerActive: activeCampaignOffer ? activeCampaignOffer.isActive : liveTierMatch ? liveTierMatch.offerActive : baseTier.offerActive,
@@ -202,14 +219,14 @@ export const TierPurchaseModal = ({
   let finalNumericPrice = mergedTier.numericPrice;
   let offerBadge: string | null = null;
 
-  if (hasActiveOffer && mergedTier.discountValue) {
+  if (hasActiveOffer && mergedTier.discountValue && mergedTier.numericPrice > 0) {
     if (mergedTier.discountType === "percentage") {
       const disc = (mergedTier.numericPrice * mergedTier.discountValue) / 100;
       finalNumericPrice = Math.max(0, Math.round(mergedTier.numericPrice - disc));
       offerBadge = `${mergedTier.discountValue}% OFF`;
     } else {
       finalNumericPrice = Math.max(0, Math.round(mergedTier.numericPrice - mergedTier.discountValue));
-      offerBadge = `₹${mergedTier.discountValue} OFF`;
+      offerBadge = `₹${mergedTier.discountValue.toLocaleString("en-IN")} OFF`;
     }
   }
 
@@ -276,15 +293,17 @@ export const TierPurchaseModal = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {TIERS_CATALOG.map((tier) => {
               const isSelected = selectedCode === tier.code;
+              const pricing = getComputedTierPricing(tier.code, liveTiers, campaignOffers);
               const liveMatch = liveTiers.find((lt) => (lt.code || lt.levelCode || "").toUpperCase() === tier.code.toUpperCase());
-              const displayName = liveMatch?.name || tier.name;
-              const displayPrice = liveMatch?.price || tier.price;
 
               return (
                 <button
                   key={tier.code}
                   type="button"
-                  onClick={() => setSelectedCode(tier.code)}
+                  onClick={() => {
+                    setSelectedCode(tier.code);
+                    setSelectedOfferId(null);
+                  }}
                   className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                     isSelected
                       ? "bg-orange-500/10 border-orange-500 ring-2 ring-orange-500/30"
@@ -297,9 +316,16 @@ export const TierPurchaseModal = ({
                       {tier.code}
                     </span>
                   </div>
-                  <h4 className="text-xs font-black text-white truncate">{displayName}</h4>
-                  <div className="text-xs font-black text-amber-400 font-mono mt-1">
-                    {displayPrice}
+                  <h4 className="text-xs font-black text-white truncate">{pricing.name}</h4>
+                  <div className="text-xs font-black text-amber-400 font-mono mt-1 flex flex-col">
+                    {pricing.hasOffer ? (
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xs text-amber-300 font-bold">{pricing.finalPrice}</span>
+                        <span className="text-[9px] text-red-400 font-bold">{pricing.discountLabel}</span>
+                      </div>
+                    ) : (
+                      <span>{pricing.finalPrice}</span>
+                    )}
                   </div>
                 </button>
               );
@@ -380,9 +406,11 @@ export const TierPurchaseModal = ({
                       <span className="text-2xl font-black text-amber-400 font-mono">
                         {mergedTier.price}
                       </span>
-                      <span className="text-xs text-slate-500 line-through font-mono">
-                        {mergedTier.originalPrice}
-                      </span>
+                      {mergedTier.originalPrice && mergedTier.originalPrice !== mergedTier.price && (
+                        <span className="text-xs text-slate-500 line-through font-mono">
+                          {mergedTier.originalPrice}
+                        </span>
+                      )}
                     </>
                   )}
                 </div>

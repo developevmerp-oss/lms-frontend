@@ -2,19 +2,51 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Op } from 'sequelize';
 import db from '../models';
 
-const { User, SalesRecord, Notification, CommunityWin, LevelTier } = db;
+const { User, SalesRecord, Notification, CommunityWin, LevelTier, PaymentTransaction } = db;
 
 let dynamicRazorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag';
 let dynamicRazorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || '';
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
+// Helper to resolve active Razorpay keys with DB persistence fallback
+const resolveRazorpayKeys = async () => {
+  // If valid non-dummy keys exist in env, use them
+  if (
+    process.env.RAZORPAY_KEY_ID &&
+    !process.env.RAZORPAY_KEY_ID.includes('1DP5mmOlF5G5ag') &&
+    process.env.RAZORPAY_KEY_SECRET
+  ) {
+    dynamicRazorpayKeyId = process.env.RAZORPAY_KEY_ID.trim();
+    dynamicRazorpayKeySecret = process.env.RAZORPAY_KEY_SECRET.trim();
+    return { keyId: dynamicRazorpayKeyId, keySecret: dynamicRazorpayKeySecret };
+  }
+
+  // Otherwise check persistent SystemSettings table in Postgres
+  try {
+    const [rows]: any = await db.sequelize.query(
+      `SELECT "key", "value" FROM "SystemSettings" WHERE "key" IN ('RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET');`
+    );
+    if (rows && rows.length > 0) {
+      const dbKeyId = rows.find((r: any) => r.key === 'RAZORPAY_KEY_ID')?.value;
+      const dbKeySecret = rows.find((r: any) => r.key === 'RAZORPAY_KEY_SECRET')?.value;
+      if (dbKeyId) dynamicRazorpayKeyId = dbKeyId.trim();
+      if (dbKeySecret) dynamicRazorpayKeySecret = dbKeySecret.trim();
+    }
+  } catch (_) {}
+
+  return { keyId: dynamicRazorpayKeyId, keySecret: dynamicRazorpayKeySecret };
+};
+
 // ── GET PUBLIC RAZORPAY KEY & STATUS ──
 export const getRazorpayKey = async (_req: Request, res: Response): Promise<any> => {
+  const { keyId, keySecret } = await resolveRazorpayKeys();
+  const isConfigured = !!(keyId && keySecret && !keyId.includes('1DP5mmOlF5G5ag'));
   return res.status(200).json({
-    keyId: dynamicRazorpayKeyId,
-    isConfigured: !!(dynamicRazorpayKeyId && dynamicRazorpayKeySecret && !dynamicRazorpayKeyId.includes('1DP5mmOlF5G5ag')),
+    keyId,
+    isConfigured,
   });
 };
 
@@ -25,9 +57,31 @@ export const updateRazorpayConfig = async (req: Request, res: Response): Promise
     if (keyId) dynamicRazorpayKeyId = keyId.trim();
     if (keySecret) dynamicRazorpayKeySecret = keySecret.trim();
 
+    // Persist to database so Render restarts never lose the keys
+    try {
+      if (keyId) {
+        await db.sequelize.query(
+          `INSERT INTO "SystemSettings" ("key", "value", "createdAt", "updatedAt")
+           VALUES ('RAZORPAY_KEY_ID', :val, NOW(), NOW())
+           ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value", "updatedAt" = NOW();`,
+          { replacements: { val: keyId.trim() } }
+        );
+      }
+      if (keySecret) {
+        await db.sequelize.query(
+          `INSERT INTO "SystemSettings" ("key", "value", "createdAt", "updatedAt")
+           VALUES ('RAZORPAY_KEY_SECRET', :val, NOW(), NOW())
+           ON CONFLICT ("key") DO UPDATE SET "value" = EXCLUDED."value", "updatedAt" = NOW();`,
+          { replacements: { val: keySecret.trim() } }
+        );
+      }
+    } catch (dbErr: any) {
+      console.warn('Could not persist keys to SystemSettings table:', dbErr?.message);
+    }
+
     return res.status(200).json({
       success: true,
-      message: 'Razorpay keys updated successfully!',
+      message: 'Razorpay keys updated and saved permanently to database!',
       keyId: dynamicRazorpayKeyId,
     });
   } catch (error: any) {
@@ -35,21 +89,33 @@ export const updateRazorpayConfig = async (req: Request, res: Response): Promise
   }
 };
 
-// ── CREATE RAZORPAY ORDER ──
+// ── CREATE RAZORPAY ORDER & LOG TRANSACTION AS PENDING ──
 export const createPaymentOrder = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { amount, currency = 'INR', tierCode = 'L0', tierName = 'Fast Track', customerEmail, customerPhone, customerName } = req.body;
+    const {
+      amount,
+      currency = 'INR',
+      tierCode = 'L0',
+      tierName = 'Fast Track',
+      customerEmail,
+      customerPhone,
+      customerName,
+    } = req.body;
 
     if (!amount) {
       return res.status(400).json({ message: 'Payment amount is required' });
     }
 
-    const amountInPaise = Math.round(parseFloat(amount) * 100);
+    const cleanAmount = parseFloat(amount);
+    const amountInPaise = Math.round(cleanAmount * 100);
+    let orderId = `order_${tierCode.toLowerCase()}_${Date.now()}`;
 
-    // If live credentials are provided, call Razorpay Orders API
-    if (dynamicRazorpayKeyId && dynamicRazorpayKeySecret && !dynamicRazorpayKeyId.includes('1DP5mmOlF5G5ag')) {
+    const { keyId, keySecret } = await resolveRazorpayKeys();
+
+    // If live/test Razorpay credentials exist, create order via Razorpay API
+    if (keyId && keySecret && !keyId.includes('1DP5mmOlF5G5ag')) {
       try {
-        const authHeader = Buffer.from(`${dynamicRazorpayKeyId}:${dynamicRazorpayKeySecret}`).toString('base64');
+        const authHeader = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
         const response = await fetch('https://api.razorpay.com/v1/orders', {
           method: 'POST',
           headers: {
@@ -71,29 +137,44 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<a
 
         const orderData = await response.json();
         if (response.ok && orderData.id) {
-          return res.status(200).json({
-            success: true,
-            orderId: orderData.id,
-            amount: amountInPaise,
-            currency: orderData.currency || currency,
-            keyId: dynamicRazorpayKeyId,
-            tierCode,
-            tierName,
-          });
+          orderId = orderData.id;
         }
       } catch (rErr) {
-        console.warn('Razorpay API error, falling back to direct checkout order:', rErr);
+        console.warn('Razorpay API order creation warning, using direct order tracking:', rErr);
       }
     }
 
-    // Direct / Fallback Order ID
-    const fallbackOrderId = `order_${tierCode.toLowerCase()}_${Date.now()}`;
+    // Try finding existing student by email
+    let matchedUserId: string | null = null;
+    if (customerEmail) {
+      const existingUser = await User.findOne({ where: { email: customerEmail.trim().toLowerCase() } });
+      if (existingUser) matchedUserId = existingUser.id;
+    }
+
+    // Record initial transaction in database as 'pending'
+    try {
+      await PaymentTransaction.create({
+        orderId,
+        tierCode,
+        tierName,
+        amount: cleanAmount,
+        currency,
+        customerName: customerName || 'Art Student',
+        customerEmail: (customerEmail || '').trim().toLowerCase(),
+        customerPhone: customerPhone || '',
+        userId: matchedUserId,
+        status: 'pending',
+      });
+    } catch (dbErr: any) {
+      console.warn('Could not insert initial pending payment transaction:', dbErr?.message);
+    }
+
     return res.status(200).json({
       success: true,
-      orderId: fallbackOrderId,
+      orderId,
       amount: amountInPaise,
       currency,
-      keyId: dynamicRazorpayKeyId,
+      keyId,
       tierCode,
       tierName,
     });
@@ -103,7 +184,32 @@ export const createPaymentOrder = async (req: Request, res: Response): Promise<a
   }
 };
 
-// ── VERIFY RAZORPAY PAYMENT & UNLOCK MEMBERSHIP ──
+// ── RECORD PAYMENT FAILURE OR USER CANCELLATION ──
+export const recordPaymentFailure = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { orderId, paymentId, reason, status = 'failed' } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ message: 'orderId is required' });
+    }
+
+    const tx = await PaymentTransaction.findOne({ where: { orderId } });
+    if (tx) {
+      await tx.update({
+        status: status === 'cancelled' ? 'cancelled' : 'failed',
+        paymentId: paymentId || tx.paymentId,
+        failureReason: reason || (status === 'cancelled' ? 'User closed checkout window' : 'Payment was declined or failed'),
+      });
+    }
+
+    return res.status(200).json({ success: true, message: 'Transaction failure logged.' });
+  } catch (error: any) {
+    console.error('Error logging payment failure:', error);
+    return res.status(500).json({ message: 'Failed to log payment failure', error: error?.message });
+  }
+};
+
+// ── STRICT VERIFY RAZORPAY PAYMENT & UNLOCK MEMBERSHIP ──
 export const verifyPayment = async (req: Request, res: Response): Promise<any> => {
   try {
     const {
@@ -117,24 +223,87 @@ export const verifyPayment = async (req: Request, res: Response): Promise<any> =
       name,
       phone,
       password,
+      paymentMethod = 'Online / Razorpay',
     } = req.body;
 
-    // Verify signature if secret configured
-    if (dynamicRazorpayKeySecret && razorpay_signature && razorpay_order_id && razorpay_payment_id) {
+    if (!razorpay_payment_id || !razorpay_order_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment parameters. Payment could not be verified.',
+      });
+    }
+
+    const { keyId, keySecret } = await resolveRazorpayKeys();
+
+    // 1. STRICT Cryptographic Signature Verification
+    if (keySecret && !keyId.includes('1DP5mmOlF5G5ag')) {
+      if (!razorpay_signature) {
+        // Mark transaction as failed
+        await PaymentTransaction.update(
+          { status: 'failed', failureReason: 'Missing payment signature' },
+          { where: { orderId: razorpay_order_id } }
+        );
+        return res.status(400).json({
+          success: false,
+          message: 'Payment verification failed: Missing Razorpay cryptographic signature.',
+        });
+      }
+
       const generatedSignature = crypto
-        .createHmac('sha256', dynamicRazorpayKeySecret)
+        .createHmac('sha256', keySecret)
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest('hex');
 
       if (generatedSignature !== razorpay_signature) {
-        console.warn('Signature mismatch, but allowing test mode completion if test key');
+        console.warn(`Signature mismatch: expected ${generatedSignature}, got ${razorpay_signature}`);
+        await PaymentTransaction.update(
+          { status: 'failed', paymentId: razorpay_payment_id, failureReason: 'Signature mismatch: unauthorized or altered transaction' },
+          { where: { orderId: razorpay_order_id } }
+        );
+        return res.status(400).json({
+          success: false,
+          message: 'Security validation failed: Payment signature does not match.',
+        });
       }
     }
 
-    const fullTierLabel = `${tierName} (${tierCode})`;
+    // 2. Mark Transaction as Completed in Database
+    const cleanAmount = parseFloat(amount) || 499;
     const targetEmail = (email || '').trim().toLowerCase();
 
-    // Fetch Level Tier configuration to check validity (Single Validity vs Lifetime)
+    const [tx] = await PaymentTransaction.findOrCreate({
+      where: { orderId: razorpay_order_id },
+      defaults: {
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        signature: razorpay_signature || null,
+        tierCode,
+        tierName,
+        amount: cleanAmount,
+        currency: 'INR',
+        customerEmail: targetEmail,
+        customerName: name || 'Art Student',
+        customerPhone: phone || '',
+        status: 'completed',
+        paymentMethod,
+        paidAt: new Date(),
+      },
+    });
+
+    if (tx) {
+      await tx.update({
+        status: 'completed',
+        paymentId: razorpay_payment_id,
+        signature: razorpay_signature || tx.signature,
+        paymentMethod: paymentMethod || tx.paymentMethod,
+        paidAt: new Date(),
+        failureReason: null,
+      });
+    }
+
+    // 3. User tier upgrade and validity logic
+    const fullTierLabel = `${tierName} (${tierCode})`;
+
     let membershipExpiresAt: Date | null = null;
     try {
       const matchedTier = await LevelTier.findOne({ where: { code: tierCode.trim().toUpperCase() } });
@@ -144,12 +313,10 @@ export const verifyPayment = async (req: Request, res: Response): Promise<any> =
     } catch (_) {}
 
     let user: any = null;
-
     if (targetEmail) {
       user = await User.findOne({ where: { email: targetEmail } });
 
       if (user) {
-        // Update existing user level & validity
         await user.update({
           membershipLevel: fullTierLabel,
           rank: fullTierLabel,
@@ -157,7 +324,6 @@ export const verifyPayment = async (req: Request, res: Response): Promise<any> =
           membershipExpiresAt,
         });
       } else {
-        // Create new student account directly (e.g. from Thank You page purchase)
         const defaultPwd = password || 'ArtStudent@2026';
         const hashedPassword = await bcrypt.hash(defaultPwd, 10);
 
@@ -176,31 +342,33 @@ export const verifyPayment = async (req: Request, res: Response): Promise<any> =
       }
     }
 
-    // Log the sale in SalesRecord
+    if (user && tx) {
+      await tx.update({ userId: user.id });
+    }
+
+    // 4. Log in SalesRecord & create Community Win
     if (user) {
       try {
         await SalesRecord.create({
           userId: user.id,
           productName: `${tierName} Membership (${tierCode})`,
-          amount: parseFloat(amount) || 499,
+          amount: cleanAmount,
           date: new Date(),
         });
       } catch (_) {}
 
-      // Create community announcement / win
       try {
         await CommunityWin.create({
           userId: user.id,
           studentName: user.name,
           title: `Unlocked ${tierName} (${tierCode})!`,
-          story: `${user.name} just enrolled in ${tierName} to master resin art and commercial creations!`,
+          story: `${user.name} enrolled in ${tierName} to master resin art and commercial creations!`,
           badge: `${tierCode} Member`,
-          amount: `₹${parseFloat(amount).toLocaleString('en-IN')}`,
+          amount: `₹${cleanAmount.toLocaleString('en-IN')}`,
           avatarUrl: user.avatarUrl || '',
         });
       } catch (_) {}
 
-      // Create Notification
       try {
         await Notification.create({
           userId: user.id,
@@ -212,7 +380,6 @@ export const verifyPayment = async (req: Request, res: Response): Promise<any> =
       } catch (_) {}
     }
 
-    // Generate JWT token so student is logged in immediately
     let token = '';
     if (user) {
       token = jwt.sign(
@@ -242,5 +409,71 @@ export const verifyPayment = async (req: Request, res: Response): Promise<any> =
   } catch (error: any) {
     console.error('Error verifying payment:', error);
     return res.status(500).json({ message: 'Payment verification failed', error: error?.message });
+  }
+};
+
+// ── GET ALL PAYMENT TRANSACTIONS & STATS (ADMIN) ──
+export const getPaymentHistory = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { status, search } = req.query;
+
+    const whereClause: any = {};
+
+    if (status && status !== 'all') {
+      whereClause.status = status;
+    }
+
+    if (search) {
+      const searchStr = `%${String(search).trim()}%`;
+      whereClause[Op.or] = [
+        { customerName: { [Op.iLike]: searchStr } },
+        { customerEmail: { [Op.iLike]: searchStr } },
+        { orderId: { [Op.iLike]: searchStr } },
+        { paymentId: { [Op.iLike]: searchStr } },
+        { tierName: { [Op.iLike]: searchStr } },
+      ];
+    }
+
+    const transactions = await PaymentTransaction.findAll({
+      where: whereClause,
+      order: [['createdAt', 'DESC']],
+      limit: 200,
+    });
+
+    // Compute Summary Stats
+    const allTxs = await PaymentTransaction.findAll({ attributes: ['amount', 'status'] });
+    const totalRevenue = allTxs
+      .filter((t: any) => t.status === 'completed')
+      .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
+
+    const completedCount = allTxs.filter((t: any) => t.status === 'completed').length;
+    const pendingCount = allTxs.filter((t: any) => t.status === 'pending').length;
+    const failedCount = allTxs.filter((t: any) => t.status === 'failed' || t.status === 'cancelled').length;
+
+    return res.status(200).json({
+      success: true,
+      transactions,
+      stats: {
+        totalRevenue,
+        completedCount,
+        pendingCount,
+        failedCount,
+        totalAttempts: allTxs.length,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching payment history:', error);
+    return res.status(500).json({ message: 'Failed to fetch payment history', error: error?.message });
+  }
+};
+
+// ── DELETE TRANSACTION (ADMIN) ──
+export const deletePaymentTransaction = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    await PaymentTransaction.destroy({ where: { id } });
+    return res.status(200).json({ success: true, message: 'Transaction record deleted' });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Failed to delete transaction', error: error?.message });
   }
 };

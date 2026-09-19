@@ -45,12 +45,12 @@ export const processRazorpayPayment = async ({
   try {
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
-      alert("Razorpay SDK failed to load. Please check your internet connection.");
-      if (onFailure) onFailure(new Error("SDK load error"));
+      alert("Payment gateway failed to load. Please check your internet connection and try again.");
+      if (onFailure) onFailure(new Error("Razorpay SDK load error"));
       return;
     }
 
-    // 1. Create order on backend
+    // 1. Create order on backend (logged initially as 'pending')
     const orderRes = await fetch(`${API_BASE_URL}/payments/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,18 +66,34 @@ export const processRazorpayPayment = async ({
 
     const orderData = await orderRes.json();
     if (!orderRes.ok || !orderData.orderId) {
-      throw new Error(orderData.message || "Could not initiate payment order");
+      throw new Error(orderData.message || "Could not initiate payment order with gateway");
     }
 
-    // Direct Verification Handler helper
-    const completeVerification = async (paymentId: string, orderId: string, signature?: string) => {
+    // Helper: log cancellation or failure to backend
+    const logFailure = async (status: 'failed' | 'cancelled', reason: string, paymentId?: string) => {
+      try {
+        await fetch(`${API_BASE_URL}/payments/record-failure`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: orderData.orderId,
+            paymentId: paymentId || null,
+            status,
+            reason,
+          }),
+        });
+      } catch (_) {}
+    };
+
+    // Helper: complete verification only when bank provides real signature
+    const completeVerification = async (paymentId: string, orderId: string, signature: string) => {
       const verifyRes = await fetch(`${API_BASE_URL}/payments/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           razorpay_order_id: orderId,
           razorpay_payment_id: paymentId,
-          razorpay_signature: signature || "",
+          razorpay_signature: signature,
           tierCode,
           tierName,
           amount,
@@ -97,13 +113,13 @@ export const processRazorpayPayment = async ({
         onSuccess(verifyData);
         return true;
       } else {
-        throw new Error(verifyData.message || "Payment verification failed");
+        throw new Error(verifyData.message || "Payment verification failed. Membership could not be activated.");
       }
     };
 
     // 2. Open Razorpay Checkout modal
     const options: any = {
-      key: orderData.keyId || "rzp_test_1DP5mmOlF5G5ag",
+      key: orderData.keyId,
       amount: orderData.amount,
       currency: orderData.currency || "INR",
       name: "Ravishing Art Hub",
@@ -119,19 +135,25 @@ export const processRazorpayPayment = async ({
         tierName,
       },
       theme: {
-        color: "#f97316", // Orange theme
+        color: "#f97316", // Brand Orange
       },
       modal: {
         ondismiss: () => {
-          if (onFailure) onFailure(new Error("Payment cancelled by user"));
+          console.log("User dismissed checkout window");
+          logFailure("cancelled", "User closed the payment window before completing payment");
+          if (onFailure) onFailure(new Error("Payment was cancelled by user. No amount was deducted."));
         },
       },
       handler: async (response: any) => {
+        // Razorpay only triggers this handler when payment is SUCCESSFUL
         try {
+          if (!response.razorpay_payment_id) {
+            throw new Error("Missing payment ID from payment gateway");
+          }
           await completeVerification(
-            response.razorpay_payment_id || `pay_${Date.now()}`,
+            response.razorpay_payment_id,
             response.razorpay_order_id || orderData.orderId,
-            response.razorpay_signature
+            response.razorpay_signature || ""
           );
         } catch (vErr: any) {
           console.error("Verification error:", vErr);
@@ -141,36 +163,26 @@ export const processRazorpayPayment = async ({
       },
     };
 
-    // Only attach order_id if it's a genuine Razorpay Order ID (starts with order_)
-    if (orderData.orderId && orderData.orderId.startsWith("order_") && !orderData.orderId.includes("_demo_") && orderData.orderId.length > 14) {
+    if (orderData.orderId && orderData.orderId.startsWith("order_")) {
       options.order_id = orderData.orderId;
     }
 
-    try {
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on("payment.failed", (resp: any) => {
-        console.error("Payment failed:", resp.error);
-        
-        // If test mode or merchant payment methods not configured yet, offer instant simulation
-        const shouldSimulate = confirm(
-          `Razorpay Note: ${resp.error.description || "No active payment method in test account"}.\n\nWould you like to complete this test transaction and unlock ${tierName} (${tierCode}) now?`
-        );
-        if (shouldSimulate) {
-          completeVerification(`pay_test_${Date.now()}`, orderData.orderId);
-        } else if (onFailure) {
-          onFailure(resp.error);
-        }
-      });
-      rzp.open();
-    } catch (rzpOpenErr) {
-      console.warn("Direct Razorpay modal error, activating fallback:", rzpOpenErr);
-      const shouldSimulate = confirm(
-        `Razorpay configuration pending in test mode.\n\nWould you like to simulate successful enrollment in ${tierName} (${tierCode})?`
-      );
-      if (shouldSimulate) {
-        completeVerification(`pay_test_${Date.now()}`, orderData.orderId);
+    const rzp = new (window as any).Razorpay(options);
+
+    rzp.on("payment.failed", (resp: any) => {
+      console.error("Razorpay payment failed:", resp.error);
+      const failReason = resp.error?.description || resp.error?.reason || "Payment declined or failed";
+      
+      // Strictly log failure to backend and never upgrade user
+      logFailure("failed", failReason, resp.error?.metadata?.payment_id);
+      alert(`⚠️ Payment Failed: ${failReason}\n\nYour account was not charged and membership was not updated. Please try again with valid payment details.`);
+
+      if (onFailure) {
+        onFailure(resp.error);
       }
-    }
+    });
+
+    rzp.open();
   } catch (err: any) {
     console.error("Razorpay initiation error:", err);
     alert(`Payment initiation error: ${err.message}`);
