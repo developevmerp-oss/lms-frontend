@@ -408,7 +408,7 @@ export default function StudentCourses() {
                         </div>
                         <div className="flex items-center gap-2">
                           <CheckCircle2 size={14} className={cfg.color} />
-                          <span>{lvl === "L3" ? "Exclusive XP & Rewards Access" : "Q&A & Support Vault"}</span>
+                          <span>{lvl === "L3" ? "Exclusive Merch Store & Rewards Redemption" : "Q&A & Support Vault"}</span>
                         </div>
                       </div>
 

@@ -15,6 +15,7 @@ export default function StudentRewards() {
   const [stats, setStats] = useState<any>({ points: 0, notifications: [] });
   const [isRedeeming, setIsRedeeming] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedUpgradeTier, setSelectedUpgradeTier] = useState("L3");
 
   const fetchData = async () => {
     if (!token) return;
@@ -80,6 +81,9 @@ export default function StudentRewards() {
   const studentLevelCode = getLevelCode(effectiveLevel, stats.points || 0);
   const isGeneral = studentLevelCode === "GENERAL";
 
+  const uLvl = (user?.membershipLevel || stats?.membershipLevel || user?.rank || "").toUpperCase();
+  const isL3 = uLvl.includes("L3") || uLvl.includes("DIAMOND") || uLvl.includes("RENAISSANCE") || uLvl.includes("MASTERS");
+
   const getLevelName = (points: number) => {
     if (isGeneral) return "General Member";
     if (points < 500) return "Fast Start (L0)";
@@ -110,21 +114,15 @@ export default function StudentRewards() {
               General members cannot redeem physical merch or mentoring calls without active Level enrollment. Upgrade to Fast Track (Level 0) or above to unlock the Rewards Store and earn XP.
             </p>
             <button
-              onClick={() => setShowUpgradeModal(true)}
+              onClick={() => {
+                setSelectedUpgradeTier("L0");
+                setShowUpgradeModal(true);
+              }}
               className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-sm shadow-xl flex items-center gap-2 mx-auto hover:scale-105 transition-all cursor-pointer"
             >
               <Zap size={16} />
               Unlock Fast Track (₹499)
             </button>
-            <TierPurchaseModal
-              isOpen={showUpgradeModal}
-              onClose={() => setShowUpgradeModal(false)}
-              preselectedTier="L0"
-              onSuccess={() => {
-                setShowUpgradeModal(false);
-                fetchData();
-              }}
-            />
           </div>
         ) : (
         <>
@@ -147,28 +145,31 @@ export default function StudentRewards() {
           </div>
         </header>
 
-        {/* L3 Diamond Club Exclusive Notice */}
-        {(() => {
-          const uLvl = (user?.membershipLevel || stats?.membershipLevel || user?.rank || "").toUpperCase();
-          const isL3 = uLvl.includes("L3") || uLvl.includes("DIAMOND") || uLvl.includes("RENAISSANCE");
-          if (isL3) return null;
-
-          return (
-            <div className="mb-8 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-cyan-950/80 to-slate-900 border border-cyan-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-                  <Sparkles size={20} />
-                </div>
-                <div>
-                  <h4 className="text-sm font-black text-cyan-300">💎 Diamond Club (L3) Exclusive Gamification</h4>
-                  <p className="text-xs text-slate-300">
-                    XP points earning and Merch Store redemptions are exclusively enabled for Level 3 (L3) Diamond Club Members.
-                  </p>
-                </div>
+        {/* L3 Diamond Club Exclusive Redemption Notice */}
+        {!isL3 && (
+          <div className="mb-8 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-cyan-950/80 to-slate-900 border border-cyan-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
+                <Sparkles size={20} />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-cyan-300">💎 Merch Store Redemption is Exclusive to Level 3 (Diamond Club)</h4>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  You are actively earning and accumulating XP across your courses, live classes, daily routines, and community wins! Merch Store redemptions unlock when you upgrade to Level 3 (Diamond Club).
+                </p>
               </div>
             </div>
-          );
-        })()}
+            <button
+              onClick={() => {
+                setSelectedUpgradeTier("L3");
+                setShowUpgradeModal(true);
+              }}
+              className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black rounded-xl text-xs shadow-lg flex items-center gap-1.5 shrink-0 transition-all cursor-pointer whitespace-nowrap"
+            >
+              <Sparkles size={14} /> Upgrade to L3
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rewards.map((reward, idx) => {
@@ -208,17 +209,29 @@ export default function StudentRewards() {
                   <h3 className="text-xl font-bold text-white mb-2">{reward.title}</h3>
                   <p className="text-slate-400 text-sm mb-6 flex-1">{reward.description}</p>
                   
-                  <button
-                    onClick={() => handleRedeem(reward.id, reward.pointCost)}
-                    disabled={!canAfford || isRedeeming === reward.id}
-                    className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                      canAfford 
-                        ? "bg-pink-500 hover:bg-pink-600 text-white shadow-lg shadow-pink-500/20" 
-                        : "bg-slate-800 text-slate-500 cursor-not-allowed"
-                    }`}
-                  >
-                    {isRedeeming === reward.id ? "Redeeming..." : canAfford ? "Claim Reward" : "Not Enough XP"}
-                  </button>
+                  {isL3 ? (
+                    <button
+                      onClick={() => handleRedeem(reward.id, reward.pointCost)}
+                      disabled={!canAfford || isRedeeming === reward.id}
+                      className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+                        canAfford 
+                          ? "bg-pink-500 hover:bg-pink-600 text-white shadow-lg shadow-pink-500/20" 
+                          : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                      }`}
+                    >
+                      {isRedeeming === reward.id ? "Redeeming..." : canAfford ? "Claim Reward" : "Not Enough XP"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setSelectedUpgradeTier("L3");
+                        setShowUpgradeModal(true);
+                      }}
+                      className="w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-orange-500/20 cursor-pointer"
+                    >
+                      <Lock size={16} /> L3 Diamond Exclusive to Redeem
+                    </button>
+                  )}
                 </div>
               </motion.div>
             );
@@ -226,6 +239,16 @@ export default function StudentRewards() {
         </div>
         </>
         )}
+
+        <TierPurchaseModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          preselectedTier={selectedUpgradeTier}
+          onSuccess={() => {
+            setShowUpgradeModal(false);
+            fetchData();
+          }}
+        />
       </main>
     </div>
   );

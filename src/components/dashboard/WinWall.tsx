@@ -56,6 +56,8 @@ export const WinWall = ({
   const isL3Diamond = effectiveLevel === 'L3' || effectiveLevel.includes('DIAMOND') || effectiveLevel.includes('RENAISSANCE') || (user?.rank || '').toUpperCase().includes('DIAMOND');
   // General & L0 Fast Track members have VIEW-ONLY access to the feed. Only L1, L2, L3+ can post and comment.
   const canPost = !isGeneral && !isL0;
+  // L1, L2, and L3 members all earn +100 XP when sharing wins
+  const canEarnWinXp = canPost;
 
   const getMediaUrl = (url: string) => {
     if (!url) return '';
@@ -137,7 +139,7 @@ export const WinWall = ({
       const data = await res.json();
       if (data.success && data.win) {
         setWins([data.win, ...wins]);
-        setSuccessMsg(data.message || (isL3Diamond ? '🎉 Win published! +100 XP awarded to your Diamond profile!' : '🎉 Win published to Community Feed!'));
+        setSuccessMsg(data.message || (canEarnWinXp ? '🎉 Win published! +100 XP awarded!' : '🎉 Win published to Community Feed!'));
         setWinForm({ title: '', salesAmount: '', technique: '', notes: '', imageUrl: '' });
         setTimeout(() => {
           setIsModalOpen(false);
@@ -239,7 +241,7 @@ export const WinWall = ({
                 onClick={() => setIsModalOpen(true)}
                 className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-md transition-all hover:scale-105 cursor-pointer"
               >
-                <Plus size={13} /> Post a Win {isL3Diamond && '(+100 XP)'}
+                <Plus size={13} /> Post a Win {canEarnWinXp && '(+100 XP)'}
               </button>
             ) : (
               <span className="text-[11px] font-bold text-slate-400 bg-slate-950/90 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-default shadow-inner" title="General and Level 0 members have view-only access to community feed. Upgrade to L1 to post!">
@@ -496,8 +498,8 @@ export const WinWall = ({
               <div>
                 <h3 className="text-lg font-black text-white">Post Your Win on the Feed</h3>
                 <p className="text-xs text-slate-400">
-                  {isL3Diamond
-                    ? '💎 Diamond Club (L3): Earn +100 XP on win posts!'
+                  {canEarnWinXp
+                    ? '🌟 Share your milestone and earn +100 XP!'
                     : 'Share your milestone with the sisterhood!'}
                 </p>
               </div>
@@ -624,7 +626,7 @@ export const WinWall = ({
                     disabled={posting || uploadingFile}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {posting ? 'Publishing...' : `Publish Win ${isL3Diamond ? '(+100 XP)' : ''}`}
+                    {posting ? 'Publishing...' : `Publish Win ${canEarnWinXp ? '(+100 XP)' : ''}`}
                   </button>
                   <button
                     type="button"
