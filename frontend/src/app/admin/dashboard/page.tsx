@@ -85,16 +85,20 @@ export default function AdminDashboard() {
     // Fire all fetches in parallel
     Promise.all([
       fetch(`${API}/dashboard/admin`, { headers }).then(r => r.json()),
-      fetch(`${API}/admin/students`, { headers }).then(r => r.json()),
+      fetch(`${API}/admin/students/summary`, { headers }).then(r => r.json()),
       fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json()),
       fetch(`${API}/admin/notifications`, { headers }).then(r => r.json()),
       fetch(`${API}/admin/revenue-by-tier`, { headers }).then(r => r.json()),
     ])
       .then(([statsData, studentsData, winsData, notifsData, revData]) => {
         if (statsData && !statsData.message) setStats(statsData);
+        // summary returns plain array
         if (Array.isArray(studentsData)) setStudents(studentsData);
-        if (Array.isArray(winsData)) setWins(winsData);
-        if (Array.isArray(notifsData)) setNotifications(notifsData);
+        // community-wins and notifications are now paginated — unwrap .data
+        if (winsData?.data && Array.isArray(winsData.data)) setWins(winsData.data);
+        else if (Array.isArray(winsData)) setWins(winsData);
+        if (notifsData?.data && Array.isArray(notifsData.data)) setNotifications(notifsData.data);
+        else if (Array.isArray(notifsData)) setNotifications(notifsData);
         if (revData && revData.tiers) setRevenueData(revData);
       })
       .catch(err => console.error('Admin dashboard fetch error:', err))
@@ -113,7 +117,8 @@ export default function AdminDashboard() {
         setNotifTitle('');
         setNotifMessage('');
         const updated = await fetch(`${API}/admin/notifications`, { headers }).then(r => r.json());
-        if (Array.isArray(updated)) setNotifications(updated);
+        const notifList = updated?.data ?? (Array.isArray(updated) ? updated : []);
+        setNotifications(notifList);
         alert('Notification sent!');
       }
     } finally {
@@ -138,7 +143,8 @@ export default function AdminDashboard() {
       });
       if (res.ok) {
         const updatedWins = await fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json());
-        if (Array.isArray(updatedWins)) setWins(updatedWins);
+        const winList = updatedWins?.data ?? (Array.isArray(updatedWins) ? updatedWins : []);
+        setWins(winList);
         setWinName('Patel Vrajangna (Admin)');
         setWinAchievement('');
         setWinSalesAmount('');

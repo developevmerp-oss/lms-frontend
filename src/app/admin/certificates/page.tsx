@@ -25,7 +25,7 @@ export default function AdminCertificates() {
     try {
       const [certRes, studentsRes, coursesRes] = await Promise.all([
         fetch(`${API_BASE_URL}/certificates`, { headers }),
-        fetch(`${API_BASE_URL}/admin/students`, { headers }),
+        fetch(`${API_BASE_URL}/admin/students/summary`, { headers }),
         fetch(`${API_BASE_URL}/courses`, { headers }),
       ]);
       const certData = await certRes.json();

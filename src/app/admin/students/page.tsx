@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
+import { Pagination } from "@/components/ui/Pagination";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users, Search, ChevronRight, X, Plus, Trash2, CheckCircle2,
@@ -41,6 +42,12 @@ export default function AdminStudents() {
   const [successMsg, setSuccessMsg] = useState("");
   const [reEngageSending, setReEngageSending] = useState(false);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const LIMIT = 20;
+
   // Add Student Modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({ name: '', email: '', password: '', city: '', phone: '' });
@@ -63,15 +70,29 @@ export default function AdminStudents() {
   const API = API_BASE_URL;
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
-  const fetchStudents = async () => {
+  // Debounce ref for search
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchStudents = useCallback(async (pg = 1, search = searchQuery) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${API}/admin/students`, { headers });
+      const url = new URL(`${API}/admin/students`);
+      url.searchParams.set('page', String(pg));
+      url.searchParams.set('limit', String(LIMIT));
+      if (search.trim()) url.searchParams.set('search', search.trim());
+      // statusFilter (active/inactive) is still client-side via lastLoginAt since backend
+      // doesn't have a 'status' column; search + level are server-side
+      const res = await fetch(url.toString(), { headers });
       const data = await res.json();
-      if (Array.isArray(data)) setStudents(data);
+      if (data && Array.isArray(data.data)) {
+        setStudents(data.data);
+        setTotal(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 1);
+        setPage(pg);
+      }
     } catch (err) { console.error(err); }
     setIsLoading(false);
-  };
+  }, [API, token]); // eslint-disable-line
 
   const fetchAllCourses = async () => {
     try {
@@ -101,12 +122,27 @@ export default function AdminStudents() {
 
   useEffect(() => {
     if (token) {
-      fetchStudents();
+      fetchStudents(1, searchQuery);
       fetchAllCourses();
       fetchAllBadges();
       fetchLevelTiers();
     }
-  }, [token]);
+  }, [token]); // eslint-disable-line
+
+  // Debounced search — wait 400ms after typing before hitting API
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      fetchStudents(1, val);
+    }, 400);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    fetchStudents(newPage, searchQuery);
+    // Scroll the list back to top
+    document.getElementById('student-list-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
 
   const handleAddStudent = async () => {
@@ -135,11 +171,23 @@ export default function AdminStudents() {
     }
   };
 
-  const openStudent = (s: Student) => {
-    setSelectedStudent(s);
-    setEditProfile({ name: s.name, points: s.points, xpPoints: s.xpPoints, streak: s.streak, membershipLevel: s.membershipLevel || 'GENERAL', city: s.city || '' });
-    setSkillsForm(s.skills || { resinBasics: 0, mixing: 0, colourTheory: 0, finishing: 0, creativity: 0, professionalQuality: 0 });
+  const openStudent = async (s: Student) => {
     setActiveTab('profile');
+    // If basic data already has skills/milestones (full detail), use it directly
+    if (s.milestones) {
+      setSelectedStudent(s);
+      setEditProfile({ name: s.name, points: s.points, xpPoints: s.xpPoints, streak: s.streak, membershipLevel: s.membershipLevel || 'GENERAL', city: s.city || '' });
+      setSkillsForm(s.skills || { resinBasics: 0, mixing: 0, colourTheory: 0, finishing: 0, creativity: 0, professionalQuality: 0 });
+      return;
+    }
+    // Otherwise fetch full detail (list only has lean fields now)
+    try {
+      const res = await fetch(`${API}/admin/students/${s.id}`, { headers });
+      const full = await res.json();
+      setSelectedStudent(full);
+      setEditProfile({ name: full.name, points: full.points, xpPoints: full.xpPoints, streak: full.streak, membershipLevel: full.membershipLevel || 'GENERAL', city: full.city || '' });
+      setSkillsForm(full.skills || { resinBasics: 0, mixing: 0, colourTheory: 0, finishing: 0, creativity: 0, professionalQuality: 0 });
+    } catch (e) { console.error(e); }
   };
 
   const showSuccess = (msg: string) => {
@@ -339,10 +387,8 @@ export default function AdminStudents() {
     }
   };
 
+  // Client-side status filter on current page only (active/inactive based on lastLoginAt)
   const filteredStudents = students.filter(s => {
-    const matchesSearch = s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          s.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    if (!matchesSearch) return false;
     if (statusFilter === 'all') return true;
     const loginStatus = formatLastLogin(s.lastLoginAt);
     if (statusFilter === 'active') return !loginStatus.isInactive;
@@ -394,7 +440,7 @@ export default function AdminStudents() {
                   type="text"
                   placeholder="Search students..."
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={e => handleSearchChange(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm outline-none focus:border-orange-500 transition-colors"
                 />
               </div>
@@ -406,7 +452,7 @@ export default function AdminStudents() {
                   onClick={() => setStatusFilter('all')}
                   className={`py-1 rounded-lg transition-all ${statusFilter === 'all' ? 'bg-slate-800 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                 >
-                  All ({students.length})
+                  All ({total})
                 </button>
                 <button
                   type="button"
@@ -425,7 +471,7 @@ export default function AdminStudents() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
+            <div id="student-list-scroll" className="flex-1 overflow-y-auto p-2">
               {isLoading ? (
                 <div className="p-8 text-center text-slate-500">Loading...</div>
               ) : filteredStudents.length === 0 ? (
@@ -463,6 +509,20 @@ export default function AdminStudents() {
                 })
               )}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="p-3 border-t border-slate-800 bg-slate-950/50">
+                <Pagination
+                  page={page}
+                  totalPages={totalPages}
+                  total={total}
+                  limit={LIMIT}
+                  onPageChange={handlePageChange}
+                  itemLabel="students"
+                />
+              </div>
+            )}
           </div>
 
           {/* Main Content Area */}

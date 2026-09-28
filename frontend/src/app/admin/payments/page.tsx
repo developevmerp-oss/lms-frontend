@@ -18,6 +18,7 @@ import {
   Filter,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { Pagination } from "@/components/ui/Pagination";
 
 interface PaymentTx {
   id: string;
@@ -61,24 +62,32 @@ export default function AdminPaymentTransactions() {
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(25);
 
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (targetPage = page) => {
     setIsLoading(true);
     try {
       const url = new URL(`${API_BASE_URL}/payments/history`);
       if (statusFilter !== "all") url.searchParams.append("status", statusFilter);
       if (searchQuery.trim()) url.searchParams.append("search", searchQuery.trim());
+      url.searchParams.append("page", String(targetPage));
+      url.searchParams.append("limit", String(limit));
 
       const res = await fetch(url.toString(), { headers });
       const data = await res.json();
       if (data.success) {
         setTransactions(data.transactions || []);
         if (data.stats) setStats(data.stats);
+        if (data.total !== undefined) setTotal(data.total);
+        if (data.totalPages !== undefined) setTotalPages(data.totalPages);
       }
     } catch (err) {
       console.error("Error fetching payment history:", err);
@@ -89,13 +98,20 @@ export default function AdminPaymentTransactions() {
 
   useEffect(() => {
     if (token) {
-      fetchTransactions();
+      setPage(1);
+      fetchTransactions(1);
     }
   }, [token, statusFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchTransactions();
+    setPage(1);
+    fetchTransactions(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchTransactions(newPage);
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -182,7 +198,7 @@ export default function AdminPaymentTransactions() {
               </span>
             )}
             <button
-              onClick={fetchTransactions}
+              onClick={() => fetchTransactions()}
               className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
             >
               <RefreshCw size={15} className={isLoading ? "animate-spin" : ""} /> Refresh
@@ -416,14 +432,18 @@ export default function AdminPaymentTransactions() {
 
           {/* Table Footer */}
           {transactions.length > 0 && (
-            <div className="px-6 py-4 bg-slate-800/40 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-              <span>Showing {transactions.length} records</span>
-              <span className="font-bold text-white">
-                Filtered Total: ₹
-                {transactions
-                  .filter((t) => t.status === "completed")
-                  .reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
-                  .toLocaleString("en-IN")}
+            <div className="px-6 py-4 bg-slate-800/40 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                limit={limit}
+                onPageChange={handlePageChange}
+                itemLabel="transactions"
+                className="w-full sm:w-auto"
+              />
+              <span className="font-bold text-white whitespace-nowrap">
+                Showing {transactions.length} of {total} records
               </span>
             </div>
           )}

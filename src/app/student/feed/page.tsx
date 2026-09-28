@@ -31,7 +31,9 @@ export default function StudentFeedPage() {
         });
       }
       if (Array.isArray(winsRes)) setWins(winsRes);
+      else if (winsRes?.data && Array.isArray(winsRes.data)) setWins(winsRes.data);
       if (Array.isArray(badgesRes)) setBadges(badgesRes);
+
     } catch (err) {
       console.error("Error fetching feed data:", err);
     } finally {

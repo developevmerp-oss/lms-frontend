@@ -94,15 +94,16 @@ export default function AdminNotifications() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setHistory(data);
-      }
+      // Backend returns paginated {data:[...], total, page} — unwrap safely
+      const list = data?.data ?? (Array.isArray(data) ? data : []);
+      setHistory(list);
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoadingHistory(false);
     }
   };
+
 
   const [liveLevels, setLiveLevels] = useState<any[]>([]);
 

@@ -24,22 +24,34 @@ export default function AdminMilestones() {
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
 
-  const fetchStudents = async () => {
+  // Fetch all milestones (flat list with student context from dedicated endpoint)
+  const fetchMilestones = async () => {
     try {
-      const res = await fetch(`${API}/admin/students`, { headers });
+      const res = await fetch(`${API}/admin/milestones`, { headers });
       const data = await res.json();
       if (Array.isArray(data)) {
-        setStudents(data);
-        const all = data.flatMap((s: any) =>
-          (s.milestones || []).map((m: any) => ({ ...m, studentName: s.name, studentId: s.id }))
-        );
-        setMilestones(all);
+        setMilestones(data);
       }
     } catch (err) { console.error(err); }
     setIsLoading(false);
   };
 
-  useEffect(() => { if (token) fetchStudents(); }, [token]);
+  // Fetch lean student list for the student filter dropdown
+  const fetchStudents = async () => {
+    try {
+      const res = await fetch(`${API}/admin/students/summary`, { headers });
+      const data = await res.json();
+      if (Array.isArray(data)) setStudents(data);
+    } catch (err) { console.error(err); }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchMilestones();
+      fetchStudents();
+    }
+  }, [token]);
+
 
   const showSuccess = (msg: string) => {
     setSuccessMsg(msg);
@@ -51,7 +63,7 @@ export default function AdminMilestones() {
       method: 'PUT', headers,
       body: JSON.stringify({ completed: !current, completedAt: !current ? new Date() : null })
     });
-    await fetchStudents();
+    await fetchMilestones();
     showSuccess("Milestone status updated!");
   };
 
@@ -63,7 +75,7 @@ export default function AdminMilestones() {
     });
     setEditingMilestoneId(null);
     setEditingName("");
-    await fetchStudents();
+    await fetchMilestones();
     showSuccess("Milestone title updated!");
   };
 
@@ -75,7 +87,7 @@ export default function AdminMilestones() {
   const deleteMilestone = async (milestoneId: string) => {
     if (!confirm("Are you sure you want to delete this milestone?")) return;
     await fetch(`${API}/admin/milestones/${milestoneId}`, { method: 'DELETE', headers });
-    await fetchStudents();
+    await fetchMilestones();
     showSuccess("Milestone deleted!");
   };
 
@@ -100,7 +112,7 @@ export default function AdminMilestones() {
     }
 
     setNewMilestone({ name: "", completed: false });
-    await fetchStudents();
+    await fetchMilestones();
   };
 
   const displayedMilestones = milestones

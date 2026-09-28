@@ -135,11 +135,12 @@ export default function AdminLevels() {
         setLevels(dataLevels);
       }
 
-      const resStudents = await fetch(`${API}/admin/students`, { headers });
+      const resStudents = await fetch(`${API}/admin/students/summary`, { headers });
       const dataStudents = await resStudents.json();
       if (Array.isArray(dataStudents)) {
         setStudents(dataStudents);
       }
+
 
       const resOffers = await fetch(`${API}/admin/offers`, { headers });
       const dataOffers = await resOffers.json();

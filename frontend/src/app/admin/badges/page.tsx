@@ -95,11 +95,12 @@ export default function AdminBadges() {
         setBadges(dataBadges);
       }
 
-      const resStudents = await fetch(`${API}/admin/students`, { headers });
+      const resStudents = await fetch(`${API}/admin/students/summary`, { headers });
       const dataStudents = await resStudents.json();
       if (Array.isArray(dataStudents)) {
         setStudents(dataStudents);
       }
+
     } catch (err) {
       console.error("Error fetching badges:", err);
       showError("Failed to fetch badge configurations");
