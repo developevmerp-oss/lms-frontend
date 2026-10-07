@@ -109,18 +109,49 @@ export default function AdminDashboard() {
     if (!selectedStudent || !notifTitle || !notifMessage) return;
     setSending(true);
     try {
-      const res = await fetch(`${API}/admin/students/${selectedStudent}/notifications`, {
-        method: 'POST', headers,
-        body: JSON.stringify({ title: notifTitle, message: notifMessage })
-      });
+      const isGroup = selectedStudent.startsWith('group:') || selectedStudent === 'all' || ['L0', 'L1', 'L2', 'L3', 'webinar'].includes(selectedStudent);
+      
+      let res;
+      if (isGroup) {
+        const targetAudience = selectedStudent.startsWith('group:')
+          ? selectedStudent.replace('group:', '')
+          : selectedStudent;
+        res = await fetch(`${API}/admin/notifications/broadcast`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            title: notifTitle,
+            message: notifMessage,
+            targetAudience,
+            type: 'info',
+          }),
+        });
+      } else {
+        const studentId = selectedStudent.startsWith('student:')
+          ? selectedStudent.replace('student:', '')
+          : selectedStudent;
+        res = await fetch(`${API}/admin/students/${studentId}/notifications`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ title: notifTitle, message: notifMessage }),
+        });
+      }
+
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         setNotifTitle('');
         setNotifMessage('');
         const updated = await fetch(`${API}/admin/notifications`, { headers }).then(r => r.json());
         const notifList = updated?.data ?? (Array.isArray(updated) ? updated : []);
         setNotifications(notifList);
-        alert('Notification sent!');
+        alert(data.message || 'Notification sent successfully!');
+      } else {
+        alert(data.message || 'Failed to send notification');
       }
+    } catch (err: any) {
+      console.error('Error sending notification:', err);
+      alert(err?.message || 'Error sending notification');
     } finally {
       setSending(false);
     }
@@ -346,16 +377,37 @@ export default function AdminDashboard() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Student</label>
+                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Recipient or Group</label>
                   <select
                     value={selectedStudent}
                     onChange={e => setSelectedStudent(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-orange-500 font-medium"
                   >
-                    <option value="">-- Choose a student --</option>
-                    {students.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} ({s.email})</option>
-                    ))}
+                    <option value="">-- Choose recipient or group --</option>
+
+                    <optgroup label="📢 Broadcast to Level / Group">
+                      <option value="group:L0">🌱 Level 0 (L0) Students</option>
+                      <option value="group:L1">🥈 Level 1 (L1) Students</option>
+                      <option value="group:L2">🥇 Level 2 (L2) Students</option>
+                      <option value="group:L3">💎 Level 3 (L3) Students</option>
+                      <option value="group:general">👤 General Students (No Level)</option>
+                      <option value="group:webinar">🎟️ Webinar Registered Students</option>
+                      <option value="all">🌐 All Students (Global Broadcast)</option>
+                    </optgroup>
+
+                    <optgroup label="👤 Individual Students">
+                      {students.map(s => {
+                        const rawLvl = (s.membershipLevel || '').toUpperCase();
+                        const displayLevel = ['L0', 'L1', 'L2', 'L3'].includes(rawLvl)
+                          ? rawLvl
+                          : (s.membershipLevel || 'General');
+                        return (
+                          <option key={s.id} value={`student:${s.id}`}>
+                            {s.name} ({s.email}) — {displayLevel}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
                   </select>
                 </div>
                 <div>
@@ -383,7 +435,18 @@ export default function AdminDashboard() {
                   disabled={sending || !selectedStudent || !notifTitle || !notifMessage}
                   className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
-                  <Send size={16} /> {sending ? 'Sending...' : 'Send Notification'}
+                  <Send size={16} />{' '}
+                  {sending
+                    ? 'Sending...'
+                    : selectedStudent === 'all'
+                    ? 'Broadcast to All Students'
+                    : selectedStudent === 'group:general' || selectedStudent === 'general'
+                    ? 'Send to All General Students'
+                    : selectedStudent === 'group:webinar' || selectedStudent === 'webinar'
+                    ? 'Send to All Webinar Students'
+                    : selectedStudent.startsWith('group:')
+                    ? `Send to All ${selectedStudent.replace('group:', '').toUpperCase()} Students`
+                    : 'Send Notification'}
                 </button>
               </div>
             </div>
