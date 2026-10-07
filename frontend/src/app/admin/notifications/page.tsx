@@ -28,6 +28,7 @@ const TARGET_AUDIENCE_OPTIONS = [
   { id: "L1", label: "Level 1: Silver Members", icon: "🥈", color: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-500/30" },
   { id: "L2", label: "Level 2: Gold Members", icon: "🥇", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
   { id: "L3", label: "Level 3: Diamond Club", icon: "💎", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
+  { id: "general", label: "General Members (No Level)", icon: "👤", color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/30" },
   { id: "webinar", label: "Webinar Leads & Attendees", icon: "🎟️", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
 ];
 
