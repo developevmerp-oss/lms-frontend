@@ -464,20 +464,6 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Plus size={20} className="text-pink-400" /> Post a Community Win</h2>
               
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Author (Admin or Select Student)</label>
-                  <select
-                    value={winName}
-                    onChange={e => setWinName(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 font-bold"
-                  >
-                    <option value="Patel Vrajangna (Admin)">👑 Patel Vrajangna (Admin Announcement)</option>
-                    {students.map(s => (
-                      <option key={s.id} value={s.name}>🎓 Student: {s.name} ({s.email})</option>
-                    ))}
-                  </select>
-                </div>
-
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-semibold text-slate-400 block mb-1">Sales Amount (₹ optional)</label>
