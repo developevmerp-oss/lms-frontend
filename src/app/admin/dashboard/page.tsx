@@ -377,37 +377,20 @@ export default function AdminDashboard() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Recipient or Group</label>
+                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Target Audience</label>
                   <select
                     value={selectedStudent}
                     onChange={e => setSelectedStudent(e.target.value)}
                     className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-orange-500 font-medium"
                   >
-                    <option value="">-- Choose recipient or group --</option>
-
-                    <optgroup label="📢 Broadcast to Level / Group">
-                      <option value="group:L0">🌱 Level 0 (L0) Students</option>
-                      <option value="group:L1">🥈 Level 1 (L1) Students</option>
-                      <option value="group:L2">🥇 Level 2 (L2) Students</option>
-                      <option value="group:L3">💎 Level 3 (L3) Students</option>
-                      <option value="group:general">👤 General Students (No Level)</option>
-                      <option value="group:webinar">🎟️ Webinar Registered Students</option>
-                      <option value="all">🌐 All Students (Global Broadcast)</option>
-                    </optgroup>
-
-                    <optgroup label="👤 Individual Students">
-                      {students.map(s => {
-                        const rawLvl = (s.membershipLevel || '').toUpperCase();
-                        const displayLevel = ['L0', 'L1', 'L2', 'L3'].includes(rawLvl)
-                          ? rawLvl
-                          : (s.membershipLevel || 'General');
-                        return (
-                          <option key={s.id} value={`student:${s.id}`}>
-                            {s.name} ({s.email}) — {displayLevel}
-                          </option>
-                        );
-                      })}
-                    </optgroup>
+                    <option value="">-- Choose target audience --</option>
+                    <option value="group:L0">🌱 Level 0 (L0) Students</option>
+                    <option value="group:L1">🥈 Level 1 (L1) Students</option>
+                    <option value="group:L2">🥇 Level 2 (L2) Students</option>
+                    <option value="group:L3">💎 Level 3 (L3) Students</option>
+                    <option value="group:general">👤 General Students (No Level)</option>
+                    <option value="group:webinar">🎟️ Webinar Registered Students</option>
+                    <option value="all">🌐 All Students (Global Broadcast)</option>
                   </select>
                 </div>
                 <div>
