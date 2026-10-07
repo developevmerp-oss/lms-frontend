@@ -16,6 +16,11 @@ import {
   Check,
   TrendingUp,
   Filter,
+  Bell,
+  Calendar,
+  Send,
+  Zap,
+  Users,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 import { Pagination } from "@/components/ui/Pagination";
@@ -67,6 +72,12 @@ export default function AdminPaymentTransactions() {
   const [total, setTotal] = useState(0);
   const [limit] = useState(25);
 
+  // Installment Management State
+  const [activeMainTab, setActiveMainTab] = useState<"transactions" | "installments">("transactions");
+  const [installmentPlans, setInstallmentPlans] = useState<any[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [remindingId, setRemindingId] = useState<string | null>(null);
+
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -96,12 +107,71 @@ export default function AdminPaymentTransactions() {
     }
   };
 
+  const fetchInstallments = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments/installments`, { headers });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.plans)) {
+        setInstallmentPlans(data.plans);
+      }
+    } catch (err) {
+      console.error("Error fetching admin installments:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleScanReminders = async () => {
+    setIsScanning(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments/installments/check-reminders`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setToastMsg(data.message || "Installment scan completed!");
+        setTimeout(() => setToastMsg(""), 4000);
+        fetchInstallments();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleSendManualReminder = async (planId: string) => {
+    setRemindingId(planId);
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments/installments/${planId}/remind`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setToastMsg(data.message || "Reminder sent to student!");
+        setTimeout(() => setToastMsg(""), 4000);
+        fetchInstallments();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRemindingId(null);
+    }
+  };
+
   useEffect(() => {
     if (token) {
-      setPage(1);
-      fetchTransactions(1);
+      if (activeMainTab === "transactions") {
+        setPage(1);
+        fetchTransactions(1);
+      } else {
+        fetchInstallments();
+      }
     }
-  }, [token, statusFilter]);
+  }, [token, statusFilter, activeMainTab]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,7 +268,10 @@ export default function AdminPaymentTransactions() {
               </span>
             )}
             <button
-              onClick={() => fetchTransactions()}
+              onClick={() => {
+                if (activeMainTab === "transactions") fetchTransactions();
+                else fetchInstallments();
+              }}
               className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
             >
               <RefreshCw size={15} className={isLoading ? "animate-spin" : ""} /> Refresh
@@ -206,24 +279,321 @@ export default function AdminPaymentTransactions() {
           </div>
         </header>
 
-        {/* KPI Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-              <span>Total Verified Revenue</span>
-              <TrendingUp size={16} className="text-emerald-400" />
-            </div>
-            <p className="text-2xl md:text-3xl font-black text-emerald-400">
-              ₹{stats.totalRevenue.toLocaleString("en-IN")}
-            </p>
-            <p className="text-xs text-slate-500 mt-1">From completed orders</p>
-          </div>
+        {/* View Switcher Tabs */}
+        <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4 mb-8">
+          <button
+            onClick={() => setActiveMainTab("transactions")}
+            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+              activeMainTab === "transactions"
+                ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
+                : "bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800"
+            }`}
+          >
+            <CreditCard size={16} /> All Gateway Transactions
+          </button>
+          <button
+            onClick={() => {
+              setActiveMainTab("installments");
+              fetchInstallments();
+            }}
+            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+              activeMainTab === "installments"
+                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
+                : "bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800"
+            }`}
+          >
+            <Calendar size={16} /> Student Installment Plans
+            {installmentPlans.length > 0 && (
+              <span className="bg-emerald-950 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-bold ml-1 border border-emerald-500/30">
+                {installmentPlans.length}
+              </span>
+            )}
+          </button>
+        </div>
 
-          <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-              <span>Successful Orders</span>
-              <CheckCircle2 size={16} className="text-emerald-400" />
+        {activeMainTab === "installments" ? (
+          <div>
+            {/* Installment KPIs */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+                  <span>Total Installment Plans</span>
+                  <Users size={16} className="text-blue-400" />
+                </div>
+                <p className="text-2xl md:text-3xl font-black text-white">{installmentPlans.length}</p>
+                <p className="text-xs text-slate-500 mt-1">Students enrolled on plans</p>
+              </div>
+
+              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+                  <span>Active &amp; On Track</span>
+                  <Clock size={16} className="text-emerald-400" />
+                </div>
+                <p className="text-2xl md:text-3xl font-black text-emerald-400">
+                  {installmentPlans.filter((p) => p.status === "active").length}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">Currently paying installments</p>
+              </div>
+
+              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+                  <span>Fully Completed</span>
+                  <CheckCircle2 size={16} className="text-teal-400" />
+                </div>
+                <p className="text-2xl md:text-3xl font-black text-teal-400">
+                  {installmentPlans.filter((p) => p.status === "completed").length}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">All installments cleared</p>
+              </div>
+
+              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+                  <span>Overdue / Attention</span>
+                  <AlertTriangle size={16} className="text-rose-400" />
+                </div>
+                <p className="text-2xl md:text-3xl font-black text-rose-400">
+                  {
+                    installmentPlans.filter(
+                      (p) =>
+                        p.status === "overdue" ||
+                        (p.nextDueDate &&
+                          new Date(p.nextDueDate).getTime() < Date.now() &&
+                          p.status !== "completed")
+                    ).length
+                  }
+                </p>
+                <p className="text-xs text-slate-500 mt-1">Due date passed</p>
+              </div>
             </div>
+
+            {/* Quick Actions Bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-white">Active Student Installment Agreements</h2>
+                <p className="text-xs text-slate-400">
+                  Automated recurring reminders run daily. You can also trigger manual alerts per student below.
+                </p>
+              </div>
+              <button
+                onClick={handleScanReminders}
+                disabled={isScanning}
+                className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {isScanning ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" /> Scanning Due Dates...
+                  </>
+                ) : (
+                  <>
+                    <Bell size={14} /> Run Due Reminders Scan
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Installments Table */}
+            <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-800/60 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <tr>
+                      <th className="py-4 px-6">Student</th>
+                      <th className="py-4 px-4">Level / Plan</th>
+                      <th className="py-4 px-4">Installment Progress</th>
+                      <th className="py-4 px-4">Next Due Date</th>
+                      <th className="py-4 px-4">Status</th>
+                      <th className="py-4 px-4">Last Reminder</th>
+                      <th className="py-4 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={7} className="py-16 text-center text-slate-500 font-medium">
+                          <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-emerald-400" />
+                          Loading installment records...
+                        </td>
+                      </tr>
+                    ) : installmentPlans.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-16 text-center text-slate-500 font-medium">
+                          No student installment plans created yet. Once a student chooses installment checkout for Level 3, they will appear here.
+                        </td>
+                      </tr>
+                    ) : (
+                      installmentPlans.map((plan) => {
+                        const isOverdue =
+                          plan.status === "overdue" ||
+                          (plan.nextDueDate &&
+                            new Date(plan.nextDueDate).getTime() < Date.now() &&
+                            plan.status !== "completed");
+                        const percentPaid = Math.round(
+                          (plan.paidInstallments / plan.totalInstallments) * 100
+                        );
+
+                        return (
+                          <tr key={plan.id} className="hover:bg-slate-800/30 transition-colors">
+                            {/* Student */}
+                            <td className="py-4 px-6">
+                              <div className="font-bold text-white leading-snug">
+                                {plan.user?.name || "Student"}
+                              </div>
+                              <div className="text-xs text-slate-400">
+                                {plan.user?.email || "No email"}
+                              </div>
+                              {plan.user?.phone && (
+                                <div className="text-[11px] text-slate-500 mt-0.5">
+                                  {plan.user?.phone}
+                                </div>
+                              )}
+                            </td>
+
+                            {/* Level / Plan */}
+                            <td className="py-4 px-4">
+                              <span className="font-bold text-white">
+                                {plan.tierName || plan.tierCode}
+                              </span>
+                              <div className="text-xs text-emerald-400 capitalize">
+                                {plan.frequency ? plan.frequency.replace("_", " ") : "Flexible"} Plan
+                              </div>
+                            </td>
+
+                            {/* Progress */}
+                            <td className="py-4 px-4">
+                              <div className="flex items-center justify-between text-xs font-bold mb-1">
+                                <span className="text-white">
+                                  {plan.paidInstallments} of {plan.totalInstallments} Paid
+                                </span>
+                                <span className="text-slate-400">{percentPaid}%</span>
+                              </div>
+                              <div className="w-36 h-2 bg-slate-800 rounded-full overflow-hidden mb-1">
+                                <div
+                                  className={`h-full rounded-full transition-all ${
+                                    plan.status === "completed"
+                                      ? "bg-teal-400"
+                                      : isOverdue
+                                      ? "bg-rose-500"
+                                      : "bg-emerald-500"
+                                  }`}
+                                  style={{ width: `${percentPaid}%` }}
+                                />
+                              </div>
+                              <div className="text-[11px] text-slate-400">
+                                ₹{Number(plan.installmentAmount).toLocaleString("en-IN")} / inst • Total: ₹
+                                {Number(plan.totalAmount).toLocaleString("en-IN")}
+                              </div>
+                            </td>
+
+                            {/* Next Due Date */}
+                            <td className="py-4 px-4">
+                              {plan.status === "completed" ? (
+                                <span className="text-xs text-teal-400 font-bold flex items-center gap-1">
+                                  <CheckCircle2 size={13} /> Completed
+                                </span>
+                              ) : plan.nextDueDate ? (
+                                <div>
+                                  <div
+                                    className={`text-xs font-bold ${
+                                      isOverdue ? "text-rose-400" : "text-white"
+                                    }`}
+                                  >
+                                    {new Date(plan.nextDueDate).toLocaleDateString("en-IN", {
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
+                                  </div>
+                                  {isOverdue && (
+                                    <span className="inline-block text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-1.5 py-0.5 rounded mt-0.5">
+                                      Overdue
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-slate-500">—</span>
+                              )}
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-4 px-4">
+                              {plan.status === "completed" ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-teal-500/10 border border-teal-500/30 text-teal-400">
+                                  <CheckCircle2 size={12} /> Complete
+                                </span>
+                              ) : isOverdue ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400">
+                                  <AlertTriangle size={12} /> Overdue
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                                  <Clock size={12} /> Active
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Last Reminder */}
+                            <td className="py-4 px-4 text-xs text-slate-400">
+                              {plan.lastReminderSentAt ? (
+                                <span>
+                                  {new Date(plan.lastReminderSentAt).toLocaleDateString("en-IN", {
+                                    day: "numeric",
+                                    month: "short",
+                                  })}
+                                </span>
+                              ) : (
+                                <span className="text-slate-500">None yet</span>
+                              )}
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-4 px-6 text-right">
+                              {plan.status === "completed" ? (
+                                <span className="text-xs font-bold text-slate-500">Fully Cleared</span>
+                              ) : (
+                                <button
+                                  onClick={() => handleSendManualReminder(plan.id)}
+                                  disabled={remindingId === plan.id}
+                                  className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                                  title="Send notification reminder to student"
+                                >
+                                  {remindingId === plan.id ? (
+                                    <RefreshCw size={12} className="animate-spin" />
+                                  ) : (
+                                    <Send size={12} />
+                                  )}
+                                  Remind
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div>
+            {/* KPI Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+                  <span>Total Verified Revenue</span>
+                  <TrendingUp size={16} className="text-emerald-400" />
+                </div>
+                <p className="text-2xl md:text-3xl font-black text-emerald-400">
+                  ₹{stats.totalRevenue.toLocaleString("en-IN")}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">From completed orders</p>
+              </div>
+
+              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
+                  <span>Successful Orders</span>
+                  <CheckCircle2 size={16} className="text-emerald-400" />
+                </div>
             <p className="text-2xl md:text-3xl font-black text-white">{stats.completedCount}</p>
             <p className="text-xs text-emerald-400/80 mt-1">Membership unlocked</p>
           </div>
@@ -448,6 +818,8 @@ export default function AdminPaymentTransactions() {
             </div>
           )}
         </div>
+      </div>
+    )}
       </main>
     </div>
   );

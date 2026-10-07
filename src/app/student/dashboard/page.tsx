@@ -16,11 +16,12 @@ import { RewardsStore } from "@/components/dashboard/RewardsStore";
 import { WinWall } from "@/components/dashboard/WinWall";
 import { DailyRoutineChecklist } from "@/components/dashboard/DailyRoutineChecklist";
 import { DashboardSkeleton } from "@/components/ui/SkeletonLoader";
-import { Trophy, Sparkles, Lock, ArrowRight, Zap, BookOpen } from "lucide-react";
+import { Trophy, Sparkles, Lock, ArrowRight, Zap, BookOpen, CreditCard, Calendar, AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { getLevelCode } from "@/components/layout/StudentNav";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 import { getComputedTierPricing } from "@/utils/tierPricing";
+import { processRazorpayPayment } from "@/utils/razorpay";
 
 import { API_BASE_URL } from "@/config/api";
 
@@ -29,6 +30,8 @@ const CACHE_TTL = 30 * 1000; // 30 seconds
 
 export default function StudentDashboard() {
   const { user, token, logout } = useAuth();
+  const [installmentPlans, setInstallmentPlans] = useState<any[]>([]);
+  const [payingPlanId, setPayingPlanId] = useState<string | null>(null);
   const [stats, setStats] = useState<any>({
     points: 0,
     streak: 0,
@@ -77,7 +80,47 @@ export default function StudentDashboard() {
       }
     } catch (_) {}
     fetchStats();
+    fetchInstallments();
   }, [token]);
+
+  const fetchInstallments = () => {
+    if (!token) return;
+    fetch(`${API_BASE_URL}/payments/my-installments`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.plans)) {
+          setInstallmentPlans(data.plans);
+        }
+      })
+      .catch(err => console.error("Error fetching student installments:", err));
+  };
+
+  const handlePayNextInstallment = (plan: any) => {
+    setPayingPlanId(plan.id);
+    processRazorpayPayment({
+      amount: Number(plan.installmentAmount),
+      tierCode: plan.tierCode || "L3",
+      tierName: plan.tierName || "Level 3",
+      email: user?.email,
+      name: user?.name,
+      phone: user?.phone,
+      isInstallment: true,
+      existingPlanId: plan.id,
+      installmentAmount: Number(plan.installmentAmount),
+      totalInstallments: Number(plan.totalInstallments),
+      onSuccess: () => {
+        setPayingPlanId(null);
+        fetchInstallments();
+        fetchStats();
+      },
+      onFailure: (err) => {
+        setPayingPlanId(null);
+        console.error("Installment payment failed:", err);
+      },
+    });
+  };
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [liveTiers, setLiveTiers] = useState<any[]>([]);
@@ -202,6 +245,67 @@ export default function StudentDashboard() {
             />
           </div>
         ) : (<>
+          {/* Active Installment Reminders Banner */}
+          {installmentPlans.filter(p => p.status === 'active' || p.status === 'overdue').map((plan) => {
+            const isOverdue = plan.status === 'overdue' || (plan.nextDueDate && new Date(plan.nextDueDate).getTime() < Date.now());
+            const nextNum = (plan.paidInstallments || 0) + 1;
+            const dueDateStr = plan.nextDueDate
+              ? new Date(plan.nextDueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+              : 'Scheduled Soon';
+
+            return (
+              <div
+                key={plan.id}
+                className={`p-4 md:p-5 rounded-3xl border transition-all shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                  isOverdue
+                    ? 'bg-red-500/10 border-red-500/40 text-red-200'
+                    : 'bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-slate-900 border-amber-500/40 text-white'
+                }`}
+              >
+                <div className="flex items-start md:items-center gap-3.5">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 ${
+                    isOverdue ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                  }`}>
+                    {isOverdue ? <AlertCircle size={24} /> : <CreditCard size={24} />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        isOverdue ? 'bg-red-500/20 text-red-300 border border-red-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      }`}>
+                        {isOverdue ? '⚠️ Overdue Installment' : '🔔 Next Installment Scheduled'}
+                      </span>
+                      <span className="text-xs text-slate-400 font-bold">
+                        {plan.tierName || 'Level 3'} ({plan.planName || 'Installment Plan'})
+                      </span>
+                    </div>
+                    <h3 className="text-base md:text-lg font-black text-white mt-0.5">
+                      Installment #{nextNum} of {plan.totalInstallments} : ₹{Number(plan.installmentAmount).toLocaleString('en-IN')}
+                    </h3>
+                    <p className="text-xs text-slate-300 flex items-center gap-1.5 mt-1">
+                      <Calendar size={13} className={isOverdue ? 'text-red-400' : 'text-amber-400'} />
+                      Due Date: <strong className={isOverdue ? 'text-red-300' : 'text-amber-300'}>{dueDateStr}</strong>
+                      <span className="text-slate-500 mx-1">•</span>
+                      <span>Progress: {plan.paidInstallments}/{plan.totalInstallments} Paid</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handlePayNextInstallment(plan)}
+                    disabled={payingPlanId === plan.id}
+                    className="w-full md:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs md:text-sm shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
+                  >
+                    <CreditCard size={15} />
+                    {payingPlanId === plan.id ? 'Processing...' : `Pay Installment #${nextNum} (₹${Number(plan.installmentAmount).toLocaleString('en-IN')})`}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
           {/* Header & Badges Showcase Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-stretch">
             <div className="lg:col-span-8 flex flex-col">
