@@ -716,403 +716,434 @@ export default function AdminLevels() {
 
         {/* Modal for Editing / Creating Tier */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative overflow-hidden animate-scale-up">
-              
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
-                <h3 className="text-xl font-black text-white flex items-center gap-2">
-                  <Trophy className="text-orange-400" size={20} />
-                  {editingTier ? `Edit Level & Price (${editingTier.code})` : 'Create New Level Tier'}
-                </h3>
+          <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 md:p-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden animate-scale-up">
+              {/* Decorative Background Glows */}
+              <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Fixed Header */}
+              <div className="flex justify-between items-center px-6 py-4 md:px-8 md:py-5 border-b border-slate-800 shrink-0 bg-slate-900/95 backdrop-blur-md relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                    <Trophy size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                      {editingTier ? `Edit Level & Price (${editingTier.code})` : 'Create New Level Tier'}
+                    </h3>
+                    <p className="text-xs text-slate-400">Configure tier pricing, validity, installment options & privileges</p>
+                  </div>
+                </div>
                 <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
-              <form onSubmit={handleSaveTier} className="space-y-4">
+              {/* Form with Scrollable Content Body and Sticky Footer */}
+              <form onSubmit={handleSaveTier} className="flex flex-col flex-1 min-h-0">
                 
-                {/* Code & Name */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="col-span-1">
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Tier Code</label>
-                    <input
-                      type="text"
-                      value={formData.code}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                      placeholder="e.g. L1"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
-                      required
-                    />
-                  </div>
+                {/* Scrollable Body */}
+                <div className="overflow-y-auto px-6 py-5 md:px-8 md:py-6 space-y-5 flex-1 relative z-10">
+                  
+                  {/* Card 1: Core Tier Identity & Pricing */}
+                  <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
+                    <div className="text-xs font-black uppercase text-orange-400 tracking-wider flex items-center gap-2">
+                      <Tag size={13} /> Tier Identity &amp; Pricing
+                    </div>
 
-                  <div className="col-span-2">
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Title / Name</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g. Silver Member"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
-                      required
-                    />
-                  </div>
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Tier Code</label>
+                        <input
+                          type="text"
+                          value={formData.code}
+                          onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                          placeholder="e.g. L1"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
+                          required
+                        />
+                      </div>
 
-                {/* Base Price & Hierarchy Order */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Base Price / Fee (₹)</label>
-                    <input
-                      type="text"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      placeholder="e.g. ₹4,999"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
-                    />
-                  </div>
+                      <div className="sm:col-span-1 md:col-span-2">
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Title / Name</label>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="e.g. Silver Member"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
+                          required
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Hierarchy Order #</label>
-                    <input
-                      type="number"
-                      value={formData.order}
-                      onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                      placeholder="0, 1, 2, 3..."
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Category & Validity Configuration */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Validity Category</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => {
-                        const cat = e.target.value;
-                        setFormData({
-                          ...formData,
-                          category: cat,
-                          validityDays: cat === 'Lifetime Validity' ? 0 : (formData.validityDays > 0 ? formData.validityDays : 15),
-                        });
-                      }}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
-                    >
-                      {CATEGORY_OPTIONS.map((c) => (
-                        <option key={c} value={c}>
-                          {c === 'Single Validity' ? '⏱️ Single Validity (Day-wise)' : '♾️ Lifetime Validity (Permanent)'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    {formData.category === 'Single Validity' ? (
-                      <>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">
-                          Validity Period (Days)
-                        </label>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Hierarchy Order #</label>
                         <input
                           type="number"
-                          min="1"
-                          value={formData.validityDays || 15}
-                          onChange={(e) => setFormData({ ...formData, validityDays: Math.max(1, parseInt(e.target.value) || 1) })}
-                          placeholder="e.g. 15"
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-orange-500 font-mono font-bold"
+                          value={formData.order}
+                          onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                          placeholder="0, 1, 2, 3..."
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
                         />
-                        <p className="text-[10px] text-amber-400 mt-1">
-                          ⏳ Automatically unpublishes/expires {formData.validityDays || 15} days after student purchase.
-                        </p>
-                      </>
-                    ) : (
-                      <div className="h-full flex flex-col justify-end">
-                        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-2 text-emerald-400 text-xs font-bold">
-                          ♾️ Permanent Lifetime Access
-                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Published / Active Toggle */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
-                  <div>
-                    <span className="text-xs font-bold text-white block">Publish / Live on Portal</span>
-                    <span className="text-[10px] text-slate-400">Uncheck to unpublish this level from public storefront</span>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isPublished}
-                      onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                  </label>
-                </div>
-
-                {/* Installment Payment Plans Configuration (Admin Managed) */}
-                <div className="p-4 rounded-xl bg-slate-950/90 border border-slate-800 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-orange-400" />
-                        <span className="text-xs font-bold text-white">Enable Installment Payment Plans</span>
-                      </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
-                        Allow students to purchase this level via custom recurring installments (Bi-weekly, Monthly, Every 2 Months, etc.)
-                      </p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.installmentsEnabled}
-                        onChange={(e) => setFormData({ ...formData, installmentsEnabled: e.target.checked })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
-                    </label>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-800/60">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Base Price / Fee (₹)</label>
+                        <input
+                          type="text"
+                          value={formData.price}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                          placeholder="e.g. ₹4,999"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Validity Category</label>
+                        <select
+                          value={formData.category}
+                          onChange={(e) => {
+                            const cat = e.target.value;
+                            setFormData({
+                              ...formData,
+                              category: cat,
+                              validityDays: cat === 'Lifetime Validity' ? 0 : (formData.validityDays > 0 ? formData.validityDays : 15),
+                            });
+                          }}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                        >
+                          {CATEGORY_OPTIONS.map((c) => (
+                            <option key={c} value={c}>
+                              {c === 'Single Validity' ? '⏱️ Single Validity (Day-wise)' : '♾️ Lifetime Validity (Permanent)'}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        {formData.category === 'Single Validity' ? (
+                          <>
+                            <label className="block text-xs font-bold text-slate-400 mb-1.5">
+                              Validity Period (Days)
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={formData.validityDays || 15}
+                              onChange={(e) => setFormData({ ...formData, validityDays: Math.max(1, parseInt(e.target.value) || 1) })}
+                              placeholder="e.g. 15"
+                              className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-orange-500 font-mono font-bold"
+                            />
+                            <p className="text-[10px] text-amber-400 mt-1">
+                              ⏳ Auto-expires {formData.validityDays || 15} days after purchase.
+                            </p>
+                          </>
+                        ) : (
+                          <div className="h-full flex flex-col justify-end">
+                            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-2 text-emerald-400 text-xs font-bold">
+                              ♾️ Permanent Lifetime Access
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {formData.installmentsEnabled && (
-                    <div className="space-y-3 pt-3 border-t border-slate-800/80">
+                  {/* Card 2: Publication Status & Installment Payments */}
+                  <div className="space-y-4">
+                    {/* Published / Active Toggle */}
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
+                      <div>
+                        <span className="text-xs font-bold text-white block">Publish / Live on Portal</span>
+                        <span className="text-[10px] text-slate-400">Uncheck to unpublish this level from public storefront</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.isPublished}
+                          onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                      </label>
+                    </div>
+
+                    {/* Installment Payment Plans Configuration */}
+                    <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-xs font-bold text-amber-400 block">
-                            Allowed Installment Frequencies ({formData.installmentFrequencies.filter((f) => f.enabled).length} Enabled)
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            Check the payment intervals that students will see in their dropdown during checkout.
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="w-4 h-4 text-orange-400" />
+                            <span className="text-xs font-bold text-white">Enable Installment Payment Plans</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            Allow students to purchase this level via custom recurring installments (Bi-weekly, Monthly, Every 2 Months, etc.)
+                          </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setShowAddCustomFreq(!showAddCustomFreq)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 rounded-lg transition-all cursor-pointer"
-                        >
-                          <Plus className="w-3 h-3" /> Add Custom
-                        </button>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.installmentsEnabled}
+                            onChange={(e) => setFormData({ ...formData, installmentsEnabled: e.target.checked })}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
+                        </label>
                       </div>
 
-                      {/* Add Custom Frequency Inline Form */}
-                      {showAddCustomFreq && (
-                        <div className="p-3 rounded-xl bg-slate-900 border border-orange-500/30 space-y-2.5">
-                          <span className="text-xs font-bold text-white block">Add Custom Frequency Option</span>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {formData.installmentsEnabled && (
+                        <div className="space-y-3 pt-3 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between">
                             <div>
-                              <label className="text-[10px] text-slate-400 block mb-1">Display Label</label>
-                              <input
-                                type="text"
-                                value={customFreqLabel}
-                                onChange={(e) => setCustomFreqLabel(e.target.value)}
-                                placeholder="e.g. Every 45 Days, Every 4 Months"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[10px] text-slate-400 block mb-1">Interval Period (Days)</label>
-                              <input
-                                type="number"
-                                min="1"
-                                value={customFreqDays}
-                                onChange={(e) => setCustomFreqDays(parseInt(e.target.value) || 30)}
-                                placeholder="Days e.g. 45"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowAddCustomFreq(false);
-                                setCustomFreqLabel("");
-                              }}
-                              className="px-3 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white cursor-pointer"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!customFreqLabel.trim()) return;
-                                const freqKey = `${customFreqDays}days`;
-                                const newItem: InstallmentFrequencyItem = {
-                                  frequency: freqKey,
-                                  label: customFreqLabel.trim(),
-                                  interval: `Every ${customFreqDays} Days`,
-                                  enabled: true,
-                                  isCustom: true,
-                                };
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  installmentFrequencies: [...prev.installmentFrequencies, newItem],
-                                }));
-                                setShowAddCustomFreq(false);
-                                setCustomFreqLabel("");
-                              }}
-                              className="px-3 py-1 rounded-lg text-[11px] font-bold bg-orange-500 text-slate-950 hover:bg-orange-400 cursor-pointer"
-                            >
-                              Add Frequency
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Grid of Frequency Switches */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {formData.installmentFrequencies.map((item, idx) => (
-                          <div
-                            key={item.frequency}
-                            className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 transition-all ${
-                              item.enabled
-                                ? "bg-slate-900/90 border-orange-500/40 text-white"
-                                : "bg-slate-950/60 border-slate-800/80 text-slate-500"
-                            }`}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-bold truncate">{item.label}</span>
-                                {item.isCustom && (
-                                  <span className="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-1 rounded">
-                                    Custom
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-[10px] text-slate-400 block truncate">
-                                {item.interval || item.frequency}
+                              <span className="text-xs font-bold text-amber-400 block">
+                                Allowed Installment Frequencies ({formData.installmentFrequencies.filter((f) => f.enabled).length} Enabled)
+                              </span>
+                              <span className="text-[10px] text-slate-400">
+                                Check the payment intervals that students will see in their dropdown during checkout.
                               </span>
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowAddCustomFreq(!showAddCustomFreq)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 rounded-xl transition-all cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" /> Add Custom Frequency
+                            </button>
+                          </div>
 
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              {item.isCustom && (
+                          {/* Add Custom Frequency Inline Form */}
+                          {showAddCustomFreq && (
+                            <div className="p-3.5 rounded-2xl bg-slate-900 border border-orange-500/30 space-y-3">
+                              <span className="text-xs font-bold text-white block">Add Custom Frequency Option</span>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-[10px] text-slate-400 block mb-1 font-bold">Display Label</label>
+                                  <input
+                                    type="text"
+                                    value={customFreqLabel}
+                                    onChange={(e) => setCustomFreqLabel(e.target.value)}
+                                    placeholder="e.g. Every 45 Days, Every 4 Months"
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[10px] text-slate-400 block mb-1 font-bold">Interval Period (Days)</label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={customFreqDays}
+                                    onChange={(e) => setCustomFreqDays(parseInt(e.target.value) || 30)}
+                                    placeholder="Days e.g. 45"
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex justify-end gap-2 pt-1">
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      installmentFrequencies: prev.installmentFrequencies.filter((_, i) => i !== idx),
-                                    }));
+                                    setShowAddCustomFreq(false);
+                                    setCustomFreqLabel("");
                                   }}
-                                  className="text-slate-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
-                                  title="Delete custom frequency"
+                                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  Cancel
                                 </button>
-                              )}
-                              <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={item.enabled}
-                                  onChange={(e) => {
-                                    const checked = e.target.checked;
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!customFreqLabel.trim()) return;
+                                    const freqKey = `${customFreqDays}days`;
+                                    const newItem: InstallmentFrequencyItem = {
+                                      frequency: freqKey,
+                                      label: customFreqLabel.trim(),
+                                      interval: `Every ${customFreqDays} Days`,
+                                      enabled: true,
+                                      isCustom: true,
+                                    };
                                     setFormData((prev) => ({
                                       ...prev,
-                                      installmentFrequencies: prev.installmentFrequencies.map((f, i) =>
-                                        i === idx ? { ...f, enabled: checked } : f
-                                      ),
+                                      installmentFrequencies: [...prev.installmentFrequencies, newItem],
                                     }));
+                                    setShowAddCustomFreq(false);
+                                    setCustomFreqLabel("");
                                   }}
-                                  className="sr-only peer"
-                                />
-                                <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-                              </label>
+                                  className="px-4 py-1.5 rounded-xl text-xs font-bold bg-orange-500 text-slate-950 hover:bg-orange-400 cursor-pointer shadow-md"
+                                >
+                                  Add Frequency
+                                </button>
+                              </div>
                             </div>
+                          )}
+
+                          {/* Grid of Frequency Switches - 3 Columns on wide modal */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                            {formData.installmentFrequencies.map((item, idx) => (
+                              <div
+                                key={item.frequency}
+                                className={`p-3 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                                  item.enabled
+                                    ? "bg-slate-900/90 border-orange-500/40 text-white"
+                                    : "bg-slate-950/60 border-slate-800/80 text-slate-500"
+                                }`}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-bold truncate">{item.label}</span>
+                                    {item.isCustom && (
+                                      <span className="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-1 rounded">
+                                        Custom
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                                    {item.interval || item.frequency}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {item.isCustom && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          installmentFrequencies: prev.installmentFrequencies.filter((_, i) => i !== idx),
+                                        }));
+                                      }}
+                                      className="text-slate-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
+                                      title="Delete custom frequency"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                  <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={item.enabled}
+                                      onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          installmentFrequencies: prev.installmentFrequencies.map((f, i) =>
+                                            i === idx ? { ...f, enabled: checked } : f
+                                          ),
+                                        }));
+                                      }}
+                                      className="sr-only peer"
+                                    />
+                                    <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+
+                          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-400 flex items-start gap-2">
+                            <Sparkles className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                            <span>
+                              <strong>Zero manual math needed:</strong> When enabled, students input their desired installment count (e.g., 2 to 12) during checkout and select from your checked frequencies above. Pricing auto-calculates dynamically from this level&apos;s price.
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Card 3: Visual Styling & Description */}
+                  <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
+                    <div className="text-xs font-black uppercase text-orange-400 tracking-wider flex items-center gap-2">
+                      <Sparkles size={13} /> Visual Appearance &amp; Details
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {/* Icon Selection */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Choose Icon / Emoji</label>
+                        <div className="flex flex-wrap gap-2 mb-2.5">
+                          {EMOJI_PRESETS.map((em, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => setFormData({ ...formData, icon: em })}
+                              className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all cursor-pointer ${
+                                formData.icon === em
+                                  ? 'bg-orange-500/20 border-orange-500 scale-110 shadow-sm'
+                                  : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                              }`}
+                            >
+                              {em}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="text"
+                          value={formData.icon}
+                          onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                          placeholder="Or type custom emoji"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                        />
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-400 flex items-start gap-2">
-                        <Sparkles className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
-                        <span>
-                          <strong>Zero manual math needed:</strong> When enabled, students input their desired installment count (e.g., 2 to 12) during checkout and select from your checked frequencies above. Pricing auto-calculates dynamically from this level&apos;s price.
-                        </span>
+                      {/* Theme Color */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Theme Color</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {COLOR_OPTIONS.map((c) => (
+                            <button
+                              key={c.value}
+                              type="button"
+                              onClick={() => setFormData({ ...formData, badgeColor: c.value })}
+                              className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                                formData.badgeColor === c.value
+                                  ? 'bg-slate-800 border-white text-white shadow-md'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                              }`}
+                            >
+                              <span className={`w-3 h-3 rounded-full ${c.bg}`} />
+                              <span className="truncate">{c.label.split('/')[0]}</span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
 
-
-
-                {/* Icon Selection */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Choose Icon / Emoji</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {EMOJI_PRESETS.map((em, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, icon: em })}
-                        className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all cursor-pointer ${
-                          formData.icon === em
-                            ? 'bg-orange-500/20 border-orange-500 scale-110'
-                            : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        {em}
-                      </button>
-                    ))}
+                    {/* Description */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 mb-1.5">Description &amp; Access Privileges</label>
+                      <textarea
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="e.g. Access to live interactive masterclasses, weekly Q&A calls, and replay vault."
+                        className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
+                      />
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    placeholder="Or type custom emoji"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
-                  />
+
                 </div>
 
-                {/* Theme Color */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Theme Color</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {COLOR_OPTIONS.map((c) => (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, badgeColor: c.value })}
-                        className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                          formData.badgeColor === c.value
-                            ? 'bg-slate-800 border-white text-white shadow-md'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-                        }`}
-                      >
-                        <span className={`w-3 h-3 rounded-full ${c.bg}`} />
-                        <span className="truncate">{c.label.split('/')[0]}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Description &amp; Access Privileges</label>
-                  <textarea
-                    rows={2}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="e.g. Access to live interactive masterclasses, weekly Q&A calls, and replay vault."
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-orange-500 resize-none"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                  <button
-                    type="submit"
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
-                  >
-                    {editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}
-                  </button>
+                {/* Fixed Sticky Footer */}
+                <div className="flex items-center justify-end gap-3 px-6 py-4 md:px-8 md:py-4.5 border-t border-slate-800 shrink-0 bg-slate-900/95 backdrop-blur-md relative z-10">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
+                    className="border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm h-11 px-6 rounded-xl transition-colors cursor-pointer"
                   >
                     Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-8 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                  >
+                    {editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}
                   </button>
                 </div>
               </form>
