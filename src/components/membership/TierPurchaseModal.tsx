@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Trophy,
   X,
@@ -241,14 +241,10 @@ export const TierPurchaseModal = ({
 
   // Installment plans resolution
   const hasInstallmentOption = Boolean(
-    liveTierMatch?.installmentsEnabled ||
-    selectedCode === "L3" ||
-    (Array.isArray(liveTierMatch?.installmentPlans) && liveTierMatch.installmentPlans.length > 0)
+    liveTierMatch
+      ? liveTierMatch.installmentsEnabled === true
+      : (selectedCode === "L3")
   );
-
-  const cleanTotalInstallments = Math.max(2, Math.min(12, parseInt(String(customTotalInstallments), 10) || 3));
-  const autoInstallmentExact = finalNumericPrice / cleanTotalInstallments;
-  const autoInstallmentRounded = Math.round(autoInstallmentExact);
 
   const PERIOD_LABELS: Record<string, string> = {
     weekly: "Weekly",
@@ -259,6 +255,47 @@ export const TierPurchaseModal = ({
     "6months": "Every 6 Months",
   };
 
+  const enabledFrequencies = useMemo(() => {
+    const plans = liveTierMatch?.installmentPlans;
+    const defaultList = [
+      { frequency: "biweekly", label: "Bi-Weekly" },
+      { frequency: "monthly", label: "Monthly" },
+      { frequency: "2months", label: "Every 2 Months" },
+      { frequency: "3months", label: "Every 3 Months" },
+    ];
+
+    if (!Array.isArray(plans) || plans.length === 0) {
+      return defaultList;
+    }
+
+    if (typeof plans[0] === "string") {
+      const list = (plans as string[]).map((f) => ({
+        frequency: f,
+        label: PERIOD_LABELS[f] || f,
+      }));
+      return list.length > 0 ? list : defaultList;
+    }
+
+    const filtered = plans
+      .filter((p: any) => p && (p.enabled === true || p.isActive !== false))
+      .map((p: any) => ({
+        frequency: p.frequency,
+        label: p.label || p.frequencyLabel || PERIOD_LABELS[p.frequency] || p.frequency,
+      }));
+
+    return filtered.length > 0 ? filtered : defaultList;
+  }, [liveTierMatch]);
+
+  useEffect(() => {
+    if (enabledFrequencies.length > 0 && !enabledFrequencies.some((f) => f.frequency === customPeriod)) {
+      setCustomPeriod(enabledFrequencies[0].frequency);
+    }
+  }, [enabledFrequencies, customPeriod]);
+
+  const cleanTotalInstallments = Math.max(2, Math.min(12, parseInt(String(customTotalInstallments), 10) || 3));
+  const autoInstallmentExact = finalNumericPrice / cleanTotalInstallments;
+  const autoInstallmentRounded = Math.round(autoInstallmentExact);
+
   const getOrdinal = (n: number) => {
     const s = ["th", "st", "nd", "rd"];
     const v = n % 100;
@@ -267,20 +304,33 @@ export const TierPurchaseModal = ({
 
   const getPeriodOffsetLabel = (idx: number, period: string) => {
     if (idx === 0) return "DOP (Date of Purchase - Today)";
-    switch (period) {
+    const p = (period || "monthly").toLowerCase();
+    switch (p) {
       case "weekly":
         return `DOP + ${idx} week${idx > 1 ? "s" : ""}`;
       case "biweekly":
         return `DOP + ${idx * 2} weeks`;
+      case "monthly":
+        return `DOP + ${idx} month${idx > 1 ? "s" : ""}`;
       case "2months":
         return `DOP + ${idx * 2} months`;
       case "3months":
         return `DOP + ${idx * 3} months`;
       case "6months":
         return `DOP + ${idx * 6} months`;
-      case "monthly":
-      default:
-        return `DOP + ${idx} month${idx > 1 ? "s" : ""}`;
+      default: {
+        const daysMatch = p.match(/(\d+)\s*days?/);
+        if (daysMatch) {
+          const numDays = parseInt(daysMatch[1], 10);
+          return `DOP + ${idx * numDays} days`;
+        }
+        const monthsMatch = p.match(/(\d+)\s*months?/);
+        if (monthsMatch) {
+          const numMonths = parseInt(monthsMatch[1], 10);
+          return `DOP + ${idx * numMonths} months`;
+        }
+        return `DOP + ${idx} cycle${idx > 1 ? "s" : ""}`;
+      }
     }
   };
 
@@ -503,20 +553,22 @@ export const TierPurchaseModal = ({
               {/* Instalment Period Dropdown */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Instalment Period
+                  Instalment Frequency (Allowed by Admin)
                 </label>
                 <select
                   value={customPeriod}
                   onChange={(e) => setCustomPeriod(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-cyan-500 transition-all cursor-pointer"
                 >
-                  <option value="weekly">Weekly</option>
-                  <option value="biweekly">Bi-Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="2months">Every 2 Months</option>
-                  <option value="3months">Every 3 Months</option>
-                  <option value="6months">Every 6 Months</option>
+                  {enabledFrequencies.map((f) => (
+                    <option key={f.frequency} value={f.frequency}>
+                      {f.label}
+                    </option>
+                  ))}
                 </select>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Select payment cycle interval allowed by instructor.
+                </span>
               </div>
 
               {/* Dynamic Breakdown List */}

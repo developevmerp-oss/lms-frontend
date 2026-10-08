@@ -51,16 +51,70 @@ interface LevelTier {
   offerActive?: boolean;
   offerTitle?: string | null;
   installmentsEnabled?: boolean;
-  installmentPlans?: Array<{
-    id: string;
-    name: string;
-    frequency: string;
-    frequencyLabel?: string;
-    amount: number;
-    totalInstallments: number;
-    isActive?: boolean;
-  }>;
+  installmentPlans?: any;
 }
+
+export interface InstallmentFrequencyItem {
+  frequency: string;
+  label: string;
+  interval?: string;
+  enabled: boolean;
+  isCustom?: boolean;
+}
+
+const DEFAULT_FREQUENCIES: InstallmentFrequencyItem[] = [
+  { frequency: 'weekly', label: 'Weekly', interval: 'Every 7 Days', enabled: false },
+  { frequency: 'biweekly', label: 'Bi-Weekly', interval: 'Every 14 Days (2 Weeks)', enabled: true },
+  { frequency: 'monthly', label: 'Monthly', interval: 'Every Month (30 Days)', enabled: true },
+  { frequency: '2months', label: 'Every 2 Months', interval: 'Every 60 Days (Bi-Monthly)', enabled: true },
+  { frequency: '3months', label: 'Every 3 Months', interval: 'Every 90 Days (Quarterly)', enabled: true },
+  { frequency: '6months', label: 'Every 6 Months', interval: 'Every 180 Days (Half-Yearly)', enabled: false },
+];
+
+const normalizeFrequencies = (raw: any): InstallmentFrequencyItem[] => {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return DEFAULT_FREQUENCIES.map((f) => ({ ...f }));
+  }
+
+  if (typeof raw[0] === 'string') {
+    const set = new Set(raw);
+    return DEFAULT_FREQUENCIES.map((f) => ({
+      ...f,
+      enabled: set.has(f.frequency),
+    }));
+  }
+
+  const map = new Map<string, any>();
+  raw.forEach((item) => {
+    if (item && item.frequency) map.set(item.frequency, item);
+  });
+
+  const base = DEFAULT_FREQUENCIES.map((def) => {
+    const found = map.get(def.frequency);
+    if (found) {
+      return {
+        ...def,
+        label: found.label || found.name || def.label,
+        enabled: found.enabled !== undefined ? Boolean(found.enabled) : found.isActive !== false,
+      };
+    }
+    return { ...def, enabled: false };
+  });
+
+  raw.forEach((item) => {
+    if (item && item.frequency && !DEFAULT_FREQUENCIES.some((d) => d.frequency === item.frequency)) {
+      base.push({
+        frequency: item.frequency,
+        label: item.label || item.name || item.frequency,
+        interval: item.interval || item.label,
+        enabled: item.enabled !== undefined ? Boolean(item.enabled) : item.isActive !== false,
+        isCustom: true,
+      });
+    }
+  });
+
+  return base;
+};
 
 const CATEGORY_OPTIONS = [
   'Single Validity',
@@ -92,6 +146,10 @@ export default function AdminLevels() {
   // Modal State for Level Tier
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTier, setEditingTier] = useState<LevelTier | null>(null);
+  const [showAddCustomFreq, setShowAddCustomFreq] = useState(false);
+  const [customFreqLabel, setCustomFreqLabel] = useState("");
+  const [customFreqDays, setCustomFreqDays] = useState(45);
+
   const [formData, setFormData] = useState({
     code: 'L1',
     name: '',
@@ -104,15 +162,7 @@ export default function AdminLevels() {
     validityDays: 15,
     isPublished: true,
     installmentsEnabled: false,
-    installmentPlans: [] as Array<{
-      id: string;
-      name: string;
-      frequency: string;
-      frequencyLabel?: string;
-      amount: number;
-      totalInstallments: number;
-      isActive?: boolean;
-    }>,
+    installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
   });
 
   // Modal State for Quick Add Offer on Level Card
@@ -204,8 +254,9 @@ export default function AdminLevels() {
       validityDays: 15,
       isPublished: true,
       installmentsEnabled: false,
-      installmentPlans: [],
+      installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
     });
+    setShowAddCustomFreq(false);
     setIsModalOpen(true);
   };
 
@@ -223,8 +274,9 @@ export default function AdminLevels() {
       validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 15,
       isPublished: tier.isPublished !== false,
       installmentsEnabled: !!tier.installmentsEnabled,
-      installmentPlans: Array.isArray(tier.installmentPlans) ? tier.installmentPlans : [],
+      installmentFrequencies: normalizeFrequencies(tier.installmentPlans),
     });
+    setShowAddCustomFreq(false);
     setIsModalOpen(true);
   };
 
@@ -250,7 +302,13 @@ export default function AdminLevels() {
         validityDays: Number(formData.validityDays) || 0,
         isPublished: Boolean(formData.isPublished),
         installmentsEnabled: Boolean(formData.installmentsEnabled),
-        installmentPlans: formData.installmentPlans || [],
+        installmentPlans: formData.installmentFrequencies.map((f) => ({
+          frequency: f.frequency,
+          label: f.label,
+          interval: f.interval,
+          enabled: f.enabled,
+          isCustom: f.isCustom,
+        })),
       };
 
       let res;
@@ -580,30 +638,45 @@ export default function AdminLevels() {
                     })()}
 
                     {/* Installment Plans Status Box */}
-                    {tier.installmentsEnabled && (
-                      <div className="my-3 p-3 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs space-y-2">
+                    {tier.installmentsEnabled ? (
+                      <div className="my-3 p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-black text-amber-400 flex items-center gap-1.5">
-                            <CreditCard size={12} /> Installment Plans ({tier.installmentPlans?.length || 0})
+                          <span className="text-[11px] font-black text-emerald-400 flex items-center gap-1.5">
+                            <CreditCard size={12} /> Installments Enabled
                           </span>
                           <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                            Enabled
+                            Active
                           </span>
                         </div>
-                        {Array.isArray(tier.installmentPlans) && tier.installmentPlans.length > 0 ? (
-                          <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
-                            {tier.installmentPlans.map((ip: any, idx: number) => (
-                              <div key={ip.id || idx} className="flex items-center justify-between text-[11px] text-slate-300 bg-slate-900/90 px-2.5 py-1.5 rounded-xl border border-slate-800">
-                                <span className="font-bold truncate">{ip.name || ip.frequencyLabel || ip.frequency}</span>
-                                <span className="font-mono text-amber-400 font-bold shrink-0">
-                                  {ip.totalInstallments} × ₹{Number(ip.amount || 0).toLocaleString('en-IN')}
-                                </span>
+                        {(() => {
+                          const activeFreqs = normalizeFrequencies(tier.installmentPlans).filter((f) => f.enabled);
+                          return activeFreqs.length > 0 ? (
+                            <div>
+                              <div className="flex flex-wrap gap-1 mb-1.5">
+                                {activeFreqs.map((f) => (
+                                  <span
+                                    key={f.frequency}
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300"
+                                  >
+                                    🗓️ {f.label}
+                                  </span>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-[10px] text-slate-500 font-medium">Enabled, but no plans added yet.</p>
-                        )}
+                              <p className="text-[10px] text-slate-400">
+                                Students enter count (2-12) &amp; choose frequency; price auto-divides from {displayPrice}.
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-amber-400 font-medium">
+                              Installments active. Edit tier to check allowed frequencies.
+                            </p>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="my-2 px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[10px] text-slate-500 flex items-center justify-between">
+                        <span>Installments: Disabled</span>
+                        <span className="text-[9px] text-slate-600">Full payment only</span>
                       </div>
                     )}
                   </div>
@@ -771,7 +844,7 @@ export default function AdminLevels() {
                 </div>
 
                 {/* Installment Payment Plans Configuration (Admin Managed) */}
-                <div className="p-4 rounded-xl bg-slate-950/90 border border-slate-800 space-y-3.5">
+                <div className="p-4 rounded-xl bg-slate-950/90 border border-slate-800 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -786,31 +859,7 @@ export default function AdminLevels() {
                       <input
                         type="checkbox"
                         checked={formData.installmentsEnabled}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setFormData((prev) => {
-                            let nextPlans = prev.installmentPlans;
-                            if (checked && (!nextPlans || nextPlans.length === 0)) {
-                              const numericPrice = parseFloat((prev.price || '0').replace(/[^0-9.]/g, '')) || 59999;
-                              nextPlans = [
-                                {
-                                  id: 'plan_monthly_' + Date.now(),
-                                  name: 'Monthly Plan (3 Installments)',
-                                  frequency: 'monthly',
-                                  frequencyLabel: 'Monthly',
-                                  amount: Math.round(numericPrice / 3),
-                                  totalInstallments: 3,
-                                  isActive: true,
-                                },
-                              ];
-                            }
-                            return {
-                              ...prev,
-                              installmentsEnabled: checked,
-                              installmentPlans: nextPlans,
-                            };
-                          });
-                        }}
+                        onChange={(e) => setFormData({ ...formData, installmentsEnabled: e.target.checked })}
                         className="sr-only peer"
                       />
                       <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
@@ -820,180 +869,157 @@ export default function AdminLevels() {
                   {formData.installmentsEnabled && (
                     <div className="space-y-3 pt-3 border-t border-slate-800/80">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                          Installment Options ({formData.installmentPlans.length})
-                        </span>
+                        <div>
+                          <span className="text-xs font-bold text-amber-400 block">
+                            Allowed Installment Frequencies ({formData.installmentFrequencies.filter((f) => f.enabled).length} Enabled)
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            Check the payment intervals that students will see in their dropdown during checkout.
+                          </span>
+                        </div>
                         <button
                           type="button"
-                          onClick={() => {
-                            const numericPrice = parseFloat((formData.price || '0').replace(/[^0-9.]/g, '')) || 59999;
-                            const newPlan = {
-                              id: 'plan_' + Date.now(),
-                              name: 'Installment Plan',
-                              frequency: 'monthly',
-                              frequencyLabel: 'Monthly',
-                              amount: Math.round(numericPrice / 3) || 5000,
-                              totalInstallments: 3,
-                              isActive: true,
-                            };
-                            setFormData((prev) => ({
-                              ...prev,
-                              installmentPlans: [...prev.installmentPlans, newPlan],
-                            }));
-                          }}
+                          onClick={() => setShowAddCustomFreq(!showAddCustomFreq)}
                           className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 rounded-lg transition-all cursor-pointer"
                         >
-                          <Plus className="w-3 h-3" /> Add Plan Option
+                          <Plus className="w-3 h-3" /> Add Custom
                         </button>
                       </div>
 
-                      {formData.installmentPlans.length === 0 ? (
-                        <div className="p-3 bg-slate-900/60 border border-dashed border-slate-800 rounded-lg text-center text-xs text-slate-400">
-                          No installment plans configured yet. Click &quot;Add Plan Option&quot; above to create one.
-                        </div>
-                      ) : (
-                        <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
-                          {formData.installmentPlans.map((plan, idx) => (
-                            <div
-                              key={plan.id || idx}
-                              className="p-3 bg-slate-900/90 border border-slate-800 rounded-xl space-y-2.5"
+                      {/* Add Custom Frequency Inline Form */}
+                      {showAddCustomFreq && (
+                        <div className="p-3 rounded-xl bg-slate-900 border border-orange-500/30 space-y-2.5">
+                          <span className="text-xs font-bold text-white block">Add Custom Frequency Option</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-slate-400 block mb-1">Display Label</label>
+                              <input
+                                type="text"
+                                value={customFreqLabel}
+                                onChange={(e) => setCustomFreqLabel(e.target.value)}
+                                placeholder="e.g. Every 45 Days, Every 4 Months"
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-slate-400 block mb-1">Interval Period (Days)</label>
+                              <input
+                                type="number"
+                                min="1"
+                                value={customFreqDays}
+                                onChange={(e) => setCustomFreqDays(parseInt(e.target.value) || 30)}
+                                placeholder="Days e.g. 45"
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowAddCustomFreq(false);
+                                setCustomFreqLabel("");
+                              }}
+                              className="px-3 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white cursor-pointer"
                             >
-                              <div className="flex items-center justify-between gap-2">
-                                <input
-                                  type="text"
-                                  value={plan.name}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      installmentPlans: prev.installmentPlans.map((p, i) =>
-                                        i === idx ? { ...p, name: val } : p
-                                      ),
-                                    }));
-                                  }}
-                                  placeholder="Plan Name (e.g. 3-Month Plan)"
-                                  className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white font-bold flex-1 focus:border-orange-500 focus:outline-none"
-                                />
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!customFreqLabel.trim()) return;
+                                const freqKey = `${customFreqDays}days`;
+                                const newItem: InstallmentFrequencyItem = {
+                                  frequency: freqKey,
+                                  label: customFreqLabel.trim(),
+                                  interval: `Every ${customFreqDays} Days`,
+                                  enabled: true,
+                                  isCustom: true,
+                                };
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  installmentFrequencies: [...prev.installmentFrequencies, newItem],
+                                }));
+                                setShowAddCustomFreq(false);
+                                setCustomFreqLabel("");
+                              }}
+                              className="px-3 py-1 rounded-lg text-[11px] font-bold bg-orange-500 text-slate-950 hover:bg-orange-400 cursor-pointer"
+                            >
+                              Add Frequency
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Grid of Frequency Switches */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {formData.installmentFrequencies.map((item, idx) => (
+                          <div
+                            key={item.frequency}
+                            className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 transition-all ${
+                              item.enabled
+                                ? "bg-slate-900/90 border-orange-500/40 text-white"
+                                : "bg-slate-950/60 border-slate-800/80 text-slate-500"
+                            }`}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-bold truncate">{item.label}</span>
+                                {item.isCustom && (
+                                  <span className="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-1 rounded">
+                                    Custom
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-slate-400 block truncate">
+                                {item.interval || item.frequency}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {item.isCustom && (
                                 <button
                                   type="button"
                                   onClick={() => {
                                     setFormData((prev) => ({
                                       ...prev,
-                                      installmentPlans: prev.installmentPlans.filter((_, i) => i !== idx),
+                                      installmentFrequencies: prev.installmentFrequencies.filter((_, i) => i !== idx),
                                     }));
                                   }}
                                   className="text-slate-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
-                                  title="Remove plan"
+                                  title="Delete custom frequency"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div>
-                                  <label className="block text-[10px] text-slate-400 font-semibold mb-1">
-                                    Frequency
-                                  </label>
-                                  <select
-                                    value={plan.frequency}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      const labelMap: Record<string, string> = {
-                                        biweekly: 'Bi-weekly',
-                                        monthly: 'Monthly',
-                                        '2months': 'Every 2 Months',
-                                        '3months': 'Every 3 Months',
-                                        '6months': 'Every 6 Months',
-                                      };
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        installmentPlans: prev.installmentPlans.map((p, i) =>
-                                          i === idx
-                                            ? { ...p, frequency: val, frequencyLabel: labelMap[val] || val }
-                                            : p
-                                        ),
-                                      }));
-                                    }}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-orange-500"
-                                  >
-                                    <option value="biweekly">Bi-weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="2months">Every 2 Months</option>
-                                    <option value="3months">Every 3 Months</option>
-                                    <option value="6months">Every 6 Months</option>
-                                  </select>
-                                </div>
-
-                                <div>
-                                  <label className="block text-[10px] text-slate-400 font-semibold mb-1">
-                                    Amount per Installment (₹)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={plan.amount}
-                                    onChange={(e) => {
-                                      const val = Math.max(1, parseFloat(e.target.value) || 0);
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        installmentPlans: prev.installmentPlans.map((p, i) =>
-                                          i === idx ? { ...p, amount: val } : p
-                                        ),
-                                      }));
-                                    }}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-[10px] text-slate-400 font-semibold mb-1">
-                                    Number of Installments
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="2"
-                                    max="36"
-                                    value={plan.totalInstallments}
-                                    onChange={(e) => {
-                                      const val = Math.max(2, parseInt(e.target.value, 10) || 2);
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        installmentPlans: prev.installmentPlans.map((p, i) =>
-                                          i === idx ? { ...p, totalInstallments: val } : p
-                                        ),
-                                      }));
-                                    }}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-orange-500"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                                <span>
-                                  Total: <strong className="text-white">₹{(plan.amount * plan.totalInstallments).toLocaleString('en-IN')}</strong> ({plan.totalInstallments} × ₹{plan.amount.toLocaleString('en-IN')})
-                                </span>
-                                <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={plan.isActive !== false}
-                                    onChange={(e) => {
-                                      const val = e.target.checked;
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        installmentPlans: prev.installmentPlans.map((p, i) =>
-                                          i === idx ? { ...p, isActive: val } : p
-                                        ),
-                                      }));
-                                    }}
-                                    className="rounded border-slate-700 text-orange-500 focus:ring-0"
-                                  />
-                                  <span className="text-[10px] text-slate-300">Active</span>
-                                </label>
-                              </div>
+                              )}
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={item.enabled}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      installmentFrequencies: prev.installmentFrequencies.map((f, i) =>
+                                        i === idx ? { ...f, enabled: checked } : f
+                                      ),
+                                    }));
+                                  }}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                              </label>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-400 flex items-start gap-2">
+                        <Sparkles className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                        <span>
+                          <strong>Zero manual math needed:</strong> When enabled, students input their desired installment count (e.g., 2 to 12) during checkout and select from your checked frequencies above. Pricing auto-calculates dynamically from this level&apos;s price.
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
