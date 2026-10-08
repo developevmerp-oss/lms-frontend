@@ -156,23 +156,24 @@ export default function AdminMarketingPage() {
     try {
       const res = await fetch(`${API_BASE_URL}/admin/marketing-tracking`, { headers });
       const json = await res.json();
-      if (json.success && Array.isArray(json.data)) {
-        const metaSetting = json.data.find((s: TrackingSetting) => s.platform.toUpperCase() === "META");
-        if (metaSetting) {
-          setSettingId(metaSetting.id || null);
-          setPixelId(metaSetting.pixelId || "");
-          setEnabled(Boolean(metaSetting.enabled));
-          setEvents({
-            pageView: metaSetting.trackPageView !== false,
-            viewContent: metaSetting.trackViewContent !== false,
-            lead: metaSetting.trackLead !== false,
-            registration: metaSetting.trackRegistration !== false,
-            contact: metaSetting.trackContact !== false,
-            booking: metaSetting.trackBooking !== false,
-            checkout: metaSetting.trackCheckout !== false,
-            purchase: metaSetting.trackPurchase !== false,
-          });
-        }
+      const list = Array.isArray(json.data)
+        ? json.data
+        : (Array.isArray(json.settings) ? json.settings : (json.meta ? [json.meta] : []));
+      const metaSetting = list.find((s: TrackingSetting) => s.platform?.toUpperCase() === "META") || json.meta;
+      if (metaSetting) {
+        setSettingId(metaSetting.id || null);
+        setPixelId(metaSetting.pixelId || "");
+        setEnabled(Boolean(metaSetting.enabled));
+        setEvents({
+          pageView: metaSetting.trackPageView !== false,
+          viewContent: metaSetting.trackViewContent !== false,
+          lead: metaSetting.trackLead !== false,
+          registration: metaSetting.trackRegistration !== false,
+          contact: metaSetting.trackContact !== false,
+          booking: metaSetting.trackBooking !== false,
+          checkout: metaSetting.trackCheckout !== false,
+          purchase: metaSetting.trackPurchase !== false,
+        });
       }
     } catch (err: any) {
       console.error("Error loading marketing tracking settings:", err);
@@ -198,6 +199,14 @@ export default function AdminMarketingPage() {
         platform: "META",
         pixelId: cleanPixelId,
         enabled: enabled,
+        trackPageView: events.pageView,
+        trackViewContent: events.viewContent,
+        trackLead: events.lead,
+        trackRegistration: events.registration,
+        trackContact: events.contact,
+        trackBooking: events.booking,
+        trackCheckout: events.checkout,
+        trackPurchase: events.purchase,
         events: {
           pageView: events.pageView,
           viewContent: events.viewContent,
@@ -219,8 +228,9 @@ export default function AdminMarketingPage() {
       const data = await res.json();
       if (data.success) {
         showSuccess("Meta Pixel marketing configuration saved successfully!");
-        if (data.data && data.data.id) {
-          setSettingId(data.data.id);
+        const savedRecord = data.data || data.setting;
+        if (savedRecord && savedRecord.id) {
+          setSettingId(savedRecord.id);
         }
       } else {
         showError(data.message || "Failed to save settings.");
