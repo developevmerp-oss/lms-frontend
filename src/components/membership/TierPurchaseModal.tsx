@@ -110,6 +110,15 @@ export const TIERS_CATALOG: TierInfo[] = [
   }
 ];
 
+const PERIOD_LABELS: Record<string, string> = {
+  weekly: "Weekly",
+  biweekly: "Bi-Weekly",
+  monthly: "Monthly",
+  "2months": "Every 2 Months",
+  "3months": "Every 3 Months",
+  "6months": "Every 6 Months",
+};
+
 interface TierPurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -172,8 +181,6 @@ export const TierPurchaseModal = ({
         });
     }
   }, [isOpen, preselectedTier, targetTierCode]);
-
-  if (!isOpen) return null;
 
   const baseTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
   const liveTierMatch = liveTiers.find(
@@ -246,15 +253,6 @@ export const TierPurchaseModal = ({
       : (selectedCode === "L3")
   );
 
-  const PERIOD_LABELS: Record<string, string> = {
-    weekly: "Weekly",
-    biweekly: "Bi-Weekly",
-    monthly: "Monthly",
-    "2months": "Every 2 Months",
-    "3months": "Every 3 Months",
-    "6months": "Every 6 Months",
-  };
-
   const enabledFrequencies = useMemo(() => {
     const plans = liveTierMatch?.installmentPlans;
     const defaultList = [
@@ -287,10 +285,13 @@ export const TierPurchaseModal = ({
   }, [liveTierMatch]);
 
   useEffect(() => {
-    if (enabledFrequencies.length > 0 && !enabledFrequencies.some((f) => f.frequency === customPeriod)) {
-      setCustomPeriod(enabledFrequencies[0].frequency);
+    if (enabledFrequencies.length > 0) {
+      setCustomPeriod((prev) => {
+        if (enabledFrequencies.some((f) => f.frequency === prev)) return prev;
+        return enabledFrequencies[0].frequency;
+      });
     }
-  }, [enabledFrequencies, customPeriod]);
+  }, [enabledFrequencies]);
 
   const cleanTotalInstallments = Math.max(2, Math.min(12, parseInt(String(customTotalInstallments), 10) || 3));
   const autoInstallmentExact = finalNumericPrice / cleanTotalInstallments;
@@ -381,6 +382,8 @@ export const TierPurchaseModal = ({
     );
     window.open(`https://wa.me/919429424263?text=${text}`, "_blank");
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 font-sans">
