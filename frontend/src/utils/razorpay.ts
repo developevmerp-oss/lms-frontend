@@ -29,6 +29,13 @@ export interface PaymentOptions {
   email?: string;
   name?: string;
   phone?: string;
+  isInstallment?: boolean;
+  planId?: string;
+  planName?: string;
+  planFrequency?: string;
+  installmentAmount?: number;
+  totalInstallments?: number;
+  existingPlanId?: string;
   onSuccess: (data: any) => void;
   onFailure?: (error: any) => void;
 }
@@ -41,6 +48,13 @@ export const processRazorpayPayment = async ({
   email,
   name,
   phone,
+  isInstallment,
+  planId,
+  planName,
+  planFrequency,
+  installmentAmount,
+  totalInstallments,
+  existingPlanId,
   onSuccess,
   onFailure,
 }: PaymentOptions) => {
@@ -104,6 +118,13 @@ export const processRazorpayPayment = async ({
           email: email || "student@ravishingarthub.com",
           name: name || "Art Student",
           phone: phone || "9999999999",
+          isInstallment: Boolean(isInstallment),
+          planId,
+          planName,
+          planFrequency,
+          installmentAmount,
+          totalInstallments,
+          existingPlanId,
         }),
       });
 

@@ -5,7 +5,7 @@ import { BrandLogo } from "@/components/ui/BrandLogo";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, Sparkles, ArrowRight, Zap, RefreshCw, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { API_BASE_URL } from "@/config/api";
 import { ForgotPasswordModal } from "@/components/auth/ForgotPasswordModal";
 
@@ -19,8 +19,23 @@ function LoginContent() {
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const [serverStatus, setServerStatus] = useState<"checking" | "ready" | "slow">("checking");
   const [wakeSeconds, setWakeSeconds] = useState(0);
-  const { login } = useAuth();
+  const { login, user, token } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect");
+
+  // If user is already logged in, redirect immediately
+  useEffect(() => {
+    if (token && user) {
+      if (redirectUrl) {
+        router.replace(redirectUrl);
+      } else if (user.role === "admin") {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/student/feed");
+      }
+    }
+  }, [token, user, redirectUrl, router]);
 
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
@@ -89,7 +104,7 @@ function LoginContent() {
       }
 
       setServerStatus("ready");
-      login(data.token, data.user);
+      login(data.token, data.user, redirectUrl || undefined);
     } catch (err: any) {
       if (err.name === "AbortError") {
         setError("The server is still waking up from sleep. Please click 'Try Again' in a few seconds.");
@@ -214,7 +229,10 @@ function LoginContent() {
           {/* Quick Helper */}
           <div className="mt-6 pt-6 border-t border-slate-800/80 text-center text-xs text-slate-400">
             Don't have an account?{" "}
-            <Link href="/register" className="text-orange-400 hover:text-orange-300 font-bold">
+            <Link
+              href={redirectUrl ? `/register?redirect=${encodeURIComponent(redirectUrl)}` : "/register"}
+              className="text-orange-400 hover:text-orange-300 font-bold"
+            >
               Register now
             </Link>
           </div>

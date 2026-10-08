@@ -27,7 +27,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, redirectTo?: string) => void;
   logout: () => void;
   updateUser: (updatedUser: Partial<User>) => void;
   refreshUser: () => Promise<void>;
@@ -89,13 +89,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
+  const login = (newToken: string, newUser: User, redirectTo?: string) => {
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
     
-    if (newUser.role === "admin") {
+    if (redirectTo) {
+      router.push(redirectTo);
+    } else if (newUser.role === "admin") {
       router.push("/admin/dashboard");
     } else {
       router.push("/student/feed");

@@ -27,8 +27,10 @@ import {
   Flame,
   Clock,
   Calendar,
+  QrCode,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
 
 interface LevelTier {
   id: string;
@@ -182,6 +184,9 @@ export default function AdminLevels() {
   const [activeRazorpayKey, setActiveRazorpayKey] = useState("");
   const [isKeyConfigured, setIsKeyConfigured] = useState(false);
   const [rzpForm, setRzpForm] = useState({ keyId: "", keySecret: "" });
+
+  // QR Code Modal State
+  const [qrModalTier, setQrModalTier] = useState<LevelTier | null>(null);
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
@@ -687,6 +692,13 @@ export default function AdminLevels() {
                       className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl border border-slate-700 transition-colors cursor-pointer"
                     >
                       <Edit2 size={13} /> Edit Tier &amp; Price
+                    </button>
+                    <button
+                      onClick={() => setQrModalTier(tier)}
+                      className="px-3 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-bold text-xs h-9 rounded-xl border border-orange-500/30 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+                      title="Generate &amp; Download QR Code"
+                    >
+                      <QrCode size={13} /> QR Code
                     </button>
                     <button
                       onClick={() => handleDeleteTier(tier.id, tier.code)}
@@ -1330,6 +1342,13 @@ export default function AdminLevels() {
             </div>
           </div>
         )}
+
+        {/* QR Code Generator & Download Modal */}
+        <LevelQrCodeModal
+          isOpen={!!qrModalTier}
+          onClose={() => setQrModalTier(null)}
+          tier={qrModalTier}
+        />
       </main>
     </div>
   );

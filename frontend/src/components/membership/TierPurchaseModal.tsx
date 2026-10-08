@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Trophy,
   X,
@@ -18,6 +18,7 @@ import {
   Flame,
   Tag,
   Clock,
+  Info,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { processRazorpayPayment } from "@/utils/razorpay";
@@ -109,6 +110,15 @@ export const TIERS_CATALOG: TierInfo[] = [
   }
 ];
 
+const PERIOD_LABELS: Record<string, string> = {
+  weekly: "Weekly",
+  biweekly: "Bi-Weekly",
+  monthly: "Monthly",
+  "2months": "Every 2 Months",
+  "3months": "Every 3 Months",
+  "6months": "Every 6 Months",
+};
+
 interface TierPurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -131,6 +141,10 @@ export const TierPurchaseModal = ({
   const { user, token } = useAuth();
   const [selectedCode, setSelectedCode] = useState<string>(preselectedTier || targetTierCode);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
+  const [paymentMode, setPaymentMode] = useState<"full" | "installment">("full");
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [customTotalInstallments, setCustomTotalInstallments] = useState<number>(3);
+  const [customPeriod, setCustomPeriod] = useState<string>("monthly");
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [liveTiers, setLiveTiers] = useState<any[]>([]);
@@ -139,6 +153,10 @@ export const TierPurchaseModal = ({
   useEffect(() => {
     if (isOpen) {
       setSelectedCode(preselectedTier || targetTierCode);
+      setPaymentMode("full");
+      setSelectedPlanId(null);
+      setCustomTotalInstallments(3);
+      setCustomPeriod("monthly");
       fetch(`${API_BASE_URL}/dashboard/levels`)
         .then((r) => r.json())
         .then((data) => {
@@ -163,8 +181,6 @@ export const TierPurchaseModal = ({
         });
     }
   }, [isOpen, preselectedTier, targetTierCode]);
-
-  if (!isOpen) return null;
 
   const baseTier = TIERS_CATALOG.find((t) => t.code === selectedCode) || TIERS_CATALOG[1];
   const liveTierMatch = liveTiers.find(
@@ -230,18 +246,119 @@ export const TierPurchaseModal = ({
     }
   }
 
+  // Installment plans resolution
+  const hasInstallmentOption = Boolean(
+    liveTierMatch
+      ? liveTierMatch.installmentsEnabled === true
+      : (selectedCode === "L3")
+  );
+
+  const enabledFrequencies = useMemo(() => {
+    const plans = liveTierMatch?.installmentPlans;
+    const defaultList = [
+      { frequency: "biweekly", label: "Bi-Weekly" },
+      { frequency: "monthly", label: "Monthly" },
+      { frequency: "2months", label: "Every 2 Months" },
+      { frequency: "3months", label: "Every 3 Months" },
+    ];
+
+    if (!Array.isArray(plans) || plans.length === 0) {
+      return defaultList;
+    }
+
+    if (typeof plans[0] === "string") {
+      const list = (plans as string[]).map((f) => ({
+        frequency: f,
+        label: PERIOD_LABELS[f] || f,
+      }));
+      return list.length > 0 ? list : defaultList;
+    }
+
+    const filtered = plans
+      .filter((p: any) => p && (p.enabled === true || p.isActive !== false))
+      .map((p: any) => ({
+        frequency: p.frequency,
+        label: p.label || p.frequencyLabel || PERIOD_LABELS[p.frequency] || p.frequency,
+      }));
+
+    return filtered.length > 0 ? filtered : defaultList;
+  }, [liveTierMatch]);
+
+  useEffect(() => {
+    if (enabledFrequencies.length > 0) {
+      setCustomPeriod((prev) => {
+        if (enabledFrequencies.some((f) => f.frequency === prev)) return prev;
+        return enabledFrequencies[0].frequency;
+      });
+    }
+  }, [enabledFrequencies]);
+
+  const cleanTotalInstallments = Math.max(2, Math.min(12, parseInt(String(customTotalInstallments), 10) || 3));
+  const autoInstallmentExact = finalNumericPrice / cleanTotalInstallments;
+  const autoInstallmentRounded = Math.round(autoInstallmentExact);
+
+  const getOrdinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+
+  const getPeriodOffsetLabel = (idx: number, period: string) => {
+    if (idx === 0) return "DOP (Date of Purchase - Today)";
+    const p = (period || "monthly").toLowerCase();
+    switch (p) {
+      case "weekly":
+        return `DOP + ${idx} week${idx > 1 ? "s" : ""}`;
+      case "biweekly":
+        return `DOP + ${idx * 2} weeks`;
+      case "monthly":
+        return `DOP + ${idx} month${idx > 1 ? "s" : ""}`;
+      case "2months":
+        return `DOP + ${idx * 2} months`;
+      case "3months":
+        return `DOP + ${idx * 3} months`;
+      case "6months":
+        return `DOP + ${idx * 6} months`;
+      default: {
+        const daysMatch = p.match(/(\d+)\s*days?/);
+        if (daysMatch) {
+          const numDays = parseInt(daysMatch[1], 10);
+          return `DOP + ${idx * numDays} days`;
+        }
+        const monthsMatch = p.match(/(\d+)\s*months?/);
+        if (monthsMatch) {
+          const numMonths = parseInt(monthsMatch[1], 10);
+          return `DOP + ${idx * numMonths} months`;
+        }
+        return `DOP + ${idx} cycle${idx > 1 ? "s" : ""}`;
+      }
+    }
+  };
+
+  const isPayingInstallment = paymentMode === "installment" && hasInstallmentOption;
+  const effectivePayAmount = isPayingInstallment ? autoInstallmentRounded : finalNumericPrice;
+
   const handleRazorpayPayment = () => {
     setIsProcessing(true);
     processRazorpayPayment({
-      amount: finalNumericPrice,
+      amount: effectivePayAmount,
       tierCode: mergedTier.code,
       tierName: mergedTier.name,
       email: user?.email,
       name: user?.name,
       phone: user?.phone,
+      isInstallment: Boolean(isPayingInstallment),
+      planId: `plan_${customPeriod}_${cleanTotalInstallments}_${Date.now()}`,
+      planName: `${cleanTotalInstallments} Instalments (${PERIOD_LABELS[customPeriod] || "Monthly"})`,
+      planFrequency: customPeriod,
+      installmentAmount: autoInstallmentRounded,
+      totalInstallments: cleanTotalInstallments,
       onSuccess: (data) => {
         setIsProcessing(false);
-        setSuccessMsg(`🎉 Payment successful! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`);
+        const msg = isPayingInstallment
+          ? `🎉 1st installment paid! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`
+          : `🎉 Payment successful! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`;
+        setSuccessMsg(msg);
         if (onUpgradeSuccess) onUpgradeSuccess();
         if (onSuccess) onSuccess();
         setTimeout(() => {
@@ -257,11 +374,16 @@ export const TierPurchaseModal = ({
   };
 
   const handleWhatsAppHelp = () => {
+    const planText = isPayingInstallment
+      ? ` (Installment Plan: ${cleanTotalInstallments} Instalments of ₹${autoInstallmentRounded.toLocaleString("en-IN")}, ${PERIOD_LABELS[customPeriod] || "Monthly"})`
+      : ` at *₹${effectivePayAmount.toLocaleString("en-IN")}*`;
     const text = encodeURIComponent(
-      `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${mergedTier.name} (${mergedTier.code})* at *₹${finalNumericPrice.toLocaleString("en-IN")}*.\n\nMy Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share alternative payment options.`
+      `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${mergedTier.name} (${mergedTier.code})*${planText}.\n\nMy Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share alternative payment options.`
     );
     window.open(`https://wa.me/919429424263?text=${text}`, "_blank");
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 font-sans">
@@ -327,6 +449,11 @@ export const TierPurchaseModal = ({
                       <span>{pricing.finalPrice}</span>
                     )}
                   </div>
+                  {liveMatch?.installmentsEnabled && Array.isArray(liveMatch?.installmentPlans) && liveMatch.installmentPlans.length > 0 && (
+                    <span className="mt-1 text-[9px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded inline-block text-center truncate">
+                      💳 Installments Available
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -361,9 +488,175 @@ export const TierPurchaseModal = ({
             </div>
           )}
 
+          {/* Installment Payment Mode Toggle (When Admin enables installments on this level) */}
+          {hasInstallmentOption && (
+            <div className="p-1.5 bg-slate-950 border border-slate-800 rounded-2xl flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setPaymentMode("full")}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  paymentMode === "full"
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-md"
+                    : "text-slate-400 hover:text-white hover:bg-slate-900"
+                }`}
+              >
+                <Tag size={13} /> Pay in Full ({offerBadge ? `₹${finalNumericPrice.toLocaleString("en-IN")}` : mergedTier.price})
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMode("installment")}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  paymentMode === "installment"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md"
+                    : "text-slate-400 hover:text-white hover:bg-slate-900"
+                }`}
+              >
+                <CreditCard size={13} /> Pay in Installments
+                <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-black border border-emerald-500/30">
+                  Easy EMIs
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* Dynamic Auto-Adjusting Installment Creator (Matches user specification & UI screenshot) */}
+          {isPayingInstallment && (
+            <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <span className="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <CreditCard size={15} /> Customize Your Installment Plan
+                </span>
+                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                  ⚡ 1st Installment Unlocks Curriculum
+                </span>
+              </div>
+
+              {/* Total Instalments Input */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  Total Instalments
+                </label>
+                <input
+                  type="number"
+                  min={2}
+                  max={12}
+                  value={customTotalInstallments}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setCustomTotalInstallments(isNaN(val) ? 2 : Math.max(2, Math.min(12, val)));
+                  }}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-base text-white font-bold focus:outline-none focus:border-cyan-500 font-mono transition-all"
+                  placeholder="Enter number of installments (e.g. 3)"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Choose between 2 to 12 installments. Price auto-adjusts evenly in real time.
+                </span>
+              </div>
+
+              {/* Instalment Period Dropdown */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  Instalment Frequency (Allowed by Admin)
+                </label>
+                <select
+                  value={customPeriod}
+                  onChange={(e) => setCustomPeriod(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-cyan-500 transition-all cursor-pointer"
+                >
+                  {enabledFrequencies.map((f) => (
+                    <option key={f.frequency} value={f.frequency}>
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Select payment cycle interval allowed by instructor.
+                </span>
+              </div>
+
+              {/* Dynamic Breakdown List */}
+              <div className="space-y-2 pt-2">
+                {Array.from({ length: cleanTotalInstallments }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/90 border border-slate-800/80 transition-all hover:border-slate-700"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shrink-0 shadow-md">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <span className="font-black text-white text-xs block">
+                          {getOrdinal(idx + 1)} Instalment
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-medium">
+                          {getPeriodOffsetLabel(idx, customPeriod)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-black font-mono text-white text-sm">
+                        ₹{autoInstallmentExact.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                      {idx === 0 && (
+                        <span className="block text-[9px] font-bold text-emerald-400">
+                          Due Today (DOP)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Important Information */}
+              <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1.5 text-xs">
+                <h5 className="font-black text-slate-300 text-xs flex items-center gap-1.5">
+                  <Info size={13} className="text-orange-400" /> Important Information
+                </h5>
+                <ul className="space-y-1 text-[11px] text-slate-400 list-disc list-inside">
+                  <li>
+                    Please note that if the student fails to pay his instalments on time, access to upcoming curriculum may be temporarily placed on hold until renewed.
+                  </li>
+                  <li>The 1st instalment unlocks full curriculum access immediately today.</li>
+                  <li>
+                    Automated installment reminders will be notified on your student dashboard.
+                  </li>
+                </ul>
+              </div>
+
+              {/* Bottom Price Summary & Create Action */}
+              <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-800">
+                <div>
+                  <span className="text-[11px] text-slate-400 block font-medium">
+                    {cleanTotalInstallments} instalments
+                  </span>
+                  <span className="text-sm md:text-base font-black text-white font-mono">
+                    Total price: ₹{finalNumericPrice.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleRazorpayPayment}
+                  disabled={isProcessing}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-slate-950 font-black text-xs md:text-sm shadow-lg shadow-cyan-500/20 transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Zap size={14} />
+                  {isProcessing ? "Processing..." : "Create Instalment"}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Selected Tier Detail Card */}
           <div className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-inner">
-            {offerBadge && mergedTier.offerTitle && (
+            {offerBadge && mergedTier.offerTitle && !isPayingInstallment && (
               <div className="mb-4 p-2.5 rounded-2xl bg-gradient-to-r from-red-500/10 via-rose-500/10 to-orange-500/10 border border-red-500/30 flex items-center justify-between gap-2">
                 <span className="text-xs font-black text-red-400 flex items-center gap-1.5">
                   🎁 {mergedTier.offerTitle}
@@ -389,7 +682,16 @@ export const TierPurchaseModal = ({
 
               <div className="flex flex-col sm:items-end">
                 <div className="flex items-baseline gap-2">
-                  {offerBadge ? (
+                  {isPayingInstallment ? (
+                    <>
+                      <span className="text-2xl font-black text-amber-400 font-mono">
+                        ₹{autoInstallmentRounded.toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-xs text-slate-400 font-sans font-bold">
+                        (Installment 1 of {cleanTotalInstallments})
+                      </span>
+                    </>
+                  ) : offerBadge ? (
                     <>
                       <span className="text-xs text-slate-500 line-through font-mono">
                         {mergedTier.price}
@@ -456,7 +758,9 @@ export const TierPurchaseModal = ({
             <CreditCard size={17} />
             {isProcessing
               ? "Opening Razorpay..."
-              : `Pay ₹${finalNumericPrice.toLocaleString("en-IN")} with Razorpay`}
+              : isPayingInstallment
+              ? `Pay 1st Installment (₹${effectivePayAmount.toLocaleString("en-IN")}) with Razorpay`
+              : `Pay ₹${effectivePayAmount.toLocaleString("en-IN")} with Razorpay`}
           </button>
 
           <button

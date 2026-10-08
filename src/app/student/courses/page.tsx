@@ -178,6 +178,21 @@ export default function StudentCourses() {
     fetchStudentData();
   }, [token]);
 
+  // Auto-open tier purchase modal when redirected from QR code or direct link with ?unlock=L1/L2/L3
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const unlockParam = params.get("unlock") || params.get("tier") || params.get("level");
+      if (unlockParam) {
+        const code = unlockParam.trim().toUpperCase();
+        setPurchaseModal({
+          isOpen: true,
+          tierCode: code,
+        });
+      }
+    }
+  }, []);
+
   const getTierPrice = (lvlCode: string): string => {
     const found = levelTiers.find((t: any) => (t.code || "").toUpperCase() === lvlCode.toUpperCase());
     if (found && found.price) return found.price;

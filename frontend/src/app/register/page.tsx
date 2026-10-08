@@ -29,7 +29,21 @@ const PERKS = [
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { login, user, token } = useAuth();
+  const redirectUrl = searchParams.get("redirect");
+
+  // If already logged in, redirect immediately
+  useEffect(() => {
+    if (token && user) {
+      if (redirectUrl) {
+        router.replace(redirectUrl);
+      } else if (user.role === "admin") {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/student/feed");
+      }
+    }
+  }, [token, user, redirectUrl, router]);
 
   const isFastStartBundle = searchParams.get("bundle") === "fast-start" || searchParams.get("course") === "l0";
 
@@ -84,10 +98,9 @@ function RegisterForm() {
       }
 
       if (data.token) {
-        login(data.token, data.user);
-        router.push("/student/feed");
+        login(data.token, data.user, redirectUrl || undefined);
       } else {
-        router.push("/login?registered=true");
+        router.push(redirectUrl ? `/login?registered=true&redirect=${encodeURIComponent(redirectUrl)}` : "/login?registered=true");
       }
     } catch (err: any) {
       setError(err.message);
@@ -290,7 +303,10 @@ function RegisterForm() {
 
           <p className="mt-6 text-center text-sm text-slate-400">
             Already have an account?{" "}
-            <Link href="/login" className="font-bold text-orange-400 hover:text-orange-300 transition-colors">
+            <Link
+              href={redirectUrl ? `/login?redirect=${encodeURIComponent(redirectUrl)}` : "/login"}
+              className="font-bold text-orange-400 hover:text-orange-300 transition-colors"
+            >
               Log in here →
             </Link>
           </p>
