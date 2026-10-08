@@ -25,14 +25,7 @@ export function MetaPixelProvider() {
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
 
-    // 1. Immediately initialize with configured default if available (instant load)
-    const initialConfig = trackingService.getConfig();
-    if (initialConfig.meta.enabled && initialConfig.meta.pixelId) {
-      initializeMetaPixelScript(initialConfig.meta.pixelId);
-      trackingService.trackPageView();
-    }
-
-    // 2. Dynamically fetch latest configuration from backend to respect admin changes
+    // Dynamically fetch configuration from backend (100% controlled from Admin Panel)
     fetch(`${API_BASE_URL}/marketing-tracking/config`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data: PublicTrackingConfig | null) => {
@@ -40,13 +33,14 @@ export function MetaPixelProvider() {
 
         trackingService.setConfig(data);
 
-        // Inject or update if enabled
+        // Only inject script if Meta Pixel is enabled and Pixel ID was configured in Admin Panel
         if (data.meta.enabled && data.meta.pixelId) {
           initializeMetaPixelScript(data.meta.pixelId);
           trackingService.trackPageView();
         }
       })
       .catch((err) => {
+        // Silently fail: tracking issues must NEVER break application
         console.warn("Marketing tracking config unavailable:", err?.message);
       });
   }, []);
