@@ -35,8 +35,8 @@ declare global {
 class TrackingService {
   private config: PublicTrackingConfig = {
     meta: {
-      enabled: false,
-      pixelId: "",
+      enabled: true,
+      pixelId: "1765233411475851",
       events: {
         pageView: true,
         viewContent: true,
