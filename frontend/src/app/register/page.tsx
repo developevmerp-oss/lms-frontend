@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { API_BASE_URL } from "@/config/api";
+import { trackingService } from "@/services/trackingService";
 
 const PERKS = [
   { icon: <BookOpen size={18} className="text-orange-400" />, title: "Structured Curriculum", desc: "4 progressive tiers from beginner to mastery" },
@@ -96,6 +97,11 @@ function RegisterForm() {
       if (!res.ok) {
         throw new Error(data.message || "Registration failed");
       }
+
+      // Safely fire marketing registration event
+      try {
+        trackingService.trackRegistration({ method: "email" });
+      } catch (_) {}
 
       if (data.token) {
         login(data.token, data.user, redirectUrl || undefined);

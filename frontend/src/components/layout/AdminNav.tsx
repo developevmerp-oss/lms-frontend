@@ -23,6 +23,7 @@ import {
   Sparkles,
   Bell,
   ShoppingBag,
+  Megaphone,
 } from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
@@ -48,6 +49,7 @@ const NAV_GROUPS = [
       { name: 'Webinar Leads', path: '/admin/webinar', icon: <Sparkles size={14} /> },
       { name: 'Level Settings', path: '/admin/levels', icon: <Trophy size={14} /> },
       { name: 'Special Offers', path: '/admin/offers', icon: <Sparkles size={14} /> },
+      { name: 'Marketing & Tracking', path: '/admin/marketing', icon: <Megaphone size={14} /> },
       { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },
       { name: 'Badges & Rewards', path: '/admin/badges', icon: <Award size={14} /> },
       { name: 'Merch Store Manager', path: '/admin/rewards', icon: <ShoppingBag size={14} /> },

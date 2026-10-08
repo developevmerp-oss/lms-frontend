@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { MetaPixelProvider } from "@/components/marketing/MetaPixelProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en" className="theme-orange">
       <body className={`${inter.className} text-text-primary min-h-screen bg-background`}>
         <AuthProvider>
+          <MetaPixelProvider />
           {children}
           <ThemeSelector />
         </AuthProvider>

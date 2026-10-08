@@ -5,6 +5,7 @@ import HeroVideoPlayer from "@/components/landing/HeroVideoPlayer";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config/api";
+import { trackingService } from "@/services/trackingService";
 import {
   ArrowRight,
   Palette,
@@ -212,6 +213,13 @@ export default function HomePage() {
       }
     };
     fetchLevelData();
+
+    try {
+      trackingService.trackViewContent({
+        name: "Art Hub Academy Homepage",
+        category: "Academy Portal",
+      });
+    } catch (_) {}
   }, []);
 
   const sixDimensions = [

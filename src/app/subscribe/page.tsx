@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { Sparkles, ArrowRight, ShieldCheck, QrCode } from "lucide-react";
+import { trackingService } from "@/services/trackingService";
 
 function SubscribeRedirectContent() {
   const router = useRouter();
@@ -17,6 +18,13 @@ function SubscribeRedirectContent() {
     const rawLevel = searchParams.get("level") || searchParams.get("tier") || searchParams.get("unlock") || "L1";
     const levelCode = rawLevel.trim().toUpperCase();
     setTargetLevel(levelCode);
+
+    try {
+      trackingService.trackViewContent({
+        name: `${levelCode} Membership Plan`,
+        category: "Membership Level QR",
+      });
+    } catch (_) {}
 
     const destination = `/student/courses?unlock=${encodeURIComponent(levelCode)}`;
 

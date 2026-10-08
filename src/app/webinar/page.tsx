@@ -7,6 +7,7 @@ import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
 import { SocialProofToaster } from "@/components/webinar/SocialProofToaster";
 import { ExitIntentModal } from "@/components/webinar/ExitIntentModal";
 import { API_BASE_URL } from "@/config/api";
+import { trackingService } from "@/services/trackingService";
 import Link from "next/link";
 import {
   Sparkles,
@@ -512,6 +513,12 @@ export default function WebinarPage() {
     };
 
     fetchStats();
+    try {
+      trackingService.trackViewContent({
+        name: "Resin Art Masterclass Webinar",
+        category: "Webinar",
+      });
+    } catch (_) {}
   }, []);
 
   // Sticky bottom trigger
@@ -561,12 +568,26 @@ export default function WebinarPage() {
         throw new Error(data.message || "Failed to register");
       }
 
+      // Safely fire marketing events
+      try {
+        trackingService.trackLead({ source: "webinar_registration" });
+        trackingService.trackBooking({
+          service: "Resin Art Masterclass",
+          date: activeWebinar?.scheduledAt,
+        });
+      } catch (_) {}
+
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(data.data || form));
       }
 
       router.push("/thank-you");
     } catch (err: any) {
+      // Still fire lead even if local network edge case saved to fallback
+      try {
+        trackingService.trackLead({ source: "webinar_registration_fallback" });
+      } catch (_) {}
+
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(form));
       }

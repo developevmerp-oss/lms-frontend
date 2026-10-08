@@ -24,6 +24,7 @@ import { useAuth } from "@/context/AuthContext";
 import { processRazorpayPayment } from "@/utils/razorpay";
 import { API_BASE_URL } from "@/config/api";
 import { getComputedTierPricing, parseNumericPrice } from "@/utils/tierPricing";
+import { trackingService } from "@/services/trackingService";
 
 export interface TierInfo {
   code: "L0" | "L1" | "L2" | "L3" | "L3+";
@@ -340,6 +341,17 @@ export const TierPurchaseModal = ({
 
   const handleRazorpayPayment = () => {
     setIsProcessing(true);
+
+    // Safely track InitiateCheckout
+    try {
+      trackingService.trackInitiateCheckout({
+        id: mergedTier.code,
+        name: `${mergedTier.name} (${mergedTier.code})`,
+        value: effectivePayAmount,
+        currency: "INR",
+      });
+    } catch (_) {}
+
     processRazorpayPayment({
       amount: effectivePayAmount,
       tierCode: mergedTier.code,
@@ -355,6 +367,23 @@ export const TierPurchaseModal = ({
       totalInstallments: cleanTotalInstallments,
       onSuccess: (data) => {
         setIsProcessing(false);
+
+        // Safely track verified Purchase conversion
+        try {
+          trackingService.trackPurchase({
+            transactionId: (data as any)?.razorpay_payment_id || `txn_${Date.now()}`,
+            value: effectivePayAmount,
+            currency: "INR",
+            items: [
+              {
+                id: mergedTier.code,
+                name: mergedTier.name,
+                price: effectivePayAmount,
+              },
+            ],
+          });
+        } catch (_) {}
+
         const msg = isPayingInstallment
           ? `🎉 1st installment paid! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`
           : `🎉 Payment successful! ${mergedTier.name} (${mergedTier.code}) is now unlocked.`;
