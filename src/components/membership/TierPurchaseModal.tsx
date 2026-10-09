@@ -254,11 +254,12 @@ export const TierPurchaseModal = ({
 
   const enabledFrequencies = useMemo(() => {
     const plans = liveTierMatch?.installmentPlans;
+    const defaultTotal = Math.max(2, Math.min(24, parseInt(String(liveTierMatch?.totalInstallments), 10) || 3));
     const defaultList = [
-      { frequency: "biweekly", label: "Bi-Weekly" },
-      { frequency: "monthly", label: "Monthly" },
-      { frequency: "2months", label: "Every 2 Months" },
-      { frequency: "3months", label: "Every 3 Months" },
+      { frequency: "biweekly", label: "Bi-Weekly", totalInstallments: defaultTotal },
+      { frequency: "monthly", label: "Monthly", totalInstallments: defaultTotal },
+      { frequency: "2months", label: "Every 2 Months", totalInstallments: defaultTotal },
+      { frequency: "3months", label: "Every 3 Months", totalInstallments: defaultTotal },
     ];
 
     if (!Array.isArray(plans) || plans.length === 0) {
@@ -269,6 +270,7 @@ export const TierPurchaseModal = ({
       const list = (plans as string[]).map((f) => ({
         frequency: f,
         label: PERIOD_LABELS[f] || f,
+        totalInstallments: defaultTotal,
       }));
       return list.length > 0 ? list : defaultList;
     }
@@ -278,6 +280,10 @@ export const TierPurchaseModal = ({
       .map((p: any) => ({
         frequency: p.frequency,
         label: p.label || p.frequencyLabel || PERIOD_LABELS[p.frequency] || p.frequency,
+        totalInstallments: Math.max(
+          2,
+          Math.min(24, parseInt(String(p.totalInstallments || p.installments), 10) || defaultTotal)
+        ),
       }));
 
     return filtered.length > 0 ? filtered : defaultList;
@@ -292,9 +298,20 @@ export const TierPurchaseModal = ({
     }
   }, [enabledFrequencies]);
 
+  const activePlan = useMemo(() => {
+    return (
+      enabledFrequencies.find((f) => f.frequency === customPeriod) ||
+      enabledFrequencies[0] || {
+        frequency: "monthly",
+        label: "Monthly",
+        totalInstallments: Math.max(2, Math.min(24, parseInt(String(liveTierMatch?.totalInstallments), 10) || 3)),
+      }
+    );
+  }, [enabledFrequencies, customPeriod]);
+
   const adminTotalInstallments = Math.max(
     2,
-    Math.min(24, parseInt(String(liveTierMatch?.totalInstallments), 10) || 3)
+    Math.min(24, parseInt(String(activePlan?.totalInstallments || liveTierMatch?.totalInstallments), 10) || 3)
   );
   const autoInstallmentExact = finalNumericPrice / adminTotalInstallments;
   const autoInstallmentRounded = Math.round(autoInstallmentExact);
@@ -631,10 +648,7 @@ export const TierPurchaseModal = ({
                     </div>
                     <div className="text-right">
                       <span className="font-black font-mono text-white text-sm">
-                        ₹{autoInstallmentExact.toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        ₹{autoInstallmentRounded.toLocaleString("en-IN")}
                       </span>
                       {idx === 0 && (
                         <span className="block text-[9px] font-bold text-emerald-400">

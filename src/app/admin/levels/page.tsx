@@ -62,21 +62,22 @@ export interface InstallmentFrequencyItem {
   label: string;
   interval?: string;
   enabled: boolean;
+  totalInstallments?: number;
   isCustom?: boolean;
 }
 
 const DEFAULT_FREQUENCIES: InstallmentFrequencyItem[] = [
-  { frequency: 'weekly', label: 'Weekly', interval: 'Every 7 Days', enabled: false },
-  { frequency: 'biweekly', label: 'Bi-Weekly', interval: 'Every 14 Days (2 Weeks)', enabled: true },
-  { frequency: 'monthly', label: 'Monthly', interval: 'Every Month (30 Days)', enabled: true },
-  { frequency: '2months', label: 'Every 2 Months', interval: 'Every 60 Days (Bi-Monthly)', enabled: true },
-  { frequency: '3months', label: 'Every 3 Months', interval: 'Every 90 Days (Quarterly)', enabled: true },
-  { frequency: '6months', label: 'Every 6 Months', interval: 'Every 180 Days (Half-Yearly)', enabled: false },
+  { frequency: 'weekly', label: 'Weekly', interval: 'Every 7 Days', enabled: false, totalInstallments: 12 },
+  { frequency: 'biweekly', label: 'Bi-Weekly', interval: 'Every 14 Days (2 Weeks)', enabled: true, totalInstallments: 6 },
+  { frequency: 'monthly', label: 'Monthly', interval: 'Every Month (30 Days)', enabled: true, totalInstallments: 3 },
+  { frequency: '2months', label: 'Every 2 Months', interval: 'Every 60 Days (Bi-Monthly)', enabled: true, totalInstallments: 3 },
+  { frequency: '3months', label: 'Every 3 Months', interval: 'Every 90 Days (Quarterly)', enabled: true, totalInstallments: 2 },
+  { frequency: '6months', label: 'Every 6 Months', interval: 'Every 180 Days (Half-Yearly)', enabled: false, totalInstallments: 2 },
 ];
 
-const normalizeFrequencies = (raw: any): InstallmentFrequencyItem[] => {
+const normalizeFrequencies = (raw: any, fallbackTotal = 3): InstallmentFrequencyItem[] => {
   if (!Array.isArray(raw) || raw.length === 0) {
-    return DEFAULT_FREQUENCIES.map((f) => ({ ...f }));
+    return DEFAULT_FREQUENCIES.map((f) => ({ ...f, totalInstallments: f.totalInstallments || fallbackTotal }));
   }
 
   if (typeof raw[0] === 'string') {
@@ -84,6 +85,7 @@ const normalizeFrequencies = (raw: any): InstallmentFrequencyItem[] => {
     return DEFAULT_FREQUENCIES.map((f) => ({
       ...f,
       enabled: set.has(f.frequency),
+      totalInstallments: f.totalInstallments || fallbackTotal,
     }));
   }
 
@@ -99,9 +101,10 @@ const normalizeFrequencies = (raw: any): InstallmentFrequencyItem[] => {
         ...def,
         label: found.label || found.name || def.label,
         enabled: found.enabled !== undefined ? Boolean(found.enabled) : found.isActive !== false,
+        totalInstallments: parseInt(String(found.totalInstallments || found.installments), 10) || def.totalInstallments || fallbackTotal,
       };
     }
-    return { ...def, enabled: false };
+    return { ...def, enabled: false, totalInstallments: def.totalInstallments || fallbackTotal };
   });
 
   raw.forEach((item) => {
@@ -111,6 +114,7 @@ const normalizeFrequencies = (raw: any): InstallmentFrequencyItem[] => {
         label: item.label || item.name || item.frequency,
         interval: item.interval || item.label,
         enabled: item.enabled !== undefined ? Boolean(item.enabled) : item.isActive !== false,
+        totalInstallments: parseInt(String(item.totalInstallments || item.installments), 10) || fallbackTotal,
         isCustom: true,
       });
     }
@@ -283,7 +287,7 @@ export default function AdminLevels() {
       isPublished: tier.isPublished !== false,
       installmentsEnabled: !!tier.installmentsEnabled,
       totalInstallments: tier.totalInstallments ? Math.max(2, Math.min(24, tier.totalInstallments)) : 3,
-      installmentFrequencies: normalizeFrequencies(tier.installmentPlans),
+      installmentFrequencies: normalizeFrequencies(tier.installmentPlans, tier.totalInstallments || 3),
     });
     setShowAddCustomFreq(false);
     setIsModalOpen(true);
@@ -317,6 +321,7 @@ export default function AdminLevels() {
           label: f.label,
           interval: f.interval,
           enabled: f.enabled,
+          totalInstallments: Math.max(2, Math.min(24, parseInt(String(f.totalInstallments), 10) || parseInt(String(formData.totalInstallments), 10) || 3)),
           isCustom: f.isCustom,
         })),
       };
@@ -924,10 +929,15 @@ export default function AdminLevels() {
                                   value={formData.totalInstallments}
                                   onChange={(e) => {
                                     const val = parseInt(e.target.value, 10);
-                                    setFormData({
-                                      ...formData,
-                                      totalInstallments: isNaN(val) ? 2 : Math.max(2, Math.min(12, val)),
-                                    });
+                                    const num = isNaN(val) ? 2 : Math.max(2, Math.min(12, val));
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      totalInstallments: num,
+                                      installmentFrequencies: prev.installmentFrequencies.map((f) => ({
+                                        ...f,
+                                        totalInstallments: num,
+                                      })),
+                                    }));
                                   }}
                                   className="w-24 bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-sm text-amber-300 font-mono font-black text-center focus:outline-none focus:border-amber-400 shadow-inner"
                                 />
@@ -1039,60 +1049,98 @@ export default function AdminLevels() {
                             {formData.installmentFrequencies.map((item, idx) => (
                               <div
                                 key={item.frequency}
-                                className={`p-3 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                                className={`p-3 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all ${
                                   item.enabled
                                     ? "bg-slate-900/90 border-orange-500/40 text-white"
                                     : "bg-slate-950/60 border-slate-800/80 text-slate-500"
                                 }`}
                               >
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-bold truncate">{item.label}</span>
-                                    {item.isCustom && (
-                                      <span className="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-1 rounded">
-                                        Custom
-                                      </span>
-                                    )}
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-bold truncate">{item.label}</span>
+                                      {item.isCustom && (
+                                        <span className="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-1 rounded">
+                                          Custom
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                                      {item.interval || item.frequency}
+                                    </span>
                                   </div>
-                                  <span className="text-[10px] text-slate-400 block truncate mt-0.5">
-                                    {item.interval || item.frequency}
-                                  </span>
+
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    {item.isCustom && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            installmentFrequencies: prev.installmentFrequencies.filter((_, i) => i !== idx),
+                                          }));
+                                        }}
+                                        className="text-slate-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
+                                        title="Delete custom frequency"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={item.enabled}
+                                        onChange={(e) => {
+                                          const checked = e.target.checked;
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            installmentFrequencies: prev.installmentFrequencies.map((f, i) =>
+                                              i === idx ? { ...f, enabled: checked } : f
+                                            ),
+                                          }));
+                                        }}
+                                        className="sr-only peer"
+                                      />
+                                      <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    </label>
+                                  </div>
                                 </div>
 
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                  {item.isCustom && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setFormData((prev) => ({
-                                          ...prev,
-                                          installmentFrequencies: prev.installmentFrequencies.filter((_, i) => i !== idx),
-                                        }));
-                                      }}
-                                      className="text-slate-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
-                                      title="Delete custom frequency"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                  <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={item.enabled}
-                                      onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setFormData((prev) => ({
-                                          ...prev,
-                                          installmentFrequencies: prev.installmentFrequencies.map((f, i) =>
-                                            i === idx ? { ...f, enabled: checked } : f
-                                          ),
-                                        }));
-                                      }}
-                                      className="sr-only peer"
-                                    />
-                                    <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-                                  </label>
-                                </div>
+                                {item.enabled && (
+                                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-1 text-[11px]">
+                                    <span className="text-amber-400 font-bold">EMIs:</span>
+                                    <div className="flex items-center gap-1">
+                                      <input
+                                        type="number"
+                                        min={2}
+                                        max={24}
+                                        value={item.totalInstallments || formData.totalInstallments || 3}
+                                        onChange={(e) => {
+                                          const val = parseInt(e.target.value, 10);
+                                          const num = isNaN(val) ? 2 : Math.max(2, Math.min(24, val));
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            installmentFrequencies: prev.installmentFrequencies.map((f, i) =>
+                                              i === idx ? { ...f, totalInstallments: num } : f
+                                            ),
+                                          }));
+                                        }}
+                                        className="w-14 bg-slate-950 border border-amber-500/40 rounded-lg px-2 py-0.5 text-xs text-amber-300 font-bold font-mono text-center focus:outline-none focus:border-amber-400"
+                                      />
+                                      <span className="text-[10px] text-slate-400">EMIs</span>
+                                    </div>
+                                    {(() => {
+                                      const cleanNumeric = parseFloat((formData.price || '0').replace(/[^0-9.]/g, '')) || 0;
+                                      const count = item.totalInstallments || formData.totalInstallments || 3;
+                                      const each = Math.round(cleanNumeric / count);
+                                      return (
+                                        <span className="text-[10px] text-emerald-400 font-mono font-bold shrink-0">
+                                          ₹{each.toLocaleString('en-IN')}/ea
+                                        </span>
+                                      );
+                                    })()}
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -1100,7 +1148,7 @@ export default function AdminLevels() {
                           <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-400 flex items-start gap-2">
                             <Sparkles className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
                             <span>
-                              <strong>Zero manual math needed:</strong> When enabled, students input their desired installment count (e.g., 2 to 12) during checkout and select from your checked frequencies above. Pricing auto-calculates dynamically from this level&apos;s price.
+                              <strong>Smart Multi-Frequency EMIs:</strong> When enabled, students select from your checked frequencies during checkout. The total installments and pricing auto-calculate dynamically based on your settings above.
                             </span>
                           </div>
                         </div>
