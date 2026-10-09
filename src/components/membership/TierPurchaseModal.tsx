@@ -144,7 +144,6 @@ export const TierPurchaseModal = ({
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [paymentMode, setPaymentMode] = useState<"full" | "installment">("full");
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [customTotalInstallments, setCustomTotalInstallments] = useState<number>(3);
   const [customPeriod, setCustomPeriod] = useState<string>("monthly");
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -156,7 +155,6 @@ export const TierPurchaseModal = ({
       setSelectedCode(preselectedTier || targetTierCode);
       setPaymentMode("full");
       setSelectedPlanId(null);
-      setCustomTotalInstallments(3);
       setCustomPeriod("monthly");
       fetch(`${API_BASE_URL}/dashboard/levels`)
         .then((r) => r.json())
@@ -294,8 +292,11 @@ export const TierPurchaseModal = ({
     }
   }, [enabledFrequencies]);
 
-  const cleanTotalInstallments = Math.max(2, Math.min(12, parseInt(String(customTotalInstallments), 10) || 3));
-  const autoInstallmentExact = finalNumericPrice / cleanTotalInstallments;
+  const adminTotalInstallments = Math.max(
+    2,
+    Math.min(24, parseInt(String(liveTierMatch?.totalInstallments), 10) || 3)
+  );
+  const autoInstallmentExact = finalNumericPrice / adminTotalInstallments;
   const autoInstallmentRounded = Math.round(autoInstallmentExact);
 
   const getOrdinal = (n: number) => {
@@ -360,11 +361,11 @@ export const TierPurchaseModal = ({
       name: user?.name,
       phone: user?.phone,
       isInstallment: Boolean(isPayingInstallment),
-      planId: `plan_${customPeriod}_${cleanTotalInstallments}_${Date.now()}`,
-      planName: `${cleanTotalInstallments} Instalments (${PERIOD_LABELS[customPeriod] || "Monthly"})`,
+      planId: `plan_${customPeriod}_${adminTotalInstallments}_${Date.now()}`,
+      planName: `${adminTotalInstallments} Instalments (${PERIOD_LABELS[customPeriod] || "Monthly"})`,
       planFrequency: customPeriod,
       installmentAmount: autoInstallmentRounded,
-      totalInstallments: cleanTotalInstallments,
+      totalInstallments: adminTotalInstallments,
       onSuccess: (data) => {
         setIsProcessing(false);
 
@@ -404,7 +405,7 @@ export const TierPurchaseModal = ({
 
   const handleWhatsAppHelp = () => {
     const planText = isPayingInstallment
-      ? ` (Installment Plan: ${cleanTotalInstallments} Instalments of ₹${autoInstallmentRounded.toLocaleString("en-IN")}, ${PERIOD_LABELS[customPeriod] || "Monthly"})`
+      ? ` (Installment Plan: ${adminTotalInstallments} Instalments of ₹${autoInstallmentRounded.toLocaleString("en-IN")}, ${PERIOD_LABELS[customPeriod] || "Monthly"})`
       : ` at *₹${effectivePayAmount.toLocaleString("en-IN")}*`;
     const text = encodeURIComponent(
       `Hello Vrajangna Ma'am / Team Ravishing Art Hub!\n\nI want to upgrade my LMS account to *${mergedTier.name} (${mergedTier.code})*${planText}.\n\nMy Details:\n• Name: ${user?.name || "Student"}\n• Email: ${user?.email || ""}\n• Current Level: ${currentLevel}\n\nPlease share alternative payment options.`
@@ -548,44 +549,49 @@ export const TierPurchaseModal = ({
             </div>
           )}
 
-          {/* Dynamic Auto-Adjusting Installment Creator (Matches user specification & UI screenshot) */}
+          {/* Fixed Admin-Configured Installment Plan Display */}
           {isPayingInstallment && (
             <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                <span className="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
-                  <CreditCard size={15} /> Customize Your Installment Plan
+                <span className="text-xs font-black text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <CreditCard size={15} /> Official Installment Structure
                 </span>
                 <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
                   ⚡ 1st Installment Unlocks Curriculum
                 </span>
               </div>
 
-              {/* Total Instalments Input */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Total Instalments
-                </label>
-                <input
-                  type="number"
-                  min={2}
-                  max={12}
-                  value={customTotalInstallments}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    setCustomTotalInstallments(isNaN(val) ? 2 : Math.max(2, Math.min(12, val)));
-                  }}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-base text-white font-bold focus:outline-none focus:border-cyan-500 font-mono transition-all"
-                  placeholder="Enter number of installments (e.g. 3)"
-                />
-                <span className="text-[10px] text-slate-400 mt-1 block">
-                  Choose between 2 to 12 installments. Price auto-adjusts evenly in real time.
-                </span>
+              {/* Fixed Total Instalments (Admin-Defined) */}
+              <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 flex items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-200">
+                      Total Instalments
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      Configured by Academy
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Divided into <strong className="text-white">{adminTotalInstallments} equal instalments</strong> of{" "}
+                    <strong className="text-emerald-400 font-mono">₹{autoInstallmentRounded.toLocaleString("en-IN")}</strong> each
+                  </p>
+                </div>
+                <div className="text-right shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-xl font-black font-mono text-cyan-400">
+                    {adminTotalInstallments}
+                  </span>
+                  <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">
+                    Instalments
+                  </span>
+                </div>
               </div>
 
               {/* Instalment Period Dropdown */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Instalment Frequency (Allowed by Admin)
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>Select Payment Frequency</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Available Cycles</span>
                 </label>
                 <select
                   value={customPeriod}
@@ -605,7 +611,7 @@ export const TierPurchaseModal = ({
 
               {/* Dynamic Breakdown List */}
               <div className="space-y-2 pt-2">
-                {Array.from({ length: cleanTotalInstallments }).map((_, idx) => (
+                {Array.from({ length: adminTotalInstallments }).map((_, idx) => (
                   <div
                     key={idx}
                     className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/90 border border-slate-800/80 transition-all hover:border-slate-700"
@@ -660,7 +666,7 @@ export const TierPurchaseModal = ({
               <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-800">
                 <div>
                   <span className="text-[11px] text-slate-400 block font-medium">
-                    {cleanTotalInstallments} instalments
+                    {adminTotalInstallments} instalments · ₹{autoInstallmentRounded.toLocaleString("en-IN")} each
                   </span>
                   <span className="text-sm md:text-base font-black text-white font-mono">
                     Total price: ₹{finalNumericPrice.toLocaleString("en-IN", {
@@ -717,7 +723,7 @@ export const TierPurchaseModal = ({
                         ₹{autoInstallmentRounded.toLocaleString("en-IN")}
                       </span>
                       <span className="text-xs text-slate-400 font-sans font-bold">
-                        (Installment 1 of {cleanTotalInstallments})
+                        (Installment 1 of {adminTotalInstallments})
                       </span>
                     </>
                   ) : offerBadge ? (

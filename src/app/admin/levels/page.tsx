@@ -53,6 +53,7 @@ interface LevelTier {
   offerActive?: boolean;
   offerTitle?: string | null;
   installmentsEnabled?: boolean;
+  totalInstallments?: number;
   installmentPlans?: any;
 }
 
@@ -164,6 +165,7 @@ export default function AdminLevels() {
     validityDays: 15,
     isPublished: true,
     installmentsEnabled: false,
+    totalInstallments: 3,
     installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
   });
 
@@ -259,6 +261,7 @@ export default function AdminLevels() {
       validityDays: 15,
       isPublished: true,
       installmentsEnabled: false,
+      totalInstallments: 3,
       installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
     });
     setShowAddCustomFreq(false);
@@ -279,6 +282,7 @@ export default function AdminLevels() {
       validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 15,
       isPublished: tier.isPublished !== false,
       installmentsEnabled: !!tier.installmentsEnabled,
+      totalInstallments: tier.totalInstallments ? Math.max(2, Math.min(24, tier.totalInstallments)) : 3,
       installmentFrequencies: normalizeFrequencies(tier.installmentPlans),
     });
     setShowAddCustomFreq(false);
@@ -307,6 +311,7 @@ export default function AdminLevels() {
         validityDays: Number(formData.validityDays) || 0,
         isPublished: Boolean(formData.isPublished),
         installmentsEnabled: Boolean(formData.installmentsEnabled),
+        totalInstallments: Math.max(2, Math.min(24, parseInt(String(formData.totalInstallments), 10) || 3)),
         installmentPlans: formData.installmentFrequencies.map((f) => ({
           frequency: f.frequency,
           label: f.label,
@@ -899,7 +904,53 @@ export default function AdminLevels() {
                       </div>
 
                       {formData.installmentsEnabled && (
-                        <div className="space-y-3 pt-3 border-t border-slate-800/80">
+                        <div className="space-y-4 pt-3 border-t border-slate-800/80">
+                          {/* Total Number of Installments set by Admin */}
+                          <div className="p-4 rounded-2xl bg-slate-900 border border-amber-500/30 space-y-2.5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div>
+                                <label className="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+                                  <CreditCard size={14} /> Total Number of Installments (Fixed for Students)
+                                </label>
+                                <p className="text-[11px] text-slate-300 mt-0.5">
+                                  Students cannot edit this count. When a student chooses installments, the fee is automatically divided into this exact number of installments.
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <input
+                                  type="number"
+                                  min={2}
+                                  max={12}
+                                  value={formData.totalInstallments}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10);
+                                    setFormData({
+                                      ...formData,
+                                      totalInstallments: isNaN(val) ? 2 : Math.max(2, Math.min(12, val)),
+                                    });
+                                  }}
+                                  className="w-24 bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-sm text-amber-300 font-mono font-black text-center focus:outline-none focus:border-amber-400 shadow-inner"
+                                />
+                                <span className="text-xs font-bold text-slate-300">Installments</span>
+                              </div>
+                            </div>
+
+                            {/* Live calculation preview for Admin */}
+                            {(() => {
+                              const cleanNumeric = parseFloat((formData.price || '0').replace(/[^0-9.]/g, '')) || 0;
+                              const numInst = Math.max(2, formData.totalInstallments || 3);
+                              const perInst = Math.round(cleanNumeric / numInst);
+                              return (
+                                <div className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl flex flex-wrap items-center justify-between gap-1">
+                                  <span>💡 Student Breakdown Preview:</span>
+                                  <span className="font-mono font-bold">
+                                    ₹{cleanNumeric.toLocaleString('en-IN')} ÷ {numInst} = ₹{perInst.toLocaleString('en-IN')} / installment
+                                  </span>
+                                </div>
+                              );
+                            })()}
+                          </div>
+
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-xs font-bold text-amber-400 block">
