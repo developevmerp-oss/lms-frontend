@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All-in-One Academy Platform — Client Scope & Feature Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 50px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        color: #0f172a !important;
+      }
+      .container {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .module-card {
+        page-break-inside: avoid;
+        border: 1.5px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        margin-bottom: 16px !important;
+      }
+      h2 {
+        page-break-after: avoid;
+      }
+      table {
+        page-break-inside: avoid;
+      }
+      p, li, td, span, div {
+        color: #1e293b !important;
+      }
+      strong, b {
+        color: #000000 !important;
+      }
+    }
+
+    .header-bar {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 25px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .badge-primary {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .print-btn {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+      transition: all 0.2s;
+    }
+
+    .print-btn:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 35px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: #334155;
+    }
+
+    /* Flow Step Box */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin: 20px 0 30px 0;
+    }
+
+    .flow-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .flow-step-num {
+      width: 28px;
+      height: 28px;
+      background: #0f172a;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .flow-title {
+      font-weight: 800;
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .flow-desc {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    /* Module Card */
+    .module-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      transition: all 0.2s;
+    }
+
+    .module-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 10px;
+    }
+
+    .module-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .module-tag {
+      font-size: 11px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .sub-grid {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 20px;
+      }
+    }
+
+    .role-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .role-title {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .role-title.student {
+      color: #0284c7;
+    }
+
+    .role-title.admin {
+      color: #b45309;
+    }
+
+    .role-box ul {
+      margin-left: 18px;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .role-box li {
+      margin-bottom: 4px;
+    }
+
+    .business-benefit {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: #065f46;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .business-benefit strong {
+      color: #047857;
+    }
+
+    /* Comparison Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table th {
+      background: #0f172a;
+      color: white;
+      text-align: left;
+      padding: 12px 14px;
+      font-weight: 700;
+    }
+
+    table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+      vertical-align: top;
+    }
+
+    table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* Deliverables List */
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .checklist li {
+      padding: 10px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 13.5px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checklist li strong {
+      color: #0f172a;
+    }
+
+    .footer {
+      border-top: 1.5px solid #e2e8f0;
+      margin-top: 40px;
+      padding-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header-bar">
+    <div>
+      <span class="badge-primary">Client Scope of Work</span>
+      <h1>All-in-One Academy Platform</h1>
+      <p class="subtitle">Complete Feature Scope, Automated Student Flow & Business Benefits</p>
+    </div>
+    <div class="no-print">
+      <button class="print-btn" onclick="window.print()">🖨️ Save as PDF / Print</button>
+    </div>
+  </div>
+
+  <!-- Big Picture Overview -->
+  <h2>🚀 1. The Big Picture (How Your Academy Runs on Autopilot)</h2>
+  <p>
+    This platform gives your academy a complete, automated system that attracts students, takes payments, teaches courses, reviews artwork, and keeps students engaged every single day without you needing to do manual tech work.
+  </p>
+
+  <div class="flow-grid">
+    <div class="flow-box">
+      <div class="flow-step-num">1</div>
+      <div class="flow-title">Attract Leads</div>
+      <div class="flow-desc">Students visit your website, register for your webinar, and enter their WhatsApp number.</div>
+    </div>
+    <div class="flow-box">
+      <div class="flow-step-num">2</div>
+      <div class="flow-title">Instant Sales & EMIs</div>
+      <div class="flow-desc">Students buy starter courses or pay in easy monthly installments (EMIs) via UPI or Cards.</div>
+    </div>
+    <div class="flow-box">
+      <div class="flow-step-num">3</div>
+      <div class="flow-title">Learn & Submit</div>
+      <div class="flow-desc">Students watch video lessons, attend live Zoom/Meet classes, and upload artwork photos for review.</div>
+    </div>
+    <div class="flow-box">
+      <div class="flow-step-num">4</div>
+      <div class="flow-title">Engage & Graduate</div>
+      <div class="flow-desc">Students build daily practice streaks, earn XP points, get verified digital certificates, and celebrate wins.</div>
+    </div>
+  </div>
+
+  <!-- Key Modules Explained Simply -->
+  <h2>📦 2. Module-by-Module Breakdown (Plain English)</h2>
+  <p>Here is what every feature does for your <strong>Students</strong> and for you as the <strong>Academy Admin</strong>:</p>
+
+  <!-- Module 1 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🎯 1. Website & Webinar Registration (Sales Funnel)</div>
+      <span class="module-tag">Lead Generation</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Views academy presentation and curriculum preview.</li>
+          <li>Fills simple webinar form (Name, Email, WhatsApp number, City).</li>
+          <li>Redirected to Thank-You page with a 1-click WhatsApp VIP group invite.</li>
+          <li>Prompted with an option to purchase an instant Starter Bundle (₹499) immediately.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>View all registered leads in real time in your CRM.</li>
+          <li>Export lead contact lists to Excel for WhatsApp broadcast marketing.</li>
+          <li>Create upcoming webinar events, set date/time countdowns, and Zoom links.</li>
+          <li>Tag students who attended, missed, or converted to paid.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Automatically captures phone numbers from your website visitors so you never lose a potential student.
+    </div>
+  </div>
+
+  <!-- Module 2 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">📚 2. Video Courses & Step-by-Step Curriculum</div>
+      <span class="module-tag">Learning Portal</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Courses organized cleanly by level: Beginner (L0), Silver (L1), Gold (L2), Diamond (L3).</li>
+          <li>High-definition video lessons with chapter progress tracking.</li>
+          <li>Downloadable PDF resources (material formulas, vendor contacts, blueprints).</li>
+          <li>Higher levels show a locked badge with a direct button to upgrade.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Add courses, lessons, and chapters with drag-and-drop order.</li>
+          <li>Paste video links (YouTube Unlisted, Vimeo, or private MP4 links).</li>
+          <li>Upload PDF attachments for students to download.</li>
+          <li>Manually grant or revoke any course access for specific students.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Higher courses stay locked until students upgrade, creating an automated continuous stream of course sales.
+    </div>
+  </div>
+
+  <!-- Module 3 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">💳 3. Flexible Installment (EMI) Plans & Razorpay Payments</div>
+      <span class="module-tag">Revenue & Payments</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Pays securely using UPI (GPay, PhonePe, Paytm), Cards, or NetBanking.</li>
+          <li>Can choose to Pay in Full OR Pay in Installments (e.g., 3 Monthly EMIs).</li>
+          <li>First payment immediately unlocks course access.</li>
+          <li>Dashboard displays upcoming installment due dates and a "Pay Next EMI" button.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Set total installment count per level (e.g. 2, 3, 4, 6 installments). <strong>Students cannot change this count.</strong></li>
+          <li>Allow flexible frequencies: Monthly, Bi-Weekly, Every 2 Months, etc.</li>
+          <li>Track active, overdue, and completed student installment accounts.</li>
+          <li>Direct integration with your own Razorpay account (100% money goes directly to your bank).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Increases course sales by up to 300% because students can afford higher-ticket courses in small monthly installments.
+    </div>
+  </div>
+
+  <!-- Module 4 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🎨 4. Artwork Homework & Mentor Feedback Desk</div>
+      <span class="module-tag">Mentorship & Quality</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Views homework assignments linked to their video lessons.</li>
+          <li>Uploads photos and videos of their finished artwork with project notes.</li>
+          <li>Sees status badges: Pending Review, Approved (+XP), or Re-Submit.</li>
+          <li>Reads personalized feedback and critique written by the mentor.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Review student photos and videos in a zoomable review screen.</li>
+          <li>One-click Approve and assign Experience Points (+100 to +500 XP).</li>
+          <li>Request revisions with helpful notes if quality needs improvement.</li>
+          <li>One-click publish outstanding artwork directly to the student community feed.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Gives students personal mentor attention without you having to manage messy WhatsApp messages.
+    </div>
+  </div>
+
+  <!-- Module 5 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">📹 5. Live Classes & Automatic Attendance</div>
+      <span class="module-tag">Live Workshops</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Sees a schedule of upcoming live Zoom / Google Meet classes.</li>
+          <li>Countdown timer with a 1-click "Join Class" button when live.</li>
+          <li>Receives +100 Attendance XP when attending live sessions.</li>
+          <li>Can re-watch recordings of past live workshops anytime.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Schedule live workshops with title, date, time, and meeting link.</li>
+          <li>Mark student attendance with a fast Present / Absent toggle.</li>
+          <li>Paste session recording links so students can watch replays.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Keeps all live sessions, meeting links, and replays organized in one clean dashboard.
+    </div>
+  </div>
+
+  <!-- Module 6 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🏆 6. Verifiable Digital Certificates with QR Verification</div>
+      <span class="module-tag">Graduation & Trust</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Automatically receives digital certificates when completing course levels.</li>
+          <li>Download and print high-resolution certificates with gold seal and signatures.</li>
+          <li>Each certificate has a unique ID and QR code to prove legitimacy.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Issue certificates automatically or with 1-click manual approval.</li>
+          <li>Revoke or re-issue certificates if required.</li>
+          <li>Public verification page lets anyone confirm student certificate authenticity.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Gives students prestige and bragging rights to post on Instagram and LinkedIn, promoting your academy for free.
+    </div>
+  </div>
+
+  <!-- Module 7 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🔥 7. Daily Habit Checklist, Streaks & Gamification XP</div>
+      <span class="module-tag">Daily Student Retention</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Daily checklist on dashboard (e.g. Clean molds, mix ratios, practice blending).</li>
+          <li>Checking off habits earns XP points and builds daily login streaks (e.g. 🔥 14 Days).</li>
+          <li>Unlock achievement badges (Artisan, Consistency Master, Sales Champion).</li>
+          <li>View hexagonal 6-point skills radar tracking their artistic growth.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Monitor student activity streaks and daily habit completion.</li>
+          <li>Create custom badges with unique milestone criteria.</li>
+          <li>Manually award bonus points to reward top students.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Gamifies learning so students log in every day instead of abandoning the course after a few days.
+    </div>
+  </div>
+
+  <!-- Module 8 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🎉 8. Community Win Wall & Social Feed</div>
+      <span class="module-tag">Community & Social Proof</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>A social community feed where students post finished artwork photos.</li>
+          <li>Like and comment on classmates' work to cheer them on.</li>
+          <li>System automatically celebrates when students graduate or make their first art sale.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Pin mentor announcements to the top of the feed.</li>
+          <li>Moderate and delete inappropriate posts with one click.</li>
+          <li>Showcase top student work to motivate others.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Replaces noisy external chat groups with an organized private community inside your own platform.
+    </div>
+  </div>
+
+  <!-- Module 9 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">💼 9. NorthStar Real Client Sales & Business Tracker</div>
+      <span class="module-tag">Student Business Success</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Logs real customer sales (Customer Name, Product, Price ₹, Delivery Date).</li>
+          <li>Visual profit and earnings charts showing monthly business growth.</li>
+          <li>Logging a real sale awards **+500 XP Business Champion bonus**.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>View total revenue generated by all your students combined.</li>
+          <li>Use student earnings as marketing proof for upcoming webinars.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Teaches students how to make real money from their craft, creating success stories that attract more paying students.
+    </div>
+  </div>
+
+  <!-- Module 10 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">📈 10. Meta Pixel & Ad Conversion Tracking</div>
+      <span class="module-tag">Marketing Automation</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 Automated Background Action</div>
+        <ul>
+          <li>Automatically sends ad events to Facebook/Meta without student knowing.</li>
+          <li>Tracks Page Views, Registrations, Checkout Clicks, and Purchases.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Simply enter your Meta Pixel ID in the admin panel and toggle ON.</li>
+          <li>No developer code changes needed.</li>
+          <li>Enables your Facebook/Instagram ads to target buyers with high precision.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Lowers your Facebook & Instagram advertising costs by tracking exact purchases and leads automatically.
+    </div>
+  </div>
+
+  <!-- Module 11 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🤝 11. Student Referral / Affiliate Program</div>
+      <span class="module-tag">Viral Word-of-Mouth</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Generates personal referral links for courses and webinars.</li>
+          <li>Tracks clicks, registered friends, and earned commissions (10% to 20%).</li>
+          <li>Requests bank or UPI payouts when commissions accumulate.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Set referral commission percentages.</li>
+          <li>Review and approve commission payout requests.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Turns your students into an active sales team who bring their friends to your academy.
+    </div>
+  </div>
+
+  <!-- Module 12 -->
+  <div class="module-card">
+    <div class="module-header">
+      <div class="module-title">🔔 12. Instant Broadcast Notifications & In-App Alerts</div>
+      <span class="module-tag">Direct Communication</span>
+    </div>
+    <div class="sub-grid">
+      <div class="role-box">
+        <div class="role-title student">🎓 What the Student Experiences</div>
+        <ul>
+          <li>Notification bell icon on header with unread badge counter.</li>
+          <li>Alerts for homework reviews, live class reminders, and mentor messages.</li>
+        </ul>
+      </div>
+      <div class="role-box">
+        <div class="role-title admin">👑 What You (Admin) Can Do</div>
+        <ul>
+          <li>Send platform-wide announcements to all students with 1 click.</li>
+          <li>Attach direct link buttons (e.g. "Join New Live Masterclass").</li>
+        </ul>
+      </div>
+    </div>
+    <div class="business-benefit">
+      💡 <strong>Business Benefit:</strong> Reach 100% of your students instantly without relying on emails that end up in the spam folder.
+    </div>
+  </div>
+
+  <!-- How Everything Connects -->
+  <h2>🔄 3. How Everything Connects (The Automated Ripple Effect)</h2>
+  <p>Here is what happens automatically behind the scenes when a student interacts with the platform:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">When This Happens...</th>
+        <th>The Platform Automatically Does All of This:</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Student Pays for a Course or 1st EMI</strong></td>
+        <td>
+          1. Razorpay verifies payment and sends funds directly to your bank.<br>
+          2. Student is automatically enrolled into all matching course levels.<br>
+          3. Next installment due date is calculated and scheduled.<br>
+          4. Celebration post is automatically added to the Community Win Wall.<br>
+          5. In-app welcome notification is delivered to the student.<br>
+          6. Meta Pixel sends a verified Purchase event to Facebook Ads.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Admin Approves Artwork Submission</strong></td>
+        <td>
+          1. Student receives custom XP points (+250 XP).<br>
+          2. Progress bar advances towards their next level certification.<br>
+          3. Leaderboard rankings update immediately.<br>
+          4. Student receives a notification with your personalized critique.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Student Attends Live Workshop</strong></td>
+        <td>
+          1. Admin marks Present on the class roster.<br>
+          2. Student is automatically rewarded +100 Attendance XP.<br>
+          3. Daily learning streak increments by +1.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Student Logs a Real Art Sale</strong></td>
+        <td>
+          1. Order saved in their business ledger.<br>
+          2. Student awarded +500 XP bonus.<br>
+          3. Public community post celebrates their sale to motivate other students.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4: Delivery Model -->
+  <h2>🏗️ 4. Delivery Model: Full Source Code Handover & Private Server Deployment</h2>
+  <p>
+    Unlike rented software or third-party platforms that charge high monthly subscription fees and keep your data locked on their systems, this solution is delivered with <strong>100% full source code ownership</strong> and deployed directly onto your own purchased server:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">Key Pillar</th>
+        <th style="width: 70%;">What You Get (100% Client Ownership)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Complete Source Code (100% Ownership)</strong></td>
+        <td>Full production source code handover (complete Next.js frontend <code>src/</code> + Node.js backend <code>src/</code> + database schemas & migrations). You own 100% of the intellectual property with zero vendor lock-in or developer restrictions.</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment on Client's Server</strong></td>
+        <td>The client purchases their own server/cloud infrastructure (e.g. AWS, DigitalOcean, VPS, Render, Hostinger). Our engineering team handles end-to-end deployment, backend service configuration, database provisioning, and SSL domain mapping directly on your server.</td>
+      </tr>
+      <tr>
+        <td><strong>100% Revenue Retained (0% Platform Cut)</strong></td>
+        <td>Razorpay payment gateway connects directly to your own business bank account. 100% of course sales, EMI payments, and webinar registrations land straight into your account. No middleman cuts or transaction commissions.</td>
+      </tr>
+      <tr>
+        <td><strong>Private PostgreSQL Database & Data Privacy</strong></td>
+        <td>Dedicated PostgreSQL database hosted on your server. You retain 100% data sovereignty over all student contacts, phone numbers, transaction histories, homework uploads, and analytics.</td>
+      </tr>
+      <tr>
+        <td><strong>Custom Academy Branding & Custom Domain</strong></td>
+        <td>Live under your custom domain (e.g. <code>academy.yourbrand.com</code>) with free automated SSL. Fully branded with your academy logos, colors, typography, curriculum, and marketing copy.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 5: What You Receive -->
+  <h2>🎁 5. Final Deliverables Checklist</h2>
+  <ul class="checklist">
+    <li>✅ <strong>100% Full Source Code Handover:</strong> Complete production codebase (<code>src</code> folders for frontend, backend, schemas & migration scripts).</li>
+    <li>✅ <strong>Dedicated Server Deployment:</strong> Complete platform deployed and running smoothly on your purchased cloud server / VPS.</li>
+    <li>✅ <strong>Your Own Custom Domain & Free SSL:</strong> Connected live on your custom domain (e.g. <code>academy.yourbrand.com</code>) with secure HTTPS.</li>
+    <li>✅ <strong>Direct Razorpay Payment Gateway:</strong> Wired directly to your bank account with zero platform fees or revenue share.</li>
+    <li>✅ <strong>Private Dedicated PostgreSQL Database:</strong> Complete database setup with 100% private student records and automated backups.</li>
+    <li>✅ <strong>All 12 Modules Pre-Configured:</strong> Webinars, Courses, EMIs, Artwork Reviews, Live Classes, QR Certificates, Streaks, and Sales Tracker.</li>
+    <li>✅ <strong>Master Super-Admin Account:</strong> Full master administrator credentials and documentation for total independent control.</li>
+  </ul>
+
+  <div class="footer">
+    <p>© 2026 Enterprise Academy Platform. Prepared for Client Review. All Rights Reserved.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
