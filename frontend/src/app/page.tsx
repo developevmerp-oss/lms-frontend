@@ -1153,7 +1153,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── SECTION 10: WHAT YOU WILL LEARN ─── */}
-      <section id="curriculum" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
+      <section id="curriculum" className="py-24 px-6 bg-white border-y border-slate-800/80 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Curriculum + Outcomes</span>
