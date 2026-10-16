@@ -357,6 +357,106 @@ body {
   border-bottom: 1px solid #e2e8f0 !important;
 }
 
+section.strategic-mindset,
+.light section.strategic-mindset {
+  background-color: #ffffff !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.strategic-mindset .vehicle-accent,
+.light .strategic-mindset .vehicle-accent {
+  color: #a08b78 !important;
+}
+
+.strategic-mindset .vehicle-quote,
+.light .strategic-mindset .vehicle-quote {
+  color: #0f172a !important;
+}
+
+section.testimonia-sec,
+.light section.testimonia-sec {
+  background-color: #ffffff !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.testimonia-sec .testimonia-heading,
+.testimonia-sec .testimonia-quote,
+.testimonia-sec .testimonia-strong,
+.light .testimonia-sec .testimonia-heading,
+.light .testimonia-sec .testimonia-quote,
+.light .testimonia-sec .testimonia-strong {
+  color: #171717 !important;
+}
+
+.testimonia-sec .testimonia-score,
+.light .testimonia-sec .testimonia-score {
+  color: #262626 !important;
+}
+
+.testimonia-sec .testimonia-muted,
+.testimonia-sec .testimonia-kicker,
+.light .testimonia-sec .testimonia-muted,
+.light .testimonia-sec .testimonia-kicker {
+  color: #737373 !important;
+}
+
+.testimonia-sec .testimonia-star,
+.light .testimonia-sec .testimonia-star {
+  color: #f5b400 !important;
+  fill: #f5b400 !important;
+}
+
+.testimonia-sec .testimonia-initial,
+.light .testimonia-sec .testimonia-initial {
+  color: #ffffff !important;
+}
+
+.testimonia-sec .testimonia-nav,
+.light .testimonia-sec .testimonia-nav {
+  background-color: #f5f5f5 !important;
+  color: #404040 !important;
+  border-color: #e5e5e5 !important;
+}
+
+section.dimensions-sec,
+.light section.dimensions-sec {
+  background-color: #ffffff !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.dimensions-sec .dimensions-heading,
+.dimensions-sec .dimensions-title,
+.light .dimensions-sec .dimensions-heading,
+.light .dimensions-sec .dimensions-title {
+  color: #171717 !important;
+}
+
+.dimensions-sec .dimensions-muted,
+.dimensions-sec .dimensions-tag,
+.light .dimensions-sec .dimensions-muted,
+.light .dimensions-sec .dimensions-tag {
+  color: #737373 !important;
+}
+
+.dimensions-sec .dimensions-kicker,
+.light .dimensions-sec .dimensions-kicker {
+  color: #f97316 !important;
+}
+
+.dimensions-sec .dimensions-card,
+.light .dimensions-sec .dimensions-card {
+  background: linear-gradient(165deg, #ffffff 0%, #f4f5f7 100%) !important;
+  border: 1px solid #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 8px 0 #e4e7ee,
+    0 14px 18px rgba(15, 23, 42, 0.08),
+    0 28px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
 .light section[class*="bg-slate-950/60"] {
   background-color: #f1f5f9 !important;
 }
@@ -514,9 +614,19 @@ body {
 
 /* Section 2: The Real Problem (#problem) */
 .light #problem {
-  background-color: #f8fafc !important;
-  border-top: 1px solid #e2e8f0 !important;
-  border-bottom: 1px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+#problem .real-challenge-emphasis,
+.light #problem .real-challenge-emphasis {
+  color: #0f172a !important;
+}
+
+#problem .real-challenge-accent,
+.light #problem .real-challenge-accent {
+  color: #a08b78 !important;
 }
 
 .light #problem [class*="bg-slate-900"] {
@@ -957,30 +1067,114 @@ body {
   color: #334155 !important;
 }
 
-/* Section 15: Choose Your Ravishing Journey (#pricing) */
-.light #pricing,
-.light section:has([class*="Choose Your Ravishing Journey"]) {
-  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%) !important;
-  border-top: 1px solid #e2e8f0 !important;
-  border-bottom: 1px solid #e2e8f0 !important;
+section.journey-sec,
+.light section.journey-sec {
+  background: linear-gradient(180deg, #f6f3fb 0%, #f4f1f8 45%, #efeaf8 100%) !important;
+  border-top: none !important;
+  border-bottom: none !important;
 }
 
-.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] {
+.journey-sec .journey-kicker,
+.light .journey-sec .journey-kicker {
+  color: #f97316 !important;
+}
+
+.journey-sec .journey-heading,
+.light .journey-sec .journey-heading {
+  color: #171717 !important;
+}
+
+.journey-sec .journey-muted,
+.light .journey-sec .journey-muted {
+  color: #737373 !important;
+}
+
+.journey-sec .journey-card-dark,
+.light .journey-sec .journey-card-dark {
+  background: radial-gradient(120% 90% at 80% 100%, rgba(88, 28, 135, 0.35) 0%, #111113 55%) !important;
+  color: #ffffff !important;
+}
+
+.journey-sec .journey-card-dark .journey-title,
+.journey-sec .journey-card-dark .journey-price,
+.light .journey-sec .journey-card-dark .journey-title,
+.light .journey-sec .journey-card-dark .journey-price {
+  color: #ffffff !important;
+}
+
+.journey-sec .journey-card-dark .journey-desc,
+.journey-sec .journey-card-dark .journey-feature,
+.journey-sec .journey-card-dark .journey-more,
+.journey-sec .journey-card-dark .journey-level,
+.light .journey-sec .journey-card-dark .journey-desc,
+.light .journey-sec .journey-card-dark .journey-feature,
+.light .journey-sec .journey-card-dark .journey-more,
+.light .journey-sec .journey-card-dark .journey-level {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.journey-sec .journey-card-dark .journey-feature span:first-child,
+.light .journey-sec .journey-card-dark .journey-feature span:first-child {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.journey-sec .journey-card-dark .journey-btn,
+.light .journey-sec .journey-card-dark .journey-btn {
   background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.08) !important;
+  color: #111113 !important;
 }
 
-.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] h3 {
-  color: #0f172a !important;
+.journey-sec .journey-card-dark .journey-btn-icon,
+.light .journey-sec .journey-card-dark .journey-btn-icon {
+  background-color: #111113 !important;
+  color: #ffffff !important;
 }
 
-.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] p {
-  color: #334155 !important;
+.journey-sec .journey-card-light,
+.light .journey-sec .journey-card-light {
+  background: radial-gradient(120% 90% at 80% 100%, rgba(196, 181, 253, 0.45) 0%, #f7f4fb 55%) !important;
+  color: #171717 !important;
 }
 
-.light section:has([class*="Choose Your Ravishing Journey"]) [class*="bg-slate-900"] span:not([class*="bg-cyan"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-emerald"]):not([class*="text-amber"]) {
-  color: #334155 !important;
+.journey-sec .journey-card-light .journey-title,
+.journey-sec .journey-card-light .journey-price,
+.light .journey-sec .journey-card-light .journey-title,
+.light .journey-sec .journey-card-light .journey-price {
+  color: #171717 !important;
+}
+
+.journey-sec .journey-card-light .journey-desc,
+.journey-sec .journey-card-light .journey-feature,
+.journey-sec .journey-card-light .journey-more,
+.journey-sec .journey-card-light .journey-level,
+.light .journey-sec .journey-card-light .journey-desc,
+.light .journey-sec .journey-card-light .journey-feature,
+.light .journey-sec .journey-card-light .journey-more,
+.light .journey-sec .journey-card-light .journey-level {
+  color: #525252 !important;
+}
+
+.journey-sec .journey-card-light .journey-feature span:first-child,
+.light .journey-sec .journey-card-light .journey-feature span:first-child {
+  background-color: #525252 !important;
+}
+
+.journey-sec .journey-card-light .journey-btn,
+.light .journey-sec .journey-card-light .journey-btn {
+  background-color: #111113 !important;
+  color: #ffffff !important;
+}
+
+.journey-sec .journey-card-light .journey-btn-icon,
+.light .journey-sec .journey-card-light .journey-btn-icon {
+  background-color: #ffffff !important;
+  color: #111113 !important;
+}
+
+.journey-sec .journey-cert,
+.light .journey-sec .journey-cert {
+  background-color: #111113 !important;
+  color: #ffffff !important;
 }
 
 /* Section 16: FAQ Accordion (#faq) */
