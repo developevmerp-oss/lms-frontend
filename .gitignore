@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backups and scratch
+lms_backup.tar.gz
+mobile.zip
+scratch/
+frontend/frontend/
+frontend/backend/
+frontend/video/
+frontend/requirmeent and changes in software and webiste/

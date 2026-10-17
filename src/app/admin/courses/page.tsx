@@ -30,6 +30,7 @@ import {
   Calendar,
   Maximize2,
   Info,
+  Download,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
 
@@ -207,6 +208,64 @@ export default function AdminCourses() {
       }));
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleOpenImageFullSize = (imageUrl: string | null) => {
+    if (!imageUrl) return;
+
+    if (imageUrl.startsWith("data:")) {
+      try {
+        const parts = imageUrl.split(",");
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+        const byteCharacters = atob(parts[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+        return;
+      } catch (err) {
+        console.error("Failed to open data URL as blob:", err);
+      }
+    }
+
+    const fullUrl = getImageUrl(imageUrl);
+    window.open(fullUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDownloadFlyer = (imageUrl: string | null) => {
+    if (!imageUrl) return;
+    try {
+      const a = document.createElement("a");
+      if (imageUrl.startsWith("data:")) {
+        const parts = imageUrl.split(",");
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+        const byteCharacters = atob(parts[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        a.href = blobUrl;
+        a.download = "course-flyer.png";
+      } else {
+        a.href = getImageUrl(imageUrl);
+        a.download = "course-flyer.png";
+        a.target = "_blank";
+      }
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error("Error downloading flyer:", e);
+    }
   };
 
   const [levels, setLevels] = useState<any[]>([]);
@@ -840,26 +899,20 @@ export default function AdminCourses() {
                     >
                       {course.image ? (
                         <>
-                          {/* Ambient Glow Backdrop from the same image so no blank bars */}
+                          {/* Full Banner Display: Edge-to-Edge */}
                           <img
-                            src={course.image}
-                            alt=""
-                            aria-hidden="true"
-                            className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
-                          />
-                          {/* Full Original Image Fitted Without Any Crop */}
-                          <img
-                            src={course.image}
+                            src={getImageUrl(course.image)}
                             alt={course.title}
-                            className="relative z-10 w-full h-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-[1.03]"
+                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/15 to-slate-950/40 pointer-events-none z-10" />
                         </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center">
                           <BookOpen size={36} className="text-slate-700" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none z-10" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none z-10" />
                       
                       {/* Top Overlay Badges */}
                       <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap z-20">
@@ -1550,22 +1603,16 @@ export default function AdminCourses() {
                           className="relative w-full h-56 rounded-2xl overflow-hidden border border-orange-500/40 bg-slate-950 shadow-lg group flex items-center justify-center cursor-pointer"
                           title="Click to view full original flyer"
                         >
-                          {/* Ambient glow backdrop */}
+                          {/* Full Banner Live Preview */}
                           <img
-                            src={courseForm.image}
-                            alt=""
-                            aria-hidden="true"
-                            className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
-                          />
-                          {/* Uncropped original flyer */}
-                          <img
-                            src={courseForm.image}
+                            src={getImageUrl(courseForm.image)}
                             alt="Course Banner Preview"
-                            className="relative z-10 w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-300"
+                            className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-300"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = "none";
                             }}
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30 pointer-events-none z-10" />
                           
                           {/* Hover Overlay */}
                           <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center justify-center pointer-events-none">
@@ -1576,7 +1623,7 @@ export default function AdminCourses() {
 
                           <div className="absolute bottom-2 left-2 z-20">
                             <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/90 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1 backdrop-blur-sm">
-                              <CheckCircle2 size={10} /> Original Preserved
+                              <CheckCircle2 size={10} /> Full Banner Active
                             </span>
                           </div>
                         </div>
@@ -2026,15 +2073,22 @@ export default function AdminCourses() {
             className="relative max-w-4xl max-h-[92vh] flex flex-col items-center justify-center cursor-default bg-slate-900/90 border border-slate-700/80 rounded-3xl p-3 shadow-2xl"
           >
             <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-              <a
-                href={previewFlyerModal}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors"
-                title="Open raw image in new tab"
+              <button
+                type="button"
+                onClick={() => handleOpenImageFullSize(previewFlyerModal)}
+                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+                title="Open full size in new tab"
               >
-                <LinkIcon size={12} /> Open Full Size
-              </a>
+                <ExternalLink size={12} /> Open Full Size
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownloadFlyer(previewFlyerModal)}
+                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+                title="Download poster image"
+              >
+                <Download size={12} /> Download
+              </button>
               <button
                 type="button"
                 onClick={() => setPreviewFlyerModal(null)}
@@ -2047,7 +2101,7 @@ export default function AdminCourses() {
 
             <div className="overflow-auto max-h-[85vh] rounded-2xl flex items-center justify-center p-1">
               <img
-                src={previewFlyerModal}
+                src={getImageUrl(previewFlyerModal)}
                 alt="Full Course Flyer Poster"
                 className="max-h-[82vh] w-auto max-w-full object-contain rounded-xl shadow-2xl"
               />

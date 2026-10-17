@@ -30,6 +30,7 @@ import {
   Calendar,
   Maximize2,
   Info,
+  Download,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
 
@@ -207,6 +208,64 @@ export default function AdminCourses() {
       }));
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleOpenImageFullSize = (imageUrl: string | null) => {
+    if (!imageUrl) return;
+
+    if (imageUrl.startsWith("data:")) {
+      try {
+        const parts = imageUrl.split(",");
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+        const byteCharacters = atob(parts[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+        return;
+      } catch (err) {
+        console.error("Failed to open data URL as blob:", err);
+      }
+    }
+
+    const fullUrl = getImageUrl(imageUrl);
+    window.open(fullUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDownloadFlyer = (imageUrl: string | null) => {
+    if (!imageUrl) return;
+    try {
+      const a = document.createElement("a");
+      if (imageUrl.startsWith("data:")) {
+        const parts = imageUrl.split(",");
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+        const byteCharacters = atob(parts[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        a.href = blobUrl;
+        a.download = "course-flyer.png";
+      } else {
+        a.href = getImageUrl(imageUrl);
+        a.download = "course-flyer.png";
+        a.target = "_blank";
+      }
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error("Error downloading flyer:", e);
+    }
   };
 
   const [levels, setLevels] = useState<any[]>([]);
@@ -2026,15 +2085,22 @@ export default function AdminCourses() {
             className="relative max-w-4xl max-h-[92vh] flex flex-col items-center justify-center cursor-default bg-slate-900/90 border border-slate-700/80 rounded-3xl p-3 shadow-2xl"
           >
             <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-              <a
-                href={previewFlyerModal}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors"
-                title="Open raw image in new tab"
+              <button
+                type="button"
+                onClick={() => handleOpenImageFullSize(previewFlyerModal)}
+                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+                title="Open full size in new tab"
               >
-                <LinkIcon size={12} /> Open Full Size
-              </a>
+                <ExternalLink size={12} /> Open Full Size
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownloadFlyer(previewFlyerModal)}
+                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+                title="Download poster image"
+              >
+                <Download size={12} /> Download
+              </button>
               <button
                 type="button"
                 onClick={() => setPreviewFlyerModal(null)}
@@ -2047,7 +2113,7 @@ export default function AdminCourses() {
 
             <div className="overflow-auto max-h-[85vh] rounded-2xl flex items-center justify-center p-1">
               <img
-                src={previewFlyerModal}
+                src={getImageUrl(previewFlyerModal)}
                 alt="Full Course Flyer Poster"
                 className="max-h-[82vh] w-auto max-w-full object-contain rounded-xl shadow-2xl"
               />
