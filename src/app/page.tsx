@@ -3,7 +3,15 @@
 import LandingHero from "@/components/landing/LandingHero";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SiteNavbar from "@/components/layout/SiteNavbar";
+import AlreadyHaveSec from "@/components/landing/alreadyhavesec";
+import ArtOThonSec from "@/components/landing/artothonsec";
+import CurriculumSec from "@/components/landing/curriculumsec";
+import FinalCtaSec from "@/components/landing/finalctasec";
+import JourneySec from "@/components/landing/journeysec";
+import MasterclassSec from "@/components/landing/masterclasssec";
+import PathSec from "@/components/landing/pathsec";
 import RealChallangeSec from "@/components/landing/realchallangesc";
+import SoundLikeSec from "@/components/landing/soundlikesec";
 import StategicMindsetSec from "@/components/landing/stategicmindsetsec";
 import TestimoniaSec from "@/components/landing/testimoniasec";
 import Link from "next/link";
@@ -18,10 +26,8 @@ import {
   Star,
   Users,
   Sparkles,
-  TrendingUp,
   Heart,
   Brush,
-  Layers,
   Clock,
   Gem,
   CheckCircle2,
@@ -262,105 +268,7 @@ export default function HomePage() {
       <StategicMindsetSec />
 
       {/* ─── SECTION 4: DOES THIS SOUND LIKE YOU? ─── */}
-      <section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Self Reflection</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              Does This Sound Like You?
-            </h2>
-            <p className="text-slate-400 text-base md:text-lg">
-              Recognize where you are right now so we can guide you to where you want to be.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {/* Card 1 */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black text-xl group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
-                    1
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-300 bg-orange-500/15 border border-orange-500/30 px-2.5 py-1 rounded-full">
-                    Stage: The Explorer
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
-                  You Love Creating, But You Don't Know What To Focus On.
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  You keep learning different techniques from scattered videos but still feel confused about what you should master next to make real progress.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-800/80">
-                <div className="flex items-center gap-2 text-xs font-semibold text-orange-400">
-                  <CheckCircle2 size={15} />
-                  <span>Solution: Structured Step-by-Step Curriculum</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-amber-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-300">
-                    2
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 rounded-full">
-                    Stage: The Creator
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
-                  You Create Beautiful Work, But You're Not Getting Consistent Orders.
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  You know your creations have value, but you don't know how to consistently attract the right customers and convert your creativity into predictable income.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-800/80">
-                <div className="flex items-center gap-2 text-xs font-semibold text-amber-400">
-                  <CheckCircle2 size={15} />
-                  <span>Solution: Client Acquisition &amp; Order Pricing</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 hover:border-yellow-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 shadow-xl flex flex-col justify-between group">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-black text-xl group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-slate-950 transition-all duration-300">
-                    3
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-yellow-300 bg-yellow-500/15 border border-yellow-500/30 px-2.5 py-1 rounded-full">
-                    Stage: The Visionary
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
-                  You Want Your Own Identity and Income—Not Another Hobby.
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  You want people to recognise you for your talent, you want something that is truly yours and you want your creativity to contribute to your financial freedom.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-800/80">
-                <div className="flex items-center gap-2 text-xs font-semibold text-yellow-400">
-                  <CheckCircle2 size={15} />
-                  <span>Solution: Signature Brand &amp; Lifetime Mentorship</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center bg-slate-900/60 border border-slate-800 rounded-2xl p-6 max-w-2xl mx-auto shadow-lg">
-            <p className="text-base font-bold text-orange-400">
-              ✨ If you see yourself in any of these, you're in the right place.
-            </p>
-          </div>
-        </div>
-      </section>
+      <SoundLikeSec />
 
       {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── */}
       <section id="mentor" className="py-24 px-6 relative z-10">
@@ -631,254 +539,13 @@ export default function HomePage() {
       </section >
 
       {/* ─── SECTION 8: YOUR JOURNEY ─── */}
-      <section className="py-20 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Zero Barrier To Start</span>
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
-            Your Journey Starts With What You Already Have.
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black text-red-400 bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 rounded-full">
-                  ✕ Not Needed
-                </span>
-                <BookOpen size={16} className="text-slate-500 group-hover:text-orange-400 transition-colors" />
-              </div>
-              <h4 className="text-sm font-bold text-white mb-1">No Prior Art Degree</h4>
-              <p className="text-xs sm:text-sm text-slate-300">You don't need to be an expert to begin.</p>
-            </div>
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black text-red-400 bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 rounded-full">
-                  ✕ Not Needed
-                </span>
-                <Palette size={16} className="text-slate-500 group-hover:text-amber-400 transition-colors" />
-              </div>
-              <h4 className="text-sm font-bold text-white mb-1">No Fancy Art Studio</h4>
-              <p className="text-xs sm:text-sm text-slate-300">You don't need an expensive or perfect setup.</p>
-            </div>
-
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-lg group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black text-red-400 bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 rounded-full">
-                  ✕ Not Needed
-                </span>
-                <Users size={16} className="text-slate-500 group-hover:text-cyan-400 transition-colors" />
-              </div>
-              <h4 className="text-sm font-bold text-white mb-1">No Social Follower Base</h4>
-              <p className="text-xs sm:text-sm text-slate-300">You don't need thousands of social media followers.</p>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/90 border border-orange-500/40 rounded-3xl p-8 shadow-2xl">
-            <p className="text-slate-300 text-base md:text-lg mb-4">
-              You simply need the willingness to learn, create and take the next step.
-            </p>
-            <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800">
-              <p className="text-lg md:text-xl font-bold text-white">
-                We help you move from <span className="text-slate-400 italic">"I want to learn Resin Art"</span> to:
-              </p>
-              <p className="text-xl md:text-2xl font-black text-orange-400 mt-2">
-                "I know what I'm doing, I know what I'm creating and I know where I'm going."
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AlreadyHaveSec />
 
       {/* ─── SECTION 9: THE PATH ─── */}
-      <section id="path" className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">The Strategic Framework</span>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-              You Don't Need Another Hobby. <span className="shimmer-text">You Need a Path.</span>
-            </h2>
-            <p className="text-slate-400 text-base md:text-lg">
-              A structured journey can help you turn scattered learning into meaningful progress.
-            </p>
-          </div>
-
-          {/* 4-Stage Connected Roadmap Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Step 1 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-orange-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-black text-orange-400 uppercase tracking-widest bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 rounded-full">
-                    Stage 01
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-500">25% Path</span>
-                </div>
-                <h3 className="text-lg font-black text-white mb-3 group-hover:text-orange-300 transition-colors">Skill → Creation</h3>
-                <p className="text-slate-300 text-xs leading-relaxed mb-4">
-                  Learn the right techniques and develop the confidence to create professional-grade resin art from zero.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-slate-800/80">
-                <span className="text-[11px] font-semibold text-orange-400/90 flex items-center gap-1.5">
-                  <CheckCircle2 size={13} /> Milestone: First 3 Practical Pours
-                </span>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-amber-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 shadow-xl group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
-                    Stage 02
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-500">50% Path</span>
-                </div>
-                <h3 className="text-lg font-black text-white mb-3 group-hover:text-amber-300 transition-colors">Creation → Signature</h3>
-                <p className="text-slate-300 text-xs leading-relaxed mb-4">
-                  Discover your creative strengths and develop a distinct style that feels uniquely and unmistakably yours.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-slate-800/80">
-                <span className="text-[11px] font-semibold text-amber-400/90 flex items-center gap-1.5">
-                  <CheckCircle2 size={13} /> Milestone: Signature Color Palette
-                </span>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-yellow-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 shadow-xl group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-black text-yellow-400 uppercase tracking-widest bg-yellow-500/10 border border-yellow-500/30 px-2.5 py-0.5 rounded-full">
-                    Stage 03
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-500">75% Path</span>
-                </div>
-                <h3 className="text-lg font-black text-white mb-3 group-hover:text-yellow-300 transition-colors">Signature → Portfolio</h3>
-                <p className="text-slate-300 text-xs leading-relaxed mb-4">
-                  Build a collection of creations that represents your skills and helps you showcase your work with total confidence.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-slate-800/80">
-                <span className="text-[11px] font-semibold text-yellow-400/90 flex items-center gap-1.5">
-                  <CheckCircle2 size={13} /> Milestone: Commercial Artwork Catalog
-                </span>
-              </div>
-            </div>
-
-            {/* Step 4 */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 flex flex-col justify-between hover:border-emerald-500/60 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-                    Stage 04
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-500">100% Path</span>
-                </div>
-                <h3 className="text-lg font-black text-white mb-3 group-hover:text-emerald-300 transition-colors">Portfolio → Income</h3>
-                <p className="text-slate-300 text-xs leading-relaxed mb-4">
-                  Learn how to position, present and monetize your creations so your skill becomes an income-generating business.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-slate-800/80">
-                <span className="text-[11px] font-semibold text-emerald-400/90 flex items-center gap-1.5">
-                  <CheckCircle2 size={13} /> Milestone: Consistent Paying Clients
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PathSec />
 
       {/* ─── SECTION 10: WHAT YOU WILL LEARN ─── */}
-      <section id="curriculum" className="py-24 px-6 bg-white border-y border-slate-800/80 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Curriculum + Outcomes</span>
-            <h2 className="text-3xl md:text-5xl font-black text-black mb-4">
-              What You'll Learn + What You'll Create
-            </h2>
-            <p className="text-slate-400 text-base md:text-lg">
-              This isn't just about watching lessons. You'll learn the techniques, practice them through real creations and gradually build a portfolio that demonstrates your growth.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Pillar 1 */}
-            <div className="bg-white border border-gray-200 rounded-3xl p-8 hover:border-orange-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-slate-950 transition-all duration-300">
-                  <Brush size={24} />
-                </div>
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-orange-300 transition-colors">Master Resin Art Techniques</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                  Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-4 ">
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Bubble-Free Chemistry</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Ocean Foam &amp; Waves</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Geode Crystal Inlays</span>
-              </div>
-            </div>
-
-            {/* Pillar 2 */}
-            <div className="bg-white border border-gray-200 rounded-3xl p-8 hover:border-purple-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-slate-950 transition-all duration-300">
-                  <Palette size={24} />
-                </div>
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-purple-300 transition-colors">Develop Your Signature Style</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                  Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-4 ">
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Color Psychology</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Distinct Compositions</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Signature Identity</span>
-              </div>
-            </div>
-
-            {/* Pillar 3 */}
-            <div className="bg-white border border-gray-200 rounded-3xl p-8 hover:border-cyan-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all duration-300">
-                  <Layers size={24} />
-                </div>
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-cyan-300 transition-colors">Build a Portfolio You Are Proud Of</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                  Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-4 ">
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Commercial Finishes</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Client Lookbooks</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ High-End Packaging</span>
-              </div>
-            </div>
-
-            {/* Pillar 4 */}
-            <div className="bg-white border border-gray-200 rounded-3xl p-8 hover:border-emerald-500/50 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 shadow-xl group flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300">
-                  <TrendingUp size={24} />
-                </div>
-                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-emerald-300 transition-colors">Learn How To Monetize Your Skill</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                  Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-4 ">
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Commission Pricing</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Client Acquisition</span>
-                <span className="text-xs bg-white border border-slate-800 text-slate-600 px-3 py-1 rounded-xl">✓ Repeat Order Flywheel</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CurriculumSec />
 
       {/* ─── SECTION 11: SIX DIMENSIONS OF SUCCESS ─── */}
       <section id="dimensions" className="dimensions-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
@@ -914,38 +581,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── SECTION 12: ART-O-THON ─── */}
-      < section id="artothon" className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-br from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/40 rounded-3xl p-8 md:p-14 shadow-2xl hover:border-orange-500/60 transition-colors">
-            <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
-              <div className="space-y-4 max-w-2xl">
-                <span className="text-orange-400 text-xs font-black uppercase tracking-widest block">Action-First Learning</span>
-                <h2 className="text-3xl md:text-4xl font-black text-white">
-                  ART-O-THON: Don't Just Learn. Create.
-                </h2>
-                <p className="text-slate-300 text-base leading-relaxed">
-                  Learning becomes powerful when you put it into action. ART-O-THON is designed to turn learning into consistent creation through daily challenges, missions and milestone submissions.
-                </p>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Every creation becomes a step forward. Every completed challenge becomes proof of your progress. And every milestone gives you another reason to celebrate how far you've come.
-                </p>
-              </div>
-
-              <div className="bg-slate-950 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-6 text-center shrink-0 w-full md:w-64 space-y-3 shadow-xl hover:-translate-y-1.5 transition-all duration-300">
-                <Flame size={40} className="text-orange-500 fill-orange-500/20 mx-auto animate-bounce" />
-                <p className="text-2xl font-black text-white">90-Day</p>
-                <p className="text-xs text-orange-400 font-bold uppercase tracking-wider">Creation Sprint</p>
-                <Link
-                  href="/webinar"
-                  className="block w-full py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 hover:scale-105"
-                >
-                  Join Challenge
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section >
+      <ArtOThonSec />
 
       {/* ─── SECTION 13: COMMUNITY ─── */}
       < section id="community" className="py-24 px-6 relative z-10 bg-white" >
@@ -1050,218 +686,13 @@ export default function HomePage() {
       </section >
 
       {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
-      <section id="membership" className="journey-sec relative z-10 py-16 sm:py-20 lg:py-24">
-        <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
-          <div className="mb-10 max-w-2xl sm:mb-12">
-            <p className="journey-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
-              Level Progression
-            </p>
-            <h2 className="journey-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-              Choose Your Ravishing Journey
-            </h2>
-            <p className="journey-muted mt-4 text-sm leading-relaxed sm:text-base">
-              Wherever you are today, there is a next step for you.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-            {[
-              {
-                code: "L0",
-                badgeTag: "LEVEL 0",
-                defaultName: "Fast Track",
-                defaultDesc: "Begin your Resin Art journey, understand the fundamentals and create your first beautiful pieces with confidence.",
-                defaultHighlights: ["FastTrack Starter Toolkit", "Basic Epoxy Chemistry", "First 3 Practical Pours"],
-                buttonText: "Explore Fast Track",
-                buttonHref: "/webinar",
-                isPopular: false,
-              },
-              {
-                code: "L1",
-                badgeTag: "LEVEL 1",
-                defaultName: "Silver Membership",
-                defaultDesc: "Go deeper into techniques, creativity, portfolio building and the skills required to take your art seriously.",
-                defaultHighlights: ["Coasters, Fridge Magnets, Keychains", "Marbling & Evil Eye Techniques", "Ocean Lacing & Lotus Pond"],
-                buttonText: "Explore Level 1",
-                buttonHref: "/register",
-                isPopular: false,
-              },
-              {
-                code: "L2",
-                badgeTag: "LEVEL 2",
-                defaultName: "Gold Membership",
-                defaultDesc: "Develop advanced skills, strengthen your personal brand, understand business and build a sustainable path around your creativity.",
-                defaultHighlights: ["Geode Art & Vein Effects", "Tree of Life Clocks", "3D Waves & Client Acquisition"],
-                buttonText: "Explore Level 2",
-                buttonHref: "/webinar",
-                isPopular: false,
-              },
-              {
-                code: "L3",
-                badgeTag: "LEVEL 3",
-                defaultName: "Renaissance Certification",
-                defaultDesc: "Take your skills, portfolio, business knowledge and personal growth to the highest level through structured milestones and certification.",
-                defaultHighlights: ["3D Photo Resin Art", "Wood & Resin River Tables", "Floral Preservation & Mantras"],
-                buttonText: "Apply for Certification",
-                buttonHref: "/webinar",
-                isPopular: true,
-              },
-            ].map((card, idx) => {
-              const dbLevel = levelTiers.find((l) => (l.code || "").toUpperCase() === card.code);
-              const dynamicCourses = levelCourses.filter(
-                (c) => (c.levelCode || c.level || "").toUpperCase() === card.code
-              );
-
-              const levelName = dbLevel?.name || card.defaultName;
-              const levelDesc = dbLevel?.description || card.defaultDesc;
-
-              const allHighlights = dynamicCourses.length > 0
-                ? dynamicCourses.map((c) => c.title.replace(/^\d+\.\s*/, ""))
-                : card.defaultHighlights;
-
-              const visibleHighlights = allHighlights.slice(0, 3);
-              const remainingCount = allHighlights.length > 3 ? allHighlights.length - 3 : 0;
-
-              const isMainL3 = card.isPopular || card.code === "L3";
-              const isDark = idx === 0 || idx === 3;
-              const price = dbLevel?.price || (card.code === "L0" ? "₹499" : card.code === "L1" ? "₹4,999" : card.code === "L2" ? "₹19,999" : card.code === "L3" ? "₹59,999" : "Custom");
-
-              return (
-                <article
-                  key={idx}
-                  className={`journey-card relative flex flex-col justify-between overflow-hidden rounded-[1.75rem] p-6 sm:p-8 ${isDark ? "journey-card-dark" : "journey-card-light"}`}
-                >
-                  {isMainL3 && (
-                    <span className="journey-cert mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
-                      ★ MAIN CERTIFICATION
-                    </span>
-                  )}
-
-                  <div>
-                    <p className="journey-level text-[10px] font-bold uppercase tracking-wider">
-                      {card.badgeTag}
-                    </p>
-                    <div className="mt-2 flex items-start justify-between gap-4">
-                      <h3 className="journey-title text-2xl font-bold leading-tight sm:text-3xl">
-                        {levelName}
-                      </h3>
-                      <p className="journey-price shrink-0 text-2xl font-bold sm:text-3xl">
-                        {price}
-                      </p>
-                    </div>
-                    <p className="journey-desc mt-3 text-sm leading-relaxed">
-                      {levelDesc}
-                    </p>
-
-                    <ul className="mt-6 space-y-2">
-                      {visibleHighlights.map((h, hIdx) => (
-                        <li key={hIdx} className="journey-feature flex items-start gap-2 text-sm">
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" />
-                          <span>{h}</span>
-                        </li>
-                      ))}
-                      {remainingCount > 0 && (
-                        <li className="journey-more pt-1 text-xs font-semibold">
-                          + {remainingCount} More Modules Included
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-
-                  <Link
-                    href={card.buttonHref}
-                    className="journey-btn mt-8 inline-flex w-fit items-center gap-2 rounded-full py-1.5 pr-4 pl-1.5 text-sm font-semibold"
-                  >
-                    <span className="journey-btn-icon flex h-7 w-7 items-center justify-center rounded-full">
-                      <ArrowRight size={14} />
-                    </span>
-                    {card.buttonText}
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <JourneySec levelTiers={levelTiers} levelCourses={levelCourses} />
 
       {/* ─── SECTION 16: FREE MASTERCLASS ─── */}
-      < section className="py-24 px-6 bg-slate-900/40 border-y border-slate-800/80 relative z-10" >
-        <div className="max-w-4xl mx-auto text-center">
-          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Free Training Invitation</span>
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
-            Not Sure Where To Start? <span className="shimmer-text">Start Here.</span>
-          </h2>
-          <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-            Join my FREE Resin Mastery Masterclass and discover the three essential shifts that can help you move from simply learning Resin Art to confidently building something of your own.
-          </p>
-
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl mx-auto text-left mb-10 space-y-4 shadow-2xl">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-slate-200">Understand what it really takes to develop professional-level resin skills from home.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-slate-200">Create your signature style that sets you apart from amateur creators.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={20} className="text-orange-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-slate-200">Explore the practical business potential of Resin Art with zero guesswork.</p>
-            </div>
-            <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 font-medium">
-              ✓ No pressure. No complicated jargon. Just clarity on your next step.
-            </div>
-          </div>
-
-          <Link
-            href="/webinar"
-            className="px-10 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 inline-flex items-center gap-3 hover:scale-105"
-          >
-            <Sparkles size={22} className="animate-pulse" />
-            Join The Free Masterclass
-          </Link>
-        </div>
-      </section >
+      <MasterclassSec />
 
       {/* ─── SECTION 17: FINAL EMOTIONAL CTA ─── */}
-      < section className="py-24 px-6 relative overflow-hidden z-10" >
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent pointer-events-none" />
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/40 animate-float">
-            <Palette size={32} className="text-slate-950 stroke-[2.5]" />
-          </div>
-
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
-            Your Art Has More Potential{" "}
-            <span className="shimmer-text">Than You Think.</span>
-          </h2>
-
-          <div className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed space-y-3 font-normal">
-            <p>Maybe Resin Art started as something you simply wanted to learn.</p>
-            <p>Maybe it was a way to express yourself.</p>
-            <p>Maybe you were looking for something that was yours.</p>
-            <div className="pt-4 pb-2 space-y-1">
-              <p className="text-lg md:text-xl font-bold text-white">But what if it could become much more?</p>
-              <p className="text-orange-400 font-bold">What if your art could become your identity?</p>
-              <p className="text-amber-400 font-bold">What if your skill could become your income?</p>
-              <p className="text-yellow-400 font-bold">What if your creativity could create freedom?</p>
-            </div>
-            <p className="text-slate-400 text-sm pt-2">
-              You don't have to know the entire journey today. You just need to take the first step.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              href="/webinar"
-              className="px-10 py-5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black rounded-2xl text-xl transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-3 w-full sm:w-auto justify-center hover:scale-105"
-            >
-              <Sparkles size={22} />
-              Start My Resin Journey
-            </Link>
-          </div>
-        </div>
-      </section >
+      <FinalCtaSec />
 
       <SiteFooter />
     </div>

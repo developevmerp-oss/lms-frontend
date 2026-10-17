@@ -3,41 +3,33 @@ import Link from "next/link";
 
 export default function SiteFooter() {
   return (
-    <footer className="relative z-10 border-t border-slate-800/80 bg-slate-950 px-6 py-16 text-slate-400">
-      <div className="mx-auto max-w-7xl space-y-12">
-        <div className="flex flex-col items-start justify-between gap-8 border-b border-slate-800/80 pb-12 md:flex-row md:items-center">
-          <div className="space-y-3">
-            <div className="mb-2">
-              <BrandLogo size="md" />
-            </div>
-            <h3 className="text-xl font-bold text-white">Create. Connect. Grow. Become Ravishing.</h3>
-            <p className="max-w-lg text-sm leading-relaxed text-slate-400">
+    <footer className="site-footer relative z-10 bg-white">
+      <div className="container mx-auto px-5 py-12 sm:px-10 lg:px-10 lg:py-16 2xl:px-0">
+        <div className="flex flex-col items-start justify-between gap-8 border-b border-neutral-200 pb-10 md:flex-row md:items-center">
+          <div className="max-w-xl space-y-3">
+            <BrandLogo size="md" />
+            <h3 className="site-footer-title text-xl font-bold">Create. Connect. Grow. Become Ravishing.</h3>
+            <p className="site-footer-copy text-sm leading-relaxed">
               Ravishing Art Hub is a community for ambitious women who want to transform their creativity into skill, identity, impact and financial freedom. Your creativity deserves a place in your life. And your journey starts here.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <Link
-              href="/webinar"
-              className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-bold text-slate-950 transition-all hover:scale-105 hover:bg-orange-600"
-            >
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Link href="/webinar" className="site-footer-btn inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-bold">
               Join Free Masterclass
             </Link>
-            <Link
-              href="/login"
-              className="rounded-xl border border-slate-800 bg-slate-900 px-6 py-3 text-sm font-bold text-white transition-all hover:scale-105 hover:border-slate-700"
-            >
+            <Link href="/login" className="site-footer-btn-ghost inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-bold">
               Student Portal
             </Link>
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 text-xs text-slate-400 sm:flex-row">
-          <p>© {new Date().getFullYear()} Ravishing Art Hub. All Rights Reserved. Mastered with Passion.</p>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="transition-colors hover:text-slate-300">Privacy Policy</Link>
-            <Link href="/terms" className="transition-colors hover:text-slate-300">Terms of Service</Link>
-            <Link href="/contact" className="transition-colors hover:text-slate-300">Contact Support</Link>
+        <div className="flex flex-col items-start justify-between gap-4 pt-6 text-sm sm:flex-row sm:items-center">
+          <p className="site-footer-copy">© {new Date().getFullYear()} Ravishing Art Hub. All Rights Reserved. Mastered with Passion.</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Link href="/privacy" className="site-footer-link">Privacy Policy</Link>
+            <Link href="/terms" className="site-footer-link">Terms of Service</Link>
+            <Link href="/contact" className="site-footer-link">Contact Support</Link>
           </div>
         </div>
       </div>

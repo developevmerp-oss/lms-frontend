@@ -66,8 +66,8 @@ function ChallengeCard({ item, className = "" }: { item: ChallengeCardItem; clas
 
   return (
     <article
-      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-3xl p-5 shadow-sm sm:p-6 ${item.tone} ${
-        compact ? "min-h-56" : "min-h-64"
+      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-3xl p-5 shadow-sm sm:p-6 lg:p-4 ${item.tone} ${
+        compact ? "min-h-56 lg:min-h-0" : "min-h-64 lg:min-h-0"
       } ${className}`}
     >
       <div className={`relative z-10 ${feature ? "w-2/5" : "w-1/2"}`}>
@@ -76,7 +76,7 @@ function ChallengeCard({ item, className = "" }: { item: ChallengeCardItem; clas
         </span>
         <h3
           className={`mt-4 font-black leading-tight tracking-tight text-neutral-950 ${
-            compact ? "text-xl" : "text-2xl sm:text-3xl"
+            compact ? "text-xl lg:text-lg" : "text-2xl sm:text-3xl lg:text-xl"
           }`}
         >
           {item.title}
@@ -85,13 +85,6 @@ function ChallengeCard({ item, className = "" }: { item: ChallengeCardItem; clas
           {item.text}
         </p>
       </div>
-
-      <span
-        aria-hidden="true"
-        className="relative z-10 mt-8 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-sm"
-      >
-        <ArrowRight size={16} />
-      </span>
 
       <img
         src={item.image}
@@ -106,25 +99,24 @@ function ChallengeCard({ item, className = "" }: { item: ChallengeCardItem; clas
 
 export default function RealChallangeSec() {
   return (
-    <section id="problem" className="relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
-      <div className="container mx-auto px-5 sm:px-5 lg:px-10 2xl:px-0">
+    <section id="problem" className="relative z-10 flex items-center bg-white py-16 text-neutral-950 sm:py-20 lg:h-screen lg:overflow-hidden lg:py-5">
+      <div className="container mx-auto w-full px-5 sm:px-5 lg:px-10 2xl:px-0">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
             The Real Challenge
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:mt-2 lg:text-4xl">
             Beautiful Art Alone Doesn't Build a Business.
           </h2>
-          <span className="mx-auto mt-4 block h-1 w-12 rounded-full bg-orange-300" />
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base lg:mt-2">
             You may know how to create beautiful resin pieces, but knowing the craft is only one part of the journey.
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-12 lg:gap-5">
-          <ChallengeCard item={CARDS[0]} className="min-h-72 xl:row-span-2 xl:min-h-full" />
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-4 lg:gap-3">
+          <ChallengeCard item={CARDS[0]} className="min-h-72 lg:min-h-0 xl:row-span-2 xl:min-h-0" />
           <ChallengeCard item={CARDS[1]} />
-          <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2 xl:col-span-1 lg:gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2 xl:col-span-1 lg:gap-3">
             <ChallengeCard item={CARDS[2]} />
             <ChallengeCard item={CARDS[3]} />
           </div>
@@ -132,7 +124,7 @@ export default function RealChallangeSec() {
           <ChallengeCard item={CARDS[5]} />
         </div>
 
-        <div className="real-challenge-quote mt-10 rounded-3xl bg-slate-50 px-5 py-8 text-center sm:mt-14 sm:px-8">
+        <div className="real-challenge-quote mt-10 rounded-3xl bg-slate-50 px-5 py-8 text-center sm:mt-14 sm:px-8 lg:mt-4 lg:py-4">
           <p className="text-sm text-neutral-500 sm:text-base">
             The problem isn't your talent.
           </p>

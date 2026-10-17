@@ -74,6 +74,8 @@ export default function TestimoniaSec() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const slideLabel = `${String(activeIndex + 1).padStart(2, "0")} / ${String(VERIFIED_REVIEWS.length).padStart(2, "0")}`;
 
   const updateControls = () => {
     const el = scrollerRef.current;
@@ -109,7 +111,81 @@ export default function TestimoniaSec() {
           Thousands of learners have already trusted Ravishing Art to help them explore, learn and grow through Resin Art. From beginners taking their first step to creators building their own identity and income, every journey is different. But every journey begins with one decision: to start.
         </p>
 
-        <div className="mt-10 flex items-stretch overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:mt-12">
+        <div className="mt-8 lg:hidden">
+          <div className="flex items-center gap-4">
+            <p className="testimonia-score font-serif text-5xl font-medium leading-none tracking-tight text-neutral-800">
+              5.0
+            </p>
+            <div>
+              <Stars count={5} size={16} />
+              <p className="testimonia-strong mt-1.5 text-sm font-semibold text-neutral-900">Ravishing Art App</p>
+            </div>
+          </div>
+          <p className="testimonia-muted mt-2 text-sm text-neutral-400">
+            Google Play Store · 100% Real Student Feedback
+          </p>
+
+          <article className="mt-6 grid rounded-2xl border border-neutral-200 bg-white">
+            {VERIFIED_REVIEWS.map((rev, index) => (
+              <div
+                key={rev.name}
+                aria-hidden={index !== activeIndex}
+                className={`col-start-1 row-start-1 flex flex-col px-5 py-6 sm:px-8 sm:py-8 ${
+                  index === activeIndex ? "visible" : "invisible"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <Stars count={rev.rating} size={14} />
+                  <span className="testimonia-muted shrink-0 text-xs text-neutral-400">
+                    Google Play · {rev.date}
+                  </span>
+                </div>
+                <p className="testimonia-quote mt-5 font-serif text-lg leading-snug text-neutral-900 sm:text-2xl">
+                  “{rev.comment}”
+                </p>
+                <div className="mt-auto flex items-center gap-3 pt-8">
+                  <div
+                    className={`testimonia-initial flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr text-sm font-bold text-white ${rev.avatarBg}`}
+                  >
+                    {rev.name[0]}
+                  </div>
+                  <div>
+                    <p className="testimonia-strong text-sm font-semibold text-neutral-900">{rev.name}</p>
+                    <p className="testimonia-muted text-sm text-neutral-500">{rev.tag}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </article>
+
+          <div className="mt-5 flex items-center justify-between gap-4">
+            <p className="testimonia-muted text-sm text-neutral-400">{slideLabel}</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                aria-label="Previous reviews"
+                onClick={() => setActiveIndex((current) => Math.max(0, current - 1))}
+                disabled={activeIndex === 0}
+                className="testimonia-nav testimonia-nav-round flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 disabled:cursor-default disabled:opacity-40"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next reviews"
+                onClick={() =>
+                  setActiveIndex((current) => Math.min(VERIFIED_REVIEWS.length - 1, current + 1))
+                }
+                disabled={activeIndex === VERIFIED_REVIEWS.length - 1}
+                className="testimonia-nav testimonia-nav-round flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 disabled:cursor-default disabled:opacity-40"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 hidden items-stretch overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:mt-12 lg:flex">
           <article className="flex w-1/2 shrink-0 flex-col justify-center border-r border-neutral-200 bg-white px-6 py-10 sm:w-1/4 sm:px-8">
             <p className="testimonia-score font-serif text-6xl font-medium leading-none tracking-tight text-neutral-800 sm:text-7xl">
               5.0
@@ -159,7 +235,7 @@ export default function TestimoniaSec() {
           </div>
         </div>
 
-        <div className="mt-6 flex gap-2">
+        <div className="mt-6 hidden gap-2 lg:flex">
           <button
             type="button"
             aria-label="Previous reviews"
