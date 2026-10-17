@@ -6,6 +6,7 @@ export interface CourseAttributes {
   title: string;
   description: string;
   image?: string;
+  flyerImage?: string | null;
   levelCode?: string | null; // 'L0' | 'L1' | 'L2' | 'L3' | 'L3+' or null for standalone
   price?: string | null; // e.g. "₹999" or "999" for individual courses
   order?: number;
@@ -17,6 +18,7 @@ export interface CourseAttributes {
   validityStartDate?: Date | string | null;
   validityEndDate?: Date | string | null;
   validityMonths?: number | null; // Course validity duration in months: 1 to 6, or null for lifetime
+  isPublished?: boolean; // true = Enabled (visible for student purchase), false = Disabled (hidden)
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -28,6 +30,7 @@ interface Course extends CourseAttributes {
   title: string;
   description: string;
   image: string;
+  flyerImage?: string | null;
   levelCode: string | null;
   price: string | null;
   order: number;
@@ -39,6 +42,7 @@ interface Course extends CourseAttributes {
   validityStartDate: Date | null;
   validityEndDate: Date | null;
   validityMonths: number | null;
+  isPublished?: boolean;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
@@ -64,6 +68,11 @@ Course.init(
     image: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+    flyerImage: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
     },
     levelCode: {
       type: DataTypes.STRING,
@@ -114,6 +123,11 @@ Course.init(
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: null,
+    },
+    isPublished: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
     },
   },
   {

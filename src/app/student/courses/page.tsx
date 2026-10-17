@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav, getLevelCode } from "@/components/layout/StudentNav";
 import {
@@ -228,6 +228,32 @@ export default function StudentCourses() {
       }
     }
   }, []);
+
+  const hasAutoOpenedCourseRef = useRef(false);
+
+  // Auto-open course purchase modal or open lesson viewer when redirected from Course QR code (?courseId=... / ?course=... / ?unlockCourse=...)
+  useEffect(() => {
+    if (typeof window !== "undefined" && courses.length > 0 && !hasAutoOpenedCourseRef.current) {
+      const params = new URLSearchParams(window.location.search);
+      const courseParam = params.get("courseId") || params.get("course") || params.get("unlockCourse");
+      if (courseParam) {
+        const cleanCourseId = courseParam.trim().toLowerCase();
+        const matched = courses.find(
+          (c: any) =>
+            String(c.id).toLowerCase() === cleanCourseId ||
+            (c.title && c.title.toLowerCase() === cleanCourseId)
+        );
+        if (matched) {
+          hasAutoOpenedCourseRef.current = true;
+          if (isCourseUnlocked(matched)) {
+            handleOpenCourse(matched);
+          } else {
+            setIndividualCourseModal(matched);
+          }
+        }
+      }
+    }
+  }, [courses, stats]);
 
   const getTierPrice = (lvlCode: string): string => {
     const found = levelTiers.find((t: any) => (t.code || "").toUpperCase() === lvlCode.toUpperCase());

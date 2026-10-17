@@ -34,8 +34,10 @@ import {
   Eye,
   EyeOff,
   Check,
+  QrCode,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
+import { CourseQrCodeModal } from "@/components/admin/CourseQrCodeModal";
 
 export const PRESET_COURSE_BANNERS = [
   { name: "Ocean Waves", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80" },
@@ -126,6 +128,7 @@ export default function AdminCourses() {
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
   const [previewFlyerModal, setPreviewFlyerModal] = useState<string | null>(null);
+  const [qrModalCourse, setQrModalCourse] = useState<any | null>(null);
   const [imageRatioInfo, setImageRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
   const [flyerRatioInfo, setFlyerRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
 
@@ -1039,6 +1042,16 @@ export default function AdminCourses() {
                           {course.isPublished !== false ? <Eye size={13} /> : <EyeOff size={13} />}
                         </button>
 
+                        {/* Course QR Code & Promotional Flyer */}
+                        <button
+                          type="button"
+                          onClick={() => setQrModalCourse(course)}
+                          className="p-1 text-purple-300 hover:text-white hover:bg-purple-500/20 rounded-lg transition-colors cursor-pointer"
+                          title="Course Purchase QR Code & Promotional Poster Flyer"
+                        >
+                          <QrCode size={13} />
+                        </button>
+
                         {(course.flyerImage || course.image) && (
                           <button
                             type="button"
@@ -1144,6 +1157,16 @@ export default function AdminCourses() {
                       className="w-full py-2 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 rounded-xl text-xs font-bold transition-colors border border-orange-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Plus size={14} /> + Add Chapter / Video Lesson
+                    </button>
+
+                    {/* QR Code & Promotional Flyer Action Button */}
+                    <button
+                      type="button"
+                      onClick={() => setQrModalCourse(course)}
+                      className="w-full py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white rounded-xl text-xs font-bold transition-colors border border-purple-500/25 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <QrCode size={14} className="text-purple-400" />
+                      <span>QR Code &amp; Promotional Flyer</span>
                     </button>
                   </div>
 
@@ -2322,6 +2345,13 @@ export default function AdminCourses() {
           </div>
         </div>
       )}
+
+      {/* Course Purchase QR Code & Poster Modal */}
+      <CourseQrCodeModal
+        isOpen={!!qrModalCourse}
+        onClose={() => setQrModalCourse(null)}
+        course={qrModalCourse}
+      />
     </div>
   );
 }
