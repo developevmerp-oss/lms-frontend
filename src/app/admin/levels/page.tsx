@@ -28,6 +28,9 @@ import {
   Clock,
   Calendar,
   QrCode,
+  Check,
+  EyeOff,
+  X,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
@@ -354,6 +357,28 @@ export default function AdminLevels() {
     }
   };
 
+  // Quick 1-click Toggle Level Enabled/Disabled Status
+  const handleToggleLevelStatus = async (tier: LevelTier) => {
+    try {
+      const newStatus = tier.isPublished === false ? true : false;
+      const res = await fetch(`${API}/admin/levels/${tier.id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ isPublished: newStatus }),
+      });
+      if (res.ok) {
+        showSuccess(`Level ${tier.code} ${newStatus ? "enabled (visible to students)" : "disabled (hidden from students)"}!`);
+        fetchData();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        showError(`Failed to update status: ${errData.message || "Server Error"}`);
+      }
+    } catch (err: any) {
+      console.error("Status toggle error:", err);
+      showError(`Error toggling status: ${err.message || "Network issue"}`);
+    }
+  };
+
   const openAddOfferForLevelModal = (code: string) => {
     setOfferTargetCode(code);
     setOfferFormData({
@@ -569,8 +594,9 @@ export default function AdminLevels() {
                             <span className="text-xs font-black text-orange-400 uppercase tracking-widest block">
                               {tier.code} Tier
                             </span>
-                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${isPub ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'}`}>
-                              {isPub ? 'Live' : 'Unpublished'}
+                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 ${isPub ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/30'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                              {isPub ? 'Enabled' : 'Disabled'}
                             </span>
                           </div>
                           <h3 className="text-lg font-black text-white">{tier.name}</h3>
@@ -712,6 +738,19 @@ export default function AdminLevels() {
                       className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl border border-slate-700 transition-colors cursor-pointer"
                     >
                       <Edit2 size={13} /> Edit Tier &amp; Price
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleLevelStatus(tier)}
+                      className={`px-3 font-bold text-xs h-9 rounded-xl border transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                        isPub 
+                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                          : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30'
+                      }`}
+                      title={isPub ? "Click to Disable Level (Hide from students)" : "Click to Enable Level (Make visible to students)"}
+                    >
+                      {isPub ? <Eye size={13} /> : <EyeOff size={13} />}
+                      <span>{isPub ? "Enabled" : "Disabled"}</span>
                     </button>
                     <button
                       onClick={() => setQrModalTier(tier)}
@@ -858,20 +897,42 @@ export default function AdminLevels() {
                   {/* Card 2: Publication Status & Installment Payments */}
                   <div className="space-y-4">
                     {/* Published / Active Toggle */}
-                    <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-slate-950/70 border border-slate-800 gap-3">
                       <div>
-                        <span className="text-xs font-bold text-white block">Publish / Live on Portal</span>
-                        <span className="text-[10px] text-slate-400">Uncheck to unpublish this level from public storefront</span>
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          {formData.isPublished ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} className="text-red-400" />}
+                          Level Visibility Status for Students
+                        </span>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                          {formData.isPublished 
+                            ? "Enabled: Visible in student course library, tiers row, and checkout modal for purchase." 
+                            : "Disabled: Hidden from student store & purchase flow (existing members retain their access)."}
+                        </span>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.isPublished}
-                          onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-                          className="sr-only peer"
-                        />
-                        <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                      </label>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, isPublished: true })}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            formData.isPublished
+                              ? "bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/20"
+                              : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <Check size={13} /> Enabled
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, isPublished: false })}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            !formData.isPublished
+                              ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
+                              : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <X size={13} /> Disabled
+                        </button>
+                      </div>
                     </div>
 
                     {/* Installment Payment Plans Configuration */}

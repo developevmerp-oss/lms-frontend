@@ -381,6 +381,10 @@ export default function StudentCourses() {
   };
 
   const displayedCourses = courses.filter((c) => {
+    // If course is disabled by admin, hide from student catalog unless student already unlocked it
+    if (c.isPublished === false && !isCourseUnlocked(c)) {
+      return false;
+    }
     if (activeLevelFilter === "all") return true;
     if (activeLevelFilter === "NONE") {
       return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
@@ -476,7 +480,15 @@ export default function StudentCourses() {
           </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
+              {(["L0", "L1", "L2", "L3"] as const).filter((lvl) => {
+                const isUnlocked = isLevelUnlocked(lvl);
+                const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
+                // If level is disabled by admin and student hasn't unlocked it, hide from purchase
+                if (liveLevel && liveLevel.isPublished === false && !isUnlocked) {
+                  return false;
+                }
+                return true;
+              }).map((lvl) => {
                 const cfg = LEVEL_TIER_CONFIG[lvl];
                 const tierPricing = getComputedTierPricing(lvl, levelTiers, campaignOffers);
                 const isUnlocked = isLevelUnlocked(lvl);
@@ -673,7 +685,7 @@ export default function StudentCourses() {
                 : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
             }`}
           >
-            All Courses ({courses.length})
+            All Courses ({courses.filter(c => c.isPublished !== false || isCourseUnlocked(c)).length})
           </button>
 
           {/* Standalone / Individual Masterclasses Tab Filter */}
@@ -688,13 +700,20 @@ export default function StudentCourses() {
             <Sparkles size={13} className="text-purple-400" />
             <span>Individual Masterclasses</span>
             <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-purple-300">
-              {courses.filter((c) => !c.levelCode || c.levelCode.toUpperCase() === "NONE").length}
+              {courses.filter((c) => (!c.levelCode || c.levelCode.toUpperCase() === "NONE") && (c.isPublished !== false || isCourseUnlocked(c))).length}
             </span>
           </button>
 
-          {(["L0", "L1", "L2", "L3"] as const).map((lvl) => {
+          {(["L0", "L1", "L2", "L3"] as const).filter((lvl) => {
+            const isUnlocked = isLevelUnlocked(lvl);
+            const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
+            if (liveLevel && liveLevel.isPublished === false && !isUnlocked) {
+              return false;
+            }
+            return true;
+          }).map((lvl) => {
             const cfg = LEVEL_TIER_CONFIG[lvl];
-            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
+            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl && (c.isPublished !== false || isCourseUnlocked(c))).length;
             const isActive = activeLevelFilter === lvl;
             const isUnlocked = isLevelUnlocked(lvl);
             const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());

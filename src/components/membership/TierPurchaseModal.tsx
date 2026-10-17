@@ -159,7 +159,18 @@ export const TierPurchaseModal = ({
       fetch(`${API_BASE_URL}/dashboard/levels`)
         .then((r) => r.json())
         .then((data) => {
-          if (Array.isArray(data) && data.length > 0) setLiveTiers(data);
+          if (Array.isArray(data) && data.length > 0) {
+            setLiveTiers(data);
+            const initialCode = preselectedTier || targetTierCode;
+            const targetLive = data.find((lt: any) => (lt.code || lt.levelCode || "").toUpperCase() === initialCode.toUpperCase());
+            if (targetLive && targetLive.isPublished === false) {
+              const firstPublished = TIERS_CATALOG.find((t) => {
+                const match = data.find((lt: any) => (lt.code || lt.levelCode || "").toUpperCase() === t.code.toUpperCase());
+                return !match || match.isPublished !== false;
+              });
+              if (firstPublished) setSelectedCode(firstPublished.code);
+            }
+          }
         })
         .catch(() => {});
 
@@ -460,7 +471,11 @@ export const TierPurchaseModal = ({
         <div className="overflow-y-auto py-6 space-y-6 flex-1 pr-1">
           {/* Level Selector Tabs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {TIERS_CATALOG.map((tier) => {
+            {TIERS_CATALOG.filter((tier) => {
+              const liveMatch = liveTiers.find((lt) => (lt.code || lt.levelCode || "").toUpperCase() === tier.code.toUpperCase());
+              if (liveMatch && liveMatch.isPublished === false) return false;
+              return true;
+            }).map((tier) => {
               const isSelected = selectedCode === tier.code;
               const pricing = getComputedTierPricing(tier.code, liveTiers, campaignOffers);
               const liveMatch = liveTiers.find((lt) => (lt.code || lt.levelCode || "").toUpperCase() === tier.code.toUpperCase());

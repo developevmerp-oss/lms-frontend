@@ -31,6 +31,9 @@ import {
   Maximize2,
   Info,
   Download,
+  Eye,
+  EyeOff,
+  Check,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
 
@@ -142,6 +145,7 @@ export default function AdminCourses() {
     validityStartDate: "",
     validityEndDate: "",
     validityMonths: 1 as number | null,
+    isPublished: true,
   });
 
   // Calculate image dimensions and ratio in real time whenever courseForm.image changes
@@ -404,6 +408,7 @@ export default function AdminCourses() {
         validityStartDate: isStandalone && courseForm.validityStartDate ? courseForm.validityStartDate : null,
         validityEndDate: isStandalone && courseForm.validityEndDate ? courseForm.validityEndDate : null,
         validityMonths: isStandalone ? (courseForm.validityMonths ? Number(courseForm.validityMonths) : null) : null,
+        isPublished: courseForm.isPublished !== false,
       };
 
       let res;
@@ -440,6 +445,7 @@ export default function AdminCourses() {
           validityStartDate: "",
           validityEndDate: "",
           validityMonths: 1,
+          isPublished: true,
         });
         showSuccess(editingCourse ? "Course updated successfully!" : "New course created!");
         fetchCourses();
@@ -452,6 +458,28 @@ export default function AdminCourses() {
       alert(`Error saving course: ${err.message || "Network issue"}`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Quick 1-click Toggle Course Enabled/Disabled Status
+  const handleToggleCourseStatus = async (course: any) => {
+    try {
+      const newStatus = course.isPublished === false ? true : false;
+      const res = await fetch(`${API_BASE_URL}/courses/${course.id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ isPublished: newStatus }),
+      });
+      if (res.ok) {
+        showSuccess(`Course "${course.title}" ${newStatus ? "enabled (visible to students)" : "disabled (hidden from students)"}!`);
+        fetchCourses();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(`Failed to update status: ${errData.message || "Server Error"}`);
+      }
+    } catch (err: any) {
+      console.error("Course status toggle error:", err);
+      alert(`Error toggling status: ${err.message || "Network issue"}`);
     }
   };
 
@@ -801,6 +829,7 @@ export default function AdminCourses() {
                   validityStartDate: "",
                   validityEndDate: "",
                   validityMonths: 1,
+                  isPublished: true,
                 });
                 setShowCourseModal(true);
               }}
@@ -917,6 +946,7 @@ export default function AdminCourses() {
                   validityStartDate: "",
                   validityEndDate: "",
                   validityMonths: 1,
+                  isPublished: true,
                 });
                 setShowCourseModal(true);
               }}
@@ -973,6 +1003,16 @@ export default function AdminCourses() {
                           {isStandalone ? "✨ Individual Course" : `${lvl} • ${cfg.name}`}
                         </span>
 
+                        {/* Visibility Status Badge */}
+                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md flex items-center gap-1 backdrop-blur-md ${
+                          course.isPublished !== false 
+                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" 
+                            : "bg-red-500/20 text-red-300 border-red-500/40"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${course.isPublished !== false ? "bg-emerald-400" : "bg-red-400"}`} />
+                          {course.isPublished !== false ? "Enabled" : "Disabled"}
+                        </span>
+
                         {course.offerActive && (
                           <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
                             <Tag size={10} />
@@ -985,6 +1025,20 @@ export default function AdminCourses() {
                         onClick={(e) => e.stopPropagation()} 
                         className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-slate-950/80 backdrop-blur-md px-1.5 py-0.5 rounded-xl border border-slate-800 z-20"
                       >
+                        {/* Quick Enable / Disable Status Toggle */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCourseStatus(course)}
+                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                            course.isPublished !== false 
+                              ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20" 
+                              : "text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
+                          }`}
+                          title={course.isPublished !== false ? "Click to Disable Course (Hide from students)" : "Click to Enable Course (Make visible to students)"}
+                        >
+                          {course.isPublished !== false ? <Eye size={13} /> : <EyeOff size={13} />}
+                        </button>
+
                         {(course.flyerImage || course.image) && (
                           <button
                             type="button"
@@ -1014,6 +1068,7 @@ export default function AdminCourses() {
                               validityStartDate: course.validityStartDate ? new Date(course.validityStartDate).toISOString().slice(0, 16) : "",
                               validityEndDate: course.validityEndDate ? new Date(course.validityEndDate).toISOString().slice(0, 16) : "",
                               validityMonths: course.validityMonths !== undefined && course.validityMonths !== null ? Number(course.validityMonths) : 1,
+                              isPublished: course.isPublished !== false,
                             });
                             setShowCourseModal(true);
                           }}
@@ -1432,6 +1487,45 @@ export default function AdminCourses() {
 
             {/* Modal Body */}
             <form onSubmit={handleSaveCourse} className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-6">
+              {/* Course Status: Enable / Disable */}
+              <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                    {courseForm.isPublished ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} className="text-red-400" />}
+                    Course Visibility Status
+                  </label>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {courseForm.isPublished 
+                      ? "Enabled: This course is actively visible for students in their curriculum & purchase catalog." 
+                      : "Disabled: This course is hidden from the student catalog (previously enrolled students keep access)."}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setCourseForm({ ...courseForm, isPublished: true })}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      courseForm.isPublished
+                        ? "bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/20"
+                        : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <Check size={13} /> Enabled (Visible)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCourseForm({ ...courseForm, isPublished: false })}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      !courseForm.isPublished
+                        ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
+                        : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <X size={13} /> Disabled (Hidden)
+                  </button>
+                </div>
+              </div>
+
               {/* Top Row: Course Title (6 cols), Level Tier (4 cols), Order (2 cols) */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="md:col-span-6">
