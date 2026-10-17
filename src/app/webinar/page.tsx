@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BrandLogo } from "@/components/ui/BrandLogo";
+import SiteFooter from "@/components/layout/SiteFooter";
+import SiteNavbar from "@/components/layout/SiteNavbar";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
 import { SocialProofToaster } from "@/components/webinar/SocialProofToaster";
 import { ExitIntentModal } from "@/components/webinar/ExitIntentModal";
@@ -668,28 +669,7 @@ export default function WebinarPage() {
         </div>
       )}
 
-      {/* ─── 2. HEADER NAVBAR ─── */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl transition-all">
-        <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5">
-          <div className="flex items-center gap-3">
-            <BrandLogo href="/" size="sm" />
-            <div className="hidden sm:block">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">
-                Resin Art • Identity • Financial Freedom
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={scrollToRegister}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black shadow-lg shadow-orange-500/20 h-9 rounded-xl px-5 text-xs sm:text-sm transition-all hover:scale-105 cursor-pointer"
-            >
-              Reserve my free seat
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavbar />
 
       <main>
         {/* ─── 3. HERO SECTION WITH REGISTRATION FORM ─── */}
@@ -1551,27 +1531,7 @@ export default function WebinarPage() {
         </div>
       </div>
 
-      {/* ─── 10. FOOTER ─── */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-10 px-5 text-slate-400">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between pb-8">
-          <div>
-            <BrandLogo href="/" size="sm" />
-            <p className="mt-2 max-w-sm text-xs text-slate-400">
-              Resin Art • Identity • Financial Freedom
-            </p>
-          </div>
-          <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-400">
-            <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-            <li><Link href="/terms" className="hover:text-white transition-colors">Terms &amp; Conditions</Link></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-          </ul>
-        </div>
-        <div className="border-t border-slate-800/80 pt-4">
-          <p className="mx-auto max-w-6xl text-xs text-slate-400">
-            © 2026 Ravishing Art Hub. All Rights Reserved. Income figures mentioned are business goals, not guaranteed outcomes.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { BrandLogo } from "@/components/ui/BrandLogo";
-import HeroVideoPlayer from "@/components/landing/HeroVideoPlayer";
+import LandingHero from "@/components/landing/LandingHero";
+import SiteFooter from "@/components/layout/SiteFooter";
+import SiteNavbar from "@/components/layout/SiteNavbar";
 import RealChallangeSec from "@/components/landing/realchallangesc";
 import StategicMindsetSec from "@/components/landing/stategicmindsetsec";
 import TestimoniaSec from "@/components/landing/testimoniasec";
@@ -156,7 +157,7 @@ export default function HomePage() {
         name: "Art Hub Academy Homepage",
         category: "Academy Portal",
       });
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   const sixDimensions = [
@@ -199,123 +200,60 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-slate-950 relative font-sans">
-      {/* Dynamic Ambient Background Glowing Art Orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-orange-600/15 via-amber-600/10 to-transparent blur-[120px] rounded-full animate-pulse-glow" />
-        <div className="absolute top-[25%] -left-40 w-[600px] h-[600px] bg-purple-600/10 blur-[140px] rounded-full animate-pulse-glow" />
-        <div className="absolute top-[60%] -right-40 w-[600px] h-[600px] bg-orange-600/10 blur-[140px] rounded-full animate-pulse-glow" />
-      </div>
-
-      {/* ─── NAVIGATION BAR (STICKY) ─── */}
-      <nav className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-2xl border-b border-slate-800/80 shadow-lg shadow-black/10 transition-all">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <BrandLogo size="md" />
-
-          <div className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <a href="#problem" className="hover:text-orange-400 transition-colors">The Journey</a>
-            <a href="#mentor" className="hover:text-orange-400 transition-colors">Meet Mentor</a>
-            <a href="#path" className="hover:text-orange-400 transition-colors">The Path</a>
-            <a href="#curriculum" className="hover:text-orange-400 transition-colors">What You'll Learn</a>
-            <a href="#dimensions" className="hover:text-orange-400 transition-colors">6 Dimensions</a>
-            <a href="#community" className="hover:text-orange-400 transition-colors">Community</a>
-            <a href="#membership" className="hover:text-orange-400 transition-colors">Memberships</a>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-bold text-slate-300 hover:text-white transition-colors px-4 py-2"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/webinar"
-              className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 hover:scale-105"
-            >
-              Free Masterclass <ArrowRight size={15} />
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="relative min-h-screen bg-white font-sans text-stone-950 selection:bg-orange-500 selection:text-white">
+      <SiteNavbar />
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
-      <section className="relative pt-16 pb-16 px-6 z-10">
-        <div className="max-w-5xl mx-auto text-center">
+      <LandingHero artworks={ARTWORKS_ROW_1} />
 
-          {/* Luminous Top Badge */}
-          {/* <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
-            <Award size={14} className="text-orange-500" />
-            { <span>ISO 9001:2015 CERTIFIED ACADEMY • 54,000+ WOMEN TRANSFORMED</span> }
-        </div> */}
-
-          {/* Hero Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.15] mb-6 text-white">
-            Turn Your Resin Art Passion Into{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">
-              Skill, Identity &amp; Financial Freedom
-            </span>
-          </h1>
-
-          {/* Hero Subtitle */}
-          <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-6 leading-relaxed">
-            You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
-          </p>
-
-          <p className="text-orange-400 font-bold text-base md:text-lg mb-4">
-            Learn Resin Art. Build Your Signature Style. Create Your Identity. Build Your Income.
-          </p>
-
-          {/* 4 Benefit Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto mb-6">
-            <span className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
-              🎨 Learn Resin Art
-            </span>
-            <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
-              ✨ Signature Style
-            </span>
-            <span className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
-              👑 Create Identity
-            </span>
-            <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
-              💰 Build Income
-            </span>
-          </div>
-
-          <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
-            Join a community of women who are transforming their creativity into something much bigger than a hobby.
-          </p>
-
-          {/* Hero CTA & Trust Micro-bar */}
-          <div className="flex flex-col items-center justify-center mb-14">
-            <Link
-              href="/webinar"
-              className="px-10 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-white font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 hover:scale-105"
-            >
-              Start My Resin Journey <ArrowRight size={18} />
-            </Link>
-
-            <div className="flex items-center gap-3 mt-4 text-xs text-slate-400 font-semibold flex-wrap justify-center">
-              <div className="flex items-center gap-1 text-amber-400">
-                <Star size={13} className="fill-amber-400" />
-                <Star size={13} className="fill-amber-400" />
-                <Star size={13} className="fill-amber-400" />
-                <Star size={13} className="fill-amber-400" />
-                <Star size={13} className="fill-amber-400" />
-                <span className="text-white font-bold ml-1">4.9/5</span>
-              </div>
-              <span>•</span>
-              <span>2,400+ Verified Student Reviews</span>
-              <span>•</span>
-              <span className="text-emerald-400 font-bold">100% Free Masterclass</span>
+      {/*
+        Old hero section, kept commented.
+        <section className="relative pt-16 pb-16 px-6 z-10">
+          <div className="max-w-5xl mx-auto text-center">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.15] mb-6 text-white">
+              Turn Your Resin Art Passion Into{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">
+                Skill, Identity &amp; Financial Freedom
+              </span>
+            </h1>
+            <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto mb-6 leading-relaxed">
+              You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
+            </p>
+            <p className="text-orange-400 font-bold text-base md:text-lg mb-4">
+              Learn Resin Art. Build Your Signature Style. Create Your Identity. Build Your Income.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto mb-6">
+              <span className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">🎨 Learn Resin Art</span>
+              <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">✨ Signature Style</span>
+              <span className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">👑 Create Identity</span>
+              <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">💰 Build Income</span>
             </div>
+            <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
+              Join a community of women who are transforming their creativity into something much bigger than a hobby.
+            </p>
+            <div className="flex flex-col items-center justify-center mb-14">
+              <Link href="/webinar" className="px-10 py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:opacity-95 text-white font-black rounded-2xl text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center gap-2.5 hover:scale-105">
+                Start My Resin Journey <ArrowRight size={18} />
+              </Link>
+              <div className="flex items-center gap-3 mt-4 text-xs text-slate-400 font-semibold flex-wrap justify-center">
+                <div className="flex items-center gap-1 text-amber-400">
+                  <Star size={13} className="fill-amber-400" />
+                  <Star size={13} className="fill-amber-400" />
+                  <Star size={13} className="fill-amber-400" />
+                  <Star size={13} className="fill-amber-400" />
+                  <Star size={13} className="fill-amber-400" />
+                  <span className="text-white font-bold ml-1">4.9/5</span>
+                </div>
+                <span>•</span>
+                <span>2,400+ Verified Student Reviews</span>
+                <span>•</span>
+                <span className="text-emerald-400 font-bold">100% Free Masterclass</span>
+              </div>
+            </div>
+            <HeroVideoPlayer />
           </div>
-
-          {/* HERO VIDEO SHOWCASE */}
-          <HeroVideoPlayer />
-
-        </div>
-      </section >
+        </section>
+      */}
 
       {/* ─── SECTION 2: THE REAL PROBLEM ─── */}
       <RealChallangeSec />
@@ -1325,46 +1263,7 @@ export default function HomePage() {
         </div>
       </section >
 
-      {/* ─── SECTION 18: FOOTER / CLOSING STATEMENT ─── */}
-      < footer className="bg-slate-950 border-t border-slate-800/80 py-16 px-6 relative z-10 text-slate-400" >
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pb-12 border-b border-slate-800/80">
-            <div className="space-y-3">
-              <div className="mb-2">
-                <BrandLogo size="md" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Create. Connect. Grow. Become Ravishing.</h3>
-              <p className="text-sm text-slate-400 max-w-lg leading-relaxed">
-                Ravishing Art Hub is a community for ambitious women who want to transform their creativity into skill, identity, impact and financial freedom. Your creativity deserves a place in your life. And your journey starts here.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/webinar"
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold rounded-xl text-sm transition-all hover:scale-105"
-              >
-                Join Free Masterclass
-              </Link>
-              <Link
-                href="/login"
-                className="px-6 py-3 bg-slate-900 border border-slate-800 hover:border-slate-700 text-white font-bold rounded-xl text-sm transition-all hover:scale-105"
-              >
-                Student Portal
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-400">
-            <p>© {new Date().getFullYear()} Ravishing Art Hub. All Rights Reserved. Mastered with Passion.</p>
-            <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms of Service</Link>
-              <Link href="/contact" className="hover:text-slate-300 transition-colors">Contact Support</Link>
-            </div>
-          </div>
-        </div>
-      </footer >
-    </div >
+      <SiteFooter />
+    </div>
   );
 }

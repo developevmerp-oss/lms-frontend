@@ -10,7 +10,7 @@
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  
+
   /* Default Accent: Orange */
   --primary: #f97316;
   --primary-hover: #fb923c;
@@ -78,6 +78,7 @@ body {
 .brand-logo-dark {
   display: block !important;
 }
+
 .brand-logo-light {
   display: none !important;
 }
@@ -85,6 +86,7 @@ body {
 .light .brand-logo-dark {
   display: none !important;
 }
+
 .light .brand-logo-light {
   display: block !important;
 }
@@ -243,7 +245,7 @@ body {
 .light body {
   background-color: #fafaf9 !important;
   color: #0f172a !important;
-  background-image: 
+  background-image:
     radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.07) 0%, transparent 40%),
     radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 60%) !important;
@@ -302,7 +304,12 @@ body {
 }
 
 /* 4. Headings & High-Contrast Typography */
-.light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.light h5,
+.light h6 {
   color: #0f172a !important;
   letter-spacing: -0.02em !important;
 }
@@ -578,7 +585,9 @@ section.dimensions-sec,
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
 }
 
-.light nav a, .light nav span, .light nav button {
+.light nav a,
+.light nav span,
+.light nav button {
   color: #1e293b !important;
 }
 
@@ -587,22 +596,24 @@ section.dimensions-sec,
   border-top: 1px solid #e2e8f0 !important;
 }
 
-.light footer p, .light footer span, .light footer a {
+.light footer p,
+.light footer span,
+.light footer a {
   color: #475569 !important;
 }
 
 /* 11. Light Mode Font Visibility Safety (Prevents Hidden White Text in Light Mode) */
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > .text-white,
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > h1,
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > h2,
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > h3,
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > h4,
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > h5 {
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>.text-white,
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>h1,
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>h2,
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>h3,
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>h4,
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>h5 {
   color: #0f172a !important;
 }
 
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > p,
-.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"]) > span:not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-cyan"]):not([class*="text-emerald"]):not([class*="bg-clip-text"]) {
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>p,
+.light div:not([class*="bg-gradient"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-red"]):not([class*="bg-cyan"]):not([class*="bg-emerald"]):not([class*="bg-purple"])>span:not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-cyan"]):not([class*="text-emerald"]):not([class*="bg-clip-text"]) {
   color: #334155 !important;
 }
 
@@ -914,8 +925,8 @@ section.dimensions-sec,
 /* Section 5: Does This Sound Like You? */
 .light section:has([class*="Does This Sound Like You"]) {
   background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.18) 0%, transparent 50%),
-              radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.18) 0%, transparent 50%),
-              #fafaf9 !important;
+    radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.18) 0%, transparent 50%),
+    #fafaf9 !important;
 }
 
 .light section:has([class*="Does This Sound Like You"]) [class*="bg-slate-900"] {
@@ -1004,8 +1015,8 @@ section.dimensions-sec,
 .light #community,
 .light section:has([class*="Sisterhood & Support"]) {
   background: radial-gradient(circle at 10% 50%, rgba(254, 215, 170, 0.12) 0%, transparent 50%),
-              radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.12) 0%, transparent 50%),
-              #fafaf9 !important;
+    radial-gradient(circle at 90% 50%, rgba(186, 230, 253, 0.12) 0%, transparent 50%),
+    #fafaf9 !important;
 }
 
 .light section:has([class*="Sisterhood & Support"]) [class*="bg-slate-900"] {
@@ -1335,20 +1346,33 @@ section.journey-sec,
    CUSTOM ART STUDIO KEYFRAMES & ANIMATIONS
 ───────────────────────────────────────────────────────────── */
 @keyframes marquee-left {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes marquee-right {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0%); }
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
 }
 
 @keyframes blob-morph {
-  0%, 100% {
+
+  0%,
+  100% {
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
     transform: rotate(0deg) scale(1);
   }
+
   50% {
     border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
     transform: rotate(180deg) scale(1.08);
@@ -1356,8 +1380,13 @@ section.journey-sec,
 }
 
 @keyframes shimmer-gold {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-marquee-left {
@@ -1398,13 +1427,29 @@ section.journey-sec,
 }
 
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.35;
+    transform: scale(1.05);
+  }
 }
 
 .animate-float {
@@ -1430,7 +1475,7 @@ section.journey-sec,
   overflow-y: auto !important;
 }
 
-.fixed.inset-0.z-50 > div:not(.pointer-events-none) {
+.fixed.inset-0.z-50>div:not(.pointer-events-none) {
   max-height: calc(100vh - 2rem) !important;
   overflow-y: auto !important;
   margin-top: auto !important;
@@ -1438,7 +1483,7 @@ section.journey-sec,
 }
 
 @media (max-height: 768px) {
-  .fixed.inset-0.z-50 > div:not(.pointer-events-none) {
+  .fixed.inset-0.z-50>div:not(.pointer-events-none) {
     max-height: calc(100vh - 1rem) !important;
   }
 }
@@ -1626,4 +1671,51 @@ section.journey-sec,
 
 .light .mentor-accolade-card p {
   color: #475569 !important;
+}
+
+.hero-studio {
+  background-color: #ffffff !important;
+}
+
+.hero-studio .brand-logo-dark,
+.site-navbar .brand-logo-dark {
+  display: none !important;
+}
+
+.hero-studio .brand-logo-light,
+.site-navbar .brand-logo-light {
+  display: block !important;
+}
+
+.hero-studio .hero-cta,
+.hero-studio .hero-cta * {
+  color: #ffffff !important;
+}
+
+.hero-studio .hero-cta {
+  background-color: #1c1917 !important;
+}
+
+@keyframes hero-piece-float {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+.hero-piece {
+  animation: hero-piece-float var(--hero-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--hero-delay, 0s);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-piece {
+    animation: none;
+  }
 }
