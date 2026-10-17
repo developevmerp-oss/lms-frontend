@@ -27,7 +27,9 @@ import {
   AlertCircle,
   Check,
   Maximize2,
+  ClipboardList,
 } from "lucide-react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 import { getComputedTierPricing, getCourseResolvedOffer } from "@/utils/tierPricing";
@@ -37,9 +39,11 @@ import { API_BASE_URL } from "@/config/api";
 
 const getFileUrl = (url?: string) => {
   if (!url) return "";
-  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  let clean = url.replace(/\\/g, "/").trim();
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("data:")) return clean;
+  if (!clean.startsWith("/")) clean = "/" + clean;
   const backendBase = API_BASE_URL.replace(/\/api$/, "");
-  return `${backendBase}${url.startsWith("/") ? "" : "/"}${url}`;
+  return `${backendBase}${clean}`;
 };
 
 export function getCourseOffer(course: any, basePriceStr: string) {
@@ -114,9 +118,27 @@ export default function StudentCourses() {
   const [courses, setCourses] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({ points: 0, notifications: [] });
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [courseModalTab, setCourseModalTab] = useState<"lessons" | "assignments" | "about">("lessons");
   const [activeVideoLesson, setActiveVideoLesson] = useState<{ title: string; videoUrl: string } | null>(null);
   const [activeLevelFilter, setActiveLevelFilter] = useState<string>("all");
   const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
+
+  const handleOpenCourse = (course: any) => {
+    setSelectedCourse(course);
+    setCourseModalTab("lessons");
+    if (token && course?.id) {
+      fetch(`${API_BASE_URL}/courses/${course.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(fresh => {
+          if (fresh && fresh.id) {
+            setSelectedCourse(fresh);
+          }
+        })
+        .catch(() => {});
+    }
+  };
   
   // Membership Level Purchase Modal State
   const [purchaseModal, setPurchaseModal] = useState<{ isOpen: boolean; tierCode: string }>({
@@ -227,8 +249,16 @@ export default function StudentCourses() {
 
   const isCourseUnlocked = (course: any) => {
     if (!course) return false;
-    // Check direct enrollment in user's enrolled courses list
-    if (stats.courses?.some((sc: any) => sc.id === course.id)) {
+    // Check direct enrollment in user's enrolled courses list (UUID/ID case-insensitive)
+    if (
+      stats.courses?.some(
+        (sc: any) =>
+          sc &&
+          sc.id &&
+          course.id &&
+          String(sc.id).toLowerCase() === String(course.id).toLowerCase()
+      )
+    ) {
       return true;
     }
     // Standalone course without level tier requires direct purchase
@@ -794,7 +824,7 @@ export default function StudentCourses() {
 
                 {unlocked ? (
                   <button 
-                    onClick={() => setSelectedCourse(course)}
+                    onClick={() => handleOpenCourse(course)}
                     className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/10 transition-all hover:scale-[1.02] cursor-pointer"
                   >
                     <span>📂 Open Course Lessons</span>
@@ -873,27 +903,40 @@ export default function StudentCourses() {
         </div>
       </main>
 
-      {/* Chapter Viewer Modal */}
+      {/* Comprehensive Course Content & Chapter Viewer Modal */}
       {selectedCourse && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+            className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
           >
             {/* Modal Course Banner */}
             {selectedCourse.image && (
-              <div className="relative w-full h-36 border-b border-slate-800 bg-slate-950 overflow-hidden shrink-0">
+              <div className="relative w-full h-40 border-b border-slate-800 bg-slate-950 overflow-hidden shrink-0 flex items-center justify-center">
+                <img
+                  src={selectedCourse.image}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-xl opacity-30 scale-105 pointer-events-none"
+                />
                 <img
                   src={selectedCourse.image}
                   alt={selectedCourse.title}
-                  className="w-full h-full object-cover"
+                  className="relative z-10 w-full h-full object-contain p-2"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent pointer-events-none" />
+                
+                <div className="absolute bottom-2 left-4 z-20 flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 backdrop-blur-md">
+                    <CheckCircle2 size={11} /> Lifetime Access Unlocked
+                  </span>
+                </div>
               </div>
             )}
 
-            <div className="flex justify-between items-center p-5 sm:p-6 border-b border-slate-800 bg-slate-900/80">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-5 border-b border-slate-800 bg-slate-900/90">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
                   <BookOpen size={20} />
@@ -901,8 +944,8 @@ export default function StudentCourses() {
                 <div className="min-w-0">
                   <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block">
                     {!selectedCourse.levelCode || selectedCourse.levelCode.toUpperCase() === "NONE"
-                      ? "Individual Masterclass (Permanent Access)"
-                      : `Tier: ${selectedCourse.levelCode} (${LEVEL_TIER_CONFIG[selectedCourse.levelCode]?.name || "Level Course"})`}
+                      ? "✨ Standalone Masterclass"
+                      : `Tier: ${selectedCourse.levelCode} • ${LEVEL_TIER_CONFIG[selectedCourse.levelCode]?.name || "Level Course"}`}
                   </span>
                   <h2 className="text-lg sm:text-xl font-black text-white truncate">{selectedCourse.title}</h2>
                 </div>
@@ -912,59 +955,194 @@ export default function StudentCourses() {
                 onClick={() => setSelectedCourse(null)} 
                 className="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
-                &times;
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Navigation Tabs */}
+            <div className="flex items-center gap-2 px-5 pt-3 border-b border-slate-800/80 bg-slate-950/60 overflow-x-auto no-scrollbar shrink-0">
+              <button
+                onClick={() => setCourseModalTab("lessons")}
+                className={`px-4 py-2 text-xs font-black rounded-t-xl transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
+                  courseModalTab === "lessons"
+                    ? "text-orange-400 border-orange-500 bg-slate-900/80"
+                    : "text-slate-400 border-transparent hover:text-slate-200"
+                }`}
+              >
+                <PlayCircle size={14} />
+                <span>Video Lessons ({selectedCourse.chapters?.length || 0})</span>
+              </button>
+
+              <button
+                onClick={() => setCourseModalTab("assignments")}
+                className={`px-4 py-2 text-xs font-black rounded-t-xl transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
+                  courseModalTab === "assignments"
+                    ? "text-orange-400 border-orange-500 bg-slate-900/80"
+                    : "text-slate-400 border-transparent hover:text-slate-200"
+                }`}
+              >
+                <ClipboardList size={14} />
+                <span>Assignments &amp; Tasks ({selectedCourse.assignments?.length || 0})</span>
+              </button>
+
+              <button
+                onClick={() => setCourseModalTab("about")}
+                className={`px-4 py-2 text-xs font-black rounded-t-xl transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
+                  courseModalTab === "about"
+                    ? "text-orange-400 border-orange-500 bg-slate-900/80"
+                    : "text-slate-400 border-transparent hover:text-slate-200"
+                }`}
+              >
+                <Layers size={14} />
+                <span>Course Overview</span>
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto space-y-3">
-              {selectedCourse.chapters?.length > 0 ? (
-                selectedCourse.chapters.map((chapter: any, index: number) => (
-                  <div key={chapter.id} className="bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 rounded-2xl p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0">
-                        {index + 1}
+            {/* Modal Content Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-3 flex-1">
+              {/* TAB 1: VIDEO LESSONS */}
+              {courseModalTab === "lessons" && (
+                <>
+                  {selectedCourse.chapters?.length > 0 ? (
+                    selectedCourse.chapters.map((chapter: any, index: number) => (
+                      <div key={chapter.id || index} className="bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 rounded-2xl p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center font-black text-xs shrink-0">
+                            {index + 1}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-white text-sm truncate">{chapter.title}</h4>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                              {chapter.videoUrl ? (
+                                <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                                  <Video size={12} /> HD Video Lesson
+                                </span>
+                              ) : (
+                                <span>No Video Attached</span>
+                              )}
+                              {chapter.pdfUrl && (
+                                <span className="text-blue-400 font-semibold flex items-center gap-1">
+                                  <FileText size={12} /> Study Notes (PDF)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+                          {chapter.videoUrl && (
+                            <button
+                              onClick={() => setActiveVideoLesson({ title: chapter.title, videoUrl: chapter.videoUrl })}
+                              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 rounded-xl text-xs font-black transition-all hover:scale-105 shadow-md shadow-orange-500/10 cursor-pointer"
+                            >
+                              <PlayCircle size={15} /> Watch Lesson
+                            </button>
+                          )}
+
+                          {chapter.pdfUrl && (
+                            <a
+                              href={getFileUrl(chapter.pdfUrl)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
+                            >
+                              <FileText size={14} className="text-blue-400" /> Read PDF
+                              <ExternalLink size={11} />
+                            </a>
+                          )}
+
+                          {!chapter.videoUrl && !chapter.pdfUrl && (
+                            <span className="text-slate-500 text-xs flex items-center gap-1.5 py-1">
+                              <CheckCircle2 size={14} /> Lesson Notes
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">{chapter.title}</h4>
-                        <span className="text-[11px] text-slate-500">
-                          {chapter.videoUrl ? "HD Video Lesson Available" : "Study Notes"}
-                        </span>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl p-6">
+                      <BookOpen size={40} className="text-slate-700 mx-auto mb-2" />
+                      <p className="text-slate-400 text-sm font-semibold mb-1">No Video Lessons in this Course Yet</p>
+                      <p className="text-slate-600 text-xs">The mentor will upload upcoming video modules shortly.</p>
                     </div>
-                    
-                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                      {chapter.videoUrl && (
-                        <button
-                          onClick={() => setActiveVideoLesson({ title: chapter.title, videoUrl: chapter.videoUrl })}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 rounded-xl text-xs font-black transition-all hover:scale-105 shadow-md shadow-orange-500/10 cursor-pointer"
-                        >
-                          <PlayCircle size={15} /> Watch Lesson
-                        </button>
-                      )}
+                  )}
+                </>
+              )}
 
-                      {chapter.pdfUrl && (
-                        <a
-                          href={getFileUrl(chapter.pdfUrl)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
-                        >
-                          <FileText size={14} className="text-blue-400" /> Read PDF
-                          <ExternalLink size={11} />
-                        </a>
-                      )}
+              {/* TAB 2: ASSIGNMENTS & MISSIONS */}
+              {courseModalTab === "assignments" && (
+                <>
+                  {selectedCourse.assignments?.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedCourse.assignments.map((assn: any, idx: number) => (
+                        <div key={assn.id || idx} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-400 text-[10px] font-black border border-orange-500/30">
+                                +{assn.points || 50} XP
+                              </span>
+                              <h4 className="text-sm font-bold text-white truncate">{assn.title}</h4>
+                            </div>
+                            <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{assn.description}</p>
+                            {assn.dueDate && (
+                              <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                                <Clock size={11} /> Due {new Date(assn.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                              </p>
+                            )}
+                          </div>
+                          <Link
+                            href="/student/tasks"
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shrink-0"
+                          >
+                            <span>Submit Artwork</span>
+                            <ExternalLink size={12} />
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl p-6">
+                      <ClipboardList size={40} className="text-slate-700 mx-auto mb-2" />
+                      <p className="text-slate-400 text-sm font-semibold mb-1">No Mandatory Tasks for this Masterclass</p>
+                      <p className="text-slate-600 text-xs">Practice freely, follow the video steps, and share your finished creation on the Sisterhood Feed!</p>
+                      <Link
+                        href="/student/feed"
+                        className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-xl text-xs font-bold hover:bg-orange-500/20 transition-colors"
+                      >
+                        <Sparkles size={12} /> Post to Community Feed
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
 
-                      {!chapter.videoUrl && !chapter.pdfUrl && (
-                        <span className="text-slate-500 text-xs flex items-center gap-1.5 py-1">
-                          <CheckCircle2 size={14} /> Lesson Notes
-                        </span>
-                      )}
+              {/* TAB 3: COURSE OVERVIEW */}
+              {courseModalTab === "about" && (
+                <div className="space-y-4 text-xs text-slate-300 leading-relaxed">
+                  <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+                    <h4 className="text-sm font-black text-white mb-2 flex items-center gap-2">
+                      <BookOpen size={15} className="text-orange-400" /> Masterclass Description
+                    </h4>
+                    <p className="text-slate-400">
+                      {selectedCourse.description || "In this structured module, you will master step-by-step resin art chemistry, safe workspace techniques, bubble prevention, and client-ready finishes."}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Course Format</span>
+                      <span className="text-white font-bold flex items-center gap-1.5">
+                        <Video size={13} className="text-orange-400" /> Sequential Video Curriculum
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Access Status</span>
+                      <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                        <CheckCircle2 size={13} /> Permanent Lifetime Unlocked
+                      </span>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl">
-                  <p className="text-slate-500 text-sm">No chapters have been added to this course yet.</p>
                 </div>
               )}
             </div>
@@ -992,8 +1170,16 @@ export default function StudentCourses() {
             </div>
 
             <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner">
-              {activeVideoLesson.videoUrl.startsWith("data:video") || activeVideoLesson.videoUrl.endsWith(".mp4") || activeVideoLesson.videoUrl.endsWith(".webm") ? (
-                <video src={activeVideoLesson.videoUrl} controls autoPlay className="w-full h-full object-contain" />
+              {activeVideoLesson.videoUrl.startsWith("data:video") || 
+               activeVideoLesson.videoUrl.endsWith(".mp4") || 
+               activeVideoLesson.videoUrl.endsWith(".webm") || 
+               activeVideoLesson.videoUrl.includes("/uploads/videos/") ? (
+                <video 
+                  src={getFileUrl(activeVideoLesson.videoUrl)} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain" 
+                />
               ) : (
                 <iframe
                   src={formatEmbedUrl(activeVideoLesson.videoUrl)}

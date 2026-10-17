@@ -51,7 +51,7 @@ class CourseProvider with ChangeNotifier {
 
     // Direct enrollment check
     final isEnrolled = stats.courses.any((sc) {
-      if (sc is Map) return sc['id'] == course.id;
+      if (sc is Map) return sc['id']?.toString().toLowerCase() == course.id.toString().toLowerCase();
       return false;
     });
     if (isEnrolled) return true;
