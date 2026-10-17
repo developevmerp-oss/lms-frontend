@@ -21,6 +21,11 @@ import {
   Percent,
   Flame,
   Clock,
+  Calendar,
+  ShieldCheck,
+  Award,
+  AlertCircle,
+  Check,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
@@ -228,6 +233,18 @@ export default function StudentCourses() {
 
   const handlePurchaseIndividualCourse = async (course: any) => {
     if (!course) return;
+
+    // Check validity window for standalone courses
+    const now = new Date();
+    if (course.validityStartDate && new Date(course.validityStartDate) > now) {
+      alert(`Enrollment for "${course.title}" will open on ${new Date(course.validityStartDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. Please check back then.`);
+      return;
+    }
+    if (course.validityEndDate && new Date(course.validityEndDate) < now) {
+      alert(`Course validity for "${course.title}" has expired (${new Date(course.validityEndDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}). Enrollment is currently closed.`);
+      return;
+    }
+
     const basePriceStr = course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "₹999";
     const offer = getCourseOffer(course, basePriceStr);
     const payableAmount = offer ? offer.discountedNum : (parseInt(basePriceStr.replace(/[^0-9]/g, "")) || 999);
@@ -711,9 +728,36 @@ export default function StudentCourses() {
                     </div>
                   </div>
                   
-                  <p className="text-slate-400 text-xs leading-relaxed mb-5 line-clamp-2">
+                  <p className="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">
                     {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                   </p>
+
+                  {isStandalone && (course.validityStartDate || course.validityEndDate) && (() => {
+                    const now = new Date();
+                    const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
+                    const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
+                    const isUpcoming = start ? now < start : false;
+                    const isExpired = end ? now > end : false;
+
+                    return (
+                      <div className={`mb-4 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm ${
+                        isExpired 
+                          ? 'bg-red-500/10 text-red-300 border-red-500/30' 
+                          : isUpcoming 
+                          ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' 
+                          : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
+                      }`}>
+                        <Calendar size={12} className="shrink-0" />
+                        <span>
+                          {isExpired 
+                            ? `Enrollment Expired (${end?.toLocaleDateString('en-IN')})` 
+                            : isUpcoming 
+                            ? `Opens: ${start?.toLocaleDateString('en-IN')}` 
+                            : `Valid: ${start ? start.toLocaleDateString('en-IN') : 'Now'} - ${end ? end.toLocaleDateString('en-IN') : 'Lifetime'}`}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {unlocked ? (
@@ -724,16 +768,49 @@ export default function StudentCourses() {
                     <span>📂 Open Course Lessons</span>
                     <ChevronRight size={14} />
                   </button>
-                ) : isStandalone ? (
-                  <button
-                    onClick={() => setIndividualCourseModal(course)}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
-                  >
-                    <Sparkles size={14} className="text-amber-300" />
-                    <span>
-                      Unlock Course Standalone ({displayFinalPrice})
-                    </span>
-                  </button>
+                ) : isStandalone ? (() => {
+                  const now = new Date();
+                  const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
+                  const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
+                  const isUpcoming = start ? now < start : false;
+                  const isExpired = end ? now > end : false;
+
+                  if (isExpired) {
+                    return (
+                      <button
+                        onClick={() => setIndividualCourseModal(course)}
+                        className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-red-300 border border-red-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Clock size={14} className="text-red-400" />
+                        <span>Enrollment Closed (Expired)</span>
+                      </button>
+                    );
+                  }
+
+                  if (isUpcoming) {
+                    return (
+                      <button
+                        onClick={() => setIndividualCourseModal(course)}
+                        className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Clock size={14} className="text-amber-400" />
+                        <span>Opens on {start?.toLocaleDateString('en-IN')}</span>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <button
+                      onClick={() => setIndividualCourseModal(course)}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
+                    >
+                      <Sparkles size={14} className="text-amber-300" />
+                      <span>
+                        Unlock Course Standalone ({displayFinalPrice})
+                      </span>
+                    </button>
+                  );
+                })()
                 ) : (
                   <button
                     onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
@@ -905,99 +982,252 @@ export default function StudentCourses() {
         const originalPriceStr = offer ? offer.originalPrice : basePriceStr;
         const finalPriceStr = offer ? offer.discountedPrice : basePriceStr;
 
+        // Validity logic
+        const now = new Date();
+        const start = c.validityStartDate ? new Date(c.validityStartDate) : null;
+        const end = c.validityEndDate ? new Date(c.validityEndDate) : null;
+        const isUpcoming = start ? now < start : false;
+        const isExpired = end ? now > end : false;
+        const hasValidity = Boolean(start || end);
+
         return (
-          <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xl flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-slate-900 border border-purple-500/40 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden text-white"
+              initial={{ scale: 0.94, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0.2 }}
+              className="relative w-full max-w-lg p-[1px] rounded-[32px] bg-gradient-to-b from-purple-500/50 via-indigo-500/25 to-slate-800 shadow-[0_25px_80px_-15px_rgba(147,51,234,0.4)] my-auto"
             >
-              {/* Header Banner */}
-              <div className="relative w-full h-44 bg-slate-950 overflow-hidden border-b border-slate-800">
-                {c.image ? (
-                  <img src={c.image} alt={c.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-purple-950 via-slate-950 to-slate-900 flex items-center justify-center">
-                    <BookOpen size={48} className="text-purple-400" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
-                <button
-                  onClick={() => setIndividualCourseModal(null)}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
-                <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/40 backdrop-blur-md">
-                    ✨ Individual Masterclass
-                  </span>
-                  {offer && (
-                    <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                      <Flame size={11} /> {offer.discountLabel}
-                    </span>
+              <div className="bg-slate-950/95 backdrop-blur-2xl rounded-[31px] overflow-hidden text-white flex flex-col">
+                {/* Header Banner */}
+                <div className="relative w-full h-48 bg-slate-900 overflow-hidden border-b border-purple-500/20">
+                  {c.image ? (
+                    <img 
+                      src={c.image} 
+                      alt={c.title} 
+                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-950 via-slate-950 to-indigo-950 flex items-center justify-center">
+                      <BookOpen size={52} className="text-purple-400/80" />
+                    </div>
                   )}
-                </div>
-              </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-              <div className="p-6 space-y-4">
-                <div>
-                  <h3 className="text-xl font-black text-white mb-1">{c.title}</h3>
-                  <p className="text-xs text-slate-400 line-clamp-2">
-                    {c.description || "Comprehensive masterclass with high-definition videos and step-by-step guidance."}
-                  </p>
+                  {/* Top Bar Floating Badges */}
+                  <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-purple-500/30 text-purple-200 border border-purple-400/40 backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                      <Sparkles size={11} className="text-amber-300" /> Standalone Masterclass
+                    </span>
+                    <button
+                      onClick={() => setIndividualCourseModal(null)}
+                      className="w-8 h-8 rounded-full bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60 flex items-center justify-center transition-all cursor-pointer shadow-md hover:scale-105"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Bottom Badges on Image */}
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-slate-900/85 backdrop-blur-md text-slate-300 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-slate-700/60 flex items-center gap-1">
+                        <Layers size={11} className="text-purple-400" /> {c.chapters?.length || 0} Lessons
+                      </span>
+                      <span className="bg-slate-900/85 backdrop-blur-md text-slate-300 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-slate-700/60 flex items-center gap-1">
+                        <Video size={11} className="text-indigo-400" /> Full HD 1080p
+                      </span>
+                    </div>
+
+                    {offer && (
+                      <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2.5 py-1 rounded-full shadow-lg border border-red-400/40 flex items-center gap-1 animate-pulse">
+                        <Flame size={11} /> {offer.discountLabel}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Benefits */}
-                <div className="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-500/20 space-y-2 text-xs text-slate-300">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
-                    <span>Instant permanent unlock — lifetime access to this course</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
-                    <span>Includes all {c.chapters?.length || 0} HD video lessons &amp; study notes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-purple-400 shrink-0" />
-                    <span>Standalone purchase — no level membership or renewal required</span>
-                  </div>
-                </div>
-
-                {/* Pricing Summary */}
-                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                {/* Modal Body */}
+                <div className="p-5 sm:p-6 space-y-4">
+                  {/* Title & Description */}
                   <div>
-                    <span className="text-[11px] text-slate-400 block font-semibold">Total Payable</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-amber-400 font-mono">{finalPriceStr}</span>
+                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-1.5 tracking-tight">
+                      {c.title}
+                    </h3>
+                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                      {c.description || "Master step-by-step resin art techniques, tools, and professional business strategies with high-definition lessons."}
+                    </p>
+                  </div>
+
+                  {/* Validity Status Alert Card */}
+                  {hasValidity ? (
+                    isExpired ? (
+                      <div className="p-3.5 rounded-2xl bg-red-950/30 border border-red-500/40 flex items-start gap-3">
+                        <div className="p-2 rounded-xl bg-red-500/20 text-red-400 shrink-0">
+                          <AlertCircle size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-black text-red-300">Enrollment Period Expired</h4>
+                          <p className="text-[11px] text-red-300/80 mt-0.5">
+                            Validity ended on {end?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. This individual course is currently closed for new enrollments.
+                          </p>
+                        </div>
+                      </div>
+                    ) : isUpcoming ? (
+                      <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/40 flex items-start gap-3">
+                        <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
+                          <Clock size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-black text-amber-300">Enrollment Opens Soon</h4>
+                          <p className="text-[11px] text-amber-300/80 mt-0.5">
+                            Enrollment for this masterclass begins on {start?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. Check back when registration commences.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/40 to-purple-950/40 border border-indigo-500/30 flex items-start gap-3">
+                        <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 shrink-0">
+                          <Calendar size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-black text-indigo-200">Course Validity Period</h4>
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                          </div>
+                          <p className="text-[11px] text-slate-300 mt-0.5">
+                            Valid from <strong className="text-white">{start ? start.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Now'}</strong> until <strong className="text-white">{end ? end.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime'}</strong>.
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    <div className="p-3 rounded-2xl bg-emerald-950/25 border border-emerald-500/30 flex items-center gap-2.5">
+                      <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
+                      <span className="text-[11px] font-bold text-emerald-300">
+                        Unlimited Lifetime Enrollment &amp; Access Included
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Highlights Grid */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+                        <PlayCircle size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold text-white leading-tight">Instant Unlock</div>
+                        <div className="text-[10px] text-slate-400">Immediate access</div>
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                        <Award size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold text-white leading-tight">Certification</div>
+                        <div className="text-[10px] text-slate-400">Upon completion</div>
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                        <FileText size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold text-white leading-tight">Study Guides</div>
+                        <div className="text-[10px] text-slate-400">Formulas &amp; notes</div>
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+                        <Zap size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold text-white leading-tight">Multi-Device</div>
+                        <div className="text-[10px] text-slate-400">Web &amp; Mobile app</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing Box */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 flex items-center justify-between shadow-inner">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">
+                        Course Investment
+                      </span>
+                      <div className="flex items-baseline gap-2.5">
+                        <span className="text-3xl font-black text-amber-400 font-mono tracking-tight">
+                          {finalPriceStr}
+                        </span>
+                        {offer && (
+                          <span className="text-xs text-slate-500 line-through font-mono">
+                            {originalPriceStr}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <span className="text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider inline-block">
+                        One-Time Fee
+                      </span>
                       {offer && (
-                        <span className="text-xs text-slate-500 line-through font-mono">{originalPriceStr}</span>
+                        <div className="text-[10px] text-red-400 font-bold">
+                          Save {offer.discountLabel}
+                        </div>
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md font-bold">
-                      One-Time Payment
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    onClick={() => handlePurchaseIndividualCourse(c)}
-                    disabled={isProcessingPayment}
-                    className="flex-1 py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg shadow-purple-900/40 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Sparkles size={15} className="text-amber-300" />
-                    <span>{isProcessingPayment ? "Processing Payment..." : `Proceed to Pay ${finalPriceStr} via Razorpay`}</span>
-                  </button>
-                  <button
-                    onClick={() => setIndividualCourseModal(null)}
-                    disabled={isProcessingPayment}
-                    className="px-4 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
+                  {/* Actions */}
+                  <div className="space-y-2.5 pt-1">
+                    {isExpired ? (
+                      <button
+                        disabled
+                        className="w-full py-4 bg-slate-800/80 text-red-300 border border-red-500/30 font-black text-xs rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        <Clock size={16} className="text-red-400" />
+                        <span>Enrollment Unavailable (Validity Expired)</span>
+                      </button>
+                    ) : isUpcoming ? (
+                      <button
+                        disabled
+                        className="w-full py-4 bg-slate-800/80 text-amber-300 border border-amber-500/30 font-black text-xs rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        <Clock size={16} className="text-amber-400" />
+                        <span>Opens on {start?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handlePurchaseIndividualCourse(c)}
+                        disabled={isProcessingPayment}
+                        className="w-full py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-purple-900/40 hover:shadow-purple-900/60 transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        <Sparkles size={16} className="text-amber-300" />
+                        <span>{isProcessingPayment ? "Connecting to Razorpay..." : `Unlock Masterclass Now (${finalPriceStr})`}</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => setIndividualCourseModal(null)}
+                      disabled={isProcessingPayment}
+                      className="w-full py-2.5 text-slate-400 hover:text-white text-xs font-semibold hover:bg-slate-900 rounded-xl transition-colors cursor-pointer"
+                    >
+                      Close Window
+                    </button>
+                  </div>
+
+                  {/* Trust Footer */}
+                  <div className="pt-1 border-t border-slate-900 flex items-center justify-center gap-4 text-[10px] text-slate-500 font-medium">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck size={11} className="text-emerald-500" /> 256-Bit SSL Secured
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Zap size={11} className="text-amber-500" /> Instant Access
+                    </span>
+                    <span>•</span>
+                    <span>Razorpay Verified</span>
+                  </div>
                 </div>
               </div>
             </motion.div>

@@ -131,6 +131,8 @@ export default function AdminCourses() {
     discountValue: 0,
     offerStartDate: "",
     offerEndDate: "",
+    validityStartDate: "",
+    validityEndDate: "",
   });
 
   // Chapter Modals
@@ -260,6 +262,8 @@ export default function AdminCourses() {
         discountValue: Number(courseForm.discountValue) || 0,
         offerStartDate: courseForm.offerStartDate || null,
         offerEndDate: courseForm.offerEndDate || null,
+        validityStartDate: isStandalone && courseForm.validityStartDate ? courseForm.validityStartDate : null,
+        validityEndDate: isStandalone && courseForm.validityEndDate ? courseForm.validityEndDate : null,
       };
 
       let res;
@@ -292,6 +296,8 @@ export default function AdminCourses() {
           discountValue: 0,
           offerStartDate: "",
           offerEndDate: "",
+          validityStartDate: "",
+          validityEndDate: "",
         });
         showSuccess(editingCourse ? "Course updated successfully!" : "New course created!");
         fetchCourses();
@@ -590,6 +596,8 @@ export default function AdminCourses() {
                   discountValue: 0,
                   offerStartDate: "",
                   offerEndDate: "",
+                  validityStartDate: "",
+                  validityEndDate: "",
                 });
                 setShowCourseModal(true);
               }}
@@ -702,6 +710,8 @@ export default function AdminCourses() {
                   discountValue: 0,
                   offerStartDate: "",
                   offerEndDate: "",
+                  validityStartDate: "",
+                  validityEndDate: "",
                 });
                 setShowCourseModal(true);
               }}
@@ -774,6 +784,8 @@ export default function AdminCourses() {
                               discountValue: course.discountValue || 0,
                               offerStartDate: course.offerStartDate ? new Date(course.offerStartDate).toISOString().slice(0, 16) : "",
                               offerEndDate: course.offerEndDate ? new Date(course.offerEndDate).toISOString().slice(0, 16) : "",
+                              validityStartDate: course.validityStartDate ? new Date(course.validityStartDate).toISOString().slice(0, 16) : "",
+                              validityEndDate: course.validityEndDate ? new Date(course.validityEndDate).toISOString().slice(0, 16) : "",
                             });
                             setShowCourseModal(true);
                           }}
@@ -813,6 +825,33 @@ export default function AdminCourses() {
                     <p className="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">
                       {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                     </p>
+
+                    {isStandalone && (course.validityStartDate || course.validityEndDate) && (() => {
+                      const now = new Date();
+                      const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
+                      const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
+                      const isUpcoming = start ? now < start : false;
+                      const isExpired = end ? now > end : false;
+
+                      return (
+                        <div className={`mb-3 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm ${
+                          isExpired 
+                            ? 'bg-red-500/10 text-red-300 border-red-500/30' 
+                            : isUpcoming 
+                            ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' 
+                            : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
+                        }`}>
+                          <Calendar size={12} className="shrink-0" />
+                          <span>
+                            {isExpired 
+                              ? `Validity Expired (${end?.toLocaleDateString('en-IN')})` 
+                              : isUpcoming 
+                              ? `Validity Opens: ${start?.toLocaleDateString('en-IN')}` 
+                              : `Valid: ${start ? start.toLocaleDateString('en-IN') : 'Now'} - ${end ? end.toLocaleDateString('en-IN') : 'Lifetime'}`}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Actions */}
@@ -1215,7 +1254,53 @@ export default function AdminCourses() {
                     Students will purchase this course individually at this price. Any active discount configured below will apply on top of this course price.
                   </p>
                 </div>
-              )}
+
+                {/* Individual Course Validity Option */}
+                <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/40 space-y-3 animate-fadeIn">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-black text-indigo-300 flex items-center gap-1.5">
+                      <Calendar size={13} className="text-indigo-400" /> Course Access / Enrollment Validity (Optional)
+                    </label>
+                    {(courseForm.validityStartDate || courseForm.validityEndDate) && (
+                      <button
+                        type="button"
+                        onClick={() => setCourseForm({ ...courseForm, validityStartDate: "", validityEndDate: "" })}
+                        className="text-[10px] text-indigo-400 hover:text-red-400 font-semibold transition-colors cursor-pointer"
+                      >
+                        Clear Dates
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Configure the enrollment &amp; access validity dates strictly for this individual course. Students cannot purchase or access the course outside this window. Leave blank for unrestricted lifetime validity.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center gap-1">
+                        <Clock size={11} className="text-indigo-400" /> Start Date &amp; Time
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={courseForm.validityStartDate}
+                        onChange={(e) => setCourseForm({ ...courseForm, validityStartDate: e.target.value })}
+                        className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center gap-1">
+                        <Clock size={11} className="text-indigo-400" /> End Date &amp; Time
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={courseForm.validityEndDate}
+                        onChange={(e) => setCourseForm({ ...courseForm, validityEndDate: e.target.value })}
+                        className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-1.5">Course Title</label>
