@@ -26,6 +26,7 @@ import {
   Award,
   AlertCircle,
   Check,
+  Maximize2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
@@ -33,6 +34,13 @@ import { getComputedTierPricing, getCourseResolvedOffer } from "@/utils/tierPric
 import { processRazorpayPayment } from "@/utils/razorpay";
 
 import { API_BASE_URL } from "@/config/api";
+
+const getFileUrl = (url?: string) => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  const backendBase = API_BASE_URL.replace(/\/api$/, "");
+  return `${backendBase}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 
 export function getCourseOffer(course: any, basePriceStr: string) {
   if (!course.offerActive || !course.discountValue) return null;
@@ -120,6 +128,7 @@ export default function StudentCourses() {
   const [individualCourseModal, setIndividualCourseModal] = useState<any | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [purchaseSuccessMsg, setPurchaseSuccessMsg] = useState("");
+  const [previewFlyerModal, setPreviewFlyerModal] = useState<string | null>(null);
   
   const [levelTiers, setLevelTiers] = useState<any[]>([]);
   const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
@@ -658,15 +667,38 @@ export default function StudentCourses() {
               >
                 <div>
                   {/* Course Banner Thumbnail */}
-                  <div className="relative w-full h-38 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950">
+                  <div className="relative w-full h-44 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 flex items-center justify-center">
                     {course.image ? (
-                      <img
-                        src={course.image}
-                        alt={course.title}
-                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
-                          !unlocked ? "filter grayscale-[50%] opacity-50" : ""
-                        }`}
-                      />
+                      <>
+                        {/* Ambient glow backdrop */}
+                        <img
+                          src={course.image}
+                          alt=""
+                          aria-hidden="true"
+                          className={`absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none ${
+                            !unlocked ? "filter grayscale-[50%]" : ""
+                          }`}
+                        />
+                        {/* Full crisp uncropped flyer */}
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className={`relative z-10 w-full h-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-105 ${
+                            !unlocked ? "filter grayscale-[30%] opacity-80" : ""
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewFlyerModal(course.image);
+                          }}
+                          className="absolute bottom-2 left-2.5 z-20 px-2 py-1 rounded-lg bg-slate-950/85 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur-md transition-all shadow-md cursor-pointer opacity-0 group-hover:opacity-100 flex items-center gap-1 text-[10px] font-bold"
+                          title="View Full Flyer"
+                        >
+                          <Maximize2 size={10} /> Full Flyer
+                        </button>
+                      </>
                     ) : (
                       <div className={`w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center ${
                         !unlocked ? "opacity-50" : ""
@@ -674,7 +706,7 @@ export default function StudentCourses() {
                         <BookOpen size={36} className="text-slate-700" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent pointer-events-none" />
 
                     {/* Top Overlay Badges */}
                     <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
@@ -912,7 +944,7 @@ export default function StudentCourses() {
 
                       {chapter.pdfUrl && (
                         <a
-                          href={chapter.pdfUrl}
+                          href={getFileUrl(chapter.pdfUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
@@ -1000,36 +1032,60 @@ export default function StudentCourses() {
               className="relative w-full max-w-lg p-[1px] rounded-[32px] bg-gradient-to-b from-purple-500/50 via-indigo-500/25 to-slate-800 shadow-[0_25px_80px_-15px_rgba(147,51,234,0.4)] my-auto"
             >
               <div className="bg-slate-950/95 backdrop-blur-2xl rounded-[31px] overflow-hidden text-white flex flex-col">
-                {/* Header Banner */}
-                <div className="relative w-full h-48 bg-slate-900 overflow-hidden border-b border-purple-500/20">
+                {/* Header Banner with uncropped flyer */}
+                <div className="relative w-full h-72 sm:h-84 bg-slate-950 overflow-hidden border-b border-purple-500/20 flex items-center justify-center">
                   {c.image ? (
-                    <img 
-                      src={c.image} 
-                      alt={c.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
-                    />
+                    <>
+                      {/* Ambient blur background */}
+                      <img 
+                        src={c.image} 
+                        alt="" 
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" 
+                      />
+                      {/* Complete uncropped crisp flyer */}
+                      <img 
+                        src={c.image} 
+                        alt={c.title} 
+                        className="relative z-10 w-full h-full object-contain p-2 cursor-pointer transition-transform duration-500 hover:scale-[1.02]" 
+                        onClick={() => setPreviewFlyerModal(c.image)}
+                        title="Click to view full flyer"
+                      />
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-purple-950 via-slate-950 to-indigo-950 flex items-center justify-center">
                       <BookOpen size={52} className="text-purple-400/80" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/60 pointer-events-none" />
 
                   {/* Top Bar Floating Badges */}
-                  <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between">
+                  <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-20">
                     <span className="px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-purple-500/30 text-purple-200 border border-purple-400/40 backdrop-blur-md shadow-lg flex items-center gap-1.5">
                       <Sparkles size={11} className="text-amber-300" /> Standalone Masterclass
                     </span>
-                    <button
-                      onClick={() => setIndividualCourseModal(null)}
-                      className="w-8 h-8 rounded-full bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60 flex items-center justify-center transition-all cursor-pointer shadow-md hover:scale-105"
-                    >
-                      <X size={16} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {c.image && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewFlyerModal(c.image)}
+                          className="px-2.5 py-1 rounded-full bg-slate-950/80 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-700/60 text-[11px] font-semibold flex items-center gap-1 backdrop-blur-md transition-all shadow-md cursor-pointer"
+                          title="View Full Resolution Poster"
+                        >
+                          <Maximize2 size={12} /> View Poster
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setIndividualCourseModal(null)}
+                        className="w-8 h-8 rounded-full bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60 flex items-center justify-center transition-all cursor-pointer shadow-md hover:scale-105"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Bottom Badges on Image */}
-                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between z-20">
                     <div className="flex items-center gap-2">
                       <span className="bg-slate-900/85 backdrop-blur-md text-slate-300 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-slate-700/60 flex items-center gap-1">
                         <Layers size={11} className="text-purple-400" /> {c.chapters?.length || 0} Lessons
@@ -1235,6 +1291,34 @@ export default function StudentCourses() {
           </div>
         );
       })()}
+
+      {/* Full Flyer Lightbox Modal */}
+      {previewFlyerModal && (
+        <div 
+          className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6"
+          onClick={() => setPreviewFlyerModal(null)}
+        >
+          <div 
+            className="relative max-w-4xl max-h-[92vh] flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewFlyerModal(null)}
+              className="absolute -top-12 right-0 sm:-right-10 w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-lg border border-slate-700"
+              title="Close Preview"
+            >
+              <X size={18} />
+            </button>
+            <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950 max-h-[85vh] flex items-center justify-center p-2">
+              <img 
+                src={previewFlyerModal} 
+                alt="Course Flyer" 
+                className="max-h-[82vh] w-auto max-w-full object-contain rounded-xl select-none" 
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Purchase / Upgrade Tier Modal */}
       <TierPurchaseModal

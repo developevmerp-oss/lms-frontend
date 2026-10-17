@@ -23,3 +23,16 @@ export const getImageUrl = (url?: string): string => {
   return `https://api.ravishingarthub.com${clean}`;
 };
 
+export const getFileUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string') return '';
+  let clean = url.replace(/\\/g, '/').trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
+    return clean;
+  }
+  if (!clean.startsWith('/')) clean = '/' + clean;
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return `http://localhost:5000${clean}`;
+  }
+  return `https://api.ravishingarthub.com${clean}`;
+};
+

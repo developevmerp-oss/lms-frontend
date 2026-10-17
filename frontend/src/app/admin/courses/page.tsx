@@ -28,8 +28,10 @@ import {
   Percent,
   Clock,
   Calendar,
+  Maximize2,
+  Info,
 } from "lucide-react";
-import { API_BASE_URL, getImageUrl } from "@/config/api";
+import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
 
 export const PRESET_COURSE_BANNERS = [
   { name: "Ocean Waves", url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80" },
@@ -119,6 +121,9 @@ export default function AdminCourses() {
   // Course Modals
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
+  const [previewFlyerModal, setPreviewFlyerModal] = useState<string | null>(null);
+  const [imageRatioInfo, setImageRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
+
   const [courseForm, setCourseForm] = useState({
     title: "",
     description: "",
@@ -135,6 +140,33 @@ export default function AdminCourses() {
     validityEndDate: "",
   });
 
+  // Calculate image dimensions and ratio in real time whenever courseForm.image changes
+  useEffect(() => {
+    if (!courseForm.image) {
+      setImageRatioInfo(null);
+      return;
+    }
+    const img = new Image();
+    img.src = courseForm.image;
+    img.onload = () => {
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      let ratioText = "Custom Ratio";
+      const aspect = w / h;
+      if (Math.abs(aspect - 16 / 9) < 0.2) ratioText = "16:9 Landscape Banner";
+      else if (Math.abs(aspect - 9 / 16) < 0.2) ratioText = "9:16 Portrait Flyer / Story";
+      else if (Math.abs(aspect - 4 / 5) < 0.2) ratioText = "4:5 Portrait Poster";
+      else if (Math.abs(aspect - 1) < 0.2) ratioText = "1:1 Square";
+      else if (aspect > 1) ratioText = "Landscape Format";
+      else ratioText = "Portrait Poster";
+
+      setImageRatioInfo({ width: w, height: h, ratioText });
+    };
+    img.onerror = () => {
+      setImageRatioInfo(null);
+    };
+  }, [courseForm.image]);
+
   // Chapter Modals
   const [showChapterModal, setShowChapterModal] = useState<string | null>(null);
   const [editingChapter, setEditingChapter] = useState<any | null>(null);
@@ -142,8 +174,10 @@ export default function AdminCourses() {
     title: "",
     videoType: "url" as "url" | "upload",
     videoUrl: "",
+    pdfType: "url" as "url" | "upload",
     pdfUrl: "",
   });
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   // Video Preview Modal
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
@@ -342,6 +376,11 @@ export default function AdminCourses() {
       return;
     }
 
+    if (uploadingPdf) {
+      alert("Please wait for your PDF file to finish uploading before saving!");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let finalVideoUrl = chapterForm.videoUrl.trim();
@@ -403,7 +442,7 @@ export default function AdminCourses() {
       if (res?.ok) {
         setShowChapterModal(null);
         setEditingChapter(null);
-        setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+        setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
         showSuccess(editingChapter ? "Chapter updated successfully!" : "Chapter added to course!");
         fetchCourses();
       } else {
@@ -483,6 +522,60 @@ export default function AdminCourses() {
       reader.readAsDataURL(file);
     } finally {
       setUploadingVideo(false);
+    }
+  };
+
+  const handleDirectPdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      alert("Please select a valid PDF file (.pdf)");
+      return;
+    }
+
+    setUploadingPdf(true);
+    try {
+      const formData = new FormData();
+      formData.append("pdf", file);
+
+      const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const uploadHeaders: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+
+      const res = await fetch(`${API_BASE_URL}/upload/pdf`, {
+        method: "POST",
+        headers: uploadHeaders,
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setChapterForm((prev) => ({
+          ...prev,
+          pdfUrl: data.url,
+        }));
+        showSuccess("PDF document uploaded successfully!");
+      } else {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setChapterForm((prev) => ({
+            ...prev,
+            pdfUrl: reader.result as string,
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setChapterForm((prev) => ({
+          ...prev,
+          pdfUrl: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingPdf(false);
     }
   };
 
@@ -740,22 +833,36 @@ export default function AdminCourses() {
                 >
                   <div>
                     {/* Course Banner Thumbnail */}
-                    <div className="relative w-full h-36 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950">
+                    <div 
+                      onClick={() => course.image && setPreviewFlyerModal(course.image)}
+                      className={`relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 group flex items-center justify-center ${course.image ? "cursor-pointer" : ""}`}
+                      title={course.image ? "Click to view full original flyer" : undefined}
+                    >
                       {course.image ? (
-                        <img
-                          src={course.image}
-                          alt={course.title}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                        />
+                        <>
+                          {/* Ambient Glow Backdrop from the same image so no blank bars */}
+                          <img
+                            src={course.image}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
+                          />
+                          {/* Full Original Image Fitted Without Any Crop */}
+                          <img
+                            src={course.image}
+                            alt={course.title}
+                            className="relative z-10 w-full h-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-[1.03]"
+                          />
+                        </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center">
                           <BookOpen size={36} className="text-slate-700" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none z-10" />
                       
                       {/* Top Overlay Badges */}
-                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap z-20">
                         <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${isStandalone ? "bg-purple-500/20 text-purple-300 border-purple-500/40" : `${cfg.bg} ${cfg.color} ${cfg.border}`}`}>
                           {isStandalone ? "✨ Individual Course" : `${lvl} • ${cfg.name}`}
                         </span>
@@ -768,7 +875,20 @@ export default function AdminCourses() {
                         )}
                       </div>
 
-                      <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-slate-950/70 backdrop-blur-md px-1.5 py-0.5 rounded-xl border border-slate-800">
+                      <div 
+                        onClick={(e) => e.stopPropagation()} 
+                        className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-slate-950/80 backdrop-blur-md px-1.5 py-0.5 rounded-xl border border-slate-800 z-20"
+                      >
+                        {course.image && (
+                          <button
+                            type="button"
+                            onClick={() => setPreviewFlyerModal(course.image)}
+                            className="p-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                            title="View Full Flyer / Poster"
+                          >
+                            <Maximize2 size={13} />
+                          </button>
+                        )}
                         <button
                           onClick={() => {
                             setEditingCourse(course);
@@ -871,7 +991,7 @@ export default function AdminCourses() {
                     <button
                       onClick={() => {
                         setEditingChapter(null);
-                        setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                        setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                         setShowChapterModal(course.id);
                       }}
                       className="w-full py-2 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 rounded-xl text-xs font-bold transition-colors border border-orange-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
@@ -890,7 +1010,7 @@ export default function AdminCourses() {
                         <button
                           onClick={() => {
                             setEditingChapter(null);
-                            setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                            setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                             setShowChapterModal(course.id);
                           }}
                           className="text-[10px] font-bold bg-orange-500 text-slate-950 px-2 py-0.5 rounded-md hover:bg-orange-600 cursor-pointer"
@@ -905,7 +1025,7 @@ export default function AdminCourses() {
                           <button
                             onClick={() => {
                               setEditingChapter(null);
-                              setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                              setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                               setShowChapterModal(course.id);
                             }}
                             className="bg-orange-500/20 text-orange-400 border border-orange-500/40 text-[11px] font-bold px-3 py-1 rounded-lg cursor-pointer"
@@ -934,9 +1054,16 @@ export default function AdminCourses() {
                                     <span className="text-slate-600">No Video</span>
                                   )}
                                   {chapter.pdfUrl && (
-                                    <span className="text-blue-400 font-semibold flex items-center gap-1">
+                                    <a
+                                      href={getFileUrl(chapter.pdfUrl)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
+                                      title="Open PDF Document"
+                                    >
                                       <FileText size={10} /> PDF
-                                    </span>
+                                      <ExternalLink size={8} />
+                                    </a>
                                   )}
                                 </div>
                               </div>
@@ -975,10 +1102,14 @@ export default function AdminCourses() {
                                     pUrl = "";
                                   }
 
+                                  const isPdfUploaded = (url: string) =>
+                                    url && (url.includes("/uploads/documents/") || url.startsWith("data:application/pdf"));
+
                                   setChapterForm({
                                     title: chapter.title,
                                     videoType: vUrl.startsWith("http") || vUrl.includes("youtube") || vUrl.includes("drive") ? "url" : "upload",
                                     videoUrl: vUrl,
+                                    pdfType: isPdfUploaded(pUrl) ? "upload" : "url",
                                     pdfUrl: pUrl,
                                   });
                                   setShowChapterModal(course.id);
@@ -1036,7 +1167,7 @@ export default function AdminCourses() {
                 <button
                   onClick={() => {
                     setEditingChapter(null);
-                    setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                    setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                     setShowChapterModal(selectedCourse.id);
                   }}
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-md cursor-pointer"
@@ -1061,7 +1192,7 @@ export default function AdminCourses() {
                   <button
                     onClick={() => {
                       setEditingChapter(null);
-                      setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfUrl: "" });
+                      setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                       setShowChapterModal(selectedCourse.id);
                     }}
                     className="bg-orange-500 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl cursor-pointer"
@@ -1110,7 +1241,7 @@ export default function AdminCourses() {
 
                       {chapter.pdfUrl && (
                         <a
-                          href={chapter.pdfUrl}
+                          href={getFileUrl(chapter.pdfUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-bold transition-all cursor-pointer"
@@ -1143,10 +1274,14 @@ export default function AdminCourses() {
                             pUrl = "";
                           }
 
+                          const isPdfUploaded = (url: string) =>
+                            url && (url.includes("/uploads/documents/") || url.startsWith("data:application/pdf"));
+
                           setChapterForm({
                             title: chapter.title,
                             videoType: vUrl.startsWith("http") || vUrl.includes("youtube") || vUrl.includes("drive") ? "url" : "upload",
                             videoUrl: vUrl,
+                            pdfType: isPdfUploaded(pUrl) ? "upload" : "url",
                             pdfUrl: pUrl,
                           });
                           setShowChapterModal(selectedCourse.id);
@@ -1175,29 +1310,56 @@ export default function AdminCourses() {
 
       {/* Course Modal (Create / Edit) */}
       {showCourseModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black text-white flex items-center gap-2">
-                <BookOpen className="text-orange-500" size={20} />
-                {editingCourse ? "Edit Course" : "Create New Course"}
-              </h2>
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col my-auto shadow-2xl text-white overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center px-6 sm:px-8 py-5 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                  <BookOpen size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-black text-white">
+                    {editingCourse ? "Edit Course" : "Create New Course"}
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {editingCourse
+                      ? "Update course configuration, pricing, validity, and assets"
+                      : "Configure new curriculum module, pricing, and content"}
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={() => setShowCourseModal(false)}
-                className="p-1.5 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
               >
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCourse} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Tier</label>
+            {/* Modal Body */}
+            <form onSubmit={handleSaveCourse} className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-6">
+              {/* Top Row: Course Title (6 cols), Level Tier (4 cols), Order (2 cols) */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="md:col-span-6">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Course Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={courseForm.title}
+                    onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 font-semibold transition-colors"
+                    placeholder="e.g. 1. Resin Fundamentals & Safety"
+                  />
+                </div>
+
+                <div className="md:col-span-4">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Level Tier</label>
                   <select
                     value={courseForm.levelCode}
                     onChange={(e) => setCourseForm({ ...courseForm, levelCode: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-medium transition-colors"
                   >
                     <option value="NONE">✨ None (Individual / Standalone Course)</option>
                     {(levels.length > 0
@@ -1217,200 +1379,239 @@ export default function AdminCourses() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Sequence Order #</label>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Order #</label>
                   <input
                     type="number"
                     value={courseForm.order}
                     onChange={(e) => setCourseForm({ ...courseForm, order: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-semibold"
                   />
                 </div>
               </div>
 
-              {/* Conditional Price Text Box for Standalone Courses */}
+              {/* Conditional Standalone Course Section: Price & Validity side-by-side */}
               {(!courseForm.levelCode || courseForm.levelCode === "NONE") && (
-                <>
-                  <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/40 space-y-2 animate-fadeIn">
-                  <label className="block text-xs font-black text-purple-300 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <Tag size={13} className="text-purple-400" /> Individual Course Price (₹) *
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-950/20 via-indigo-950/20 to-slate-950/40 border border-indigo-500/30 space-y-4 animate-in fade-in">
+                  <div className="flex items-center justify-between pb-2 border-b border-indigo-500/20">
+                    <span className="text-xs font-black text-indigo-300 flex items-center gap-2">
+                      <Tag size={14} className="text-indigo-400" />
+                      Individual / Standalone Course Configuration
                     </span>
-                    <span className="text-[10px] text-purple-400 font-normal">
-                      Purchased standalone without level membership
+                    <span className="text-[11px] text-indigo-400/80 font-medium">
+                      Applies exclusively to this single course
                     </span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">₹</span>
-                    <input
-                      type="text"
-                      required
-                      value={courseForm.price}
-                      onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
-                      className="w-full bg-slate-950 border border-purple-500/50 rounded-xl pl-8 pr-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-purple-400 placeholder-slate-600 shadow-inner"
-                      placeholder="e.g. 999 or 1499"
-                    />
                   </div>
-                  <p className="text-[10px] text-slate-400 leading-relaxed">
-                    Students will purchase this course individually at this price. Any active discount configured below will apply on top of this course price.
-                  </p>
-                </div>
 
-                {/* Individual Course Validity Option */}
-                <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/40 space-y-3 animate-fadeIn">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-black text-indigo-300 flex items-center gap-1.5">
-                      <Calendar size={13} className="text-indigo-400" /> Course Access / Enrollment Validity (Optional)
-                    </label>
-                    {(courseForm.validityStartDate || courseForm.validityEndDate) && (
-                      <button
-                        type="button"
-                        onClick={() => setCourseForm({ ...courseForm, validityStartDate: "", validityEndDate: "" })}
-                        className="text-[10px] text-indigo-400 hover:text-red-400 font-semibold transition-colors cursor-pointer"
-                      >
-                        Clear Dates
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-[10px] text-slate-400 leading-relaxed">
-                    Configure the enrollment &amp; access validity dates strictly for this individual course. Students cannot purchase or access the course outside this window. Leave blank for unrestricted lifetime validity.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center gap-1">
-                        <Clock size={11} className="text-indigo-400" /> Start Date &amp; Time
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                    {/* Left: Price */}
+                    <div className="md:col-span-5 space-y-2">
+                      <label className="block text-xs font-bold text-purple-300">
+                        Individual Course Price (₹) *
                       </label>
-                      <input
-                        type="datetime-local"
-                        value={courseForm.validityStartDate}
-                        onChange={(e) => setCourseForm({ ...courseForm, validityStartDate: e.target.value })}
-                        className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
-                      />
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">₹</span>
+                        <input
+                          type="text"
+                          required
+                          value={courseForm.price}
+                          onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                          className="w-full bg-slate-950 border border-purple-500/50 rounded-xl pl-8 pr-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-purple-400 placeholder-slate-600 shadow-inner"
+                          placeholder="e.g. 999 or 1499"
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        Students purchase this standalone without level membership. Any active offer configured below applies on top of this price.
+                      </p>
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center gap-1">
-                        <Clock size={11} className="text-indigo-400" /> End Date &amp; Time
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={courseForm.validityEndDate}
-                        onChange={(e) => setCourseForm({ ...courseForm, validityEndDate: e.target.value })}
-                        className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
-                      />
+
+                    {/* Right: Validity */}
+                    <div className="md:col-span-7 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                          <Calendar size={13} className="text-indigo-400" /> Access &amp; Enrollment Validity (Optional)
+                        </label>
+                        {(courseForm.validityStartDate || courseForm.validityEndDate) && (
+                          <button
+                            type="button"
+                            onClick={() => setCourseForm({ ...courseForm, validityStartDate: "", validityEndDate: "" })}
+                            className="text-[10px] text-indigo-400 hover:text-red-400 font-bold transition-colors cursor-pointer"
+                          >
+                            Clear Dates
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                            <Clock size={11} className="text-indigo-400" /> Start Date &amp; Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={courseForm.validityStartDate}
+                            onChange={(e) => setCourseForm({ ...courseForm, validityStartDate: e.target.value })}
+                            className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                            <Clock size={11} className="text-indigo-400" /> End Date &amp; Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={courseForm.validityEndDate}
+                            onChange={(e) => setCourseForm({ ...courseForm, validityEndDate: e.target.value })}
+                            className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        Students cannot purchase or access outside this window. Leave blank for unrestricted lifetime access.
+                      </p>
                     </div>
                   </div>
                 </div>
-              </>
-            )}
+              )}
 
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">Course Title</label>
-                <input
-                  type="text"
-                  required
-                  value={courseForm.title}
-                  onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
-                  placeholder="e.g. 1. Resin Fundamentals"
-                />
-              </div>
-
-              {/* Course Banner Thumbnail */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ImageIcon size={14} className="text-orange-500" /> Course Banner / Thumbnail Image
+              {/* Course Banner / Thumbnail Image Section */}
+              <div className="bg-slate-950/50 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                  <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                    <ImageIcon size={15} className="text-orange-400" />
+                    Course Banner / Thumbnail Image
                   </span>
                   {courseForm.image && (
                     <button
                       type="button"
                       onClick={() => setCourseForm({ ...courseForm, image: "" })}
-                      className="text-[11px] text-red-400 hover:underline cursor-pointer"
+                      className="text-xs text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
                     >
                       Clear Image
                     </button>
                   )}
-                </label>
+                </div>
 
-                <div className="space-y-2.5">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <input
-                        type="url"
-                        value={courseForm.image}
-                        onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 pr-8"
-                        placeholder="https://images.unsplash.com/... or paste image URL"
-                      />
-                      <LinkIcon size={14} className="absolute right-3 top-3 text-slate-600" />
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                  {/* Left Column: Input and Presets */}
+                  <div className="md:col-span-7 space-y-3">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="url"
+                          value={courseForm.image}
+                          onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 pr-8"
+                          placeholder="https://images.unsplash.com/... or paste image URL"
+                        />
+                        <LinkIcon size={14} className="absolute right-3 top-3 text-slate-600" />
+                      </div>
+
+                      <label className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                        <Upload size={13} />
+                        <span>Upload</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleDirectCourseBannerUpload}
+                          className="hidden"
+                        />
+                      </label>
                     </div>
 
-                    <label className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0">
-                      <Upload size={13} />
-                      <span>Upload</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleDirectCourseBannerUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Preset Banner Templates */}
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                      Or Pick a Preset Resin Art Theme:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {PRESET_COURSE_BANNERS.map((preset) => (
-                        <button
-                          key={preset.name}
-                          type="button"
-                          onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
-                          className={`text-[11px] px-2.5 py-1 rounded-lg border font-semibold transition-all cursor-pointer ${
-                            courseForm.image === preset.url
-                              ? "bg-orange-500/20 text-orange-400 border-orange-500/50 font-bold"
-                              : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white"
-                          }`}
-                        >
-                          {preset.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Live Banner Preview */}
-                  {courseForm.image && (
-                    <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-orange-500/30 bg-slate-950 mt-2">
-                      <img
-                        src={courseForm.image}
-                        alt="Course Banner Preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-2.5">
-                        <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/80 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
-                          <CheckCircle2 size={10} /> Banner Active
-                        </span>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                        Or Pick a Preset Resin Art Theme:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {PRESET_COURSE_BANNERS.map((preset) => (
+                          <button
+                            key={preset.name}
+                            type="button"
+                            onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
+                            className={`text-[11px] px-2.5 py-1 rounded-lg border font-semibold transition-all cursor-pointer ${
+                              courseForm.image === preset.url
+                                ? "bg-orange-500/20 text-orange-400 border-orange-500/50 font-bold shadow-sm"
+                                : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white"
+                            }`}
+                          >
+                            {preset.name}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Right Column: Live Preview */}
+                  <div className="md:col-span-5">
+                    {courseForm.image ? (
+                      <div className="space-y-2">
+                        <div 
+                          onClick={() => setPreviewFlyerModal(courseForm.image)}
+                          className="relative w-full h-56 rounded-2xl overflow-hidden border border-orange-500/40 bg-slate-950 shadow-lg group flex items-center justify-center cursor-pointer"
+                          title="Click to view full original flyer"
+                        >
+                          {/* Ambient glow backdrop */}
+                          <img
+                            src={courseForm.image}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none"
+                          />
+                          {/* Uncropped original flyer */}
+                          <img
+                            src={courseForm.image}
+                            alt="Course Banner Preview"
+                            className="relative z-10 w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-300"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                          
+                          {/* Hover Overlay */}
+                          <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center justify-center pointer-events-none">
+                            <span className="bg-slate-900/90 text-white font-bold text-xs px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5 shadow-xl backdrop-blur-md">
+                              <Maximize2 size={13} /> View Full Flyer
+                            </span>
+                          </div>
+
+                          <div className="absolute bottom-2 left-2 z-20">
+                            <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/90 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1 backdrop-blur-sm">
+                              <CheckCircle2 size={10} /> Original Preserved
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Image Dimension / Aspect Ratio Indicator */}
+                        {imageRatioInfo && (
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-800">
+                            <span className="font-semibold text-slate-300">{imageRatioInfo.ratioText}</span>
+                            <span className="font-mono text-[10px] text-slate-500">{imageRatioInfo.width} × {imageRatioInfo.height} px</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-full h-56 rounded-2xl border border-dashed border-slate-800 bg-slate-950/50 flex flex-col items-center justify-center text-slate-600 p-4 text-center">
+                        <ImageIcon size={28} className="mb-2 text-slate-700" />
+                        <span className="text-xs font-semibold text-slate-400">No flyer / banner selected</span>
+                        <span className="text-[10px] text-slate-600 mt-1 max-w-[200px]">
+                          Upload a brochure, flyer, or square poster. The original image will be preserved completely without cropping.
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Special Offer & Discount Configuration */}
-              <div className="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-3">
+              <div className="bg-slate-950/50 border border-slate-800 p-5 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
-                      <Percent size={14} />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                      <Percent size={15} />
                     </div>
                     <div>
                       <h4 className="text-xs font-black text-white">Course Offer &amp; Discount</h4>
-                      <p className="text-[10px] text-slate-400">Enable percentage or flat discount with start &amp; end timers</p>
+                      <p className="text-[10px] text-slate-400">Configure percentage or flat price reduction with active dates</p>
                     </div>
                   </div>
 
@@ -1421,21 +1622,21 @@ export default function AdminCourses() {
                       onChange={(e) => setCourseForm({ ...courseForm, offerActive: e.target.checked })}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-red-500 peer-checked:to-orange-500"></div>
+                    <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-red-500 peer-checked:to-orange-500"></div>
                   </label>
                 </div>
 
                 {courseForm.offerActive && (
-                  <div className="pt-3 border-t border-slate-800/80 space-y-3 animate-fadeIn">
-                    {/* Discount Type & Value */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-400 mb-1">Discount Type</label>
-                        <div className="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                  <div className="pt-4 border-t border-slate-800/80 space-y-4 animate-in fade-in">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                      {/* Discount Type */}
+                      <div className="md:col-span-6 space-y-1.5">
+                        <label className="block text-[11px] font-bold text-slate-400">Discount Type</label>
+                        <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, discountType: "percentage" })}
-                            className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               courseForm.discountType === "percentage"
                                 ? "bg-red-500 text-white shadow-sm font-black"
                                 : "text-slate-400 hover:text-white"
@@ -1446,7 +1647,7 @@ export default function AdminCourses() {
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, discountType: "flat" })}
-                            className={`py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               courseForm.discountType === "flat"
                                 ? "bg-red-500 text-white shadow-sm font-black"
                                 : "text-slate-400 hover:text-white"
@@ -1457,8 +1658,9 @@ export default function AdminCourses() {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                      {/* Discount Value */}
+                      <div className="md:col-span-6 space-y-1.5">
+                        <label className="block text-[11px] font-bold text-slate-400">
                           {courseForm.discountType === "percentage" ? "Discount Percentage (%)" : "Flat Discount Amount (₹)"}
                         </label>
                         <input
@@ -1473,8 +1675,8 @@ export default function AdminCourses() {
                       </div>
                     </div>
 
-                    {/* Offer Start & End Date with Time */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Offer Start & End Date */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1">
                           <Calendar size={11} className="text-orange-400" /> Offer Start Date &amp; Time
@@ -1503,31 +1705,33 @@ export default function AdminCourses() {
                 )}
               </div>
 
+              {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">Description</label>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">Description</label>
                 <textarea
                   rows={3}
                   value={courseForm.description}
                   onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-orange-500 resize-none"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
                   placeholder="Describe what students will master in this module..."
                 />
               </div>
 
-              <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer"
-                >
-                  {isSubmitting ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}
-                </button>
+              {/* Modal Footer */}
+              <div className="sticky bottom-0 bg-slate-900/95 backdrop-blur border-t border-slate-800/80 -mx-6 sm:-mx-8 -mb-6 px-6 sm:px-8 py-4 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowCourseModal(false)}
-                  className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
+                  className="border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs h-10 px-5 rounded-xl cursor-pointer transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-10 px-6 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  {isSubmitting ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}
                 </button>
               </div>
             </form>
@@ -1537,8 +1741,8 @@ export default function AdminCourses() {
 
       {/* Chapter Modal (Create / Edit) */}
       {showChapterModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 max-w-2xl w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black text-white flex items-center gap-2">
                 <FileVideo className="text-orange-500" size={20} />
@@ -1644,30 +1848,97 @@ export default function AdminCourses() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">
-                  PDF / Notes Resource Link (Optional)
+                <label className="block text-xs font-bold text-slate-400 mb-2">
+                  PDF / Notes Resource (Optional)
                 </label>
-                <input
-                  type="text"
-                  value={chapterForm.pdfUrl}
-                  onChange={(e) => setChapterForm({ ...chapterForm, pdfUrl: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
-                  placeholder="https://drive.google.com/... (PDF link)"
-                />
+                <div className="flex items-center gap-2 mb-3 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setChapterForm({ ...chapterForm, pdfType: "url" })}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      chapterForm.pdfType === "url"
+                        ? "bg-orange-500 text-slate-950 font-black shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <LinkIcon size={13} /> Drive / Cloud URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChapterForm({ ...chapterForm, pdfType: "upload" })}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      chapterForm.pdfType === "upload"
+                        ? "bg-orange-500 text-slate-950 font-black shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <Upload size={13} /> Direct PDF Upload
+                  </button>
+                </div>
+
+                {chapterForm.pdfType === "url" ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={chapterForm.pdfUrl}
+                      onChange={(e) => setChapterForm({ ...chapterForm, pdfUrl: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+                      placeholder="https://drive.google.com/... (PDF Link)"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Paste Google Drive, Dropbox, or public Cloud PDF link.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={handleDirectPdfUpload}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-slate-950 hover:file:bg-orange-600 cursor-pointer"
+                    />
+                    {uploadingPdf ? (
+                      <p className="text-[11px] text-orange-400 mt-1 font-bold animate-pulse flex items-center gap-1">
+                        ⏳ Uploading PDF document... Please wait
+                      </p>
+                    ) : chapterForm.pdfUrl && (
+                      <p className="text-[11px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
+                        ✓ PDF document attached &amp; ready for students!
+                      </p>
+                    )}
+                  </div>
+                )}
+                {chapterForm.pdfUrl && (
+                  <div className="mt-2 p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs text-blue-400 font-bold">
+                    <span className="flex items-center gap-1.5 truncate">
+                      <FileText size={14} className="shrink-0" /> PDF Attached: {chapterForm.pdfUrl.length > 40 ? chapterForm.pdfUrl.slice(0, 40) + "..." : chapterForm.pdfUrl}
+                    </span>
+                    <a
+                      href={getFileUrl(chapterForm.pdfUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 text-[10px] uppercase font-black cursor-pointer shrink-0 ml-2 flex items-center gap-1"
+                    >
+                      Preview <ExternalLink size={10} />
+                    </a>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="submit"
-                  disabled={isSubmitting || uploadingVideo}
+                  disabled={isSubmitting || uploadingVideo || uploadingPdf}
                   className={`flex-1 py-3 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer ${
-                    uploadingVideo || isSubmitting
+                    uploadingVideo || uploadingPdf || isSubmitting
                       ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
                       : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950"
                   }`}
                 >
                   {uploadingVideo
                     ? "⏳ Video Uploading... Please Wait"
+                    : uploadingPdf
+                    ? "⏳ PDF Uploading... Please Wait"
                     : isSubmitting
                     ? "Saving..."
                     : editingChapter
@@ -1743,6 +2014,47 @@ export default function AdminCourses() {
           </div>
         );
       })()}
+
+      {/* Full Original Course Flyer / Poster Lightbox Modal */}
+      {previewFlyerModal && (
+        <div 
+          onClick={() => setPreviewFlyerModal(null)}
+          className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center z-50 p-4 sm:p-8 overflow-y-auto cursor-zoom-out animate-in fade-in duration-200"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="relative max-w-4xl max-h-[92vh] flex flex-col items-center justify-center cursor-default bg-slate-900/90 border border-slate-700/80 rounded-3xl p-3 shadow-2xl"
+          >
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+              <a
+                href={previewFlyerModal}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors"
+                title="Open raw image in new tab"
+              >
+                <LinkIcon size={12} /> Open Full Size
+              </a>
+              <button
+                type="button"
+                onClick={() => setPreviewFlyerModal(null)}
+                className="p-2 bg-slate-950/80 hover:bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white transition-colors cursor-pointer shadow-lg"
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="overflow-auto max-h-[85vh] rounded-2xl flex items-center justify-center p-1">
+              <img
+                src={previewFlyerModal}
+                alt="Full Course Flyer Poster"
+                className="max-h-[82vh] w-auto max-w-full object-contain rounded-xl shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
