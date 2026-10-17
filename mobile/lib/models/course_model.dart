@@ -29,6 +29,7 @@ class Course {
   final String title;
   final String description;
   final String? image;
+  final String? flyerImage;
   final String? levelCode; // 'L0', 'L1', 'L2', 'L3', or 'NONE'/null for standalone
   final int order;
   final String? price;
@@ -46,6 +47,7 @@ class Course {
     required this.title,
     required this.description,
     this.image,
+    this.flyerImage,
     this.levelCode,
     this.order = 0,
     this.price,
@@ -69,7 +71,8 @@ class Course {
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
-      image: json['image']?.toString() ?? json['thumbnail']?.toString(),
+      image: json['image']?.toString() ?? json['thumbnail']?.toString() ?? json['flyerImage']?.toString(),
+      flyerImage: json['flyerImage']?.toString() ?? json['image']?.toString(),
       levelCode: json['levelCode']?.toString(),
       order: json['order'] is int ? json['order'] : (int.tryParse(json['order']?.toString() ?? '') ?? 0),
       price: json['price']?.toString(),

@@ -9,6 +9,7 @@ interface CourseRecord {
   title: string;
   description?: string;
   image?: string;
+  flyerImage?: string;
   UserCourse?: { progress: number; status: 'locked' | 'enrolled' | 'completed' };
 }
 
@@ -54,8 +55,8 @@ export const CoursesAndBadges = ({ badges, courses, allCourses = [] }: CoursesAn
         <div className="space-y-3 flex-1 overflow-y-auto pr-2">
           {enrolledCourses.map((course, i) => (
             <div key={i} className="flex items-center gap-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-xl cursor-pointer hover:bg-orange-500/20 transition-colors">
-              {course.image ? (
-                <img src={course.image} alt={course.title} className="w-9 h-9 rounded-lg object-cover border border-orange-500/30 shrink-0" />
+              {(course.image || course.flyerImage) ? (
+                <img src={(course.image || course.flyerImage)!} alt={course.title} className="w-9 h-9 rounded-lg object-cover border border-orange-500/30 shrink-0" />
               ) : (
                 <Zap size={20} className="text-orange-400 shrink-0" />
               )}

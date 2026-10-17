@@ -124,11 +124,13 @@ export default function AdminCourses() {
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
   const [previewFlyerModal, setPreviewFlyerModal] = useState<string | null>(null);
   const [imageRatioInfo, setImageRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
+  const [flyerRatioInfo, setFlyerRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
 
   const [courseForm, setCourseForm] = useState({
     title: "",
     description: "",
     image: "",
+    flyerImage: "",
     levelCode: "L0",
     price: "",
     order: 1,
@@ -169,6 +171,33 @@ export default function AdminCourses() {
     };
   }, [courseForm.image]);
 
+  // Calculate dimensions and ratio for the vertical 9:16 promotional flyer
+  useEffect(() => {
+    if (!courseForm.flyerImage) {
+      setFlyerRatioInfo(null);
+      return;
+    }
+    const img = new Image();
+    img.src = courseForm.flyerImage;
+    img.onload = () => {
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      let ratioText = "Custom Ratio";
+      const aspect = w / h;
+      if (Math.abs(aspect - 9 / 16) < 0.2) ratioText = "9:16 Portrait Flyer / Story";
+      else if (Math.abs(aspect - 4 / 5) < 0.2) ratioText = "4:5 Portrait Poster";
+      else if (Math.abs(aspect - 1) < 0.2) ratioText = "1:1 Square";
+      else if (Math.abs(aspect - 16 / 9) < 0.2) ratioText = "16:9 Landscape Banner";
+      else if (aspect < 1) ratioText = "Portrait Poster";
+      else ratioText = "Landscape Format";
+
+      setFlyerRatioInfo({ width: w, height: h, ratioText });
+    };
+    img.onerror = () => {
+      setFlyerRatioInfo(null);
+    };
+  }, [courseForm.flyerImage]);
+
   // Chapter Modals
   const [showChapterModal, setShowChapterModal] = useState<string | null>(null);
   const [editingChapter, setEditingChapter] = useState<any | null>(null);
@@ -206,6 +235,21 @@ export default function AdminCourses() {
       setCourseForm((prev) => ({
         ...prev,
         image: dataUrl,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDirectCourseFlyerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setCourseForm((prev) => ({
+        ...prev,
+        flyerImage: dataUrl,
       }));
     };
     reader.readAsDataURL(file);
@@ -348,6 +392,7 @@ export default function AdminCourses() {
         title: courseForm.title.trim(),
         description: courseForm.description,
         image: courseForm.image,
+        flyerImage: courseForm.flyerImage,
         levelCode: isStandalone ? null : courseForm.levelCode,
         price: isStandalone ? courseForm.price.trim() : null,
         order: Number(courseForm.order) || 1,
@@ -383,6 +428,7 @@ export default function AdminCourses() {
           title: "",
           description: "",
           image: "",
+          flyerImage: "",
           levelCode: "L0",
           price: "",
           order: 1,
@@ -743,6 +789,7 @@ export default function AdminCourses() {
                   title: "",
                   description: "",
                   image: "",
+                  flyerImage: "",
                   levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
                   price: "",
                   order: courses.filter((c) => (c.levelCode || "L0") === (activeLevelFilter === "all" ? "L0" : activeLevelFilter)).length + 1 || 1,
@@ -858,6 +905,7 @@ export default function AdminCourses() {
                   title: "",
                   description: "",
                   image: "",
+                  flyerImage: "",
                   levelCode: activeLevelFilter === "all" ? "L0" : activeLevelFilter,
                   price: "",
                   order: 1,
@@ -898,15 +946,15 @@ export default function AdminCourses() {
                   <div>
                     {/* Course Banner Thumbnail */}
                     <div 
-                      onClick={() => course.image && setPreviewFlyerModal(course.image)}
-                      className={`relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 group flex items-center justify-center ${course.image ? "cursor-pointer" : ""}`}
-                      title={course.image ? "Click to view full original flyer" : undefined}
+                      onClick={() => (course.flyerImage || course.image) && setPreviewFlyerModal(course.flyerImage || course.image)}
+                      className={`relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 group flex items-center justify-center ${(course.flyerImage || course.image) ? "cursor-pointer" : ""}`}
+                      title={(course.flyerImage || course.image) ? "Click to view full original flyer" : undefined}
                     >
-                      {course.image ? (
+                      {(course.image || course.flyerImage) ? (
                         <>
                           {/* Full Banner Display: Edge-to-Edge */}
                           <img
-                            src={getImageUrl(course.image)}
+                            src={getImageUrl(course.image || course.flyerImage)}
                             alt={course.title}
                             className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                           />
@@ -937,10 +985,10 @@ export default function AdminCourses() {
                         onClick={(e) => e.stopPropagation()} 
                         className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-slate-950/80 backdrop-blur-md px-1.5 py-0.5 rounded-xl border border-slate-800 z-20"
                       >
-                        {course.image && (
+                        {(course.flyerImage || course.image) && (
                           <button
                             type="button"
-                            onClick={() => setPreviewFlyerModal(course.image)}
+                            onClick={() => setPreviewFlyerModal(course.flyerImage || course.image)}
                             className="p-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                             title="View Full Flyer / Poster"
                           >
@@ -954,6 +1002,7 @@ export default function AdminCourses() {
                               title: course.title,
                               description: course.description || "",
                               image: course.image || "",
+                              flyerImage: course.flyerImage || "",
                               levelCode: course.levelCode || "NONE",
                               price: course.price ? course.price.replace(/[^0-9]/g, "") : "",
                               order: course.order || 0,
@@ -1485,145 +1534,236 @@ export default function AdminCourses() {
                           }}
                           className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold cursor-pointer shadow-inner appearance-none"
                         >
-                          <option value="1">1 Month Validity (30 Days from student purchase date)</option>
-                          <option value="2">2 Months Validity (60 Days from student purchase date)</option>
-                          <option value="3">3 Months Validity (90 Days from student purchase date)</option>
-                          <option value="4">4 Months Validity (120 Days from student purchase date)</option>
-                          <option value="5">5 Months Validity (150 Days from student purchase date)</option>
-                          <option value="6">6 Months Validity (180 Days from student purchase date)</option>
-                          <option value="lifetime">Lifetime Access (Unlimited access, no expiry)</option>
+                          <option value="1">1 Month (30 Days from student registration / purchase)</option>
+                          <option value="3">3 Months (90 Days from student registration / purchase)</option>
+                          <option value="6">6 Months (180 Days from student registration / purchase)</option>
+                          <option value="12">1 Year (365 Days from student registration / purchase)</option>
+                          <option value="36">3 Years (36 Months from student registration / purchase)</option>
+                          <option value="lifetime">Lifetime (Permanent Access, No Expiration)</option>
                         </select>
                         <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-xs">
                           ▼
                         </div>
                       </div>
                       <p className="text-[10px] text-slate-400 leading-relaxed">
-                        Each student gets access for this duration starting on their exact purchase/enrollment date. When this period expires, access locks and the student can re-purchase/renew to regain access.
+                        Access period starts from the day of student registration / purchase (1, 3, 6 months, 1, 3 years, or Lifetime). After expiry, student can re-purchase to renew.
                       </p>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Course Banner / Thumbnail Image Section */}
-              <div className="bg-slate-950/50 border border-slate-800 p-5 rounded-2xl space-y-4">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
-                  <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
-                    <ImageIcon size={15} className="text-orange-400" />
-                    Course Banner / Thumbnail Image
+              {/* Dual Image Media Studio (16:9 Banner & 9:16 Portrait Flyer) */}
+              <div className="bg-slate-950/70 border border-slate-800 p-5 sm:p-6 rounded-2xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+                  <div>
+                    <span className="text-xs font-black text-white flex items-center gap-2">
+                      <ImageIcon size={16} className="text-orange-400" />
+                      Course Media Studio (Dual Image Support)
+                    </span>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Upload both formats for crisp, uncropped presentation: 16:9 for cards &amp; video players, and 9:16 for full marketing flyers &amp; stories.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full self-start sm:self-auto">
+                    ✓ Smart Auto-Fallback Active
                   </span>
-                  {courseForm.image && (
-                    <button
-                      type="button"
-                      onClick={() => setCourseForm({ ...courseForm, image: "" })}
-                      className="text-xs text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
-                    >
-                      Clear Image
-                    </button>
-                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                  {/* Left Column: Input and Presets */}
-                  <div className="md:col-span-7 space-y-3">
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type="url"
-                          value={courseForm.image}
-                          onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 pr-8"
-                          placeholder="https://images.unsplash.com/... or paste image URL"
-                        />
-                        <LinkIcon size={14} className="absolute right-3 top-3 text-slate-600" />
-                      </div>
-
-                      <label className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
-                        <Upload size={13} />
-                        <span>Upload</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleDirectCourseBannerUpload}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
-                        Or Pick a Preset Resin Art Theme:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {PRESET_COURSE_BANNERS.map((preset) => (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Slot 1: Horizontal Card Banner (16:9 Landscape) */}
+                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-black text-amber-300 uppercase tracking-wider bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
+                            16:9 Landscape Banner
+                          </span>
+                          <span className="text-[10px] text-slate-400">Card &amp; Player</span>
+                        </div>
+                        {courseForm.image && (
                           <button
-                            key={preset.name}
                             type="button"
-                            onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
-                            className={`text-[11px] px-2.5 py-1 rounded-lg border font-semibold transition-all cursor-pointer ${
-                              courseForm.image === preset.url
-                                ? "bg-orange-500/20 text-orange-400 border-orange-500/50 font-bold shadow-sm"
-                                : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white"
-                            }`}
+                            onClick={() => setCourseForm({ ...courseForm, image: "" })}
+                            className="text-[11px] text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
                           >
-                            {preset.name}
+                            Clear
                           </button>
-                        ))}
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="url"
+                            value={courseForm.image}
+                            onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 pr-8"
+                            placeholder="Paste 16:9 banner URL..."
+                          />
+                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-slate-600" />
+                        </div>
+
+                        <label className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                          <Upload size={12} />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleDirectCourseBannerUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Presets */}
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                          Theme Presets:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {PRESET_COURSE_BANNERS.map((preset) => (
+                            <button
+                              key={preset.name}
+                              type="button"
+                              onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
+                              className={`text-[10px] px-2 py-0.5 rounded-md border font-medium transition-all cursor-pointer ${
+                                courseForm.image === preset.url
+                                  ? "bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold"
+                                  : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white"
+                              }`}
+                            >
+                              {preset.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right Column: Live Preview */}
-                  <div className="md:col-span-5">
-                    {courseForm.image ? (
-                      <div className="space-y-2">
-                        <div 
-                          onClick={() => setPreviewFlyerModal(courseForm.image)}
-                          className="relative w-full h-56 rounded-2xl overflow-hidden border border-orange-500/40 bg-slate-950 shadow-lg group flex items-center justify-center cursor-pointer"
-                          title="Click to view full original flyer"
-                        >
-                          {/* Full Banner Live Preview */}
+                    {/* Live Preview Box 1 */}
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center mt-2">
+                      {courseForm.image ? (
+                        <>
                           <img
                             src={getImageUrl(courseForm.image)}
-                            alt="Course Banner Preview"
-                            className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-300"
+                            alt="16:9 Banner Preview"
+                            className="w-full h-full object-cover object-center"
                             onError={(e) => {
                               (e.target as HTMLElement).style.display = "none";
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30 pointer-events-none z-10" />
-                          
-                          {/* Hover Overlay */}
-                          <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center justify-center pointer-events-none">
-                            <span className="bg-slate-900/90 text-white font-bold text-xs px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5 shadow-xl backdrop-blur-md">
-                              <Maximize2 size={13} /> View Full Flyer
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                          <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/90 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                              ✓ 16:9 Banner Active
                             </span>
+                            {imageRatioInfo && (
+                              <span className="text-[9px] font-mono text-slate-400 bg-slate-900/90 px-2 py-0.5 rounded-md border border-slate-800">
+                                {imageRatioInfo.width} × {imageRatioInfo.height} px
+                              </span>
+                            )}
                           </div>
-
-                          <div className="absolute bottom-2 left-2 z-20">
-                            <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/90 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1 backdrop-blur-sm">
-                              <CheckCircle2 size={10} /> Full Banner Active
-                            </span>
-                          </div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-slate-600 p-3 text-center">
+                          <ImageIcon size={22} className="mb-1 text-slate-700" />
+                          <span className="text-[11px] font-semibold text-slate-400">No 16:9 banner chosen</span>
+                          <span className="text-[9px] text-slate-600 mt-0.5">Used for course card thumbnails &amp; video headers</span>
                         </div>
+                      )}
+                    </div>
+                  </div>
 
-                        {/* Image Dimension / Aspect Ratio Indicator */}
-                        {imageRatioInfo && (
-                          <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-800">
-                            <span className="font-semibold text-slate-300">{imageRatioInfo.ratioText}</span>
-                            <span className="font-mono text-[10px] text-slate-500">{imageRatioInfo.width} × {imageRatioInfo.height} px</span>
-                          </div>
+                  {/* Slot 2: Vertical Marketing Poster / Story Flyer (9:16 Portrait) */}
+                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-black text-rose-300 uppercase tracking-wider bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-lg">
+                            9:16 Portrait Flyer
+                          </span>
+                          <span className="text-[10px] text-slate-400">Marketing &amp; Stories</span>
+                        </div>
+                        {courseForm.flyerImage && (
+                          <button
+                            type="button"
+                            onClick={() => setCourseForm({ ...courseForm, flyerImage: "" })}
+                            className="text-[11px] text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
+                          >
+                            Clear
+                          </button>
                         )}
                       </div>
-                    ) : (
-                      <div className="w-full h-56 rounded-2xl border border-dashed border-slate-800 bg-slate-950/50 flex flex-col items-center justify-center text-slate-600 p-4 text-center">
-                        <ImageIcon size={28} className="mb-2 text-slate-700" />
-                        <span className="text-xs font-semibold text-slate-400">No flyer / banner selected</span>
-                        <span className="text-[10px] text-slate-600 mt-1 max-w-[200px]">
-                          Upload a brochure, flyer, or square poster. The original image will be preserved completely without cropping.
-                        </span>
+
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="url"
+                            value={courseForm.flyerImage}
+                            onChange={(e) => setCourseForm({ ...courseForm, flyerImage: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 pr-8"
+                            placeholder="Paste 9:16 poster / flyer URL..."
+                          />
+                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-slate-600" />
+                        </div>
+
+                        <label className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                          <Upload size={12} />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleDirectCourseFlyerUpload}
+                            className="hidden"
+                          />
+                        </label>
                       </div>
-                    )}
+
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        Upload your workshop brochure, story poster, or WhatsApp graphic. Displayed uncropped in full lightbox and enrollment modal.
+                      </p>
+                    </div>
+
+                    {/* Live Preview Box 2 */}
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center mt-2">
+                      {courseForm.flyerImage ? (
+                        <>
+                          <img
+                            src={getImageUrl(courseForm.flyerImage)}
+                            alt="9:16 Flyer Preview"
+                            className="w-full h-full object-contain p-1"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                          <button
+                            type="button"
+                            onClick={() => setPreviewFlyerModal(courseForm.flyerImage)}
+                            className="absolute top-2 right-2 z-20 p-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-900 text-slate-300 border border-slate-700/80 backdrop-blur-md cursor-pointer transition-all"
+                            title="Zoom Full Flyer"
+                          >
+                            <Maximize2 size={12} />
+                          </button>
+                          <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-rose-300 bg-slate-950/90 px-2 py-0.5 rounded-md border border-rose-500/30">
+                              ✓ 9:16 Flyer Active
+                            </span>
+                            {flyerRatioInfo && (
+                              <span className="text-[9px] font-mono text-slate-400 bg-slate-900/90 px-2 py-0.5 rounded-md border border-slate-800">
+                                {flyerRatioInfo.width} × {flyerRatioInfo.height} px
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-slate-600 p-3 text-center">
+                          <ImageIcon size={22} className="mb-1 text-slate-700" />
+                          <span className="text-[11px] font-semibold text-slate-400">No 9:16 poster chosen</span>
+                          <span className="text-[9px] text-slate-600 mt-0.5">Will automatically fall back to 16:9 banner</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
