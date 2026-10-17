@@ -139,6 +139,7 @@ export default function AdminCourses() {
     offerEndDate: "",
     validityStartDate: "",
     validityEndDate: "",
+    validityMonths: 1 as number | null,
   });
 
   // Calculate image dimensions and ratio in real time whenever courseForm.image changes
@@ -357,6 +358,7 @@ export default function AdminCourses() {
         offerEndDate: courseForm.offerEndDate || null,
         validityStartDate: isStandalone && courseForm.validityStartDate ? courseForm.validityStartDate : null,
         validityEndDate: isStandalone && courseForm.validityEndDate ? courseForm.validityEndDate : null,
+        validityMonths: isStandalone ? (courseForm.validityMonths ? Number(courseForm.validityMonths) : null) : null,
       };
 
       let res;
@@ -391,6 +393,7 @@ export default function AdminCourses() {
           offerEndDate: "",
           validityStartDate: "",
           validityEndDate: "",
+          validityMonths: 1,
         });
         showSuccess(editingCourse ? "Course updated successfully!" : "New course created!");
         fetchCourses();
@@ -750,6 +753,7 @@ export default function AdminCourses() {
                   offerEndDate: "",
                   validityStartDate: "",
                   validityEndDate: "",
+                  validityMonths: 1,
                 });
                 setShowCourseModal(true);
               }}
@@ -864,6 +868,7 @@ export default function AdminCourses() {
                   offerEndDate: "",
                   validityStartDate: "",
                   validityEndDate: "",
+                  validityMonths: 1,
                 });
                 setShowCourseModal(true);
               }}
@@ -959,6 +964,7 @@ export default function AdminCourses() {
                               offerEndDate: course.offerEndDate ? new Date(course.offerEndDate).toISOString().slice(0, 16) : "",
                               validityStartDate: course.validityStartDate ? new Date(course.validityStartDate).toISOString().slice(0, 16) : "",
                               validityEndDate: course.validityEndDate ? new Date(course.validityEndDate).toISOString().slice(0, 16) : "",
+                              validityMonths: course.validityMonths !== undefined && course.validityMonths !== null ? Number(course.validityMonths) : 1,
                             });
                             setShowCourseModal(true);
                           }}
@@ -999,32 +1005,16 @@ export default function AdminCourses() {
                       {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                     </p>
 
-                    {isStandalone && (course.validityStartDate || course.validityEndDate) && (() => {
-                      const now = new Date();
-                      const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
-                      const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
-                      const isUpcoming = start ? now < start : false;
-                      const isExpired = end ? now > end : false;
-
-                      return (
-                        <div className={`mb-3 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm ${
-                          isExpired 
-                            ? 'bg-red-500/10 text-red-300 border-red-500/30' 
-                            : isUpcoming 
-                            ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' 
-                            : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
-                        }`}>
-                          <Calendar size={12} className="shrink-0" />
-                          <span>
-                            {isExpired 
-                              ? `Validity Expired (${end?.toLocaleDateString('en-IN')})` 
-                              : isUpcoming 
-                              ? `Validity Opens: ${start?.toLocaleDateString('en-IN')}` 
-                              : `Valid: ${start ? start.toLocaleDateString('en-IN') : 'Now'} - ${end ? end.toLocaleDateString('en-IN') : 'Lifetime'}`}
-                          </span>
-                        </div>
-                      );
-                    })()}
+                    {isStandalone && (
+                      <div className="mb-3 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm bg-indigo-500/10 text-indigo-300 border-indigo-500/30">
+                        <Clock size={12} className="shrink-0 text-indigo-400" />
+                        <span>
+                          {course.validityMonths && Number(course.validityMonths) > 0
+                            ? `Validity: ${course.validityMonths} Month${Number(course.validityMonths) > 1 ? 's' : ''} (from student purchase date)`
+                            : 'Validity: Lifetime Access'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions */}
@@ -1478,48 +1468,36 @@ export default function AdminCourses() {
                       </p>
                     </div>
 
-                    {/* Right: Validity */}
+                    {/* Right: Course Validity Duration Dropdown */}
                     <div className="md:col-span-7 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-                          <Calendar size={13} className="text-indigo-400" /> Access &amp; Enrollment Validity (Optional)
-                        </label>
-                        {(courseForm.validityStartDate || courseForm.validityEndDate) && (
-                          <button
-                            type="button"
-                            onClick={() => setCourseForm({ ...courseForm, validityStartDate: "", validityEndDate: "" })}
-                            className="text-[10px] text-indigo-400 hover:text-red-400 font-bold transition-colors cursor-pointer"
-                          >
-                            Clear Dates
-                          </button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                            <Clock size={11} className="text-indigo-400" /> Start Date &amp; Time
-                          </label>
-                          <input
-                            type="datetime-local"
-                            value={courseForm.validityStartDate}
-                            onChange={(e) => setCourseForm({ ...courseForm, validityStartDate: e.target.value })}
-                            className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                            <Clock size={11} className="text-indigo-400" /> End Date &amp; Time
-                          </label>
-                          <input
-                            type="datetime-local"
-                            value={courseForm.validityEndDate}
-                            onChange={(e) => setCourseForm({ ...courseForm, validityEndDate: e.target.value })}
-                            className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400 font-mono"
-                          />
+                      <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                        <Clock size={13} className="text-indigo-400" /> Course Validity Duration (Rolling from Purchase Date)
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={courseForm.validityMonths !== null && courseForm.validityMonths !== undefined ? String(courseForm.validityMonths) : "1"}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCourseForm({
+                              ...courseForm,
+                              validityMonths: val === "lifetime" ? null : parseInt(val, 10),
+                            });
+                          }}
+                          className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold cursor-pointer shadow-inner appearance-none"
+                        >
+                          <option value="1">1 Month (30 Days from student registration / purchase)</option>
+                          <option value="3">3 Months (90 Days from student registration / purchase)</option>
+                          <option value="6">6 Months (180 Days from student registration / purchase)</option>
+                          <option value="12">1 Year (365 Days from student registration / purchase)</option>
+                          <option value="36">3 Years (36 Months from student registration / purchase)</option>
+                          <option value="lifetime">Lifetime (Permanent Access, No Expiration)</option>
+                        </select>
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-xs">
+                          ▼
                         </div>
                       </div>
                       <p className="text-[10px] text-slate-400 leading-relaxed">
-                        Students cannot purchase or access outside this window. Leave blank for unrestricted lifetime access.
+                        Access period starts from the day of student registration / purchase (1, 3, 6 months, 1, 3 years, or Lifetime). After expiry, student can re-purchase to renew.
                       </p>
                     </div>
                   </div>

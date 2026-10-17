@@ -50,11 +50,18 @@ class CourseProvider with ChangeNotifier {
     if (stats == null) return false;
 
     // Direct enrollment check
-    final isEnrolled = stats.courses.any((sc) {
-      if (sc is Map) return sc['id']?.toString().toLowerCase() == course.id.toString().toLowerCase();
-      return false;
-    });
-    if (isEnrolled) return true;
+    for (final sc in stats.courses) {
+      if (sc is Map && sc['id']?.toString().toLowerCase() == course.id.toString().toLowerCase()) {
+        final uc = sc['UserCourse'] ?? sc['userCourse'];
+        if (uc is Map && uc['expiresAt'] != null) {
+          final exp = DateTime.tryParse(uc['expiresAt'].toString());
+          if (exp != null && exp.isBefore(DateTime.now())) {
+            return false; // Enrollment validity expired
+          }
+        }
+        return true;
+      }
+    }
 
     // Standalone course (without level tier) requires direct purchase
     final lvl = course.levelCode;

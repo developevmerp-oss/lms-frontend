@@ -542,7 +542,17 @@ export default function AdminLevels() {
               const studentCount = getStudentCountForTier(tier.code);
               const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
               const displayPrice = tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : tier.code === 'L3' ? '₹59,999' : 'Custom');
-              const validityText = !tier.validityDays || tier.validityDays === 0 ? '♾️ Lifetime Access' : `⏳ ${tier.validityDays} Days Access`;
+              const formatValidityLabel = (days: number | null | undefined) => {
+                if (!days || Number(days) === 0) return '♾️ Lifetime Access';
+                const d = Number(days);
+                if (d === 30) return '⏱️ 1 Month Access';
+                if (d === 90) return '⏱️ 3 Months Access';
+                if (d === 180) return '⏱️ 6 Months Access';
+                if (d === 365) return '⏱️ 1 Year Access';
+                if (d === 1095) return '⏱️ 3 Years Access';
+                return `⏳ ${d} Days Access`;
+              };
+              const validityText = formatValidityLabel(tier.validityDays);
               const isPub = tier.isPublished !== false;
 
               return (
@@ -815,53 +825,32 @@ export default function AdminLevels() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Validity Category</label>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold text-slate-400 mb-1.5 flex items-center gap-1.5">
+                          <Clock size={13} className="text-orange-400" /> Level Tier Validity Duration
+                        </label>
                         <select
-                          value={formData.category}
+                          value={String(formData.validityDays ?? 0)}
                           onChange={(e) => {
-                            const cat = e.target.value;
+                            const days = parseInt(e.target.value, 10);
                             setFormData({
                               ...formData,
-                              category: cat,
-                              validityDays: cat === 'Lifetime Validity' ? 0 : (formData.validityDays > 0 ? formData.validityDays : 15),
+                              validityDays: days,
+                              category: days === 0 ? 'Lifetime Validity' : 'Single Validity',
                             });
                           }}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500 cursor-pointer"
                         >
-                          {CATEGORY_OPTIONS.map((c) => (
-                            <option key={c} value={c}>
-                              {c === 'Single Validity' ? '⏱️ Single Validity (Day-wise)' : '♾️ Lifetime Validity (Permanent)'}
-                            </option>
-                          ))}
+                          <option value="30">1 Month (30 Days from student registration / purchase)</option>
+                          <option value="90">3 Months (90 Days from student registration / purchase)</option>
+                          <option value="180">6 Months (180 Days from student registration / purchase)</option>
+                          <option value="365">1 Year (365 Days from student registration / purchase)</option>
+                          <option value="1095">3 Years (1095 Days from student registration / purchase)</option>
+                          <option value="0">Lifetime (Permanent Access, No Expiration)</option>
                         </select>
-                      </div>
-
-                      <div>
-                        {formData.category === 'Single Validity' ? (
-                          <>
-                            <label className="block text-xs font-bold text-slate-400 mb-1.5">
-                              Validity Period (Days)
-                            </label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={formData.validityDays || 15}
-                              onChange={(e) => setFormData({ ...formData, validityDays: Math.max(1, parseInt(e.target.value) || 1) })}
-                              placeholder="e.g. 15"
-                              className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-400 focus:outline-none focus:border-orange-500 font-mono font-bold"
-                            />
-                            <p className="text-[10px] text-amber-400 mt-1">
-                              ⏳ Auto-expires {formData.validityDays || 15} days after purchase.
-                            </p>
-                          </>
-                        ) : (
-                          <div className="h-full flex flex-col justify-end">
-                            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-2 text-emerald-400 text-xs font-bold">
-                              ♾️ Permanent Lifetime Access
-                            </div>
-                          </div>
-                        )}
+                        <p className="text-[10px] text-slate-500 mt-1">
+                          Starts on the day student registers or purchases this level tier (L0, L1, L2, L3, L3+). When expired, student can re-purchase to renew.
+                        </p>
                       </div>
                     </div>
                   </div>

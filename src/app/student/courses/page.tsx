@@ -247,41 +247,99 @@ export default function StudentCourses() {
     return studentRankNum >= requiredNum;
   };
 
+  const getCourseEnrollment = (course: any) => {
+    if (!course || !course.id || !Array.isArray(stats.courses)) return null;
+    return stats.courses.find(
+      (sc: any) =>
+        sc &&
+        sc.id &&
+        String(sc.id).toLowerCase() === String(course.id).toLowerCase()
+    );
+  };
+
   const isCourseUnlocked = (course: any) => {
     if (!course) return false;
-    // Check direct enrollment in user's enrolled courses list (UUID/ID case-insensitive)
-    if (
-      stats.courses?.some(
-        (sc: any) =>
-          sc &&
-          sc.id &&
-          course.id &&
-          String(sc.id).toLowerCase() === String(course.id).toLowerCase()
-      )
-    ) {
+
+    // 1. Check direct enrollment in user's enrolled courses list
+    const enrolled = getCourseEnrollment(course);
+    if (enrolled) {
+      const uc = enrolled.UserCourse || enrolled.userCourse;
+      // If course has an expiration date, check if it has passed
+      if (uc && uc.expiresAt) {
+        const expiry = new Date(uc.expiresAt);
+        if (expiry.getTime() < Date.now()) {
+          // EXPIRED! Access is locked until student re-purchases
+          return false;
+        }
+      }
       return true;
     }
-    // Standalone course without level tier requires direct purchase
+
+    // 2. Standalone course without level tier requires direct purchase
     const lvl = course.levelCode;
     if (!lvl || lvl.toUpperCase() === "NONE") {
       return false;
     }
-    // Level-based course (L0, L1, L2, L3) unlocked if student has active level membership
+
+    // 3. Level-based course (L0, L1, L2, L3) unlocked if student has active level membership
     return isLevelUnlocked(lvl);
+  };
+
+  const isCourseExpired = (course: any) => {
+    const enrolled = getCourseEnrollment(course);
+    if (!enrolled) return false;
+    const uc = enrolled.UserCourse || enrolled.userCourse;
+    if (uc && uc.expiresAt) {
+      return new Date(uc.expiresAt).getTime() < Date.now();
+    }
+    return false;
+  };
+
+  const getCourseValidityInfo = (course: any) => {
+    if (!course) return { isEnrolled: false, isExpired: false, text: "Course Info" };
+    const enrolled = getCourseEnrollment(course);
+    if (!enrolled) {
+      if (course.validityMonths && Number(course.validityMonths) > 0) {
+        const m = Number(course.validityMonths);
+        let durationText = `${m} Months`;
+        if (m === 1) durationText = "1 Month";
+        else if (m === 3) durationText = "3 Months";
+        else if (m === 6) durationText = "6 Months";
+        else if (m === 12) durationText = "1 Year";
+        else if (m === 36) durationText = "3 Years";
+        return { isEnrolled: false, isExpired: false, text: `⏱️ ${durationText} Validity (starts on registration/purchase)` };
+      }
+      return { isEnrolled: false, isExpired: false, text: "♾️ Lifetime Access" };
+    }
+    const uc = enrolled.UserCourse || enrolled.userCourse;
+    if (uc && uc.expiresAt) {
+      const expiry = new Date(uc.expiresAt);
+      const isPast = expiry.getTime() < Date.now();
+      const diffMs = expiry.getTime() - Date.now();
+      const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+      const dateStr = expiry.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+      if (isPast) {
+        return { isEnrolled: true, isExpired: true, text: `⚠️ Validity Expired on ${dateStr}`, daysLeft: 0 };
+      }
+      return { isEnrolled: true, isExpired: false, text: `✓ Valid until ${dateStr} (${daysLeft} day${daysLeft === 1 ? '' : 's'} left)`, daysLeft };
+    }
+    return { isEnrolled: true, isExpired: false, text: "♾️ Lifetime Access Unlocked", daysLeft: null };
   };
 
   const handlePurchaseIndividualCourse = async (course: any) => {
     if (!course) return;
 
-    // Check validity window for standalone courses
+    // Check fixed validity window only if no rolling validityMonths is configured
     const now = new Date();
-    if (course.validityStartDate && new Date(course.validityStartDate) > now) {
-      alert(`Enrollment for "${course.title}" will open on ${new Date(course.validityStartDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. Please check back then.`);
-      return;
-    }
-    if (course.validityEndDate && new Date(course.validityEndDate) < now) {
-      alert(`Course validity for "${course.title}" has expired (${new Date(course.validityEndDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}). Enrollment is currently closed.`);
-      return;
+    if (!course.validityMonths) {
+      if (course.validityStartDate && new Date(course.validityStartDate) > now) {
+        alert(`Enrollment for "${course.title}" will open on ${new Date(course.validityStartDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. Please check back then.`);
+        return;
+      }
+      if (course.validityEndDate && new Date(course.validityEndDate) < now) {
+        alert(`Course validity for "${course.title}" has expired (${new Date(course.validityEndDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}). Enrollment is currently closed.`);
+        return;
+      }
     }
 
     const basePriceStr = course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "₹999";
@@ -300,7 +358,8 @@ export default function StudentCourses() {
         phone: user?.phone,
         onSuccess: () => {
           setIndividualCourseModal(null);
-          setPurchaseSuccessMsg(`🎉 Success! You now have lifetime access to "${course.title}". Start learning now!`);
+          const vMsg = course.validityMonths ? `${course.validityMonths} month${course.validityMonths > 1 ? 's' : ''} access` : 'lifetime access';
+          setPurchaseSuccessMsg(`🎉 Success! You now have ${vMsg} to "${course.title}". Start learning now!`);
           setTimeout(() => setPurchaseSuccessMsg(""), 6000);
           fetchStudentData();
         },
@@ -794,29 +853,18 @@ export default function StudentCourses() {
                     {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                   </p>
 
-                  {isStandalone && (course.validityStartDate || course.validityEndDate) && (() => {
-                    const now = new Date();
-                    const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
-                    const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
-                    const isUpcoming = start ? now < start : false;
-                    const isExpired = end ? now > end : false;
-
+                  {isStandalone && (() => {
+                    const vInfo = getCourseValidityInfo(course);
                     return (
                       <div className={`mb-4 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm ${
-                        isExpired 
+                        vInfo.isExpired 
                           ? 'bg-red-500/10 text-red-300 border-red-500/30' 
-                          : isUpcoming 
-                          ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' 
+                          : vInfo.isEnrolled 
+                          ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' 
                           : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
                       }`}>
-                        <Calendar size={12} className="shrink-0" />
-                        <span>
-                          {isExpired 
-                            ? `Enrollment Expired (${end?.toLocaleDateString('en-IN')})` 
-                            : isUpcoming 
-                            ? `Opens: ${start?.toLocaleDateString('en-IN')}` 
-                            : `Valid: ${start ? start.toLocaleDateString('en-IN') : 'Now'} - ${end ? end.toLocaleDateString('en-IN') : 'Lifetime'}`}
-                        </span>
+                        <Clock size={12} className="shrink-0" />
+                        <span>{vInfo.text}</span>
                       </div>
                     );
                   })()}
@@ -831,49 +879,25 @@ export default function StudentCourses() {
                     <ChevronRight size={14} />
                   </button>
                 ) : isStandalone ? (
-                  (() => {
-                    const now = new Date();
-                    const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
-                    const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
-                    const isUpcoming = start ? now < start : false;
-                    const isExpired = end ? now > end : false;
-
-                    if (isExpired) {
-                      return (
-                        <button
-                          onClick={() => setIndividualCourseModal(course)}
-                          className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-red-300 border border-red-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Clock size={14} className="text-red-400" />
-                          <span>Enrollment Closed (Expired)</span>
-                        </button>
-                      );
-                    }
-
-                    if (isUpcoming) {
-                      return (
-                        <button
-                          onClick={() => setIndividualCourseModal(course)}
-                          className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Clock size={14} className="text-amber-400" />
-                          <span>Opens on {start?.toLocaleDateString('en-IN')}</span>
-                        </button>
-                      );
-                    }
-
-                    return (
-                      <button
-                        onClick={() => setIndividualCourseModal(course)}
-                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
-                      >
-                        <Sparkles size={14} className="text-amber-300" />
-                        <span>
-                          Unlock Course Standalone ({displayFinalPrice})
-                        </span>
-                      </button>
-                    );
-                  })()
+                  isCourseExpired(course) ? (
+                    <button
+                      onClick={() => setIndividualCourseModal(course)}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-950/40 hover:scale-[1.02] cursor-pointer"
+                    >
+                      <Clock size={14} className="text-amber-200" />
+                      <span>⚠️ Validity Expired · Re-purchase ({displayFinalPrice})</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIndividualCourseModal(course)}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
+                    >
+                      <Sparkles size={14} className="text-amber-300" />
+                      <span>
+                        Unlock Course Standalone ({displayFinalPrice})
+                      </span>
+                    </button>
+                  )
                 ) : (
                   <button
                     onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
@@ -929,7 +953,7 @@ export default function StudentCourses() {
                 
                 <div className="absolute bottom-2 left-4 z-20 flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 backdrop-blur-md">
-                    <CheckCircle2 size={11} /> Lifetime Access Unlocked
+                    <CheckCircle2 size={11} /> {getCourseValidityInfo(selectedCourse).text}
                   </span>
                 </div>
               </div>
@@ -1302,55 +1326,58 @@ export default function StudentCourses() {
                   </div>
 
                   {/* Validity Status Alert Card */}
-                  {hasValidity ? (
-                    isExpired ? (
-                      <div className="p-3.5 rounded-2xl bg-red-950/30 border border-red-500/40 flex items-start gap-3">
-                        <div className="p-2 rounded-xl bg-red-500/20 text-red-400 shrink-0">
-                          <AlertCircle size={18} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-black text-red-300">Enrollment Period Expired</h4>
-                          <p className="text-[11px] text-red-300/80 mt-0.5">
-                            Validity ended on {end?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. This individual course is currently closed for new enrollments.
-                          </p>
-                        </div>
-                      </div>
-                    ) : isUpcoming ? (
-                      <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/40 flex items-start gap-3">
-                        <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
-                          <Clock size={18} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-black text-amber-300">Enrollment Opens Soon</h4>
-                          <p className="text-[11px] text-amber-300/80 mt-0.5">
-                            Enrollment for this masterclass begins on {start?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}. Check back when registration commences.
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/40 to-purple-950/40 border border-indigo-500/30 flex items-start gap-3">
-                        <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 shrink-0">
-                          <Calendar size={18} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-black text-indigo-200">Course Validity Period</h4>
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  {(() => {
+                    const vInfo = getCourseValidityInfo(c);
+                    if (vInfo.isExpired) {
+                      return (
+                        <div className="p-3.5 rounded-2xl bg-red-950/30 border border-red-500/40 flex items-start gap-3">
+                          <div className="p-2 rounded-xl bg-red-500/20 text-red-400 shrink-0">
+                            <AlertCircle size={18} />
                           </div>
-                          <p className="text-[11px] text-slate-300 mt-0.5">
-                            Valid from <strong className="text-white">{start ? start.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Now'}</strong> until <strong className="text-white">{end ? end.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime'}</strong>.
-                          </p>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-xs font-black text-red-300">Previous Validity Expired</h4>
+                            <p className="text-[11px] text-red-300/80 mt-0.5">
+                              {vInfo.text}. Re-purchasing this masterclass activates another full validity period starting from today!
+                            </p>
+                          </div>
                         </div>
+                      );
+                    }
+                    if (c.validityMonths && Number(c.validityMonths) > 0) {
+                      const m = Number(c.validityMonths);
+                      let label = `${m} Months`;
+                      if (m === 1) label = "1 Month";
+                      else if (m === 3) label = "3 Months";
+                      else if (m === 6) label = "6 Months";
+                      else if (m === 12) label = "1 Year";
+                      else if (m === 36) label = "3 Years";
+
+                      return (
+                        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/40 to-purple-950/40 border border-indigo-500/30 flex items-start gap-3">
+                          <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 shrink-0">
+                            <Clock size={18} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-xs font-black text-indigo-200">{label} Course Validity</h4>
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                            </div>
+                            <p className="text-[11px] text-slate-300 mt-0.5">
+                              Validity begins on the day of student registration / purchase. Enjoy full unrestricted access to all lessons and study notes for {label}.
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="p-3 rounded-2xl bg-emerald-950/25 border border-emerald-500/30 flex items-center gap-2.5">
+                        <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
+                        <span className="text-[11px] font-bold text-emerald-300">
+                          Permanent Lifetime Access Included
+                        </span>
                       </div>
-                    )
-                  ) : (
-                    <div className="p-3 rounded-2xl bg-emerald-950/25 border border-emerald-500/30 flex items-center gap-2.5">
-                      <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-                      <span className="text-[11px] font-bold text-emerald-300">
-                        Unlimited Lifetime Enrollment &amp; Access Included
-                      </span>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Highlights Grid */}
                   <div className="grid grid-cols-2 gap-2.5">
@@ -1423,32 +1450,20 @@ export default function StudentCourses() {
 
                   {/* Actions */}
                   <div className="space-y-2.5 pt-1">
-                    {isExpired ? (
-                      <button
-                        disabled
-                        className="w-full py-4 bg-slate-800/80 text-red-300 border border-red-500/30 font-black text-xs rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed"
-                      >
-                        <Clock size={16} className="text-red-400" />
-                        <span>Enrollment Unavailable (Validity Expired)</span>
-                      </button>
-                    ) : isUpcoming ? (
-                      <button
-                        disabled
-                        className="w-full py-4 bg-slate-800/80 text-amber-300 border border-amber-500/30 font-black text-xs rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed"
-                      >
-                        <Clock size={16} className="text-amber-400" />
-                        <span>Opens on {start?.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handlePurchaseIndividualCourse(c)}
-                        disabled={isProcessingPayment}
-                        className="w-full py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-purple-900/40 hover:shadow-purple-900/60 transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                      >
-                        <Sparkles size={16} className="text-amber-300" />
-                        <span>{isProcessingPayment ? "Connecting to Razorpay..." : `Unlock Masterclass Now (${finalPriceStr})`}</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handlePurchaseIndividualCourse(c)}
+                      disabled={isProcessingPayment}
+                      className="w-full py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-purple-900/40 hover:shadow-purple-900/60 transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      <Sparkles size={16} className="text-amber-300" />
+                      <span>
+                        {isProcessingPayment
+                          ? "Connecting to Razorpay..."
+                          : isCourseExpired(c)
+                          ? `Re-purchase & Renew Access (${finalPriceStr})`
+                          : `Unlock Masterclass Now (${finalPriceStr})`}
+                      </span>
+                    </button>
 
                     <button
                       onClick={() => setIndividualCourseModal(null)}

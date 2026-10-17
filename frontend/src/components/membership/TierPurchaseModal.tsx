@@ -722,9 +722,27 @@ export const TierPurchaseModal = ({
                   {mergedTier.icon}
                 </div>
                 <div>
-                  <span className="text-xs font-black text-orange-400 uppercase tracking-wider block">
-                    {mergedTier.code} Tier Enrollment
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black text-orange-400 uppercase tracking-wider block">
+                      {mergedTier.code} Tier Enrollment
+                    </span>
+                    {(() => {
+                      const vDays = liveTierMatch?.validityDays !== undefined && liveTierMatch?.validityDays !== null ? Number(liveTierMatch.validityDays) : 0;
+                      let vText = "♾️ Lifetime Access";
+                      if (vDays === 30) vText = "⏱️ 1 Month Validity";
+                      else if (vDays === 90) vText = "⏱️ 3 Months Validity";
+                      else if (vDays === 180) vText = "⏱️ 6 Months Validity";
+                      else if (vDays === 365) vText = "⏱️ 1 Year Validity";
+                      else if (vDays === 1095) vText = "⏱️ 3 Years Validity";
+                      else if (vDays > 0) vText = `⏳ ${vDays} Days Validity`;
+
+                      return (
+                        <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                          {vText}
+                        </span>
+                      );
+                    })()}
+                  </div>
                   <h3 className="text-xl font-black text-white">{mergedTier.name}</h3>
                 </div>
               </div>
