@@ -43,6 +43,7 @@ next-env.d.ts
 # backups and scratch
 lms_backup.tar.gz
 mobile.zip
+mobile/
 scratch/
 frontend/frontend/
 frontend/backend/
