@@ -1230,7 +1230,8 @@ export default function AdminCourses() {
 
               {/* Conditional Price Text Box for Standalone Courses */}
               {(!courseForm.levelCode || courseForm.levelCode === "NONE") && (
-                <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/40 space-y-2 animate-fadeIn">
+                <>
+                  <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/40 space-y-2 animate-fadeIn">
                   <label className="block text-xs font-black text-purple-300 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <Tag size={13} className="text-purple-400" /> Individual Course Price (₹) *

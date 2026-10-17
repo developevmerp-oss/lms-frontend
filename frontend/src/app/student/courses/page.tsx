@@ -768,49 +768,50 @@ export default function StudentCourses() {
                     <span>📂 Open Course Lessons</span>
                     <ChevronRight size={14} />
                   </button>
-                ) : isStandalone ? (() => {
-                  const now = new Date();
-                  const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
-                  const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
-                  const isUpcoming = start ? now < start : false;
-                  const isExpired = end ? now > end : false;
+                ) : isStandalone ? (
+                  (() => {
+                    const now = new Date();
+                    const start = course.validityStartDate ? new Date(course.validityStartDate) : null;
+                    const end = course.validityEndDate ? new Date(course.validityEndDate) : null;
+                    const isUpcoming = start ? now < start : false;
+                    const isExpired = end ? now > end : false;
 
-                  if (isExpired) {
+                    if (isExpired) {
+                      return (
+                        <button
+                          onClick={() => setIndividualCourseModal(course)}
+                          className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-red-300 border border-red-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <Clock size={14} className="text-red-400" />
+                          <span>Enrollment Closed (Expired)</span>
+                        </button>
+                      );
+                    }
+
+                    if (isUpcoming) {
+                      return (
+                        <button
+                          onClick={() => setIndividualCourseModal(course)}
+                          className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <Clock size={14} className="text-amber-400" />
+                          <span>Opens on {start?.toLocaleDateString('en-IN')}</span>
+                        </button>
+                      );
+                    }
+
                     return (
                       <button
                         onClick={() => setIndividualCourseModal(course)}
-                        className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-red-300 border border-red-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
                       >
-                        <Clock size={14} className="text-red-400" />
-                        <span>Enrollment Closed (Expired)</span>
+                        <Sparkles size={14} className="text-amber-300" />
+                        <span>
+                          Unlock Course Standalone ({displayFinalPrice})
+                        </span>
                       </button>
                     );
-                  }
-
-                  if (isUpcoming) {
-                    return (
-                      <button
-                        onClick={() => setIndividualCourseModal(course)}
-                        className="w-full py-3 px-4 bg-slate-800/80 hover:bg-slate-800 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <Clock size={14} className="text-amber-400" />
-                        <span>Opens on {start?.toLocaleDateString('en-IN')}</span>
-                      </button>
-                    );
-                  }
-
-                  return (
-                    <button
-                      onClick={() => setIndividualCourseModal(course)}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
-                    >
-                      <Sparkles size={14} className="text-amber-300" />
-                      <span>
-                        Unlock Course Standalone ({displayFinalPrice})
-                      </span>
-                    </button>
-                  );
-                })()
+                  })()
                 ) : (
                   <button
                     onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
