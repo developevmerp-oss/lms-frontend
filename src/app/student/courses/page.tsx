@@ -756,36 +756,28 @@ export default function StudentCourses() {
               >
                 <div>
                   {/* Course Banner Thumbnail */}
-                  <div className="relative w-full h-44 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 flex items-center justify-center">
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 flex items-center justify-center">
                     {(course.image || course.flyerImage) ? (
                       <>
-                        {/* Ambient glow backdrop */}
-                        <img
-                          src={course.image || course.flyerImage}
-                          alt=""
-                          aria-hidden="true"
-                          className={`absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none ${
-                            !unlocked ? "filter grayscale-[50%]" : ""
-                          }`}
-                        />
-                        {/* Full crisp flyer / banner */}
+                        {/* Full Cover Banner Display: Edge-to-Edge */}
                         <img
                           src={course.image || course.flyerImage}
                           alt={course.title}
-                          className={`relative z-10 w-full h-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-105 ${
-                            !unlocked ? "filter grayscale-[30%] opacity-80" : ""
+                          className={`w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 ${
+                            !unlocked ? "filter grayscale-[30%] opacity-85" : ""
                           }`}
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/15 to-slate-950/40 pointer-events-none" />
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             setPreviewFlyerModal(course.flyerImage || course.image);
                           }}
-                          className="absolute bottom-2 left-2.5 z-20 px-2 py-1 rounded-lg bg-slate-950/85 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur-md transition-all shadow-md cursor-pointer opacity-0 group-hover:opacity-100 flex items-center gap-1 text-[10px] font-bold"
+                          className="absolute bottom-2 left-2.5 z-20 px-2.5 py-1 rounded-lg bg-slate-950/85 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur-md transition-all shadow-md cursor-pointer opacity-0 group-hover:opacity-100 flex items-center gap-1.5 text-[10px] font-bold"
                           title="View Full Flyer / Poster"
                         >
-                          <Maximize2 size={10} /> Full Poster
+                          <Maximize2 size={11} /> Full Poster
                         </button>
                       </>
                     ) : (
@@ -1242,25 +1234,19 @@ export default function StudentCourses() {
               className="relative w-full max-w-lg p-[1px] rounded-[32px] bg-gradient-to-b from-purple-500/50 via-indigo-500/25 to-slate-800 shadow-[0_25px_80px_-15px_rgba(147,51,234,0.4)] my-auto"
             >
               <div className="bg-slate-950/95 backdrop-blur-2xl rounded-[31px] overflow-hidden text-white flex flex-col">
-                {/* Header Banner with uncropped flyer */}
-                <div className="relative w-full h-72 sm:h-84 bg-slate-950 overflow-hidden border-b border-purple-500/20 flex items-center justify-center">
-                  {(c.flyerImage || c.image) ? (
+                {/* Header Banner with full cover */}
+                <div className="relative w-full h-60 sm:h-72 bg-slate-950 overflow-hidden border-b border-purple-500/20 flex items-center justify-center">
+                  {(c.image || c.flyerImage) ? (
                     <>
-                      {/* Ambient blur background */}
+                      {/* Full Cover Banner Display */}
                       <img 
-                        src={c.flyerImage || c.image} 
-                        alt="" 
-                        aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" 
-                      />
-                      {/* Complete uncropped crisp flyer */}
-                      <img 
-                        src={c.flyerImage || c.image} 
+                        src={c.image || c.flyerImage} 
                         alt={c.title} 
-                        className="relative z-10 w-full h-full object-contain p-2 cursor-pointer transition-transform duration-500 hover:scale-[1.02]" 
+                        className="w-full h-full object-cover object-center cursor-pointer transition-transform duration-500 hover:scale-105" 
                         onClick={() => setPreviewFlyerModal(c.flyerImage || c.image)}
-                        title="Click to view full flyer"
+                        title="Click to view full flyer / poster"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-slate-950/50 pointer-events-none" />
                     </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-purple-950 via-slate-950 to-indigo-950 flex items-center justify-center">
