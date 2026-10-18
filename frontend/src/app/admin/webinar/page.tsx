@@ -23,7 +23,8 @@ import {
   Video,
   Link as LinkIcon,
   Check,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 
 export default function AdminWebinarCRM() {
@@ -46,6 +47,8 @@ export default function AdminWebinarCRM() {
     status: "upcoming",
     isActive: true,
   });
+  const [isSavingEvent, setIsSavingEvent] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Registrations State
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -136,6 +139,8 @@ export default function AdminWebinarCRM() {
 
   const handleOpenCreateModal = () => {
     setEditingEvent(null);
+    setSaveError("");
+    setIsSavingEvent(false);
     // Default to next upcoming Sunday 8:00 PM local time
     const nextSunday = new Date();
     const day = nextSunday.getDay();
@@ -159,6 +164,8 @@ export default function AdminWebinarCRM() {
 
   const handleOpenEditModal = (event: any) => {
     setEditingEvent(event);
+    setSaveError("");
+    setIsSavingEvent(false);
     setEventForm({
       title: event.title,
       scheduledAt: formatForDateTimeLocal(event.scheduledAt),
@@ -175,6 +182,8 @@ export default function AdminWebinarCRM() {
 
   const handleSaveEvent = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSavingEvent(true);
+    setSaveError("");
     try {
       const method = editingEvent ? "PUT" : "POST";
       const url = editingEvent
@@ -200,12 +209,19 @@ export default function AdminWebinarCRM() {
         body: JSON.stringify(payload),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         setIsEventModalOpen(false);
         fetchEvents();
+      } else {
+        setSaveError(data.message || `Failed to save changes (${res.status}). Please try again.`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Save event error:", err);
+      setSaveError(err.message || "Network error. Please try again.");
+    } finally {
+      setIsSavingEvent(false);
     }
   };
 
@@ -682,6 +698,13 @@ export default function AdminWebinarCRM() {
               Configure session date, Zoom link, and WhatsApp group for students.
             </p>
 
+            {saveError && (
+              <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="size-4 shrink-0" />
+                <span>{saveError}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSaveEvent} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
@@ -798,15 +821,24 @@ export default function AdminWebinarCRM() {
                 <button
                   type="button"
                   onClick={() => setIsEventModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer"
+                  disabled={isSavingEvent}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs shadow-lg shadow-orange-500/20 cursor-pointer"
+                  disabled={isSavingEvent}
+                  className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-black text-xs shadow-lg shadow-orange-500/20 cursor-pointer flex items-center gap-2"
                 >
-                  {editingEvent ? "Save Changes" : "Schedule Webinar"}
+                  {isSavingEvent ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving Changes...</span>
+                    </>
+                  ) : (
+                    <span>{editingEvent ? "Save Changes" : "Schedule Webinar"}</span>
+                  )}
                 </button>
               </div>
             </form>
