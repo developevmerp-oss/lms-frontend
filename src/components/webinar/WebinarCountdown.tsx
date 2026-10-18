@@ -25,12 +25,14 @@ export const WebinarCountdown = ({
 
   const getFallbackDate = () => {
     const now = new Date();
-    const target = new Date(now);
-    const day = target.getDay();
+    const istOffsetMs = 5.5 * 60 * 60 * 1000;
+    const istNow = new Date(now.getTime() + istOffsetMs);
+    const day = istNow.getUTCDay();
     const diff = (7 - day) % 7;
-    target.setDate(now.getDate() + (diff === 0 && now.getHours() >= 20 ? 7 : diff));
-    target.setHours(20, 0, 0, 0);
-    return target.getTime();
+    const targetIst = new Date(istNow);
+    targetIst.setUTCDate(istNow.getUTCDate() + (diff === 0 && istNow.getUTCHours() >= 20 ? 7 : diff));
+    targetIst.setUTCHours(20, 0, 0, 0); // 8:00 PM IST
+    return targetIst.getTime() - istOffsetMs;
   };
 
   const fetchNextWebinar = useCallback(async () => {
@@ -38,10 +40,10 @@ export const WebinarCountdown = ({
       const res = await fetch(`${API_BASE_URL}/webinar/next`);
       const data = await res.json();
       if (data.success && data.data?.scheduledAt) {
+        if (onWebinarLoaded) onWebinarLoaded(data.data);
         const time = new Date(data.data.scheduledAt).getTime();
         if (time > Date.now()) {
           setTargetTimestamp(time);
-          if (onWebinarLoaded) onWebinarLoaded(data.data);
           return;
         }
       }

@@ -121,22 +121,31 @@ export default function AdminWebinarCRM() {
     fetchRegistrations();
   };
 
+  // Helper to format ISO date string or Date into YYYY-MM-DDTHH:mm for datetime-local input in local timezone
+  const formatForDateTimeLocal = (dateInput: string | Date | null | undefined): string => {
+    if (!dateInput) return "";
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return "";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleOpenCreateModal = () => {
     setEditingEvent(null);
-    // Default to next upcoming Sunday 8:00 PM
+    // Default to next upcoming Sunday 8:00 PM local time
     const nextSunday = new Date();
     const day = nextSunday.getDay();
     const diff = (7 - day) % 7;
-    nextSunday.setDate(nextSunday.getDate() + (diff === 0 ? 7 : diff));
+    nextSunday.setDate(nextSunday.getDate() + (diff === 0 && nextSunday.getHours() >= 20 ? 7 : diff));
     nextSunday.setHours(20, 0, 0, 0);
-
-    // Format for datetime-local: YYYY-MM-DDTHH:mm
-    const tzOffset = nextSunday.getTimezoneOffset() * 60000;
-    const localISOTime = new Date(nextSunday.getTime() - tzOffset).toISOString().slice(0, 16);
 
     setEventForm({
       title: "Resin Mastery Masterclass — Live with Vrajangna Patel",
-      scheduledAt: localISOTime,
+      scheduledAt: formatForDateTimeLocal(nextSunday),
       durationMinutes: 90,
       zoomJoinUrl: "",
       whatsappGroupUrl: "https://chat.whatsapp.com/sample-art-webinar-vip",
@@ -150,13 +159,9 @@ export default function AdminWebinarCRM() {
 
   const handleOpenEditModal = (event: any) => {
     setEditingEvent(event);
-    const dateObj = new Date(event.scheduledAt);
-    const tzOffset = dateObj.getTimezoneOffset() * 60000;
-    const localISOTime = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 16);
-
     setEventForm({
       title: event.title,
-      scheduledAt: localISOTime,
+      scheduledAt: formatForDateTimeLocal(event.scheduledAt),
       durationMinutes: event.durationMinutes || 90,
       zoomJoinUrl: event.zoomJoinUrl || "",
       whatsappGroupUrl: event.whatsappGroupUrl || "",
@@ -176,13 +181,23 @@ export default function AdminWebinarCRM() {
         ? `${API_BASE_URL}/webinar/events/${editingEvent.id}`
         : `${API_BASE_URL}/webinar/events`;
 
+      // Convert local datetime-local selection to absolute UTC ISO string (with Z)
+      const scheduledUtc = eventForm.scheduledAt
+        ? new Date(eventForm.scheduledAt).toISOString()
+        : new Date().toISOString();
+
+      const payload = {
+        ...eventForm,
+        scheduledAt: scheduledUtc,
+      };
+
       const res = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(eventForm),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -420,14 +435,18 @@ export default function AdminWebinarCRM() {
                             <Clock size={14} className="text-orange-400 shrink-0" />
                             <strong>Date &amp; Time:</strong>{" "}
                             {date.toLocaleDateString("en-IN", {
-                              weekday: "long",
+                              weekday: "short",
                               day: "numeric",
                               month: "short",
                               year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
                             })}{" "}
-                            ({e.durationMinutes || 90} Mins)
+                            at{" "}
+                            {date.toLocaleTimeString("en-IN", {
+                              hour: "numeric",
+                              minute: "2-digit",
+                              hour12: true,
+                            }).toUpperCase()}{" "}
+                            IST ({e.durationMinutes || 90} Mins)
                           </p>
 
                           <p className="flex items-center gap-2">

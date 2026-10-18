@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
@@ -495,7 +495,7 @@ export default function WebinarPage() {
   const [showStickyBottom, setShowStickyBottom] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Fetch dynamic scarcity stats from database
+  // Fetch dynamic scarcity stats and next webinar from database
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -512,7 +512,18 @@ export default function WebinarPage() {
       } catch (_) {}
     };
 
+    const fetchNextWebinar = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/webinar/next`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActiveWebinar(data.data);
+        }
+      } catch (_) {}
+    };
+
     fetchStats();
+    fetchNextWebinar();
     try {
       trackingService.trackViewContent({
         name: "Resin Art Masterclass Webinar",
@@ -614,34 +625,45 @@ export default function WebinarPage() {
     }, 100);
   };
 
-  const getNextWebinarDate = () => {
+  const resolvedDate = useMemo(() => {
     if (activeWebinar?.scheduledAt) {
       const d = new Date(activeWebinar.scheduledAt);
-      if (d.getTime() > Date.now()) {
-        return d.toLocaleDateString("en-IN", {
-          weekday: "short",
-          day: "numeric",
-          month: "short",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-      }
+      if (!isNaN(d.getTime())) return d;
     }
     const target = new Date();
     const day = target.getDay();
     const diff = (7 - day) % 7;
     target.setDate(target.getDate() + (diff === 0 && target.getHours() >= 20 ? 7 : diff));
     target.setHours(20, 0, 0, 0);
-    return target.toLocaleDateString("en-IN", {
+    return target;
+  }, [activeWebinar?.scheduledAt]);
+
+  const displayDateStr = useMemo(() => {
+    return resolvedDate.toLocaleDateString("en-IN", {
       weekday: "short",
       day: "numeric",
       month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
     });
-  };
+  }, [resolvedDate]);
 
-  const sessionDisplayDate = getNextWebinarDate();
+  const displayTimeStr = useMemo(() => {
+    return (
+      resolvedDate
+        .toLocaleTimeString("en-IN", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .toUpperCase() + " IST"
+    );
+  }, [resolvedDate]);
+
+  const displayDurationStr = useMemo(() => {
+    if (activeWebinar?.durationMinutes) {
+      return `${activeWebinar.durationMinutes} minutes`;
+    }
+    return "90 minutes";
+  }, [activeWebinar?.durationMinutes]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative font-sans">
@@ -760,11 +782,11 @@ export default function WebinarPage() {
               <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-4 mb-8 shadow-xl">
                 <div className="bg-slate-900/90 p-4">
                   <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Date</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{sessionDisplayDate.split("·")[0] || "THIS SUNDAY"}</dd>
+                  <dd className="mt-1 text-sm font-bold text-white">{displayDateStr}</dd>
                 </div>
                 <div className="bg-slate-900/90 p-4">
                   <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Time</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">8:00 PM IST</dd>
+                  <dd className="mt-1 text-sm font-bold text-white">{displayTimeStr}</dd>
                 </div>
                 <div className="bg-slate-900/90 p-4">
                   <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Language</dt>
@@ -772,7 +794,7 @@ export default function WebinarPage() {
                 </div>
                 <div className="bg-slate-900/90 p-4">
                   <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Duration</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">90 minutes</dd>
+                  <dd className="mt-1 text-sm font-bold text-white">{displayDurationStr}</dd>
                 </div>
               </dl>
 
