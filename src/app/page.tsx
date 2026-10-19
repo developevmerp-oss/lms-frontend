@@ -42,7 +42,7 @@ import {
   ShieldCheck,
   Smile,
   Zap,
-  ChevronRight
+  ChevronRight,
   MessageCircle,
 } from "lucide-react";
 
