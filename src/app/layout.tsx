@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Inter, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
 import { MetaPixelProvider } from "@/components/marketing/MetaPixelProvider";
 
 const inter = Inter({ subsets: ["latin"] });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display" });
+const nunito = Nunito_Sans({ subsets: ["latin"], variable: "--font-landing" });
 
 export const metadata: Metadata = {
   title: "Art Concept LMS",
@@ -18,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="theme-orange">
+    <html lang="en" className={`theme-orange ${fraunces.variable} ${nunito.variable}`}>
       <body className={`${inter.className} text-text-primary min-h-screen bg-background`}>
         <AuthProvider>
           <MetaPixelProvider />

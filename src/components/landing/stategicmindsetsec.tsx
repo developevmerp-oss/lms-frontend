@@ -11,8 +11,8 @@ const STAGES = [
 
 export default function StategicMindsetSec() {
   return (
-    <section className="strategic-mindset relative z-10 bg-white pb-16 text-neutral-950 sm:pb-20 lg:pb-24">
-      <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
+    <section className="strategic-mindset relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
+      <div className="nav-width">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
             The Strategic Mindset
@@ -38,17 +38,18 @@ export default function StategicMindsetSec() {
           {STAGES.map((step, idx) => (
             <article
               key={step.step}
-              className="relative flex flex-col items-center rounded-3xl border border-neutral-200 bg-white px-3 py-5 text-center shadow-sm"
+              className="page-rise-item relative flex flex-col items-center rounded-3xl border border-neutral-200 bg-white px-3 py-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-md"
+              style={{ animationDelay: `${idx * 0.08}s` }}
             >
               <img src={step.image} alt="" className="mb-4 h-16 w-16 object-contain sm:h-20 sm:w-20" />
               <p className="text-xs text-neutral-400">Stage {step.step}</p>
               <h3 className="mt-1 text-base font-bold text-neutral-950 sm:text-lg">{step.title}</h3>
               <p className="mt-1 text-xs leading-snug text-neutral-500 sm:text-sm">{step.desc}</p>
-              {/* {idx < STAGES.length - 1 && (
-                <span aria-hidden="true" className="absolute top-1/2 -right-3.5 z-10 hidden -translate-y-1/2 text-neutral-300 lg:block">
+              {idx < STAGES.length - 1 && (
+                <span aria-hidden="true" className="absolute top-1/2 -right-4 z-10 hidden -translate-y-1/2 text-orange-300 lg:block">
                   <ChevronRight size={16} />
                 </span>
-              )} */}
+              )}
             </article>
           ))}
         </div>

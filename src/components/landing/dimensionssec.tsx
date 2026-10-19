@@ -48,7 +48,7 @@ const DIMENSIONS = [
 export default function DimensionsSec() {
   return (
     <section id="dimensions" className="dimensions-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
-      <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <div className="nav-width page-rise">
         <div className="mx-auto max-w-3xl text-center">
           <p className="dimensions-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
             Holistic Development
@@ -80,7 +80,7 @@ export default function DimensionsSec() {
           {DIMENSIONS.map((dim) => {
             const Icon = dim.icon;
             return (
-              <article key={dim.title} className="flex h-full flex-col rounded-[1.6rem] border border-[#f1efec] bg-[#fbfbfb] p-5 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.45)] sm:p-6">
+              <article key={dim.title} className="flex h-full flex-col rounded-[1.6rem] border border-[#f1efec] bg-[#fbfbfb] p-5 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_36px_-22px_rgba(227,107,50,0.28)] sm:p-6">
                 <Icon size={32} strokeWidth={1.6} className="dimensions-line-icon mb-4" aria-hidden="true" />
                 <h3 className="dimensions-title text-base font-bold text-neutral-950 sm:text-lg">{dim.title}</h3>
                 <p className="dimensions-muted mt-2 flex-1 text-sm leading-relaxed text-neutral-500">{dim.desc}</p>

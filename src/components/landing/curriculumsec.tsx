@@ -59,7 +59,7 @@ export default function CurriculumSec() {
       ref={sectionRef}
       className="curriculum-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20"
     >
-      <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <div className="nav-width">
         <motion.div
           className="mx-auto max-w-3xl text-center"
           initial={{ opacity: 0, y: 16 }}

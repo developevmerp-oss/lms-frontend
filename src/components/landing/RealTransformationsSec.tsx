@@ -86,7 +86,7 @@ export default function RealTransformationsSec({
   });
 
   return (
-    <section id="real-transformations" className="relative z-10 overflow-hidden bg-[#fff8f4] py-16 sm:py-20 lg:py-24">
+    <section id="real-transformations" className="relative z-10 overflow-hidden bg-white py-16 sm:py-20 lg:py-24">
       <div className="pointer-events-none absolute -left-24 top-8 h-72 w-72 rounded-full bg-[#fde4d2] blur-3xl" />
       <div className="pointer-events-none absolute -right-16 top-0 h-80 w-80 rounded-full bg-[#fff0e4] blur-3xl" />
       <div className="pointer-events-none absolute bottom-16 left-1/2 h-56 w-[36rem] -translate-x-1/2 rounded-full bg-[#ffe8d8]/80 blur-3xl" />
@@ -102,7 +102,7 @@ export default function RealTransformationsSec({
         className="pointer-events-none absolute top-0 right-0 hidden h-32 w-auto select-none object-contain object-right-top lg:block xl:h-40 2xl:h-48"
       />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+      <div className="nav-width relative z-10 text-center">
         <div className="flex items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: ACCENT }}>
           <span className="h-px w-10 bg-[#f0b48a]" />
           Real Transformations
@@ -130,7 +130,7 @@ export default function RealTransformationsSec({
       </div>
 
       <div
-        className="relative mt-12"
+        className="nav-width relative mt-12"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onPointerDown={(event) => {
@@ -228,7 +228,7 @@ export default function RealTransformationsSec({
         </div>
       </div>
 
-      <div className="relative mx-auto mt-10 w-full max-w-3xl px-6">
+      <div className="nav-width relative mt-10">
         <div className="flex flex-col divide-y divide-[#f3e0d2] rounded-[1.75rem] border border-[#f6e4d6] bg-white/80 shadow-[0_16px_40px_-28px_rgba(180,90,30,0.7)] sm:flex-row sm:divide-x sm:divide-y-0 sm:rounded-full">
           {STATS.map((stat) => (
             <div key={stat.label} className="flex flex-1 items-center justify-center gap-3 px-5 py-3.5">

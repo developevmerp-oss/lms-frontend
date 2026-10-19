@@ -66,7 +66,7 @@ function ChallengeCard({ item, className = "" }: { item: ChallengeCardItem; clas
 
   return (
     <article
-      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-3xl p-5 shadow-sm sm:p-6 lg:p-4 ${item.tone} ${
+      className={`relative flex h-full flex-col justify-between overflow-hidden rounded-3xl p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md sm:p-6 lg:p-4 ${item.tone} ${
         compact ? "min-h-56 lg:min-h-0" : "min-h-64 lg:min-h-0"
       } ${className}`}
     >
@@ -99,9 +99,9 @@ function ChallengeCard({ item, className = "" }: { item: ChallengeCardItem; clas
 
 export default function RealChallangeSec() {
   return (
-    <section id="problem" className="relative z-10 flex items-center bg-white py-16 text-neutral-950 sm:py-20 lg:h-screen lg:overflow-hidden lg:py-5">
-      <div className="container mx-auto w-full px-5 sm:px-5 lg:px-10 2xl:px-0">
-        <div className="mx-auto max-w-3xl text-center">
+    <section id="problem" className="relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
+      <div className="nav-width container">
+        <div className="page-rise mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
             The Real Challenge
           </p>
@@ -113,7 +113,7 @@ export default function RealChallangeSec() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-4 lg:gap-3">
+        <div className="page-rise mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-4 lg:gap-3">
           <ChallengeCard item={CARDS[0]} className="min-h-72 lg:min-h-0 xl:row-span-2 xl:min-h-0" />
           <ChallengeCard item={CARDS[1]} />
           <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2 xl:col-span-1 lg:gap-3">

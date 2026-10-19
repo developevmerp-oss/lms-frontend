@@ -141,9 +141,9 @@ export default function PathSec() {
     <section
       id="path"
       ref={sectionRef}
-      className="path-sec relative z-10 flex items-center bg-white py-16 text-neutral-950 sm:py-20  lg:overflow-hidden lg:py-0"
+      className="path-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24"
     >
-      <div className="container mx-auto w-full px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <div className="nav-width">
         <motion.div
           className="mx-auto max-w-3xl text-center"
           initial={{ opacity: 0, y: 18 }}
@@ -162,7 +162,7 @@ export default function PathSec() {
           </p>
         </motion.div>
 
-        <div className="mx-auto mt-8 grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4 lg:gap-8">
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4 lg:gap-8">
           {STAGES.map((item, index) => (
             <motion.div
               key={item.stage}

@@ -71,7 +71,7 @@ export default function MasterclassSec() {
         </div>
       */}
 
-      <div className="container relative mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <div className="nav-width relative">
         <svg className="masterclass-lines" viewBox="0 0 160 90" aria-hidden="true">
           <path d="M8 70C40 20 90 10 150 28" />
           <path d="M20 82C58 40 108 34 156 58" />
