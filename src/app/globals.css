@@ -2168,7 +2168,23 @@ footer.site-footer,
 }
 
 .hero-studio {
-  background-color: #ffffff !important;
+  background-color: #f3eee6 !important;
+}
+
+@keyframes hero-marquee-up {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+.hero-marquee-up {
+  animation: hero-marquee-up var(--marquee-duration, 32s) linear infinite;
+  animation-delay: var(--marquee-delay, 0s);
+  will-change: transform;
 }
 
 .hero-studio .brand-logo-dark,
@@ -2209,7 +2225,8 @@ footer.site-footer,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-piece {
+  .hero-piece,
+  .hero-marquee-up {
     animation: none;
   }
 }

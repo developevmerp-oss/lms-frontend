@@ -10,31 +10,17 @@ type Artwork = {
   image: string;
 };
 
-const TILES = [
-  { index: 7, span: "lg:col-span-1", aspect: "aspect-[4/3]", lift: "lg:mb-6" },
-  { index: 8, span: "lg:col-span-1", aspect: "aspect-[4/3]", lift: "lg:mb-2" },
-  { index: 2, span: "lg:col-span-1", aspect: "aspect-square", lift: "lg:mb-8" },
-  { index: 0, span: "lg:col-span-1", aspect: "aspect-square", lift: "lg:mb-1", circle: true },
-  { index: 6, span: "lg:col-span-1", aspect: "aspect-[4/3]", lift: "lg:mb-5" },
-  { index: 5, span: "lg:col-span-1", aspect: "aspect-[4/3]", lift: "lg:mb-10" },
-  { index: 1, span: "col-span-2 lg:col-span-2", aspect: "aspect-[16/10]", lift: "" },
-  { index: 3, span: "lg:col-span-1", aspect: "aspect-square", lift: "lg:mt-3" },
-  { index: 4, span: "lg:col-span-1", aspect: "aspect-square", lift: "lg:mt-6", circle: true },
-  { index: 11, span: "col-span-2 lg:col-span-2", aspect: "aspect-[16/10]", lift: "lg:mt-2" },
-  { index: 8, span: "lg:col-span-1", aspect: "aspect-[4/3]", lift: "lg:mt-4" },
-  { index: 2, span: "lg:col-span-1", aspect: "aspect-square", lift: "lg:mt-1" },
-  { index: 0, span: "lg:col-span-1", aspect: "aspect-square", lift: "lg:mt-5" },
-  { index: 6, span: "lg:col-span-1", aspect: "aspect-[4/3]", lift: "lg:mt-2" },
-  { index: 1, span: "col-span-2 lg:col-span-2", aspect: "aspect-[16/10]", lift: "" }
+const COLUMNS = [
+  { indexes: [8, 2, 9, 1], duration: "90s", delay: "0s", heights: ["h-32", "h-44", "h-28", "h-36"], show: "" },
+  { indexes: [0, 3, 6, 4], duration: "108s", delay: "-27s", heights: ["h-40", "h-28", "h-44", "h-32"], show: "" },
+  { indexes: [7, 5, 10, 11], duration: "78s", delay: "-12s", heights: ["h-44", "h-32", "h-28", "h-40"], show: "hidden sm:block" },
+  { indexes: [1, 8, 0, 4], duration: "102s", delay: "-42s", heights: ["h-28", "h-40", "h-44", "h-32"], show: "hidden md:block" },
+  { indexes: [6, 9, 2, 3], duration: "84s", delay: "-18s", heights: ["h-36", "h-44", "h-32", "h-28"], show: "hidden lg:block" },
+  { indexes: [11, 4, 7, 5], duration: "96s", delay: "-33s", heights: ["h-44", "h-28", "h-36", "h-40"], show: "hidden xl:block" }
 ];
 
 export default function LandingHero({ artworks }: { artworks: Artwork[] }) {
   const [videoOpen, setVideoOpen] = useState(false);
-  const pieces = TILES.map((tile, order) => ({
-    ...tile,
-    order,
-    art: artworks[tile.index]
-  })).filter((piece) => piece.art);
 
   useEffect(() => {
     if (!videoOpen) return;
@@ -50,91 +36,75 @@ export default function LandingHero({ artworks }: { artworks: Artwork[] }) {
   }, [videoOpen]);
 
   return (
-    <section className="hero-studio relative z-10 bg-white px-6 pb-16 pt-16">
-      <div className="mx-auto max-w-5xl">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-5xl font-black tracking-[-0.045em] text-stone-950 sm:text-6xl md:text-7xl">
-            Learn Resin Art
-          </h1>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/webinar"
-              className="hero-cta inline-flex items-center rounded-full bg-stone-950 px-7 py-3 text-[15px] font-semibold text-white shadow-[0_14px_30px_-16px_rgba(28,25,23,0.75)] transition hover:bg-stone-800"
-            >
-              Explore Courses
-            </Link>
-            <button
-              type="button"
-              onClick={() => setVideoOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 shadow-sm transition hover:bg-stone-50"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-stone-950 text-white">
-                <Play size={14} className="ml-0.5 fill-white" />
-              </span>
-              Watch
-            </button>
+    <section className="hero-studio relative z-10 -mt-[5.625rem] flex h-dvh flex-col overflow-hidden pt-[calc(5.625rem+1.5rem)] sm:pt-[calc(5.625rem+2rem)]">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="px-4 sm:px-8">
+          <div className="mx-auto w-full max-w-4xl text-center">
+            <h1 className="text-5xl font-black tracking-[-0.045em] text-stone-950 sm:text-6xl md:text-7xl">
+              Learn Resin Art
+            </h1>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/webinar"
+                className="hero-cta inline-flex items-center rounded-full bg-stone-950 px-7 py-3 text-[15px] font-semibold text-white shadow-[0_14px_30px_-16px_rgba(28,25,23,0.75)] transition hover:bg-stone-800"
+              >
+                Explore Courses
+              </Link>
+              <button
+                type="button"
+                onClick={() => setVideoOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 shadow-sm transition hover:bg-stone-50"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-stone-950 text-white">
+                  <Play size={14} className="ml-0.5 fill-white" />
+                </span>
+                Watch
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-2 items-end gap-3 sm:gap-4 lg:grid-cols-6">
-          {pieces.map(({ art, span, aspect, lift, circle, order }) => (
-            <div
-              key={`${art.image}-${order}`}
-              className={`hero-piece ${span} ${lift || ""}`}
-              style={{ ["--hero-delay" as string]: `${(order % 6) * 0.35}s`, ["--hero-duration" as string]: `${6.4 + (order % 4) * 0.4}s` }}
-            >
-              <div className="rounded-[22px] bg-white p-1.5 shadow-[0_18px_40px_-24px_rgba(70,48,24,0.45)]">
-                <div className={`${aspect} overflow-hidden ${circle ? "rounded-full" : "rounded-[16px]"}`}>
-                  <img src={art.image} alt={art.title} className="h-full w-full object-cover" />
+        <div className="relative mt-12 min-h-0 w-full flex-1">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-12 bg-gradient-to-b from-[#f3eee6] to-transparent" />
+          <div className="grid h-full w-full grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {COLUMNS.map((column) => {
+              const tiles = [...column.indexes, ...column.indexes, ...column.indexes]
+                .map((index, order) => ({ art: artworks[index % artworks.length], height: column.heights[order % column.heights.length] }))
+                .filter((tile) => tile.art);
+              return (
+                <div key={column.duration + column.delay} className={`h-full overflow-hidden ${column.show}`}>
+                  <div
+                    className="hero-marquee-up flex flex-col"
+                    style={{ ["--marquee-duration" as string]: column.duration, ["--marquee-delay" as string]: column.delay }}
+                  >
+                    {[0, 1].map((copy) => (
+                      <div key={copy} className="flex shrink-0 flex-col gap-4 pb-4">
+                        {tiles.map((tile, order) => (
+                          <div
+                            key={`${copy}-${tile.art.image}-${order}`}
+                            className={`${tile.height} shrink-0 shadow-[0_16px_28px_-18px_rgba(90,55,20,0.55)]`}
+                            style={{ borderRadius: "1.7rem" }}
+                          >
+                            <img
+                              src={tile.art.image}
+                              alt={tile.art.title}
+                              className="h-full w-full object-cover"
+                              style={{ clipPath: "inset(0 round 1.7rem)" }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
-
-
-
-        {/* <div className="mx-auto mt-8 max-w-3xl px-2 text-center">
-          <p className="text-base font-semibold text-stone-800 md:text-lg">
-            Turn Your Resin Art Passion Into Skill, Identity &amp; Financial Freedom
-          </p>
-          <p className="mx-auto mb-4 mt-3 max-w-2xl text-sm leading-relaxed text-stone-500 md:text-base">
-            You already have the creativity. You already have the passion. What you need is the right path to turn that passion into something that gives you confidence, recognition, income and freedom.
-          </p>
-          <p className="mb-4 text-sm font-semibold text-stone-800 md:text-base">
-            Learn Resin Art. Build Your Signature Style. Create Your Identity. Build Your Income.
-          </p>
-          <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
-            <span className="rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm">🎨 Learn Resin Art</span>
-            <span className="rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm">✨ Signature Style</span>
-            <span className="rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm">👑 Create Identity</span>
-            <span className="rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm">💰 Build Income</span>
-          </div>
-          <p className="mx-auto mb-4 max-w-2xl text-sm leading-relaxed text-stone-500">
-            Join a community of women who are transforming their creativity into something much bigger than a hobby.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold text-stone-500">
-            <div className="flex items-center gap-1 text-amber-500">
-              <Star size={13} className="fill-amber-400" />
-              <Star size={13} className="fill-amber-400" />
-              <Star size={13} className="fill-amber-400" />
-              <Star size={13} className="fill-amber-400" />
-              <Star size={13} className="fill-amber-400" />
-              <span className="ml-1 font-bold text-stone-950">4.9/5</span>
-            </div>
-            <span>•</span>
-            <span>2,400+ Verified Student Reviews</span>
-            <span>•</span>
-            <span className="font-bold text-emerald-700">100% Free Masterclass</span>
-          </div>
-        </div> */}
       </div>
 
       {videoOpen && (
-        <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-stone-950/75 p-4"
-          onClick={() => setVideoOpen(false)}
-        >
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-stone-950/75 p-4" onClick={() => setVideoOpen(false)}>
           <div className="relative w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
             <button
               type="button"
