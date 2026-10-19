@@ -112,9 +112,9 @@ function PathCard({
             <p className="path-percent mt-0.5 text-[11px] font-semibold">{item.percent}</p>
           </div>
         </div>
-        <span className={`path-option-icon ${item.accent} flex h-11 w-11 items-center justify-center rounded-full`}>
+        {/* <span className={`path-option-icon ${item.accent} flex h-11 w-11 items-center justify-center rounded-full`}>
           <Icon size={18} aria-hidden="true" />
-        </span>
+        </span> */}
       </div>
       <h3 className="path-title mt-5 text-lg font-bold leading-snug">{item.title}</h3>
       <motion.span
