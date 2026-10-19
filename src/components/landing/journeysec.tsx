@@ -103,35 +103,38 @@ export default function JourneySec({
             return (
               <article
                 key={idx}
-                className={`journey-card journey-wash-${idx} relative flex flex-col justify-between overflow-hidden rounded-[1.75rem] p-5 sm:p-6 lg:p-5 ${isDark ? "journey-card-dark" : "journey-card-light"}`}
+                className={`journey-card journey-wash-${idx} relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7 ${isDark ? "journey-card-dark" : "journey-card-light"}`}
               >
                 <span className="journey-glow" aria-hidden="true" />
-                {isMainL3 && (
-                  <span className="journey-cert relative z-10 mb-4 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider lg:mb-2 lg:py-0.5">
-                    ★ MAIN CERTIFICATION
-                  </span>
-                )}
-
-                <div className="relative z-10">
+                <div className="relative z-10 flex h-full flex-col">
+                  {isMainL3 && (
+                    <span className="journey-cert mb-3 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
+                      ★ MAIN CERTIFICATION
+                    </span>
+                  )}
                   <p className="journey-level text-[10px] font-bold uppercase tracking-wider">
                     {card.badgeTag}
                   </p>
-                  <div className="mt-2 flex items-start justify-between gap-2 lg:mt-1">
-                    <h3 className="journey-title min-w-0 text-2xl font-bold leading-tight sm:text-3xl lg:text-lg">
-                      {levelName}
-                    </h3>
-                    <p className="journey-price shrink-0 whitespace-nowrap text-xl font-bold sm:text-2xl lg:text-lg">
-                      {price}
-                    </p>
-                  </div>
-                  <p className="journey-desc mt-3 text-sm leading-relaxed lg:mt-2 lg:leading-snug">
+                  <h3 className="journey-title mt-2 text-2xl font-bold leading-tight">
+                    {levelName}
+                  </h3>
+                  <p className="journey-price mt-4 text-3xl font-black tracking-tight whitespace-nowrap sm:text-4xl lg:text-3xl">
+                    {price}
+                  </p>
+                  <p className="journey-desc mt-3 text-sm leading-relaxed">
                     {levelDesc}
                   </p>
-
-                  <ul className="mt-4 space-y-1.5 lg:mt-2 lg:space-y-1">
+                  <Link
+                    href={card.buttonHref}
+                    className="journey-btn mt-6 inline-flex w-full items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold"
+                  >
+                    {card.buttonText}
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </Link>
+                  <ul className="mt-6 space-y-2.5">
                     {visibleHighlights.map((h, hIdx) => (
                       <li key={hIdx} className="journey-feature flex items-start gap-2 text-sm">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" />
+                        <span className="journey-check mt-0.5" aria-hidden="true">✓</span>
                         <span>{h}</span>
                       </li>
                     ))}
@@ -142,16 +145,6 @@ export default function JourneySec({
                     )}
                   </ul>
                 </div>
-
-                <Link
-                  href={card.buttonHref}
-                  className="journey-btn relative z-10 mt-5 inline-flex w-fit max-w-full items-center gap-2 rounded-full py-1.5 pr-4 pl-1.5 text-sm font-semibold lg:mt-4 lg:pr-3 lg:text-[13px]"
-                >
-                  <span className="journey-btn-icon flex h-7 w-7 items-center justify-center rounded-full">
-                    <ArrowRight size={14} />
-                  </span>
-                  {card.buttonText}
-                </Link>
               </article>
             );
           })}

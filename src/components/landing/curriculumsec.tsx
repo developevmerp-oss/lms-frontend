@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Brush, Layers, Palette, TrendingUp } from "lucide-react";
+import { Brush, CircleCheck, Layers, Palette, TrendingUp } from "lucide-react";
 
 const PILLARS = [
   {
@@ -11,7 +11,6 @@ const PILLARS = [
     text: "Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.",
     outcomes: ["Bubble-Free Chemistry", "Ocean Foam & Waves", "Geode Crystal Inlays"],
     icon: Brush,
-    tint: "curriculum-tint-1",
   },
   {
     index: "02",
@@ -19,7 +18,6 @@ const PILLARS = [
     text: "Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.",
     outcomes: ["Color Psychology", "Distinct Compositions", "Signature Identity"],
     icon: Palette,
-    tint: "curriculum-tint-2",
   },
   {
     index: "03",
@@ -27,7 +25,6 @@ const PILLARS = [
     text: "Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.",
     outcomes: ["Commercial Finishes", "Client Lookbooks", "High-End Packaging"],
     icon: Layers,
-    tint: "curriculum-tint-3",
   },
   {
     index: "04",
@@ -35,13 +32,15 @@ const PILLARS = [
     text: "Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.",
     outcomes: ["Commission Pricing", "Client Acquisition", "Repeat Order Flywheel"],
     icon: TrendingUp,
-    tint: "curriculum-tint-4",
   },
 ];
 
 export default function CurriculumSec() {
   const sectionRef = useRef<HTMLElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.25 });
+  const [active, setActive] = useState(0);
+  const item = PILLARS[active];
+  const ActiveIcon = item.icon;
 
   return (
     <section
@@ -67,36 +66,56 @@ export default function CurriculumSec() {
           </p>
         </motion.div>
 
-        <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-5 sm:mt-12 md:grid-cols-2 md:gap-6">
-          {PILLARS.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.article
-                key={item.title}
-                className="curriculum-card flex h-full flex-col rounded-[1.75rem] p-6 sm:p-7"
-                initial={{ opacity: 0, y: 28 }}
-                animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-                transition={{ delay: 0.12 + index * 0.12, duration: 0.5, ease: "easeOut" }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="curriculum-index text-sm font-semibold tracking-[0.16em]">{item.index}</span>
-                  <span className={`curriculum-icon ${item.tint} flex h-11 w-11 items-center justify-center rounded-2xl`}>
-                    <Icon size={20} aria-hidden="true" />
-                  </span>
-                </div>
-                <h3 className="curriculum-title mt-5 text-xl font-bold leading-snug">{item.title}</h3>
-                <p className="curriculum-copy mt-2 text-sm leading-relaxed">{item.text}</p>
-                <div className="mt-auto flex flex-wrap gap-2 border-t border-neutral-100 pt-4">
-                  {item.outcomes.map((outcome) => (
-                    <span key={outcome} className="curriculum-chip inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium">
-                      <span className="curriculum-check" aria-hidden="true">✓</span>
-                      {outcome}
-                    </span>
-                  ))}
-                </div>
-              </motion.article>
-            );
-          })}
+        <div className="mt-10 flex flex-col gap-6 sm:mt-12 lg:mt-16 lg:flex-row lg:items-stretch lg:gap-0">
+          <div
+            role="tablist"
+            aria-label="What you'll learn"
+            className="curriculum-nav flex flex-col gap-4 lg:w-[320px] lg:shrink-0 lg:pr-8"
+          >
+            {PILLARS.map((pillar, index) => {
+              const Icon = pillar.icon;
+              const selected = index === active;
+              return (
+                <button
+                  key={pillar.title}
+                  type="button"
+                  role="tab"
+                  id={`curriculum-tab-${pillar.index}`}
+                  aria-selected={selected}
+                  aria-controls="curriculum-panel"
+                  onClick={() => setActive(index)}
+                  className={`curriculum-tab inline-flex w-fit max-w-full items-center gap-2.5 rounded-full px-4 py-2.5 text-left text-sm font-semibold leading-snug ${selected ? "curriculum-tab-active" : ""}`}
+                >
+                  <Icon size={16} aria-hidden="true" className="shrink-0" />
+                  <span>{pillar.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div
+            role="tabpanel"
+            id="curriculum-panel"
+            aria-labelledby={`curriculum-tab-${item.index}`}
+            className="curriculum-panel min-w-0 flex-1 rounded-[1.75rem] px-5 py-7 sm:px-8 sm:py-9 lg:rounded-l-none lg:rounded-r-[2rem] lg:px-10 lg:py-12"
+          >
+            <p className="curriculum-index text-xs font-semibold tracking-[0.16em]">{item.index}</p>
+            <div className="mt-3 flex items-start gap-3">
+              <span className="curriculum-panel-icon mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl lg:hidden">
+                <ActiveIcon size={18} aria-hidden="true" />
+              </span>
+              <h3 className="curriculum-title text-xl font-bold leading-snug sm:text-2xl">{item.title}</h3>
+            </div>
+            <p className="curriculum-copy mt-3 text-sm leading-relaxed sm:text-base">{item.text}</p>
+            <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+              {item.outcomes.map((outcome) => (
+                <li key={outcome} className="curriculum-outcome flex items-center gap-2.5 text-sm sm:text-[15px]">
+                  <CircleCheck size={18} aria-hidden="true" className="curriculum-check shrink-0" />
+                  <span>{outcome}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

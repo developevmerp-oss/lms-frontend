@@ -6,11 +6,13 @@ import SiteNavbar from "@/components/layout/SiteNavbar";
 import AlreadyHaveSec from "@/components/landing/alreadyhavesec";
 import ArtOThonSec from "@/components/landing/artothonsec";
 import CurriculumSec from "@/components/landing/curriculumsec";
+import DimensionsSec from "@/components/landing/dimensionssec";
 import FinalCtaSec from "@/components/landing/finalctasec";
 import JourneySec from "@/components/landing/journeysec";
 import MasterclassSec from "@/components/landing/masterclasssec";
 import PathSec from "@/components/landing/pathsec";
 import RealChallangeSec from "@/components/landing/realchallangesc";
+import SisterhoodSec from "@/components/landing/sisterhoodsec";
 import SoundLikeSec from "@/components/landing/soundlikesec";
 import StategicMindsetSec from "@/components/landing/stategicmindsetsec";
 import TestimoniaSec from "@/components/landing/testimoniasec";
@@ -23,7 +25,6 @@ import { API_BASE_URL } from "@/config/api";
 import { trackingService } from "@/services/trackingService";
 import {
   ArrowRight,
-  Palette,
   Flame,
   Trophy,
   Star,
@@ -41,7 +42,8 @@ import {
   ShieldCheck,
   Smile,
   Zap,
-  MessageCircle
+  ChevronRight
+  MessageCircle,
 } from "lucide-react";
 
 // Real Student Artworks for Live Exhibition Showcase (73 Total Works: 24 Original + 49 New Real Works)
@@ -166,45 +168,6 @@ export default function HomePage() {
       });
     } catch (_) { }
   }, []);
-
-  const sixDimensions = [
-    {
-      title: "Skill",
-      outcomeTag: "Professional Quality",
-      image: "/images/dimensions/skill.png?v=2",
-      desc: "How confidently and consistently you can create quality Resin Art."
-    },
-    {
-      title: "Creativity",
-      outcomeTag: "Artistic Expression",
-      image: "/images/dimensions/creativity.png",
-      desc: "How effectively you experiment, innovate and develop your own artistic expression."
-    },
-    {
-      title: "Identity",
-      outcomeTag: "Recognized Brand",
-      image: "/images/dimensions/identity.png",
-      desc: "How clearly you develop your personal style, portfolio and recognition as an artist."
-    },
-    {
-      title: "Business",
-      outcomeTag: "Commercial Income",
-      image: "/images/dimensions/business.png",
-      desc: "How effectively you turn your skill and creations into products, customers and opportunities."
-    },
-    {
-      title: "Impact",
-      outcomeTag: "Customer Value",
-      image: "/images/dimensions/impact.png",
-      desc: "How your knowledge, creations and journey create value for customers and inspire others."
-    },
-    {
-      title: "Personal Growth",
-      outcomeTag: "Confidence & Pride",
-      image: "/images/dimensions/growth.png",
-      desc: "How much you grow in confidence, discipline, leadership and belief in yourself."
-    }
-  ];
 
   return (
     <div className="relative min-h-screen bg-white font-sans text-stone-950 selection:bg-orange-500 selection:text-white">
@@ -544,82 +507,13 @@ export default function HomePage() {
       <CurriculumSec />
 
       {/* ─── SECTION 11: SIX DIMENSIONS OF SUCCESS ─── */}
-      <section id="dimensions" className="dimensions-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
-        <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="dimensions-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
-              Holistic Development
-            </p>
-            <h2 className="dimensions-heading mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
-              Success Is More Than The Money You Make.
-            </h2>
-            <p className="dimensions-muted mt-4 text-sm leading-relaxed text-neutral-500 sm:text-base">
-              Your growth should be measured by the person you become along the way. We believe your Resin Art journey should help you grow across six important dimensions:
-            </p>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-            {sixDimensions.map((dim) => (
-              <article
-                key={dim.title}
-                className="dimensions-card rounded-3xl p-6 sm:p-7"
-              >
-                <img src={dim.image} alt="" className="mb-5 h-16 w-16 object-contain" />
-                <h3 className="dimensions-title text-lg font-bold text-neutral-950">{dim.title}</h3>
-                <p className="dimensions-muted mt-2 text-sm leading-relaxed text-neutral-500">{dim.desc}</p>
-                <p className="dimensions-tag mt-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  {dim.outcomeTag}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <DimensionsSec />
 
       {/* ─── SECTION 12: ART-O-THON ─── */}
       <ArtOThonSec />
 
       {/* ─── SECTION 13: COMMUNITY ─── */}
-      < section id="community" className="py-24 px-6 relative z-10 bg-white" >
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Sisterhood &amp; Support</span>
-            <h2 className="text-3xl md:text-5xl font-black text-black mb-4">
-              You Don't Have To Build Alone.
-            </h2>
-            <p className="text-slate-400 text-base md:text-lg leading-relaxed">
-              The journey becomes easier when you're surrounded by women who understand your dreams, your struggles and your ambition. Inside Ravishing Art Hub, you don't just learn from a coach. You learn, create, share, celebrate and grow together.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
-            {[
-              { title: "Ask Questions", desc: "Get instant doubt resolution", icon: MessageCircle, color: "text-orange-400", bgColor: "bg-orange-500/10" },
-              { title: "Share Creations", desc: "Showcase your newest pours", icon: Palette , color: "text-pink-400", bgColor: "bg-pink-500/10"},
-              { title: "Get Feedback", desc: "Constructive mentor critiques", icon: CheckCircle2, color: "text-cyan-400", bgColor: "bg-cyan-500/10" },
-              { title: "Celebrate Milestones", desc: "Cheer each other's wins", icon: Trophy, color: "text-emerald-400", bgColor: "bg-emerald-500/10" },
-              { title: "Learn Together", desc: "Collaborate with peers", icon: Users, color: "text-purple-400", bgColor: "bg-purple-500/10" }
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-gray-200 rounded-2xl p-5 text-center hover:border-orange-500/50 hover:-translate-y-1.5 transition-all duration-300 shadow-lg group"
-              >
-                <div className={`w-10 h-10 rounded-xl  flex items-center justify-center mx-auto mb-3 group-hover:scale-110  group-hover:text-slate-950 transition-all ${item.color} ${item.bgColor} duration-300`}>
-                  <item.icon size={20} />
-                </div>
-                <p className="font-bold text-black text-sm">{item.title}</p>
-                <p className="text-[11px] text-slate-400 mt-1">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
-              "Because when women grow together, everyone grows stronger."
-            </p>
-          </div>
-        </div>
-      </section >
+      <SisterhoodSec />
 
       {/* ─── SECTION 14: STUDENT TRANSFORMATION ─── */}
       <RealTransformationsSec rowOne={ARTWORKS_ROW_1} rowTwo={ARTWORKS_ROW_2} />
