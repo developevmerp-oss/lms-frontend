@@ -103,48 +103,51 @@ export default function JourneySec({
             return (
               <article
                 key={idx}
-                className={`journey-card journey-wash-${idx} relative flex h-full flex-col overflow-hidden rounded-[1.75rem] p-6 sm:p-7 ${isDark ? "journey-card-dark" : "journey-card-light"}`}
+                className={`journey-card journey-wash-${idx} flex h-full flex-col rounded-[1.75rem] p-3 ${isDark ? "journey-card-dark" : "journey-card-light"}`}
               >
-                <span className="journey-glow" aria-hidden="true" />
-                <div className="relative z-10 flex h-full flex-col">
-                  {isMainL3 && (
-                    <span className="journey-cert mb-3 inline-flex w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
-                      ★ MAIN CERTIFICATION
-                    </span>
-                  )}
-                  <p className="journey-level text-[10px] font-bold uppercase tracking-wider">
-                    {card.badgeTag}
-                  </p>
+                <div className="journey-panel flex flex-col rounded-[1.25rem] px-5 py-6 sm:px-6">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="journey-level whitespace-nowrap text-[10px] font-bold uppercase tracking-wider">
+                      {card.badgeTag}
+                    </p>
+                    {isMainL3 && (
+                      <span className="journey-cert inline-flex w-fit shrink-0 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider">
+                        ★ MAIN CERTIFICATION
+                      </span>
+                    )}
+                  </div>
                   <h3 className="journey-title mt-2 text-2xl font-bold leading-tight">
                     {levelName}
                   </h3>
-                  <p className="journey-price mt-4 text-3xl font-black tracking-tight whitespace-nowrap sm:text-4xl lg:text-3xl">
+                  <p className="journey-price mt-4 text-3xl font-black tracking-tight whitespace-nowrap sm:text-4xl lg:text-[2rem]">
                     {price}
                   </p>
                   <p className="journey-desc mt-3 text-sm leading-relaxed">
                     {levelDesc}
                   </p>
-                  <Link
+                
+                </div>
+                <ul className="journey-list mt-4 flex-1 space-y-2.5 px-2 pb-4">
+                  {visibleHighlights.map((h, hIdx) => (
+                    <li key={hIdx} className="journey-feature flex items-start gap-2 text-sm">
+                      <span className="journey-check mt-0.5" aria-hidden="true">✓</span>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                  {remainingCount > 0 && (
+                    <li className="journey-more pt-1 text-xs font-semibold">
+                      + {remainingCount} More Modules Included
+                    </li>
+                  )}
+                </ul>
+
+                <Link
                     href={card.buttonHref}
-                    className="journey-btn mt-6 inline-flex w-full items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold"
+                    className="journey-btn mt-auto inline-flex w-full items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold"
                   >
                     {card.buttonText}
                     <ArrowRight size={15} aria-hidden="true" />
                   </Link>
-                  <ul className="mt-6 space-y-2.5">
-                    {visibleHighlights.map((h, hIdx) => (
-                      <li key={hIdx} className="journey-feature flex items-start gap-2 text-sm">
-                        <span className="journey-check mt-0.5" aria-hidden="true">✓</span>
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                    {remainingCount > 0 && (
-                      <li className="journey-more pt-1 text-xs font-semibold">
-                        + {remainingCount} More Modules Included
-                      </li>
-                    )}
-                  </ul>
-                </div>
               </article>
             );
           })}

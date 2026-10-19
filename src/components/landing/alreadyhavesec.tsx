@@ -5,16 +5,19 @@ const CARDS = [
     title: "No Prior Art Degree",
     description: "You don't need to be an expert to begin.",
     icon: GraduationCap,
+    image: "/images/already-have/no-degree.jpg",
   },
   {
     title: "No Fancy Art Studio",
     description: "You don't need an expensive or perfect setup.",
     icon: Paintbrush,
+    image: "/images/already-have/no-studio.jpg",
   },
   {
     title: "No Social Follower Base",
     description: "You don't need thousands of social media followers.",
     icon: Users,
+    image: "/images/already-have/no-followers.jpg",
   },
 ];
 
@@ -32,6 +35,26 @@ export default function AlreadyHaveSec() {
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-16 lg:grid-cols-3">
+          {CARDS.map((card) => (
+            <article key={card.title} className="already-card flex h-full flex-col overflow-hidden rounded-[1.35rem]">
+              <img
+                src={card.image}
+                alt=""
+                className="h-[450px] w-full rounded-b-[2.75rem] object-cover"
+              />
+              <div className="flex flex-1 flex-col p-6 sm:p-7">
+                <p className="already-badge mb-3 inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide">
+                  ✕ Not Needed
+                </p>
+                <h3 className="already-title text-lg font-bold leading-snug sm:text-xl">{card.title}</h3>
+                <p className="already-copy mt-2 text-sm leading-relaxed sm:text-[15px]">{card.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/*
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-16 lg:grid-cols-3">
           {CARDS.map((card) => {
             const Icon = card.icon;
             return (
@@ -48,6 +71,7 @@ export default function AlreadyHaveSec() {
             );
           })}
         </div>
+        */}
 
         <div className="mx-auto mt-8 max-w-4xl rounded-3xl bg-slate-50 px-5 py-8 text-center sm:mt-10 sm:px-8">
           <p className="already-note text-sm sm:text-base">
