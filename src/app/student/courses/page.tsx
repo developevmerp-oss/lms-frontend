@@ -411,11 +411,8 @@ export default function StudentCourses() {
     if (c.isPublished === false && !isCourseUnlocked(c)) {
       return false;
     }
-    if (activeLevelFilter === "all") return true;
-    if (activeLevelFilter === "NONE") {
-      return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
-    }
-    return (c.levelCode || "").toUpperCase() === activeLevelFilter.toUpperCase();
+    // Standalone individual courses only (not part of bundle levels L0, L1, L2, L3)
+    return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
   });
 
   return (
@@ -541,21 +538,26 @@ export default function StudentCourses() {
                     }`}
                   >
                     {/* Level Banner Image Thumbnail */}
-                    {liveLevel?.thumbnail && (
-                      <div className="relative w-full h-40 bg-slate-950 overflow-hidden border-b border-slate-800">
+                    <div className="relative w-full h-44 bg-slate-950 overflow-hidden border-b border-slate-800 group/thumb">
+                      {liveLevel?.thumbnail ? (
                         <img
                           src={getImageUrl(liveLevel.thumbnail)}
                           alt={levelDisplayName}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover/thumb:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                        <div className="absolute top-3 left-3">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border backdrop-blur bg-slate-950/80 ${cfg.color} ${cfg.border}`}>
-                            {lvl}
-                          </span>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex flex-col items-center justify-center gap-1.5 p-4 text-center">
+                          <BookOpen size={36} className="text-orange-400/50" />
+                          <span className="text-[11px] font-bold text-slate-400">{levelDisplayName}</span>
                         </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute top-3 left-3">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border backdrop-blur bg-slate-950/80 shadow-md ${cfg.color} ${cfg.border}`}>
+                          {lvl} Tier
+                        </span>
                       </div>
-                    )}
+                    </div>
 
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
@@ -698,27 +700,79 @@ export default function StudentCourses() {
                       Below are the masterclass video modules included when you purchase the <strong>{tierPricing.name} ({expandedLevel})</strong> membership tier:
                     </p>
 
-                    <div className="space-y-4">
-                      {levelCourses.map((c, i) => (
-                        <div key={c.id || i} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 font-black text-sm flex items-center justify-center shrink-0">
-                            #{i + 1}
+                    <div className="space-y-3">
+                      {levelCourses.map((c, i) => {
+                        const unlocked = isCourseUnlocked(c);
+                        return (
+                          <div
+                            key={c.id || i}
+                            onClick={() => {
+                              if (unlocked) {
+                                setExpandedLevel(null);
+                                handleOpenCourse(c);
+                              } else {
+                                setExpandedLevel(null);
+                                setPurchaseModal({ isOpen: true, tierCode: expandedLevel });
+                              }
+                            }}
+                            className={`p-4 rounded-2xl bg-slate-950 border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer group ${
+                              unlocked
+                                ? "border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900"
+                                : "border-slate-800/80 hover:border-orange-500/40 hover:bg-slate-900/60"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                              {/* Course Thumbnail or Number */}
+                              <div className="relative w-16 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shrink-0 flex items-center justify-center">
+                                {(c.image || c.flyerImage) ? (
+                                  <img
+                                    src={getImageUrl(c.image || c.flyerImage)}
+                                    alt={c.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 font-black text-sm flex items-center justify-center">
+                                    #{i + 1}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="text-[10px] font-black text-orange-400 uppercase tracking-wider">
+                                    Module #{i + 1}
+                                  </span>
+                                  {c.chapters?.length ? (
+                                    <span className="text-[10px] text-slate-500">
+                                      • {c.chapters.length} Lesson{c.chapters.length > 1 ? "s" : ""}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <h4 className="text-sm font-bold text-white group-hover:text-orange-300 transition-colors truncate">
+                                  {c.title}
+                                </h4>
+                                <p className="text-xs text-slate-400 leading-relaxed line-clamp-1">{c.description}</p>
+                              </div>
+                            </div>
+                            <div className="shrink-0 w-full sm:w-auto flex sm:justify-end">
+                              {unlocked ? (
+                                <button
+                                  type="button"
+                                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs font-black flex items-center justify-center gap-1.5 border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors"
+                                >
+                                  <PlayCircle size={14} /> Open Course →
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 group-hover:border-orange-500/40 group-hover:text-orange-300 transition-colors"
+                                >
+                                  <Lock size={12} /> Unlock Level
+                                </button>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-bold text-white mb-1">{c.title}</h4>
-                            <p className="text-xs text-slate-400 leading-relaxed">{c.description}</p>
-                          </div>
-                          {isCourseUnlocked(c) ? (
-                            <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold shrink-0">
-                              ✓ Unlocked
-                            </span>
-                          ) : (
-                            <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-500 text-[10px] font-bold shrink-0 flex items-center gap-1">
-                              <Lock size={10} /> Locked
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {!isUnlocked && (
@@ -739,71 +793,24 @@ export default function StudentCourses() {
           </div>
         )}
 
-        {/* Level & Individual Course Filters */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
-          <button
-            onClick={() => setActiveLevelFilter("all")}
-            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-              activeLevelFilter === "all"
-                ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
-                : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
-            }`}
-          >
-            All Courses ({courses.filter(c => c.isPublished !== false || isCourseUnlocked(c)).length})
-          </button>
-
-          {/* Standalone / Individual Masterclasses Tab Filter */}
-          <button
-            onClick={() => setActiveLevelFilter("NONE")}
-            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
-              activeLevelFilter === "NONE"
-                ? "bg-purple-600 text-white font-black shadow-lg shadow-purple-500/20"
-                : "bg-slate-900 border border-slate-800 text-purple-300 hover:text-white"
-            }`}
-          >
-            <Sparkles size={13} className="text-purple-400" />
-            <span>Individual Masterclasses</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-purple-300">
-              {courses.filter((c) => (!c.levelCode || c.levelCode.toUpperCase() === "NONE") && (c.isPublished !== false || isCourseUnlocked(c))).length}
-            </span>
-          </button>
-
-          {(["L0", "L1", "L2", "L3"] as const).filter((lvl) => {
-            const isUnlocked = isLevelUnlocked(lvl);
-            const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
-            if (liveLevel && liveLevel.isPublished === false && !isUnlocked) {
-              return false;
-            }
-            return true;
-          }).map((lvl) => {
-            const cfg = LEVEL_TIER_CONFIG[lvl];
-            const count = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl && (c.isPublished !== false || isCourseUnlocked(c))).length;
-            const isActive = activeLevelFilter === lvl;
-            const isUnlocked = isLevelUnlocked(lvl);
-            const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
-            const levelDisplayName = liveLevel?.name || cfg.name;
-
-            return (
-              <button
-                key={lvl}
-                onClick={() => setActiveLevelFilter(lvl)}
-                className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
-                  isActive
-                    ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
-                    : "bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
-                }`}
-              >
-                <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${isActive ? "bg-slate-950 text-orange-400" : `${cfg.bg} ${cfg.color}`}`}>
-                  {lvl}
-                </span>
-                <span>{levelDisplayName}</span>
-                {!isUnlocked && <Lock size={12} className="text-slate-500" />}
-                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+        {/* Individual Masterclasses Section Header */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <Sparkles size={18} />
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-white">
+                Individual Masterclasses
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                {displayedCourses.length}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1.5">
+              Specialty standalone masterclasses available for individual direct purchase without membership tiers.
+            </p>
+          </div>
         </div>
 
         {/* Courses Grid */}
@@ -993,10 +1000,12 @@ export default function StudentCourses() {
           })}
           
           {displayedCourses.length === 0 && (
-            <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-slate-900/50 border border-dashed border-slate-800 rounded-3xl p-8">
-              <BookOpen size={56} className="text-slate-700 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No Courses in this Category</h3>
-              <p className="text-slate-400 text-sm">Check other level tabs to view your enrolled curriculum.</p>
+            <div className="col-span-full py-16 flex flex-col items-center justify-center text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl p-8">
+              <Sparkles size={48} className="text-purple-400/50 mb-3" />
+              <h3 className="text-lg font-bold text-white mb-1">No Standalone Masterclasses Currently</h3>
+              <p className="text-slate-400 text-xs max-w-md">
+                All curriculum courses are organized neatly inside the Membership Levels (L0, L1, L2, L3) above. Click &quot;View Included Courses&quot; on any level card to explore and watch lessons.
+              </p>
             </div>
           )}
         </div>
@@ -1011,23 +1020,23 @@ export default function StudentCourses() {
             className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
           >
             {/* Modal Course Banner */}
-            {selectedCourse.image && (
-              <div className="relative w-full h-40 border-b border-slate-800 bg-slate-950 overflow-hidden shrink-0 flex items-center justify-center">
+            {(selectedCourse.image || selectedCourse.flyerImage) && (
+              <div className="relative w-full h-44 sm:h-52 border-b border-slate-800 bg-slate-950 overflow-hidden shrink-0 flex items-center justify-center">
                 <img
-                  src={selectedCourse.image}
+                  src={getImageUrl(selectedCourse.image || selectedCourse.flyerImage)}
                   alt=""
                   aria-hidden="true"
                   className="absolute inset-0 w-full h-full object-cover blur-xl opacity-30 scale-105 pointer-events-none"
                 />
                 <img
-                  src={selectedCourse.image}
+                  src={getImageUrl(selectedCourse.image || selectedCourse.flyerImage)}
                   alt={selectedCourse.title}
                   className="relative z-10 w-full h-full object-contain p-2"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent pointer-events-none" />
                 
                 <div className="absolute bottom-2 left-4 z-20 flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 backdrop-blur-md">
+                  <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 backdrop-blur-md shadow-md">
                     <CheckCircle2 size={11} /> {getCourseValidityInfo(selectedCourse).text}
                   </span>
                 </div>
