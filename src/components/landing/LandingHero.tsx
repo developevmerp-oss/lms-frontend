@@ -38,8 +38,8 @@ export default function LandingHero({ artworks }: { artworks: Artwork[] }) {
   return (
     <section className="hero-studio relative z-10 -mt-[5.625rem] flex h-dvh flex-col overflow-hidden pt-[calc(5.625rem+1.5rem)] sm:pt-[calc(5.625rem+2rem)]">
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="px-4 sm:px-8">
-          <div className="mx-auto w-full max-w-4xl text-center">
+        <div className="nav-width">
+          <div className="hero-enter mx-auto w-full max-w-4xl text-center">
             <h1 className="text-5xl font-black tracking-[-0.045em] text-stone-950 sm:text-6xl md:text-7xl">
               Learn Resin Art
             </h1>

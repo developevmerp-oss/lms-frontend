@@ -64,6 +64,27 @@
   --font-mono: var(--font-geist-mono);
 }
 
+.landing-page {
+  font-family: var(--font-landing), "Nunito Sans", sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.landing-page h1,
+.landing-page h2,
+.landing-page h3 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+.landing-page h1 {
+  font-weight: 520;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+
 body {
   background: var(--background);
   color: var(--text-primary);
@@ -365,7 +386,12 @@ body {
 }
 
 section.strategic-mindset,
-.light section.strategic-mindset,
+.light section.strategic-mindset {
+  background-color: #f7f2ec !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
 section.sound-like-sec,
 .light section.sound-like-sec {
   background-color: #ffffff !important;
@@ -632,7 +658,7 @@ section.testimonia-sec,
 section.dimensions-sec,
 .light section.dimensions-sec,
 .light section.dimensions-sec:nth-of-type(n) {
-  background-color: #ffffff !important;
+  background-color: #f7f2ec !important;
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
@@ -968,23 +994,6 @@ section.final-cta-sec,
   border-bottom: none !important;
 }
 
-@media (min-width: 1024px) and (max-height: 980px) {
-  #problem {
-    align-items: flex-start !important;
-    padding-top: 6rem !important;
-    padding-bottom: 0.75rem !important;
-  }
-
-  #problem > .container {
-    zoom: 0.84;
-  }
-}
-
-@media (min-width: 1024px) and (max-height: 760px) {
-  #problem > .container {
-    zoom: 0.72;
-  }
-}
 
 #problem .real-challenge-emphasis,
 .light #problem .real-challenge-emphasis {
@@ -1054,8 +1063,10 @@ section.final-cta-sec,
 }
 
 /* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO (#mentor) IN LIGHT MODE ─── */
+#mentor,
 .light #mentor {
-  background-color: transparent !important;
+  background-color: #f7f2ec !important;
+  border: none !important;
 }
 
 /* 1. Main Mentor Feature Card in Light Mode */
@@ -1162,6 +1173,19 @@ section.final-cta-sec,
 /* 7. Bottom Recognition Cards Image Background in Light Mode */
 .light #mentor .h-56.bg-slate-950 {
   background-color: #e2e8f0 !important;
+}
+
+section.sisterhood-sec,
+.light section.sisterhood-sec,
+.light section.sisterhood-sec:nth-of-type(n) {
+  background-color: #f7f2ec !important;
+  border: none !important;
+}
+
+section.growth-band,
+.light section.growth-band {
+  background-color: #f7f2ec !important;
+  border: none !important;
 }
 
 /* ART-O-THON — white card, light-gray 3D sprint tile */
@@ -1487,7 +1511,7 @@ section.path-sec,
 .light section.path-sec,
 .light section#path.path-sec,
 .light section.path-sec:nth-of-type(n) {
-  background-color: #ffffff !important;
+  background-color: #f7f2ec !important;
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
@@ -1608,20 +1632,13 @@ section.path-sec,
 .path-sec .path-mile-label.path-tone-4,
 .light .path-sec .path-mile-label.path-tone-4 { color: #059669 !important; }
 
-@media (min-width: 1024px) and (max-height: 760px) {
-  section.path-sec {
-    align-items: flex-start !important;
-    padding-top: 5.5rem !important;
-    padding-bottom: 0.75rem !important;
-  }
-}
 
 /* Section 7: Meet Your Mentor (#mentor) */
+#mentor,
 .light #mentor,
 .light section:has([class*="Vrajangna Patel"]) {
-  background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%) !important;
-  border-top: 1px solid #fed7aa !important;
-  border-bottom: 1px solid #fed7aa !important;
+  background: #f7f2ec !important;
+  border: none !important;
 }
 
 .light section:has([class*="Vrajangna Patel"]) [class*="bg-slate-900"] {
@@ -1733,7 +1750,7 @@ section.path-sec,
 section.journey-sec,
 .light section.journey-sec,
 .light section.journey-sec:nth-of-type(n) {
-  background: #ffffff !important;
+  background: #f7f2ec !important;
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
@@ -1949,7 +1966,7 @@ section.masterclass-sec,
 
 .masterclass-sec .masterclass-heading,
 .light .masterclass-sec .masterclass-heading {
-  font-family: Palatino, "Palatino Linotype", "Iowan Old Style", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   color: #141414 !important;
 }
 
@@ -2675,6 +2692,20 @@ footer.site-footer,
   color: #475569 !important;
 }
 
+.nav-width {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .nav-width {
+    padding-inline: 1.25rem;
+  }
+}
+
 .hero-studio {
   background-color: #f3eee6 !important;
 }
@@ -2736,6 +2767,84 @@ footer.site-footer,
   .hero-piece,
   .hero-marquee-up {
     animation: none;
+  }
+}
+
+@keyframes coach-rise-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.coach-rise {
+  animation: coach-rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@supports (animation-timeline: view()) {
+  .coach-rise {
+    animation-timeline: view();
+    animation-range: entry 0% entry 42%;
+  }
+}
+
+.coach-photo {
+  transform: scale(1);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .coach-photo {
+  transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-rise,
+  .coach-photo {
+    animation: none;
+    opacity: 1;
+    translate: 0 0;
+    transform: none;
+  }
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.hero-enter,
+.page-rise,
+.page-rise-item {
+  animation: page-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@supports (animation-timeline: view()) {
+  .page-rise,
+  .page-rise-item {
+    animation-timeline: view();
+    animation-range: entry 0% entry 34%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter,
+  .page-rise,
+  .page-rise-item {
+    animation: none;
+    opacity: 1;
+    translate: 0 0;
   }
 }
 

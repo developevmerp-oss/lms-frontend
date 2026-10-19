@@ -154,7 +154,7 @@ export default function TestimoniaSec() {
 
   return (
     <section className="testimonia-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
-      <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <div className="nav-width">
         <div className="mx-auto max-w-3xl text-center">
           <p className="testimonia-kicker text-xs font-semibold uppercase tracking-widest">
             Verified Track Record

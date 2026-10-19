@@ -71,7 +71,7 @@ const CARDS = [
 
 export default function SoundLikeSec() {
   return (
-    <section className="sound-like-sec container relative z-10 mx-auto bg-white px-5 pb-16 text-neutral-950 sm:px-10 sm:pb-20 lg:px-10 lg:pb-24 2xl:px-0">
+    <section className="sound-like-sec nav-width relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <p className="sound-kicker text-xs font-semibold uppercase tracking-[0.18em]">
             Self Reflection
@@ -112,7 +112,8 @@ export default function SoundLikeSec() {
           {CARDS.map((card) => (
             <article
               key={card.stage}
-              className="sound-card flex h-full flex-col rounded-[1.75rem] px-5 py-6 sm:px-6"
+              className="page-rise-item sound-card flex h-full flex-col rounded-[1.75rem] px-5 py-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-24px_rgba(90,55,20,0.35)] sm:px-6"
+              style={{ animationDelay: `${Number(card.stage) * 0.08}s` }}
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="sound-option-num flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">

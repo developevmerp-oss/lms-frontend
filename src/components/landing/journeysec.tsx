@@ -66,7 +66,7 @@ export default function JourneySec({
 }) {
   return (
     <section id="membership" className="journey-sec relative z-10 flex items-center bg-white py-16 sm:py-20 lg:overflow-hidden lg:pt-20">
-      <div className="container mx-auto w-full px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <div className="nav-width page-rise">
         <div className="mb-8 max-w-2xl sm:mb-10 lg:mb-3">
           <p className="journey-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
             Level Progression

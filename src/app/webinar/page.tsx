@@ -26,6 +26,7 @@ import {
   TrendingUp,
   ShieldCheck,
   HelpCircle,
+  Calendar,
   Clock,
   Video,
   Gift,
@@ -620,9 +621,7 @@ export default function WebinarPage() {
     setIsUnlocked(true);
     setTimeout(() => {
       const el = document.getElementById("sound-familiar");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -667,16 +666,16 @@ export default function WebinarPage() {
   }, [activeWebinar?.durationMinutes]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative font-sans">
+    <div className="landing-page relative min-h-screen bg-[#f7f2ec] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
       <SocialProofToaster />
       <ExitIntentModal onClaimSeat={scrollToRegister} />
 
       {/* ─── 1. TOP ANNOUNCEMENT BANNER ─── */}
       {showBanner && (
-        <div className="relative bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 text-slate-950 font-bold z-50 transition-all">
-          <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2.5 text-center text-xs sm:text-sm text-white">
+        <div className="relative z-50 border-b border-[#f3d7c4] bg-[#fff6f0]">
+          <div className="nav-width flex items-center justify-center gap-2 py-2.5 text-center text-xs font-medium text-stone-800 sm:text-sm">
             <span className="flex items-center gap-1.5">
-              <Flame size={16} className="text-amber-200 animate-pulse" />
+              <Flame size={16} className="text-orange-500" />
               <strong>🔥 LIVE MASTERCLASS — LIMITED SEATS.</strong> Registration closes when live-seat capacity is reached.
             </span>
           </div>
@@ -684,7 +683,7 @@ export default function WebinarPage() {
             type="button"
             onClick={() => setShowBanner(false)}
             aria-label="Dismiss announcement"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-opacity cursor-pointer"
+            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-stone-400 transition hover:text-stone-800"
           >
             <X size={18} />
           </button>
@@ -695,57 +694,57 @@ export default function WebinarPage() {
 
       <main>
         {/* ─── 3. HERO SECTION WITH REGISTRATION FORM ─── */}
-        <section className="relative overflow-hidden pt-12 pb-20 sm:py-24">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent blur-3xl"></div>
-
-          <div className="relative mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 items-start">
+        <section className="relative overflow-hidden pb-16 pt-6 sm:pb-24 sm:pt-10">
+          <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-orange-300/25 blur-3xl" />
+          <div className="pointer-events-none absolute right-0 top-24 h-80 w-80 rounded-full bg-amber-200/40 blur-3xl" />
+          <div className="nav-width relative grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
             
             {/* Left Column: Exact Headline, Details & CTAs */}
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-6">
+              <span className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                 <Sparkles size={13} className="animate-pulse" /> Free live masterclass
               </span>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight text-white mb-6">
+              <h1 className="mb-5 text-[2rem] font-semibold leading-[1.08] tracking-tight text-stone-950 sm:text-5xl lg:text-[3.15rem]">
                 From Resin Art Passion to a{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">
+                <span className="text-[#e36b32]">
                   ₹3 Lakh/Month Business
                 </span>{" "}
                 — Without Random Tutorials, Self-Doubt or Guesswork.
               </h1>
 
-              <p className="max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg mb-6">
+              <p className="mb-6 max-w-xl text-base leading-relaxed text-stone-600 sm:text-lg">
                 Join the Resin Mastery Masterclass and discover the 3 secrets to mastering premium resin skills, creating a signature portfolio and turning your art into a business with a clear roadmap.
               </p>
 
-              <blockquote className="max-w-xl border-l-3 border-orange-500 pl-4 py-1 text-sm italic leading-relaxed text-slate-400 sm:text-base mb-8">
+              <blockquote className="mb-8 max-w-xl rounded-2xl border border-[#f3d3c0] border-l-[3px] border-l-[#e36b32] bg-white px-5 py-4 text-sm italic leading-relaxed text-stone-600 shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)] sm:text-base">
                 "You don't need more random tutorials. You need the right skills, the confidence to own your creativity, and a roadmap that shows you how to turn what you love into something people will pay for."
               </blockquote>
 
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 <button
                   onClick={scrollToRegister}
-                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black shadow-xl shadow-orange-500/30 h-12 rounded-xl px-8 text-sm transition-all hover:scale-105 cursor-pointer"
+                  className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-7 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
                 >
                   Yes! I want my free seat
                   <ArrowRight className="ml-1 size-4" />
                 </button>
                 <button
                   onClick={handleUnlockAndScroll}
-                  className="inline-flex items-center justify-center gap-2 border border-slate-700 bg-slate-900/90 text-white shadow-sm hover:bg-slate-800 hover:border-orange-500/50 h-12 rounded-xl px-8 text-sm transition-all cursor-pointer font-bold"
+                  className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 bg-white px-7 text-sm font-semibold text-stone-800 shadow-sm transition hover:border-orange-300"
                 >
                   Show me what I'll learn
                   <ChevronDown className="ml-1 size-4" />
                 </button>
               </div>
 
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-8">
+              <p className="mb-8 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
                 100% Free • Live Masterclass • Limited Seats
               </p>
 
               {/* Host Preview */}
-              <div className="flex items-center gap-4 mb-8 pt-6 border-t border-slate-800/80">
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-500/60 shadow-lg shadow-orange-500/20 shrink-0">
+              <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-[#eadfd4] bg-white py-2 pl-2 pr-5 shadow-[0_12px_28px_-22px_rgba(90,55,20,0.5)]">
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-[#f3d3c0]">
                   <img
                     src="/images/mentor/vrajangna-portrait.jpg"
                     alt="Vrajangna Patel"
@@ -753,69 +752,66 @@ export default function WebinarPage() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">Vrajangna Patel</p>
-                  <p className="text-xs text-orange-400 font-semibold">54,000+ webinar attendees</p>
+                  <p className="text-sm font-semibold text-stone-950">Vrajangna Patel</p>
+                  <p className="text-xs font-semibold text-[#c45a28]">54,000+ webinar attendees</p>
                 </div>
               </div>
 
-              {/* 4-Item Event Grid */}
-              <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-4 mb-8 shadow-xl">
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Date</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{displayDateStr}</dd>
-                </div>
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Time</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{displayTimeStr}</dd>
-                </div>
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Language</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">Hindi + English</dd>
-                </div>
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Duration</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{displayDurationStr}</dd>
-                </div>
+              <dl className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  { icon: Calendar, label: "Date", value: displayDateStr },
+                  { icon: Clock, label: "Time", value: displayTimeStr },
+                  { icon: Globe, label: "Language", value: "Hindi + English" },
+                  { icon: Video, label: "Duration", value: displayDurationStr },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-[#eadfd4] bg-white p-3.5 shadow-[0_12px_28px_-24px_rgba(90,55,20,0.55)]">
+                    <item.icon size={15} className="text-[#e36b32]" />
+                    <dt className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-stone-500">{item.label}</dt>
+                    <dd className="mt-0.5 text-sm font-semibold text-stone-950">{item.value}</dd>
+                  </div>
+                ))}
               </dl>
 
               {/* Countdown */}
               <div className="mb-6">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
                   Live Masterclass Starts In:
                 </p>
                 <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
               </div>
 
-              <p className="max-w-xl text-base font-bold text-orange-400">
+              <p className="max-w-xl text-base font-semibold text-[#c45a28]">
                 Don't just learn resin. Learn how to make your resin skills matter in the market.
               </p>
             </div>
 
             {/* Right Column: Exact Registration Card */}
             <div id="register" className="scroll-mt-24">
-              <div className="rounded-3xl border-2 border-orange-500/40 bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-2xl shadow-black/80">
-                <h2 className="text-2xl font-black text-white">Reserve your free seat</h2>
-                <p className="mt-1 mb-6 text-xs sm:text-sm text-slate-400">
+              <div className="overflow-hidden rounded-[1.75rem] border border-[#f3d3c0] bg-white shadow-[0_28px_60px_-28px_rgba(90,55,20,0.4)] lg:sticky lg:top-24">
+                <div className="h-1.5 bg-gradient-to-r from-orange-500 via-amber-400 to-orange-300" />
+                <div className="p-6 sm:p-8">
+                <h2 className="text-2xl font-semibold tracking-tight text-stone-950">Reserve your free seat</h2>
+                <p className="mb-6 mt-1 text-sm text-stone-500">
                   Where should we send your Masterclass details?
                 </p>
 
                 {/* Seats Left Bar */}
                 <div className="mb-6">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 shadow-inner">
+                  <div className="rounded-2xl border border-[#f3d3c0] bg-[#fff6f0] p-4">
                     <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="inline-flex items-center gap-1.5 font-bold text-orange-400">
-                        <Users size={16} className="text-orange-400" />
+                      <span className="inline-flex items-center gap-1.5 font-bold text-[#c45a28]">
+                        <Users size={16} className="text-[#c45a28]" />
                         {stats.seatsRemaining} live seats left
                       </span>
-                      <span className="text-emerald-400 font-bold">{stats.percentFull}% full</span>
+                      <span className="text-emerald-600 font-bold">{stats.percentFull}% full</span>
                     </div>
-                    <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-slate-900" role="progressbar">
+                    <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-[#f3d3c0]" role="progressbar">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-1000"
                         style={{ width: `${stats.percentFull}%` }}
                       ></div>
                     </div>
-                    <p className="mt-2 text-[11px] text-slate-400 font-medium">
+                    <p className="mt-2 text-[11px] text-stone-500 font-medium">
                       Once the room is full, registration closes for this date.
                     </p>
                   </div>
@@ -829,11 +825,11 @@ export default function WebinarPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-name">
+                    <label className="text-xs font-semibold uppercase tracking-[0.12em] text-stone-600" htmlFor="lead-name">
                       Full name
                     </label>
                     <input
-                      className="flex h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all"
+                      className="flex h-11 w-full rounded-xl border border-[#eadfd4] bg-[#fbf7f3] px-4 py-2 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40"
                       id="lead-name"
                       placeholder="Jane Doe"
                       autoComplete="name"
@@ -844,12 +840,12 @@ export default function WebinarPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-email">
+                    <label className="text-xs font-semibold uppercase tracking-[0.12em] text-stone-600" htmlFor="lead-email">
                       Email address
                     </label>
                     <input
                       type="email"
-                      className="flex h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all"
+                      className="flex h-11 w-full rounded-xl border border-[#eadfd4] bg-[#fbf7f3] px-4 py-2 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40"
                       id="lead-email"
                       placeholder="jane@example.com"
                       autoComplete="email"
@@ -860,12 +856,12 @@ export default function WebinarPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-phone">
+                    <label className="text-xs font-semibold uppercase tracking-[0.12em] text-stone-600" htmlFor="lead-phone">
                       WhatsApp number
                     </label>
                     <input
                       type="tel"
-                      className="flex h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all"
+                      className="flex h-11 w-full rounded-xl border border-[#eadfd4] bg-[#fbf7f3] px-4 py-2 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40"
                       id="lead-phone"
                       placeholder="+91 98765 43210"
                       autoComplete="tel"
@@ -875,11 +871,11 @@ export default function WebinarPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-message">
-                      Your biggest challenge right now <span className="text-slate-500 lowercase font-normal">(optional)</span>
+                    <label className="text-xs font-semibold uppercase tracking-[0.12em] text-stone-600" htmlFor="lead-message">
+                      Your biggest challenge right now <span className="text-stone-400 lowercase font-normal">(optional)</span>
                     </label>
                     <textarea
-                      className="flex min-h-[70px] w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all resize-none"
+                      className="flex min-h-[70px] w-full resize-none rounded-xl border border-[#eadfd4] bg-[#fbf7f3] px-4 py-2.5 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40"
                       id="lead-message"
                       placeholder="e.g. I don't know which resin techniques to learn first, or how to price my work."
                       rows={3}
@@ -888,12 +884,12 @@ export default function WebinarPage() {
                     ></textarea>
                   </div>
 
-                  <label className="flex items-start gap-2.5 text-xs leading-relaxed text-slate-400 cursor-pointer pt-1">
+                  <label className="flex cursor-pointer items-start gap-2.5 pt-1 text-xs leading-relaxed text-stone-500">
                     <input
                       type="checkbox"
                       checked={form.consent}
                       onChange={e => update("consent", e.target.checked)}
-                      className="mt-0.5 size-4 shrink-0 rounded border-slate-800 bg-slate-950 text-orange-500 focus:ring-0 cursor-pointer"
+                      className="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-[#eadfd4] text-orange-500 focus:ring-0"
                     />
                     <span>
                       I agree to receive webinar reminders, resources and relevant updates from Ravishing Art Hub Learning Academy LLP via email and WhatsApp.
@@ -901,32 +897,33 @@ export default function WebinarPage() {
                   </label>
 
                   <button
-                    className="inline-flex items-center justify-center gap-2 text-sm font-black transition-all bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 hover:opacity-95 text-slate-950 shadow-xl shadow-orange-500/30 h-11 rounded-xl px-8 w-full cursor-pointer hover:scale-[1.02] disabled:opacity-60"
+                    className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600 disabled:opacity-60"
                     type="submit"
                     disabled={loading}
                   >
                     {loading ? "Securing Your Seat..." : "Yes! I want my free seat"}
                   </button>
 
-                  <p className="text-center text-xs text-slate-400 pt-1">
+                  <p className="pt-1 text-center text-xs text-stone-500">
                     Your confirmation and Zoom joining link are emailed the moment you register — check your inbox.
                   </p>
 
-                  <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 pt-1 text-xs text-slate-400 font-semibold">
+                  <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 pt-1 text-xs font-semibold text-stone-500">
                     <li className="flex items-center gap-1">✓ 100% free to attend</li>
                     <li className="flex items-center gap-1">✓ Live 90-minute session</li>
                     <li className="flex items-center gap-1">✓ Clarity Kit included</li>
                   </ul>
                 </form>
 
-                <div className="mt-6 flex gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
-                  <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-400" />
+                <div className="mt-6 flex gap-3 rounded-2xl border border-[#eadfd4] bg-[#fbf7f3] p-4">
+                  <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#c45a28]" />
                   <div>
-                    <p className="text-xs font-bold text-white">No credit card required</p>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">
+                    <p className="text-xs font-semibold text-stone-950">No credit card required</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500">
                       Registration is completely free. Your details are used only for webinar communications and relevant updates — never sold.
                     </p>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
@@ -935,29 +932,27 @@ export default function WebinarPage() {
         </section>
 
         {/* ─── 4. RECOGNISED FOR MARQUEE ─── */}
-        <section className="bg-slate-900/40 border-y border-slate-800/80 py-12 px-5">
-          <div className="mx-auto max-w-6xl">
+        <section className="border-y border-[#eadfd4] bg-white py-10 sm:py-12">
+          <div className="nav-width">
             <div className="text-center">
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-black mb-4">Recognised for</p>
-              <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm md:text-base font-bold text-slate-300">
-                <li className="flex items-center gap-2">Hall of Fame Award 2022</li>
-                <li className="flex items-center gap-2">I Can Coach — International Best Seller</li>
-                <li className="flex items-center gap-2">Sylph Magazine</li>
-                <li className="flex items-center gap-2">54,000+ webinar attendees</li>
-                <li className="flex items-center gap-2">10+ years coaching</li>
+              <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c45a28]">Recognised for</p>
+              <ul className="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-stone-700">
+                {["Hall of Fame Award 2022", "I Can Coach — International Best Seller", "Sylph Magazine", "54,000+ webinar attendees", "10+ years coaching"].map((item) => (
+                  <li key={item} className="rounded-full border border-[#eadfd4] bg-[#fffaf6] px-4 py-2">{item}</li>
+                ))}
               </ul>
             </div>
           </div>
         </section>
 
         {/* ─── 5. FOUR BIG STAT COUNTERS ─── */}
-        <section className="py-16 px-5 border-b border-slate-800/80 bg-slate-950">
-          <div className="mx-auto max-w-6xl">
-            <dl className="grid grid-cols-2 gap-8 sm:grid-cols-4 text-center">
+        <section className="bg-transparent py-12 sm:py-16">
+          <div className="nav-width">
+            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {STAT_COUNTERS.map((stat, idx) => (
-                <div key={idx} className="p-4">
-                  <dt className="text-3xl sm:text-4xl font-bold text-white">{stat.value}</dt>
-                  <dd className="mt-1 text-sm text-slate-400">{stat.label}</dd>
+                <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white px-4 py-6 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)]">
+                  <dt className="text-3xl font-semibold tracking-tight text-[#e36b32] sm:text-4xl">{stat.value}</dt>
+                  <dd className="mt-1 text-sm text-stone-500">{stat.label}</dd>
                 </div>
               ))}
             </dl>
@@ -965,21 +960,21 @@ export default function WebinarPage() {
         </section>
 
         {/* ─── 6. THE INTERACTIVE GATE SECTION ─── */}
-        <section id="gate" className="bg-slate-900/40 border-b border-slate-800/80 py-20 px-5 relative z-10">
-          <div className="mx-auto max-w-6xl">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold sm:text-4xl text-white">
+        <section id="gate" className="relative z-10 bg-white py-16 sm:py-20">
+          <div className="nav-width">
+            <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#f3d3c0] bg-[linear-gradient(180deg,#fffaf6_0%,#fff_100%)] px-6 py-12 text-center shadow-[0_24px_50px_-32px_rgba(90,55,20,0.4)] sm:px-12">
+              <h2 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                 Want to know what makes this Masterclass different?
               </h2>
-              <p className="mt-3 text-slate-400 text-base leading-relaxed">
+              <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-stone-500">
                 I've designed this session around the three things most aspiring resin artists need — mastery, mindset and monetization.
               </p>
               <button
                 onClick={() => setIsUnlocked(!isUnlocked)}
-                className="inline-flex items-center justify-center gap-2 text-sm font-medium transition-all bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 shadow-xl shadow-orange-500/20 h-10 rounded-md px-8 mt-8 cursor-pointer hover:scale-105"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 cursor-pointer mt-8"
               >
                 {isUnlocked ? "Hide what you'll learn" : "Show me what I'll learn"}
-                {isUnlocked ? <ChevronUp className="ml-1.5 size-4" /> : <ChevronDown className="ml-1.5 size-4" />}
+                {isUnlocked ? <ChevronUp className="ml-1 size-4" /> : <ChevronDown className="ml-1 size-4" />}
               </button>
             </div>
           </div>
@@ -987,34 +982,34 @@ export default function WebinarPage() {
 
         {/* ─── 7. UNLOCKED EXACT CURRICULUM SECTIONS (100% MATCHING REFERENCE SEQUENCE) ─── */}
         {isUnlocked && (
-          <div id="gate-content" className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-0">
+          <div id="gate-content">
             
             {/* 1. SOUND FAMILIAR? (W -> e2) */}
-            <section id="sound-familiar" className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
+            <section id="sound-familiar" className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {SOUND_FAMILIAR.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+                  <h2 className="mb-4 text-3xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {SOUND_FAMILIAR.heading}
                   </h2>
-                  <p className="text-slate-400 text-base leading-relaxed">
+                  <p className="text-stone-500 text-base leading-relaxed">
                     {SOUND_FAMILIAR.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                   {SOUND_FAMILIAR.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center gap-3">
-                      <span className="text-slate-400 text-sm font-bold">✕</span>
-                      <p className="text-sm text-slate-300">{item}</p>
+                    <div key={idx} className="flex items-center gap-3 rounded-2xl border border-[#eadfd4] bg-white p-4 shadow-[0_12px_28px_-24px_rgba(90,55,20,0.5)]">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#fff1ea] text-xs font-bold text-[#c45a28]">✕</span>
+                      <p className="text-sm text-stone-600">{item}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="text-center max-w-3xl mx-auto pt-4">
-                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+                  <p className="text-sm sm:text-base text-stone-500 leading-relaxed">
                     {SOUND_FAMILIAR.turn}
                   </p>
                 </div>
@@ -1022,69 +1017,69 @@ export default function WebinarPage() {
             </section>
 
             {/* 2. MY PHILOSOPHY (H -> n2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {PHILOSOPHY.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {PHILOSOPHY.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {PHILOSOPHY.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                   {PHILOSOPHY.steps.map((step, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-3">
+                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
+                      <span className="mb-4 inline-flex rounded-full bg-[#fff6f0] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[#c45a28]">
                         {step.label}
                       </span>
-                      <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                      <p className="text-sm text-slate-400 leading-relaxed">{step.body}</p>
+                      <h3 className="text-xl font-bold text-stone-950 mb-3">{step.title}</h3>
+                      <p className="text-sm text-stone-500 leading-relaxed">{step.body}</p>
                     </div>
                   ))}
                 </div>
 
-                <p className="text-center text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
+                <p className="text-center text-stone-500 text-sm max-w-2xl mx-auto leading-relaxed">
                   {PHILOSOPHY.closing}
                 </p>
               </div>
             </section>
 
             {/* 3. ON THE MASTERCLASS: THE THREE SECRETS (q -> t2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {THREE_SECRETS.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {THREE_SECRETS.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {THREE_SECRETS.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                   {THREE_SECRETS.items.map((secret, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+                    <div key={idx} className="flex flex-col justify-between rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
                       <div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">
+                        <span className="mb-4 inline-flex rounded-full bg-[#2a211c] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
                           {secret.label}
                         </span>
-                        <h3 className="text-lg font-bold text-white mb-4 leading-snug">
+                        <h3 className="text-lg font-bold text-stone-950 mb-4 leading-snug">
                           {secret.title}
                         </h3>
                         
-                        <p className="text-xs text-slate-400 italic mb-4 leading-relaxed">
+                        <p className="text-xs text-stone-500 italic mb-4 leading-relaxed">
                           {secret.myth}
                         </p>
 
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                           {secret.truth}
                         </p>
                       </div>
@@ -1093,14 +1088,14 @@ export default function WebinarPage() {
                 </div>
 
                 {/* 4. LIVE SEATS ARE LIMITED BANNER (ve -> o2) */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#2a211c] p-6 text-white sm:flex-row sm:items-center sm:p-8">
                   <div>
                     <h3 className="text-lg font-bold text-white">{LIVE_SEATS_BANNER.heading}</h3>
-                    <p className="text-sm text-slate-400 mt-1">{LIVE_SEATS_BANNER.body}</p>
+                    <p className="mt-1 text-sm text-stone-300">{LIVE_SEATS_BANNER.body}</p>
                   </div>
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-slate-950 border border-slate-700 hover:border-orange-500 text-white font-medium text-xs sm:text-sm h-10 rounded-lg px-6 transition-all hover:scale-105 cursor-pointer shrink-0"
+                    className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm font-semibold text-white transition hover:from-orange-600 hover:to-amber-600"
                   >
                     {LIVE_SEATS_BANNER.cta}
                     <ArrowRight size={14} />
@@ -1110,35 +1105,35 @@ export default function WebinarPage() {
             </section>
 
             {/* 5. THE SHIFT (L -> i2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {THE_SHIFT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {THE_SHIFT.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {THE_SHIFT.subheading}
                   </p>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse rounded-2xl overflow-hidden border border-slate-800">
+                  <table className="w-full overflow-hidden rounded-3xl border border-[#eadfd4] text-left text-sm shadow-[0_18px_40px_-30px_rgba(90,55,20,0.45)]">
                     <thead>
-                      <tr className="border-b border-slate-800 bg-slate-900">
-                        <th className="p-4 font-bold text-slate-400 uppercase text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
-                        <th className="p-4 font-bold text-slate-200 uppercase text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
+                      <tr className="border-b border-[#eadfd4] bg-[#fff6f0]">
+                        <th className="p-4 font-bold text-stone-500 uppercase text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
+                        <th className="p-4 font-bold text-stone-800 uppercase text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/80 bg-slate-900/60">
+                    <tbody className="divide-y divide-[#eadfd4] bg-white">
                       {THE_SHIFT.pairs.map((pair, idx) => (
                         <tr key={idx}>
-                          <td className="p-4 text-slate-400">
+                          <td className="p-4 text-stone-500">
                             {pair.before}
                           </td>
-                          <td className="p-4 text-slate-200 font-medium">
+                          <td className="p-4 text-stone-800 font-medium">
                             {pair.after}
                           </td>
                         </tr>
@@ -1150,25 +1145,26 @@ export default function WebinarPage() {
             </section>
 
             {/* 6. WHAT CHANGES (X -> l2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {WHAT_CHANGES.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {WHAT_CHANGES.heading}
                   </h2>
-                  <p className="text-slate-400 text-sm sm:text-base">
+                  <p className="text-stone-500 text-sm sm:text-base">
                     {WHAT_CHANGES.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {WHAT_CHANGES.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
+                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
+                      <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
+                      <h3 className="mb-2 text-base font-bold text-stone-950">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -1176,25 +1172,26 @@ export default function WebinarPage() {
             </section>
 
             {/* 7. RIGHT FIT? (ee -> s2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-6xl">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {RIGHT_FIT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {RIGHT_FIT.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {RIGHT_FIT.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {RIGHT_FIT.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
+                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
+                      <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
+                      <h3 className="mb-2 text-base font-bold text-stone-950">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -1202,25 +1199,25 @@ export default function WebinarPage() {
             </section>
 
             {/* 8. PROOF (te -> r2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {PROOF.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {PROOF.heading}
                   </h2>
-                  <p className="text-slate-300 text-base leading-relaxed max-w-2xl mx-auto">
+                  <p className="text-stone-600 text-base leading-relaxed max-w-2xl mx-auto">
                     {PROOF.body}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {PROOF.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center">
-                      <p className="text-2xl font-bold text-white mb-1">{item.value}</p>
-                      <p className="text-xs text-slate-400 font-medium">{item.label}</p>
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-5 text-center">
+                      <p className="text-2xl font-bold text-stone-950 mb-1">{item.value}</p>
+                      <p className="text-xs text-stone-500 font-medium">{item.label}</p>
                     </div>
                   ))}
                 </div>
@@ -1228,25 +1225,26 @@ export default function WebinarPage() {
             </section>
 
             {/* 9. FREE BONUS: CLARITY KIT (B -> u2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-6xl">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {CLARITY_KIT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {CLARITY_KIT.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {CLARITY_KIT.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                   {CLARITY_KIT.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
+                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
+                      <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
+                      <h3 className="mb-2 text-base font-bold text-stone-950">{item.title}</h3>
+                      <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -1254,7 +1252,7 @@ export default function WebinarPage() {
                 <div className="text-center">
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     {CLARITY_KIT.cta}
                     <ArrowRight size={14} />
@@ -1264,43 +1262,43 @@ export default function WebinarPage() {
             </section>
 
             {/* 10. VALUE STACK (Ks -> E) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-4xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {VALUE_STACK.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {VALUE_STACK.heading}
                   </h2>
                 </div>
 
                 <div className="space-y-4 mb-8">
                   {VALUE_STACK.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
-                        <h3 className="text-base font-bold text-white">{item.title}</h3>
-                        <p className="text-xs sm:text-sm text-slate-400 mt-1">{item.body}</p>
+                        <h3 className="text-base font-bold text-stone-950">{item.title}</h3>
+                        <p className="text-xs sm:text-sm text-stone-500 mt-1">{item.body}</p>
                       </div>
-                      <span className="text-sm font-bold text-orange-400 shrink-0 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-center">
+                      <span className="text-sm font-bold text-[#c45a28] shrink-0 bg-[#fff6f0] border border-[#eadfd4] px-3 py-1.5 rounded-lg text-center">
                         {item.value}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                   <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
-                    <p className="text-lg font-bold text-slate-400 line-through">{VALUE_STACK.totalValue}</p>
+                    <p className="text-xs text-stone-500 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
+                    <p className="text-lg font-bold text-stone-500 line-through">{VALUE_STACK.totalValue}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-orange-400 uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
-                    <p className="text-2xl font-black text-emerald-400">{VALUE_STACK.priceValue}</p>
+                    <p className="text-xs text-[#c45a28] uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
+                    <p className="text-2xl font-semibold text-emerald-600">{VALUE_STACK.priceValue}</p>
                   </div>
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     Reserve my free seat
                     <ArrowRight size={14} />
@@ -1310,40 +1308,40 @@ export default function WebinarPage() {
             </section>
 
             {/* 11. HONEST FIT CHECK (D -> a2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {HONEST_FIT_CHECK.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {HONEST_FIT_CHECK.heading}
                   </h2>
-                  <p className="text-slate-400 text-sm sm:text-base">
+                  <p className="text-stone-500 text-sm sm:text-base">
                     {HONEST_FIT_CHECK.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7">
-                    <h3 className="text-base font-bold text-white mb-4">
+                  <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-7">
+                    <h3 className="text-base font-bold text-stone-950 mb-4">
                       {HONEST_FIT_CHECK.forHeading}
                     </h3>
-                    <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
+                    <ul className="space-y-3 text-xs sm:text-sm text-stone-600">
                       {HONEST_FIT_CHECK.forItems.map((it, idx) => (
                         <li key={idx} className="flex items-start gap-2.5">
-                          <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                          <Check size={16} className="text-emerald-600 mt-0.5 shrink-0" />
                           <span>{it}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7">
-                    <h3 className="text-base font-bold text-white mb-4">
+                  <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-7">
+                    <h3 className="text-base font-bold text-stone-950 mb-4">
                       {HONEST_FIT_CHECK.notForHeading}
                     </h3>
-                    <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
+                    <ul className="space-y-3 text-xs sm:text-sm text-stone-600">
                       {HONEST_FIT_CHECK.notForItems.map((it, idx) => (
                         <li key={idx} className="flex items-start gap-2.5">
                           <X size={16} className="text-red-400 mt-0.5 shrink-0" />
@@ -1357,29 +1355,29 @@ export default function WebinarPage() {
             </section>
 
             {/* 12. AGENDA (se -> c2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {AGENDA.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {AGENDA.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {AGENDA.subheading}
                   </p>
                 </div>
 
                 <div className="space-y-4 max-w-3xl mx-auto">
                   {AGENDA.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <span className="text-slate-400 font-mono text-xs font-bold shrink-0">
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      <span className="text-stone-500 font-mono text-xs font-bold shrink-0">
                         {item.time}
                       </span>
                       <div>
-                        <h3 className="font-bold text-white text-sm">{item.title}</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">{item.body}</p>
+                        <h3 className="font-bold text-stone-950 text-sm">{item.title}</h3>
+                        <p className="text-xs text-stone-500 mt-0.5">{item.body}</p>
                       </div>
                     </div>
                   ))}
@@ -1388,37 +1386,37 @@ export default function WebinarPage() {
             </section>
 
             {/* 13. YOUR MENTOR (A -> h2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
-                <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-sm">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
+                <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-3xl p-8 md:p-12 shadow-sm">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div className="lg:col-span-4 text-center">
-                      <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden border border-slate-800 mb-4">
+                      <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden border border-[#eadfd4] mb-4">
                         <img
                           src="/images/mentor/vrajangna-portrait.jpg"
                           alt="Vrajangna Patel"
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <h3 className="text-lg font-bold text-white">{MENTOR_SECTION.name}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{MENTOR_SECTION.role}</p>
+                      <h3 className="text-lg font-bold text-stone-950">{MENTOR_SECTION.name}</h3>
+                      <p className="text-xs text-stone-500 mt-1">{MENTOR_SECTION.role}</p>
                     </div>
 
                     <div className="lg:col-span-8 space-y-4">
-                      <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300">
+                      <span className="inline-flex items-center rounded-full border border-[#eadfd4] bg-[#fff6f0] px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-stone-600">
                         {MENTOR_SECTION.eyebrow}
                       </span>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white">Meet {MENTOR_SECTION.name}</h2>
-                      <p className="text-xs text-slate-400">{MENTOR_SECTION.role}</p>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-stone-950">Meet {MENTOR_SECTION.name}</h2>
+                      <p className="text-xs text-stone-500">{MENTOR_SECTION.role}</p>
                       {MENTOR_SECTION.bio.map((p, idx) => (
-                        <p key={idx} className="text-sm text-slate-300 leading-relaxed">{p}</p>
+                        <p key={idx} className="text-sm text-stone-600 leading-relaxed">{p}</p>
                       ))}
-                      <blockquote className="border-l-2 border-slate-700 pl-3 text-sm italic text-slate-300">
+                      <blockquote className="border-l-2 border-[#eadfd4] pl-3 text-sm italic text-stone-600">
                         "{MENTOR_SECTION.quote}"
                       </blockquote>
                       <div className="flex flex-wrap gap-2 pt-2">
                         {MENTOR_SECTION.credentials.map((c, idx) => (
-                          <span key={idx} className="bg-slate-950 border border-slate-800 text-slate-300 text-xs px-3 py-1 rounded-full">
+                          <span key={idx} className="bg-[#fff6f0] border border-[#eadfd4] text-stone-600 text-xs px-3 py-1 rounded-full">
                             ✓ {c}
                           </span>
                         ))}
@@ -1430,32 +1428,32 @@ export default function WebinarPage() {
             </section>
 
             {/* 14. COMMUNITY / TESTIMONIALS (ae -> d2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     {COMMUNITY_SECTION.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
                     {COMMUNITY_SECTION.heading}
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="text-stone-500 text-base">
                     {COMMUNITY_SECTION.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {COMMUNITY_SECTION.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col justify-between">
                       <div>
-                        <Quote size={20} className="text-orange-400 mb-3" />
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic mb-4">
+                        <Quote size={20} className="text-[#c45a28] mb-3" />
+                        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed italic mb-4">
                           "{item.quote}"
                         </p>
                       </div>
-                      <div className="border-t border-slate-800 pt-3">
-                        <p className="text-sm font-bold text-white">{item.name}</p>
-                        <p className="text-xs text-slate-400">{item.role}</p>
+                      <div className="border-t border-[#eadfd4] pt-3">
+                        <p className="text-sm font-bold text-stone-950">{item.name}</p>
+                        <p className="text-xs text-stone-500">{item.role}</p>
                       </div>
                     </div>
                   ))}
@@ -1464,30 +1462,30 @@ export default function WebinarPage() {
             </section>
 
             {/* 15. FREQUENTLY ASKED QUESTIONS (Ne -> f2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-4xl">
+            <section className="bg-white py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
                     QUESTIONS
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently asked</h2>
+                  <h2 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">Frequently asked</h2>
                 </div>
 
                 <div className="space-y-3">
                   {EXACT_FAQS.map((faq, idx) => (
                     <div
                       key={idx}
-                      className="border border-slate-800 rounded-xl bg-slate-900 overflow-hidden transition-all"
+                      className="rounded-2xl border border-[#eadfd4] bg-white overflow-hidden transition-all"
                     >
                       <button
                         onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                        className="w-full p-4 text-left font-medium text-white text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer hover:text-orange-400 transition-colors"
+                        className="w-full p-4 text-left font-medium text-stone-950 text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer hover:text-[#c45a28] transition-colors"
                       >
                         <span>{faq.q}</span>
-                        {openFaq === idx ? <ChevronUp size={18} className="text-orange-400 shrink-0" /> : <ChevronDown size={18} className="text-slate-400 shrink-0" />}
+                        {openFaq === idx ? <ChevronUp size={18} className="text-[#c45a28] shrink-0" /> : <ChevronDown size={18} className="text-stone-500 shrink-0" />}
                       </button>
                       {openFaq === idx && (
-                        <div className="px-4 pb-4 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/60 pt-3">
+                        <div className="px-4 pb-4 text-xs sm:text-sm text-stone-500 leading-relaxed border-t border-[#eadfd4]/60 pt-3">
                           {faq.a}
                         </div>
                       )}
@@ -1501,51 +1499,53 @@ export default function WebinarPage() {
         )}
 
         {/* ─── 8. FINAL EMOTIONAL CTA ─── */}
-        <section className="py-20 sm:py-24 px-5 bg-slate-950 border-b border-slate-800/80 text-center relative z-10">
-          <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+        <section className="relative z-10 bg-white py-16 text-center sm:py-24">
+          <div className="nav-width">
+            <div className="mx-auto max-w-3xl rounded-[2rem] bg-[#2a211c] px-6 py-12 sm:px-12 sm:py-16">
+            <h2 className="mb-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
               Your art deserves more than a place on your phone
             </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
+            <p className="mx-auto mb-8 max-w-2xl text-sm leading-relaxed text-stone-300 sm:text-base">
               You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
             </p>
 
-            <div className="mb-6">
+            <div className="mb-6 flex justify-center">
               <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
             </div>
 
             <button
               onClick={scrollToRegister}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black shadow-xl shadow-orange-500/30 h-11 rounded-xl px-10 text-sm transition-all hover:scale-105 cursor-pointer mt-4"
+              className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
             >
               Reserve my free seat
               <ArrowRight className="ml-1.5 size-4" />
             </button>
 
-            <p className="mt-4 text-sm font-medium text-orange-400">
+            <p className="mt-4 text-sm font-medium text-[#c45a28]">
               🔥 Live seats are limited. Register now before registration closes.
             </p>
-            <p className="mt-2 text-xs uppercase tracking-widest text-slate-500">
+            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-400">
               Free registration • 90-minute Masterclass • Practical clarity • Action-focused
             </p>
+            </div>
           </div>
         </section>
       </main>
 
       {/* ─── 9. STICKY BOTTOM REGISTRATION BAR ─── */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl transition-transform duration-300 ${
+        className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#f3d3c0] bg-[#fffaf6]/95 backdrop-blur-xl transition-transform duration-300 ${
           showStickyBottom ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+        <div className="nav-width flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="text-sm font-semibold text-white">Resin Mastery Masterclass</span>
+            <span className="text-sm font-semibold text-stone-950">Resin Mastery Masterclass</span>
             <WebinarCountdown compact={true} targetDateStr={activeWebinar?.scheduledAt} />
           </div>
           <button
             onClick={scrollToRegister}
-            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold shadow-md h-8 rounded-md px-4 text-xs transition-all cursor-pointer hover:scale-105"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
           >
             Get my free seat
             <ArrowRight size={13} />

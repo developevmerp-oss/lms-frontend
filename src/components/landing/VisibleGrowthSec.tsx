@@ -109,8 +109,8 @@ export default function VisibleGrowthSec() {
   }, []);
 
   return (
-    <section className="relative z-10 bg-white px-6 py-24">
-      <div className="mx-auto max-w-7xl text-center">
+    <section className="growth-band relative z-10 bg-[#f7f2ec] py-24">
+      <div className="nav-width text-center">
         <div className="flex items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-orange-700">
           <span className="h-px w-10 bg-orange-300" />
           Gamified Progress Tracking

@@ -15,7 +15,7 @@ export default function FinalCtaSec() {
     <section className="finale-sec relative z-10">
       <div className="finale-shell">
         <div className="finale-scrim" aria-hidden="true" />
-        <div className="container relative z-10 mx-auto px-5 py-16 sm:px-10 sm:py-20 lg:px-10 lg:py-24 2xl:px-0">
+        <div className="nav-width page-rise relative z-10 py-16 sm:py-20 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="finale-title text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
               Your Art Has More Potential Than You Think.
@@ -60,7 +60,7 @@ export default function FinalCtaSec() {
 
       {/*
       import { ArrowRight } from "lucide-react";
-      <section className="final-cta-sec relative z-10 bg-white pb-10 container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
+      <section className="final-cta-sec nav-width relative z-10 bg-white pb-10">
         <div className="final-cta-banner relative overflow-hidden rounded-[2rem] px-6 pt-10 pb-0 sm:px-10 sm:pt-12 lg:px-10 lg-py-10">
           <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 800 480" preserveAspectRatio="none">
             <path d="M0 80 C160 20 280 140 460 90 C620 46 700 20 800 70 L800 0 L0 0 Z" fill="rgba(255,255,255,0.08)" />

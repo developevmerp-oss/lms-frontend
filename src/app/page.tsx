@@ -170,7 +170,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-white font-sans text-stone-950 selection:bg-orange-500 selection:text-white">
+    <div className="landing-page relative min-h-screen bg-white text-stone-950 selection:bg-orange-500 selection:text-white">
       <SiteNavbar />
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
