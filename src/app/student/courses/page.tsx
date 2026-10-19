@@ -35,7 +35,7 @@ import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 import { getComputedTierPricing, getCourseResolvedOffer } from "@/utils/tierPricing";
 import { processRazorpayPayment } from "@/utils/razorpay";
 
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 
 const getFileUrl = (url?: string) => {
   if (!url) return "";
@@ -532,7 +532,7 @@ export default function StudentCourses() {
                 return (
                   <div
                     key={lvl}
-                    className={`rounded-3xl p-6 flex flex-col justify-between border transition-all ${
+                    className={`rounded-3xl flex flex-col justify-between border transition-all overflow-hidden ${
                       isCurrent
                         ? "bg-gradient-to-b from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/80 shadow-2xl shadow-orange-500/20"
                         : isUnlocked
@@ -540,8 +540,26 @@ export default function StudentCourses() {
                         : "bg-slate-900/60 border-slate-800/80 hover:border-slate-700"
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-3">
+                    {/* Level Banner Image Thumbnail */}
+                    {liveLevel?.thumbnail && (
+                      <div className="relative w-full h-40 bg-slate-950 overflow-hidden border-b border-slate-800">
+                        <img
+                          src={getImageUrl(liveLevel.thumbnail)}
+                          alt={levelDisplayName}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                        <div className="absolute top-3 left-3">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border backdrop-blur bg-slate-950/80 ${cfg.color} ${cfg.border}`}>
+                            {lvl}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-3">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                           {lvl}
                         </span>
@@ -609,7 +627,8 @@ export default function StudentCourses() {
                       )}
                     </div>
                   </div>
-                );
+                </div>
+              );
               })}
             </div>
           </div>
@@ -637,6 +656,25 @@ export default function StudentCourses() {
 
                 return (
                   <div>
+                    {/* Level Banner Image if available */}
+                    {(() => {
+                      const liveLvl = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === expandedLevel.toUpperCase());
+                      return liveLvl?.thumbnail ? (
+                        <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-slate-800 mb-5 shadow-lg">
+                          <img
+                            src={getImageUrl(liveLvl.thumbnail)}
+                            alt={tierPricing.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent flex items-end p-4">
+                            <span className="text-xs font-black text-white bg-slate-900/80 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-700">
+                              {expandedLevel} • {tierPricing.name}
+                            </span>
+                          </div>
+                        </div>
+                      ) : null;
+                    })()}
+
                     <div className="flex items-center gap-3 mb-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                         {expandedLevel}

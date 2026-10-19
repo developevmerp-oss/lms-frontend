@@ -22,13 +22,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { processRazorpayPayment } from "@/utils/razorpay";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 import { getComputedTierPricing, parseNumericPrice } from "@/utils/tierPricing";
 import { trackingService } from "@/services/trackingService";
 
 export interface TierInfo {
   code: "L0" | "L1" | "L2" | "L3" | "L3+";
   name: string;
+  thumbnail?: string | null;
   numericPrice: number;
   price: string;
   originalPrice: string;
@@ -221,6 +222,7 @@ export const TierPurchaseModal = ({
   const mergedTier: TierInfo = {
     ...baseTier,
     name: liveTierMatch?.name || baseTier.name,
+    thumbnail: liveTierMatch?.thumbnail || null,
     description: liveTierMatch?.description || baseTier.description,
     icon: liveTierMatch?.icon || baseTier.icon,
     price: formattedBasePrice,
@@ -488,19 +490,31 @@ export const TierPurchaseModal = ({
                     setSelectedCode(tier.code);
                     setSelectedOfferId(null);
                   }}
-                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
                     isSelected
                       ? "bg-orange-500/10 border-orange-500 ring-2 ring-orange-500/30"
                       : "bg-slate-950/80 border-slate-800 hover:border-slate-700"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-lg">{liveMatch?.icon || tier.icon}</span>
-                    <span className="text-[11px] font-black text-orange-400 uppercase">
-                      {tier.code}
-                    </span>
+                  {liveMatch?.thumbnail && (
+                    <div className="w-full h-12 -mt-3 -mx-3 mb-2 rounded-t-xl overflow-hidden relative group/thumb border-b border-slate-800 shrink-0">
+                      <img
+                        src={getImageUrl(liveMatch.thumbnail)}
+                        alt={pricing.name}
+                        className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-lg">{liveMatch?.icon || tier.icon}</span>
+                      <span className="text-[11px] font-black text-orange-400 uppercase">
+                        {tier.code}
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-black text-white truncate">{pricing.name}</h4>
                   </div>
-                  <h4 className="text-xs font-black text-white truncate">{pricing.name}</h4>
                   <div className="text-xs font-black text-amber-400 font-mono mt-1 flex flex-col">
                     {pricing.hasOffer ? (
                       <div className="flex items-baseline gap-1">
@@ -719,7 +733,25 @@ export const TierPurchaseModal = ({
           )}
 
           {/* Selected Tier Detail Card */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-inner">
+          <div className="rounded-3xl border border-slate-800 bg-slate-950/90 overflow-hidden shadow-inner">
+            {/* Level Banner Image / Thumbnail (if available) */}
+            {mergedTier.thumbnail && (
+              <div className="w-full h-36 sm:h-44 relative overflow-hidden border-b border-slate-800/80 group/banner">
+                <img
+                  src={getImageUrl(mergedTier.thumbnail)}
+                  alt={mergedTier.name}
+                  className="w-full h-full object-cover group-hover/banner:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <div className="absolute top-3 left-3 flex items-center gap-2">
+                  <span className="bg-slate-950/80 backdrop-blur-md text-orange-400 text-xs font-black px-3 py-1 rounded-full border border-orange-500/30 uppercase tracking-wider shadow-lg">
+                    {mergedTier.code} Tier Banner
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="p-5 sm:p-6">
             {offerBadge && mergedTier.offerTitle && !isPayingInstallment && (
               <div className="mb-4 p-2.5 rounded-2xl bg-gradient-to-r from-red-500/10 via-rose-500/10 to-orange-500/10 border border-red-500/30 flex items-center justify-between gap-2">
                 <span className="text-xs font-black text-red-400 flex items-center gap-1.5">
@@ -821,6 +853,7 @@ export const TierPurchaseModal = ({
               ))}
             </div>
           </div>
+        </div>
 
           {successMsg && (
             <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
