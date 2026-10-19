@@ -1,7 +1,7 @@
 "use client";
 
 import LandingHero from "@/components/landing/LandingHero";
-import SiteFooter from "@/components/layout/SiteFooter";
+// import SiteFooter from "@/components/layout/SiteFooter";
 import SiteNavbar from "@/components/layout/SiteNavbar";
 import AlreadyHaveSec from "@/components/landing/alreadyhavesec";
 import ArtOThonSec from "@/components/landing/artothonsec";
@@ -589,7 +589,7 @@ export default function HomePage() {
       {/* ─── SECTION 17: FINAL EMOTIONAL CTA ─── */}
       <FinalCtaSec />
 
-      <SiteFooter />
+      {/* <SiteFooter /> */}
     </div>
   );
 }

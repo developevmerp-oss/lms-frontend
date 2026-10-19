@@ -61,6 +61,20 @@ export default function ArtOThonSec() {
                 className="h-full w-full object-cover"
               />
             </div>
+            <svg className="artothon-veil pointer-events-none absolute -left-1 top-20 z-[2] h-[340px] w-[88px]" viewBox="0 0 88 340" fill="none" aria-hidden="true">
+              <path d="M46 8c12 28 8 58 2 88" stroke="#e7b39f" strokeWidth="1.6" />
+              <circle cx="46" cy="104" r="8" fill="#fff" />
+              <circle cx="60" cy="94" r="5" fill="#f6d3c6" />
+              <circle cx="34" cy="94" r="4" fill="#efb5a2" />
+              <circle cx="54" cy="116" r="3.5" fill="#fff8f6" />
+              <path d="M30 150c10 26 6 54 1 82" stroke="#e7b39f" strokeWidth="1.5" />
+              <circle cx="28" cy="240" r="7" fill="#f6d3c6" />
+              <circle cx="42" cy="230" r="4.5" fill="#fff" />
+              <circle cx="18" cy="230" r="3.5" fill="#efb5a2" />
+              <path d="M58 210c8 18 5 36 1 52" stroke="#f0c6b6" strokeWidth="1.2" />
+              <circle cx="60" cy="268" r="5" fill="#fff" />
+              <circle cx="72" cy="258" r="3.5" fill="#f6d3c6" />
+            </svg>
 
             <div className="artothon-float rounded-[1.75rem] p-5 sm:p-6">
               <div className="flex items-start justify-between gap-3">

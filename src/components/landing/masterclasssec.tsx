@@ -72,14 +72,14 @@ export default function MasterclassSec() {
       */}
 
       <div className="container relative mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0">
-        <span className="masterclass-wash" aria-hidden="true" />
         <svg className="masterclass-lines" viewBox="0 0 160 90" aria-hidden="true">
           <path d="M8 70C40 20 90 10 150 28" />
           <path d="M20 82C58 40 108 34 156 58" />
         </svg>
 
-        <div className="relative grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.9fr)_minmax(0,0.95fr)] lg:gap-6 xl:gap-10">
+        <div className="masterclass-grid relative grid items-center gap-10">
           <motion.div
+            className="masterclass-copy-col"
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5 }}
@@ -88,11 +88,11 @@ export default function MasterclassSec() {
               <span className="masterclass-kicker-line" aria-hidden="true" />
               Free Training Invitation
             </p>
-            <h2 className="masterclass-heading mt-4 text-4xl font-black leading-[0.95] tracking-tight sm:text-5xl">
+            <h2 className="masterclass-heading mt-4 text-[2.15rem] font-black leading-[0.95] tracking-tight sm:text-5xl lg:text-[3.15rem]">
               Not Sure Where
               <span className="mt-1 block">To Start?</span>
             </h2>
-            <p className={`${scriptFont.className} masterclass-script -mt-2 text-5xl leading-none sm:text-6xl`}>
+            <p className={`${scriptFont.className} masterclass-script -mt-1 text-[2.8rem] leading-none sm:text-5xl lg:text-6xl`}>
               Start Here.
               <svg className="masterclass-script-arrow" viewBox="0 0 78 28" aria-hidden="true">
                 <path d="M4 16C24 16 46 8 66 11" />

@@ -1,38 +1,46 @@
+import { Award, Briefcase, Crown, Globe, Palette, Sparkles } from "lucide-react";
+
 const DIMENSIONS = [
   {
     title: "Skill",
     outcomeTag: "Professional Quality",
     image: "/images/dimensions/skill.png?v=2",
+    icon: Award,
     desc: "How confidently and consistently you can create quality Resin Art.",
   },
   {
     title: "Creativity",
     outcomeTag: "Artistic Expression",
     image: "/images/dimensions/creativity.png",
+    icon: Palette,
     desc: "How effectively you experiment, innovate and develop your own artistic expression.",
   },
   {
     title: "Identity",
     outcomeTag: "Recognized Brand",
     image: "/images/dimensions/identity.png",
+    icon: Crown,
     desc: "How clearly you develop your personal style, portfolio and recognition as an artist.",
   },
   {
     title: "Business",
     outcomeTag: "Commercial Income",
     image: "/images/dimensions/business.png",
+    icon: Briefcase,
     desc: "How effectively you turn your skill and creations into products, customers and opportunities.",
   },
   {
     title: "Impact",
     outcomeTag: "Customer Value",
     image: "/images/dimensions/impact.png",
+    icon: Globe,
     desc: "How your knowledge, creations and journey create value for customers and inspire others.",
   },
   {
     title: "Personal Growth",
     outcomeTag: "Confidence & Pride",
     image: "/images/dimensions/growth.png",
+    icon: Sparkles,
     desc: "How much you grow in confidence, discipline, leadership and belief in yourself.",
   },
 ];
@@ -68,6 +76,38 @@ export default function DimensionsSec() {
         </div>
         */}
 
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          {DIMENSIONS.map((dim) => {
+            const Icon = dim.icon;
+            return (
+              <article key={dim.title} className="flex h-full flex-col rounded-[1.6rem] border border-[#f1efec] bg-[#fbfbfb] p-5 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.45)] sm:p-6">
+                <Icon size={32} strokeWidth={1.6} className="dimensions-line-icon mb-4" aria-hidden="true" />
+                <h3 className="dimensions-title text-base font-bold text-neutral-950 sm:text-lg">{dim.title}</h3>
+                <p className="dimensions-muted mt-2 flex-1 text-sm leading-relaxed text-neutral-500">{dim.desc}</p>
+                <p className="dimensions-tag mt-4 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                  {dim.outcomeTag}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+
+        {/*
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          {DIMENSIONS.map((dim) => (
+            <article key={dim.title} className="flex h-full flex-col rounded-[1.35rem] border border-neutral-100 bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)] sm:p-6">
+              <img src={dim.image} alt="" className="mb-4 h-10 w-10 object-contain" />
+              <h3 className="dimensions-title text-base font-bold text-neutral-950 sm:text-lg">{dim.title}</h3>
+              <p className="dimensions-muted mt-2 flex-1 text-sm leading-relaxed text-neutral-500">{dim.desc}</p>
+              <p className="dimensions-tag mt-4 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                {dim.outcomeTag}
+              </p>
+            </article>
+          ))}
+        </div>
+        */}
+
+        {/*
         <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {DIMENSIONS.map((dim) => (
             <article key={dim.title} className="dimensions-sheet relative overflow-hidden rounded-2xl p-6 sm:p-7">
@@ -80,6 +120,7 @@ export default function DimensionsSec() {
             </article>
           ))}
         </div>
+        */}
       </div>
     </section>
   );
