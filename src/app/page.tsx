@@ -14,6 +14,9 @@ import RealChallangeSec from "@/components/landing/realchallangesc";
 import SoundLikeSec from "@/components/landing/soundlikesec";
 import StategicMindsetSec from "@/components/landing/stategicmindsetsec";
 import TestimoniaSec from "@/components/landing/testimoniasec";
+import VisibleGrowthSec from "@/components/landing/VisibleGrowthSec";
+import RealTransformationsSec from "@/components/landing/RealTransformationsSec";
+import MentorAboutSec from "@/components/landing/MentorAboutSec";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/config/api";
@@ -33,14 +36,12 @@ import {
   CheckCircle2,
   PlayCircle,
   HelpCircle,
-  Crown,
   Award,
   BookOpen,
   ShieldCheck,
   Smile,
   Zap,
-  MessageCircle,
-  ChevronRight
+  MessageCircle
 } from "lucide-react";
 
 // Real Student Artworks for Live Exhibition Showcase (73 Total Works: 24 Original + 49 New Real Works)
@@ -270,19 +271,22 @@ export default function HomePage() {
       {/* ─── SECTION 4: DOES THIS SOUND LIKE YOU? ─── */}
       <SoundLikeSec />
 
-      {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── */}
+      <MentorAboutSec />
+
+      {/*
+      {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── * /}
       <section id="mentor" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
-          {/* Main 2-Column Split: Sticky Left Mentor Card + Scrolling Right Portfolio & Bio */}
+          {/* Main 2-Column Split: Sticky Left Mentor Card + Scrolling Right Portfolio & Bio * /}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
-            {/* ── LEFT COLUMN: STICKY MENTOR PROFILE CARD ── */}
+            {/* ── LEFT COLUMN: STICKY MENTOR PROFILE CARD ── * /}
             <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-5 self-start">
               <div className="mentor-sticky-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl backdrop-blur-xl relative overflow-hidden group">
                 <div className="absolute -top-20 -left-20 w-48 h-48 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Mentor Photo Container */}
+                {/* Mentor Photo Container * /}
                 <div className="relative aspect-[4/4.5] w-full rounded-2xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 mb-5 group">
                   <img
                     src="/images/mentor/vrajangna-portrait.jpg"
@@ -291,7 +295,7 @@ export default function HomePage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Floating Identity Chip on Portrait (Dark glass overlay with guaranteed light text) */}
+                  {/* Floating Identity Chip on Portrait (Dark glass overlay with guaranteed light text) * /}
                   <div className="photo-overlay-chip absolute bottom-3 left-3 right-3 bg-slate-950/90 backdrop-blur-md border border-white/20 rounded-xl px-3.5 py-2.5 flex items-center justify-between shadow-lg">
                     <div>
                       <div className="flex items-center gap-1.5">
@@ -308,7 +312,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Quick Authority Badges / Stats */}
+                {/* Quick Authority Badges / Stats * /}
                 <div className="grid grid-cols-3 gap-2 text-center mb-5">
                   <div className="mentor-stat-pill bg-slate-800/70 border border-slate-700/60 rounded-xl p-2.5">
                     <p className="text-base font-black text-orange-400">54K+</p>
@@ -324,7 +328,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Mentor Quote */}
+                {/* Mentor Quote * /}
                 <blockquote className="mentor-quote-box border-l-4 border-orange-500 rounded-r-xl p-4 mb-5 bg-slate-950/50">
                   <p className="quote-text text-xs sm:text-[13px] text-slate-300 italic leading-relaxed">
                     "Every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else."
@@ -334,7 +338,7 @@ export default function HomePage() {
                   </cite>
                 </blockquote>
 
-                {/* Sticky CTA Button */}
+                {/* Sticky CTA Button * /}
                 <Link
                   href="/webinar"
                   className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider py-3.5 px-4 rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 group transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -346,10 +350,10 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* ── RIGHT COLUMN: SCROLLING PORTFOLIO & RECOGNITION ── */}
+            {/* ── RIGHT COLUMN: SCROLLING PORTFOLIO & RECOGNITION ── * /}
             <div className="lg:col-span-7 space-y-8">
 
-              {/* Bio & Vision Story */}
+              {/* Bio & Vision Story * /}
               <div className="mentor-bio-card bg-slate-900/90 border border-slate-800 rounded-3xl p-7 md:p-9 shadow-xl space-y-4">
                 <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full">
                   <Sparkles size={13} className="animate-pulse" /> Proven Track Record &amp; Coaching
@@ -367,7 +371,7 @@ export default function HomePage() {
                   My goal isn't just to teach you how to make Resin Art. My goal is to help you believe that your creativity can become something meaningful, valuable and truly yours — whether you want to start a side-income or build a recognized premium brand.
                 </p>
 
-                {/* 4 Feature Checkmarks */}
+                {/* 4 Feature Checkmarks * /}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div className="mentor-check-item flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
                     <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
@@ -388,10 +392,10 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Portfolio Accolade Cards Stack */}
+              {/* Portfolio Accolade Cards Stack * /}
               <div className="space-y-6">
 
-                {/* 1. Hall of Fame Award */}
+                {/* 1. Hall of Fame Award * /}
                 <div className="mentor-accolade-card bg-slate-900/90 border border-slate-800 hover:border-orange-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
                   <div className="h-72 sm:h-80 overflow-hidden relative">
                     <img
@@ -415,7 +419,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* 2. Diamond Club Award */}
+                {/* 2. Diamond Club Award * /}
                 <div className="mentor-accolade-card bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
                   <div className="h-72 sm:h-80 overflow-hidden relative">
                     <img
@@ -439,7 +443,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* 3. Published Author Feature */}
+                {/* 3. Published Author Feature * /}
                 <div className="mentor-accolade-card bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
                   <div className="h-72 sm:h-80 overflow-hidden relative">
                     <img
@@ -463,7 +467,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* 4. Hands-on Mentorship & Live Workshops */}
+                {/* 4. Hands-on Mentorship & Live Workshops * /}
                 <div className="mentor-accolade-card bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-3xl overflow-hidden shadow-xl group transition-all duration-300">
                   <div className="h-72 sm:h-80 overflow-hidden relative">
                     <img
@@ -494,49 +498,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      */}
+
       {/* ─── SECTION 6: SOCIAL PROOF ─── */}
       <TestimoniaSec />
 
       {/* ─── SECTION 7: VISIBLE GROWTH ─── */}
-      < section className="py-24 px-6 relative z-10" >
-        <div className="max-w-5xl mx-auto text-center">
-          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Gamified Progress Tracking</span>
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
-            Your Growth Should Be Visible.
-          </h2>
-          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
-            Every creation, challenge, milestone and achievement should tell a story of how far you've come. Instead of wondering whether you're progressing, you'll have tangible milestones that help you see, measure and celebrate your growth.
-          </p>
+      <VisibleGrowthSec />
 
-          {/* Gamified Flow Pipeline */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl">
-            <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-              {[
-                { title: "Learn", icon: BookOpen },
-                { title: "Create", icon: Brush },
-                { title: "Complete", icon: CheckCircle2 },
-                { title: "Earn Points", icon: Flame },
-                { title: "Unlock Milestones", icon: Trophy },
-                { title: "Earn Recognition", icon: Crown }
-              ].map((step, idx) => (
-                <React.Fragment key={idx}>
-                  <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 hover:border-orange-500/50 hover:-translate-y-1 transition-all duration-300 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">
-                    <step.icon size={16} className="text-orange-400" />
-                    {step.title}
-                  </div>
-                  {idx < 5 && (
-                    <ChevronRight size={18} className="text-slate-600 hidden sm:block animate-pulse" />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
-            <p className="text-orange-400 font-bold text-sm md:text-base mt-8">
-              ✨ Your journey becomes something you can see, track and be proud of.
+      {/*
+        Old visible growth section, kept commented.
+        <section className="py-24 px-6 relative z-10">
+          <div className="max-w-5xl mx-auto text-center">
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Gamified Progress Tracking</span>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">
+              Your Growth Should Be Visible.
+            </h2>
+            <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
+              Every creation, challenge, milestone and achievement should tell a story of how far you've come. Instead of wondering whether you're progressing, you'll have tangible milestones that help you see, measure and celebrate your growth.
             </p>
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl">
+              <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">Learn</div>
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">Create</div>
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">Complete</div>
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">Earn Points</div>
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">Unlock Milestones</div>
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold text-white shadow-md">Earn Recognition</div>
+              </div>
+              <p className="text-orange-400 font-bold text-sm md:text-base mt-8">
+                Your journey becomes something you can see, track and be proud of.
+              </p>
+            </div>
           </div>
-        </div>
-      </section >
+        </section>
+      */}
 
       {/* ─── SECTION 8: YOUR JOURNEY ─── */}
       <AlreadyHaveSec />
@@ -626,64 +622,69 @@ export default function HomePage() {
       </section >
 
       {/* ─── SECTION 14: STUDENT TRANSFORMATION ─── */}
-      < section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10" >
-        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
-          <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-            From “I Can't” To “I Created This.”
-          </h2>
-          <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-            Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
-          </p>
-          <p className="text-orange-400 text-sm font-bold mt-2">
-            The transformation isn't just in what their hands can create. It's in what they start believing about themselves.
-          </p>
-        </div>
+      <RealTransformationsSec rowOne={ARTWORKS_ROW_1} rowTwo={ARTWORKS_ROW_2} />
 
-        {/* Marquee Row 1 */}
-        <div className="relative mb-6">
-          <div className="animate-marquee-left gap-6">
-            {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
-              <div
-                key={`r1-${idx}`}
-                className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-orange-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
-              >
-                {/* Real Artwork Photo Only */}
-                <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
-                  <img
-                    src={art.image}
-                    alt="Student Resin Art"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-            ))}
+      {/*
+        Previous Real Transformations UI, kept commented.
+        < section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10" >
+          <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+            <span className="text-orange-400 text-xs font-black uppercase tracking-widest block mb-2">Real Transformations</span>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+              From “I Can't” To “I Created This.”
+            </h2>
+            <p className="text-slate-300 text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+              Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
+            </p>
+            <p className="text-orange-400 text-sm font-bold mt-2">
+              The transformation isn't just in what their hands can create. It's in what they start believing about themselves.
+            </p>
           </div>
-        </div>
 
-        {/* Marquee Row 2 */}
-        <div className="relative">
-          <div className="animate-marquee-right gap-6">
-            {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
-              <div
-                key={`r2-${idx}`}
-                className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-cyan-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
-              >
-                {/* Real Artwork Photo Only */}
-                <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
-                  <img
-                    src={art.image}
-                    alt="Student Resin Art"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          Marquee Row 1
+          <div className="relative mb-6">
+            <div className="animate-marquee-left gap-6">
+              {[...ARTWORKS_ROW_1, ...ARTWORKS_ROW_1].map((art, idx) => (
+                <div
+                  key={`r1-${idx}`}
+                  className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-orange-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
+                >
+                  Real Artwork Photo Only
+                  <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
+                    <img
+                      src={art.image}
+                      alt="Student Resin Art"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section >
+
+          Marquee Row 2
+          <div className="relative">
+            <div className="animate-marquee-right gap-6">
+              {[...ARTWORKS_ROW_2, ...ARTWORKS_ROW_2].map((art, idx) => (
+                <div
+                  key={`r2-${idx}`}
+                  className="w-[280px] md:w-[320px] bg-slate-900 border border-slate-800/80 rounded-3xl p-3 shrink-0 hover:border-cyan-500/60 transition-all duration-300 shadow-2xl group overflow-hidden"
+                >
+                  Real Artwork Photo Only
+                  <div className="h-64 rounded-2xl relative overflow-hidden bg-slate-950">
+                    <img
+                      src={art.image}
+                      alt="Student Resin Art"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section >
+      */}
 
       {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
       <JourneySec levelTiers={levelTiers} levelCourses={levelCourses} />
