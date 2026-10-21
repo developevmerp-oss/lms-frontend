@@ -76,7 +76,8 @@ export default function AdminStudents() {
   const fetchStudents = useCallback(async (pg = 1, search = searchQuery) => {
     setIsLoading(true);
     try {
-      const url = new URL(`${API}/admin/students`);
+      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ravishingarthub.com';
+      const url = new URL(`${API}/admin/students`, baseOrigin);
       url.searchParams.set('page', String(pg));
       url.searchParams.set('limit', String(LIMIT));
       if (search.trim()) url.searchParams.set('search', search.trim());

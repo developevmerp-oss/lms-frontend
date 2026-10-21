@@ -86,7 +86,8 @@ export default function AdminPaymentTransactions() {
   const fetchTransactions = async (targetPage = page) => {
     setIsLoading(true);
     try {
-      const url = new URL(`${API_BASE_URL}/payments/history`);
+      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ravishingarthub.com';
+      const url = new URL(`${API_BASE_URL}/payments/history`, baseOrigin);
       if (statusFilter !== "all") url.searchParams.append("status", statusFilter);
       if (searchQuery.trim()) url.searchParams.append("search", searchQuery.trim());
       url.searchParams.append("page", String(targetPage));

@@ -3,7 +3,7 @@ const isLocalhost = isBrowser && (window.location.hostname === 'localhost' || wi
 
 // In production browser on Vercel, use same-origin /api so Next.js rewrites proxy it with ZERO CORS preflight delays.
 export const API_BASE_URL = isBrowser
-  ? (isLocalhost ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api') : '/api')
+  ? (isLocalhost ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api') : `${window.location.origin}/api`)
   : (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.ravishingarthub.com/api');
 
 export const getApiUrl = (path: string): string => {
