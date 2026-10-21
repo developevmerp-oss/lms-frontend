@@ -89,10 +89,13 @@ export default function StudentWebinarPage() {
 
   function toYouTubeEmbed(url: string) {
     if (!url) return "";
-    if (url.includes("youtube.com/watch")) {
-      const id = new URL(url).searchParams.get("v");
-      return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : url;
-    }
+    try {
+      if (url.includes("youtube.com/watch")) {
+        const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+        const id = new URL(fullUrl).searchParams.get("v");
+        return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : url;
+      }
+    } catch {}
     if (url.includes("youtu.be/")) {
       const id = url.split("youtu.be/")[1]?.split("?")[0];
       return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : url;

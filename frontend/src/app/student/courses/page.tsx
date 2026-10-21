@@ -94,10 +94,13 @@ const LEVEL_HIERARCHY: Record<string, number> = {
 
 function formatEmbedUrl(url: string): string {
   if (!url) return "";
-  if (url.includes("youtube.com/watch")) {
-    const videoId = new URL(url).searchParams.get("v");
-    if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-  }
+  try {
+    if (url.includes("youtube.com/watch")) {
+      const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+      const videoId = new URL(fullUrl).searchParams.get("v");
+      if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    }
+  } catch {}
   if (url.includes("youtu.be/")) {
     const videoId = url.split("youtu.be/")[1]?.split("?")[0];
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
