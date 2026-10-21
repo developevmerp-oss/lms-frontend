@@ -803,7 +803,7 @@ export default function WebinarPage() {
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
                   Live Masterclass Starts In:
                 </p>
-                <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
+                <WebinarCountdown targetDateStr={activeWebinar?.scheduledAt} onWebinarLoaded={setActiveWebinar} />
               </div>
 
               <p className="max-w-xl text-base font-bold text-orange-400">
@@ -1531,7 +1531,7 @@ export default function WebinarPage() {
             </p>
 
             <div className="mb-6">
-              <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
+              <WebinarCountdown targetDateStr={activeWebinar?.scheduledAt} onWebinarLoaded={setActiveWebinar} />
             </div>
 
             <button
