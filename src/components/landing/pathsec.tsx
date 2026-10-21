@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Brush, Layers, Palette, TrendingUp } from "lucide-react";
+import { ArrowRight, Brush, Layers, Palette, TrendingUp } from "lucide-react";
 
 const STAGES = [
   {
@@ -12,6 +12,8 @@ const STAGES = [
     title: "Skill → Creation",
     text: "Learn the right techniques and develop the confidence to create professional-grade resin art from zero.",
     milestone: "First 3 Practical Pours",
+    image: "/images/already-have/no-studio.jpg",
+    imageAlt: "Resin workspace with a teal and gold tray in progress",
     tone: "path-tone-1",
     color: "#f97316",
     accent: "path-accent-1",
@@ -24,6 +26,8 @@ const STAGES = [
     title: "Creation → Signature",
     text: "Discover your creative strengths and develop a distinct style that feels uniquely and unmistakably yours.",
     milestone: "Signature Color Palette",
+    image: "/images/masterclass/board.jpg",
+    imageAlt: "Teal, white, and gold resin ocean board",
     tone: "path-tone-2",
     color: "#7c3aed",
     accent: "path-accent-2",
@@ -36,6 +40,8 @@ const STAGES = [
     title: "Signature → Portfolio",
     text: "Build a collection of creations that represents your skills and helps you showcase your work with total confidence.",
     milestone: "Commercial Artwork Catalog",
+    image: "/images/landing/growth-create.jpg",
+    imageAlt: "Floral resin tray being finished with gold leaf",
     tone: "path-tone-3",
     color: "#0f766e",
     accent: "path-accent-3",
@@ -48,6 +54,8 @@ const STAGES = [
     title: "Portfolio → Income",
     text: "Learn how to position, present and monetize your creations so your skill becomes an income-generating business.",
     milestone: "Consistent Paying Clients",
+    image: "/images/artothon/plate.jpg",
+    imageAlt: "Amber and white resin plate with gold leaf",
     tone: "path-tone-4",
     color: "#059669",
     accent: "path-accent-4",
@@ -91,6 +99,9 @@ function PathCard({
 }
 */
 
+/*
+Current Strategic Framework card UI — kept, not removed.
+
 function PathCard({
   item,
   index,
@@ -114,7 +125,7 @@ function PathCard({
         </div>
         {/* <span className={`path-option-icon ${item.accent} flex h-11 w-11 items-center justify-center rounded-full`}>
           <Icon size={18} aria-hidden="true" />
-        </span> */}
+        </span> * /}
       </div>
       <h3 className="path-title mt-5 text-lg font-bold leading-snug">{item.title}</h3>
       <motion.span
@@ -132,6 +143,46 @@ function PathCard({
     </article>
   );
 }
+*/
+
+function PathCard({ item }: { item: (typeof STAGES)[number] }) {
+  return (
+    <article className="path-expand-card" tabIndex={0}>
+      <div className="path-expand-body">
+        <div className="path-expand-numrow">
+          <span className="path-expand-num">{item.num}</span>
+          <span className="path-expand-dash" aria-hidden="true" />
+        </div>
+        <h3 className="path-expand-title">{item.title}</h3>
+        <p className="path-expand-text">{item.text}</p>
+        <div className="path-expand-foot">
+          <p className="path-expand-more">
+            More
+            <ArrowRight size={15} strokeWidth={1.75} aria-hidden="true" />
+          </p>
+          <div className="path-expand-mile">
+            <div className="path-expand-mile-inner">
+              <p className="path-expand-mile-label">Milestone</p>
+              <p className="path-expand-mile-value">{item.milestone}</p>
+            </div>
+          </div>
+        </div>
+        <svg className="path-expand-blob" viewBox="0 0 160 120" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M28 108C6 92 2 62 18 40C34 16 68 14 92 28C116 42 132 18 150 36C166 52 154 86 132 102C110 118 72 122 48 112C36 106 38 116 28 108Z"
+          />
+        </svg>
+        <span className="path-expand-go" aria-hidden="true">
+          <ArrowRight size={16} strokeWidth={2} />
+        </span>
+      </div>
+      <div className="path-expand-media">
+        <img src={item.image} alt={item.imageAlt} className="path-expand-photo" />
+      </div>
+    </article>
+  );
+}
 
 export default function PathSec() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -141,7 +192,7 @@ export default function PathSec() {
     <section
       id="path"
       ref={sectionRef}
-      className="path-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24"
+      className="path-sec relative z-10 bg-white text-neutral-950"
     >
       <div className="nav-width">
         <motion.div
@@ -162,6 +213,7 @@ export default function PathSec() {
           </p>
         </motion.div>
 
+        {/* Current Strategic Framework card layout
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4 lg:gap-8">
           {STAGES.map((item, index) => (
             <motion.div
@@ -172,6 +224,29 @@ export default function PathSec() {
               transition={{ delay: 0.12 + index * 0.16, duration: 0.55, ease: "easeOut" }}
             >
               <PathCard item={item} index={index} inView={inView} />
+            </motion.div>
+          ))}
+        </div>
+        */}
+
+        <svg className="path-expand-defs" aria-hidden="true">
+          <defs>
+            <clipPath id="path-organic-clip" clipPathUnits="objectBoundingBox">
+              <path d="M0.08,0.07 C0.26,0.01 0.58,0.00 0.84,0.05 C0.98,0.09 1.00,0.22 0.99,0.42 C0.98,0.64 1.00,0.82 0.90,0.93 C0.74,1.00 0.40,0.99 0.18,0.94 C0.02,0.89 0.00,0.72 0.02,0.50 C0.04,0.26 0.00,0.12 0.08,0.07 Z" />
+            </clipPath>
+          </defs>
+        </svg>
+
+        <div className="path-expand-row">
+          {STAGES.map((item, index) => (
+            <motion.div
+              key={item.stage}
+              className="path-expand-slot"
+              initial={{ opacity: 0, y: 28 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              transition={{ delay: 0.12 + index * 0.16, duration: 0.55, ease: "easeOut" }}
+            >
+              <PathCard item={item} />
             </motion.div>
           ))}
         </div>
