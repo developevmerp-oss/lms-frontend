@@ -113,7 +113,16 @@ export default function StudentEventsPage() {
 
   const effectiveLevel = user?.membershipLevel || stats?.membershipLevel || user?.rank;
   const studentLevelCode = getLevelCode(effectiveLevel, stats?.points || 0);
-  const isAccessible = ["L1", "L2", "L3", "L3+"].includes(studentLevelCode);
+
+  const isClassEligibleForStudent = (cls: any) => {
+    const rawTarget = cls.targetLevel || "All";
+    if (rawTarget === "All" || rawTarget.toLowerCase() === "all") return true;
+    const targetCodes = rawTarget.split(",").map((s: string) => s.trim().toUpperCase());
+    return targetCodes.includes(studentLevelCode.toUpperCase()) || 
+           (studentLevelCode === "L3+" && targetCodes.includes("L3"));
+  };
+
+  const isAccessible = studentLevelCode !== "GENERAL";
 
   const nowTime = Date.now();
   const isClassActiveOrUpcoming = (e: any) => {
@@ -245,6 +254,10 @@ export default function StudentEventsPage() {
                         {ev.status === "live" ? "🔴 Live Now" : "Upcoming Live"}
                       </span>
 
+                      <span className="rounded-md bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] font-bold text-slate-300">
+                        🎯 {ev.targetLevel === "All" ? "All Levels" : ev.targetLevel}
+                      </span>
+
                       {ev.isAttended && (
                         <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
                           <CheckCircle2 size={12} /> Attended
@@ -277,18 +290,38 @@ export default function StudentEventsPage() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handleJoinClass(ev.id, ev.meetingUrl)}
-                    disabled={joiningClassId === ev.id}
-                    className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs py-3 px-4 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-[1.02] transition-all cursor-pointer"
-                  >
-                    <Video size={15} />
-                    {joiningClassId === ev.id
-                      ? "Recording Attendance..."
-                      : ev.isAttended
-                      ? "Re-Join Live Class Room"
-                      : "Join Live Class & Mark Attendance (+50 XP)"}
-                  </button>
+                  {isClassEligibleForStudent(ev) ? (
+                    <button
+                      onClick={() => handleJoinClass(ev.id, ev.meetingUrl)}
+                      disabled={joiningClassId === ev.id}
+                      className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs py-3 px-4 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-[1.02] transition-all cursor-pointer"
+                    >
+                      <Video size={15} />
+                      {joiningClassId === ev.id
+                        ? "Recording Attendance..."
+                        : ev.isAttended
+                        ? "Re-Join Live Class Room"
+                        : "Join Live Class & Mark Attendance (+50 XP)"}
+                    </button>
+                  ) : (
+                    <div className="w-full flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950 border border-slate-800">
+                      <div className="text-left">
+                        <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                          <Lock size={13} className="text-orange-400" />
+                          Locked for Your Tier
+                        </span>
+                        <span className="text-[11px] text-slate-500 block">
+                          Access reserved for {ev.targetLevel}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setPurchaseModal({ isOpen: true, tierCode: ev.targetLevel.split(",")[0].trim() })}
+                        className="px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-lg shadow-md hover:scale-105 transition-all cursor-pointer whitespace-nowrap"
+                      >
+                        Upgrade Tier
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -63,6 +63,9 @@ export default function AdminClassesPage() {
     instructor: "Vrajangna Patel",
   });
 
+  const [selectedLevels, setSelectedLevels] = useState<string[]>(["All"]);
+  const [sendNotification, setSendNotification] = useState<boolean>(true);
+
   // Attendance Roster Modal
   const [rosterModal, setRosterModal] = useState<{ isOpen: boolean; liveClass: LiveClass | null }>({
     isOpen: false,
@@ -105,8 +108,22 @@ export default function AdminClassesPage() {
     try {
       const res = await fetch(`${API}/admin/levels`, { headers });
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) setLiveLevels(data);
-    } catch (err) { console.error(err); }
+      if (Array.isArray(data) && data.length > 0) {
+        setLiveLevels(data);
+      } else {
+        const pubRes = await fetch(`${API}/dashboard/levels`);
+        const pubData = await pubRes.json();
+        if (Array.isArray(pubData) && pubData.length > 0) setLiveLevels(pubData);
+      }
+    } catch (err) {
+      try {
+        const pubRes = await fetch(`${API}/dashboard/levels`);
+        const pubData = await pubRes.json();
+        if (Array.isArray(pubData) && pubData.length > 0) setLiveLevels(pubData);
+      } catch (e) {
+        console.error(e);
+      }
+    }
   };
 
   useEffect(() => {
@@ -122,6 +139,36 @@ export default function AdminClassesPage() {
     if (isNaN(d.getTime())) return "";
     const offset = d.getTimezoneOffset() * 60000;
     return new Date(d.getTime() - offset).toISOString().slice(0, 16);
+  };
+
+  const availableTiers = liveLevels.length > 0 
+    ? liveLevels 
+    : [
+        { code: "L0", name: "Fast Track" },
+        { code: "L1", name: "Silver" },
+        { code: "L2", name: "Gold" },
+        { code: "L3", name: "Diamond" },
+        { code: "L3+", name: "Masters Club" },
+      ];
+
+  const toggleLevelSelection = (code: string) => {
+    if (code === "All") {
+      setSelectedLevels(["All"]);
+      return;
+    }
+
+    let updated = selectedLevels.filter(lvl => lvl !== "All");
+    if (updated.includes(code)) {
+      updated = updated.filter(lvl => lvl !== code);
+    } else {
+      updated.push(code);
+    }
+
+    if (updated.length === 0 || updated.length === availableTiers.length) {
+      updated = ["All"];
+    }
+
+    setSelectedLevels(updated);
   };
 
   const openCreateModal = () => {
@@ -140,11 +187,22 @@ export default function AdminClassesPage() {
       status: "upcoming",
       instructor: "Vrajangna Patel",
     });
+    setSelectedLevels(["All"]);
+    setSendNotification(true);
     setIsModalOpen(true);
   };
 
   const openEditModal = (cls: LiveClass) => {
     setEditingClass(cls);
+    const rawTarget = cls.targetLevel || "All";
+    if (rawTarget === "All" || rawTarget.toLowerCase() === "all") {
+      setSelectedLevels(["All"]);
+    } else {
+      const parsed = rawTarget.split(",").map((s: string) => s.trim()).filter(Boolean);
+      setSelectedLevels(parsed.length > 0 ? parsed : ["All"]);
+    }
+    setSendNotification(false);
+
     setFormData({
       title: cls.title,
       description: cls.description || "",
@@ -167,6 +225,10 @@ export default function AdminClassesPage() {
     }
 
     try {
+      const targetLevelString = selectedLevels.includes("All") 
+        ? "All" 
+        : selectedLevels.join(", ");
+
       const payload = {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -174,9 +236,10 @@ export default function AdminClassesPage() {
         durationMinutes: Number(formData.durationMinutes) || 60,
         meetingUrl: formData.meetingUrl.trim(),
         recordingUrl: formData.recordingUrl.trim(),
-        targetLevel: formData.targetLevel,
+        targetLevel: targetLevelString,
         status: formData.status,
         instructor: formData.instructor.trim(),
+        sendNotification,
       };
 
       let res;
@@ -196,7 +259,7 @@ export default function AdminClassesPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        showSuccess(editingClass ? "Live class updated successfully!" : "New live class scheduled!");
+        showSuccess(editingClass ? "Live class updated successfully!" : "New live class scheduled and notifications sent!");
         setIsModalOpen(false);
         fetchClasses();
       } else {
@@ -498,44 +561,85 @@ export default function AdminClassesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Target Level Access</label>
-                    <select
-                      value={formData.targetLevel}
-                      onChange={(e) => setFormData({ ...formData, targetLevel: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
-                    >
-                      <option value="All">All Membership Levels</option>
-                      {(liveLevels.length > 0
-                        ? liveLevels
-                        : [
-                            { code: "L0", name: "Fast Track" },
-                            { code: "L1", name: "Silver" },
-                            { code: "L2", name: "Gold" },
-                            { code: "L3", name: "Diamond" },
-                          ]
-                      ).map((lvl) => (
-                        <option key={lvl.code} value={lvl.code}>
-                          {lvl.code} · {lvl.name}
-                        </option>
-                      ))}
-                    </select>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-300">
+                      Target Level Access <span className="text-orange-400 font-semibold">(Multi-Select Supported)</span>
+                    </label>
+                    <span className="text-[11px] font-bold text-slate-400">
+                      Target: <span className="text-orange-400 font-bold">{selectedLevels.includes("All") ? "All Membership Levels" : selectedLevels.join(", ")}</span>
+                    </span>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Class Status</label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-slate-950 border border-slate-800 rounded-2xl">
+                    <button
+                      type="button"
+                      onClick={() => toggleLevelSelection("All")}
+                      className={`col-span-2 sm:col-span-3 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                        selectedLevels.includes("All")
+                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
+                          : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
+                      }`}
                     >
-                      <option value="upcoming">Upcoming</option>
-                      <option value="live">🔴 Live Now</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+                      <span>🌐 All Membership Levels (Open to All Tiers)</span>
+                      {selectedLevels.includes("All") && <Check size={14} className="stroke-[3]" />}
+                    </button>
+
+                    {availableTiers.map((lvl: any) => {
+                      const isSelected = selectedLevels.includes("All") || selectedLevels.includes(lvl.code);
+                      const isExplicit = selectedLevels.includes(lvl.code);
+
+                      return (
+                        <button
+                          key={lvl.code}
+                          type="button"
+                          onClick={() => toggleLevelSelection(lvl.code)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                            selectedLevels.includes("All")
+                              ? "bg-slate-900/60 border border-slate-800 text-slate-400 opacity-70"
+                              : isExplicit
+                              ? "bg-orange-500 text-slate-950 font-black shadow-md shadow-orange-500/20"
+                              : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
+                          }`}
+                        >
+                          <span className="truncate">{lvl.code} · {lvl.name}</span>
+                          {isExplicit && <Check size={13} className="stroke-[3] shrink-0" />}
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-2xl">
+                  <input
+                    type="checkbox"
+                    id="sendNotification"
+                    checked={sendNotification}
+                    onChange={(e) => setSendNotification(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 rounded text-orange-500 accent-orange-500 cursor-pointer shrink-0"
+                  />
+                  <label htmlFor="sendNotification" className="text-xs text-slate-300 cursor-pointer select-none">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      🔔 Send In-App Bell Notification to Eligible Students
+                    </span>
+                    <span className="text-[11px] text-slate-400 block mt-0.5">
+                      Eligible students enrolled in {selectedLevels.includes("All") ? "all levels" : selectedLevels.join(", ")} will immediately receive a notification alert with the direct join link.
+                    </span>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Class Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                  >
+                    <option value="upcoming">Upcoming</option>
+                    <option value="live">🔴 Live Now</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
                 </div>
 
                 <div>
