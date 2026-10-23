@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { ArrowRight } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { ArrowRight, Users, MonitorPlay, Trophy, BookOpen } from "lucide-react";
 
 export type MentorSectionData = {
   eyebrow?: string;
@@ -18,207 +18,207 @@ interface WebinarMentorProps {
 }
 
 export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProps) {
-  // Calligraphy quote as in the reference design
-  const quoteText =
-    section.quote && section.quote.includes("express yourself")
-      ? section.quote
-      : "Art is not just what you create, it’s how you express yourself.";
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className="relative w-full overflow-hidden">
-      {/* ─── DESKTOP VIEW (lg+): Full-width Panoramic Banner with Pixel-Perfect Circle Fitting ─── */}
-      <div className="relative hidden w-full lg:block">
-        {/* Full-width Panoramic Banner Canvas (1024 x 384 aspect ratio) */}
-        <div className="relative mx-auto w-full max-w-[1920px]">
-          <img
-            src="/images/mentor/mentor-banner-bg.png"
-            alt=""
-            className="block h-auto w-full select-none pointer-events-none"
-          />
+    <section
+      ref={sectionRef}
+      id="mentor"
+      className="relative w-full overflow-hidden bg-[#FFFFFF]! py-16 sm:py-20 lg:py-28"
+    >
+      {/* ─── TOP RIGHT GEODE RESIN CORNER ARTWORK ─── */}
+      <div
+        className={`pointer-events-none absolute right-0 top-0 z-0 select-none transition-all duration-1000 ease-out ${isVisible ? "translate-x-0 translate-y-0 opacity-90" : "translate-x-12 -translate-y-12 opacity-0"
+          }`}
+      >
+        <img
+          src="/images/mentor/mentor-decor-top-right.png"
+          alt=""
+          className="h-auto w-[200px] object-contain sm:w-[320px] md:w-[420px] lg:w-[500px] xl:w-[580px] 2xl:w-[640px]"
+        />
+      </div>
 
-          {/* 1. OWNER PORTRAIT: Positioned precisely into the painted gold circle design */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-14 xl:gap-16">
+
+          {/* ─── LEFT COLUMN: 3D RECTANGULAR OWNER IMAGE WITH STATIC BOTANICAL DECOR ─── */}
           <div
-            className="absolute overflow-hidden rounded-full shadow-[0_8px_25px_-5px_rgba(184,134,72,0.45)]"
-            style={{
-              left: "20.65%",
-              top: "45.2%",
-              transform: "translate(-50%, -50%)",
-              width: "20.3%",
-              height: "54.2%",
-            }}
+            className={`flex justify-center transition-all duration-800 ease-out lg:col-span-5 lg:justify-start ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"
+              }`}
           >
-            <img
-              src="/images/mentor/vrajangna-portrait.jpg"
-              alt={section.name}
-              className="h-full w-full object-cover object-top scale-105"
-            />
+            <div className="relative [perspective:1000px]">
+              {/* 3D Owner Portrait Card */}
+              <div
+                className="group relative z-10 aspect-[4/5] w-[260px] overflow-hidden rounded-[24px] bg-[#f7f2ea] shadow-[0_12px_35px_-8px_rgba(36,33,31,0.14),0_28px_65px_-18px_rgba(0,0,0,0.22),0_0_0_1px_rgba(255,255,255,0.85)_inset,0_0_0_1px_rgba(234,223,212,0.7)] transition-all duration-500 ease-out hover:rotate-0 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(232,106,36,0.2),0_32px_75px_-16px_rgba(0,0,0,0.28)] sm:w-[310px] sm:rounded-[30px] md:w-[350px] lg:w-[370px]"
+                style={{
+                  transform: "rotateY(-2.5deg) rotateX(1.5deg)",
+                  transformStyle: "preserve-3d",
+                }}
+              >
+                <img
+                  src="/images/mentor/vrajangna-portrait.jpg"
+                  alt={section.name}
+                  className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                />
+
+                {/* 3D Light Reflection sheen on hover */}
+                <div className="pointer-events-none absolute -inset-full top-0 block -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-0 transition-all duration-1000 group-hover:inset-full group-hover:opacity-100" />
+
+                {/* Subtle base vignette for realistic grounding */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-900/15 via-transparent to-transparent" />
+              </div>
+
+              {/* Anchored Botanical Dried Flower & Resin Brooch (Bottom-Left, Static / Non-floating) */}
+              <div
+                className={`pointer-events-none absolute -bottom-3 -left-10 z-20 select-none transition-all duration-700 delay-200 ease-out sm:-bottom-5 sm:-left-14 md:-left-16 lg:-left-16 ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-0"
+                  }`}
+              >
+                {/* <img
+                  src="/images/mentor/mentor-decor-flower.png"
+                  alt=""
+                  className="h-auto w-[140px] object-contain drop-shadow-[0_10px_22px_rgba(0,0,0,0.16)] sm:w-[185px] md:w-[215px] lg:w-[225px]"
+                /> */}
+              </div>
+            </div>
           </div>
 
-          {/* 2. CENTER CONTENT: Positioned precisely over the center canvas */}
-          <div
-            className="absolute flex flex-col justify-center space-y-1.5 xl:space-y-2.5 2xl:space-y-3 "
-            style={{
-              left: "40.5%",
-              width: "38.5%",
-              top: "50%",
-              transform: "translateY(-50%)",
-            }}
-          >
+          {/* ─── RIGHT COLUMN: CONTENT, BIO, CTA & 4 CREDENTIAL STATS ─── */}
+          <div className="lg:col-span-7">
+
             {/* Eyebrow Pill */}
-            <div>
-              <span className="inline-flex items-center rounded-full bg-[#f0e9df] px-3 py-0.5 text-[10px] xl:text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600">
+            <div
+              className={`mb-3 transition-all duration-700 delay-100 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                }`}
+            >
+              <span className="inline-flex items-center rounded-full bg-[#f0e9df] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600 shadow-2xs">
                 {section.eyebrow || "YOUR MENTOR"}
               </span>
             </div>
 
-            {/* Heading: "Meet Vrajangna Patel" with webinar theme accent color */}
-            <h2 className="font-serif text-2xl xl:text-3xl 2xl:text-4xl font-bold tracking-tight text-stone-900 leading-[1.12]">
-              Meet <span className="text-[#c45a28]">{section.name}</span>
+            {/* Heading: "Meet Vrajangna Patel" with Primary Orange highlight */}
+            <h2
+              className={`mb-2 font-serif text-3xl font-bold tracking-tight text-[#292522] leading-tight transition-all duration-700 delay-150 ease-out sm:text-4xl lg:text-[44px] xl:text-[48px] ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                }`}
+            >
+              Meet <span className="text-[#E86A24]">{section.name}</span>
             </h2>
 
-            {/* Subtitle */}
-            <p className="flex flex-wrap items-center gap-1.5 text-[11px] xl:text-xs 2xl:text-sm font-medium text-stone-600">
+            {/* Role / Subtitle */}
+            <p
+              className={`mb-5 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-stone-600 transition-all duration-700 delay-200 ease-out sm:text-sm ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                }`}
+            >
               <span>Resin Art Business Coach</span>
-              <span className="text-[#c45a28] font-bold">•</span>
+              <span className="font-bold text-[#E86A24]">•</span>
               <span>Founder, Ravishing Art Hub</span>
             </p>
 
             {/* Bio Paragraphs */}
-            <div className="space-y-1 xl:space-y-1.5 text-[10.5px] xl:text-xs 2xl:text-[13px] leading-snug xl:leading-relaxed text-stone-700">
+            <div
+              className={`mb-6 space-y-3 text-xs leading-relaxed text-[#77716C] transition-all duration-700 delay-250 ease-out sm:text-[13.5px] lg:text-[14px] ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                }`}
+            >
               {section.bio?.map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
             </div>
 
-            {/* "Know More →" Button with webinar theme orange gradient */}
-            <div className="pt-0.5 xl:pt-1">
+            {/* "Know More →" CTA Button */}
+            <div
+              className={`mb-8 transition-all duration-700 delay-300 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                }`}
+            >
               <button
                 type="button"
                 onClick={onKnowMore}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-1.5 xl:px-6 xl:py-2 text-[11px] xl:text-xs font-semibold shadow-md shadow-orange-500/20 transition-all duration-200 cursor-pointer active:scale-95"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[#E86A24]/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#E86A24]/35 active:scale-95 sm:py-3 sm:text-sm cursor-pointer"
               >
                 <span>Know More</span>
-                <ArrowRight size={13} className="stroke-[2.2]" />
+                <ArrowRight size={14} className="stroke-[2.2] transition-transform duration-300 group-hover:translate-x-1" />
               </button>
             </div>
 
-            {/* Badges / Credentials with webinar theme styling */}
-            <div className="flex flex-wrap items-center gap-1.5 xl:gap-2 pt-0.5">
-              {section.credentials?.map((cred, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center gap-1 rounded-full bg-[#fff6f0] border border-[#eadfd4] px-2.5 py-0.5 text-[10px] xl:text-[11px] font-medium text-stone-700 shadow-2xs"
-                >
-                  <span className="flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-[#c45a28] text-white text-[7.5px] font-bold">
-                    ✓
-                  </span>
-                  <span>{cred}</span>
-                </span>
-              ))}
-            </div>
-          </div>
+            {/* ─── 4 CREDENTIAL / STAT BADGES (Staggered Animation on Scroll) ─── */}
+            <div className="grid grid-cols-2 gap-4 border-t border-[#F4E9DF] pt-6 sm:grid-cols-4 sm:gap-3 lg:gap-4">
 
-          {/* 3. RIGHT CONTENT: Calligraphy Quote positioned over the peach watercolor brush */}
-          {/* <div
-            className="absolute flex flex-col justify-center text-right"
-            style={{
-              left: "75.5%",
-              width: "20.5%",
-              top: "50%",
-              transform: "translateY(-50%)",
-            }}
-          >
-            <blockquote className="font-script text-xl xl:text-2xl 2xl:text-[1.75rem] leading-[1.22] text-[#2c2621]">
-              “{quoteText}”
-            </blockquote>
-            <p className="font-script text-sm xl:text-base 2xl:text-lg text-stone-700 mt-1 xl:mt-2">
-              — {section.name}
-            </p>
-          </div> */}
-        </div>
-      </div>
-
-      {/* ─── MOBILE / TABLET VIEW (<lg): Fluid & Fully Responsive with Matching Theme ─── */}
-      <div className="relative block w-full px-4 sm:px-6 lg:hidden">
-        <div className="relative overflow-hidden rounded-3xl border border-[#eadfd4] bg-[#fbf8f2] shadow-[0_16px_40px_-20px_rgba(90,55,20,0.25)] p-6 sm:p-8">
-          {/* Background image covering mobile card */}
-          <img
-            src="/images/mentor/mentor-banner-bg.png"
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover object-left opacity-35 pointer-events-none select-none"
-          />
-
-          <div className="relative z-10 space-y-5">
-            {/* Owner Portrait inside Circular Gold Ring */}
-            <div className="flex justify-center">
-              <div className="h-40 w-40 sm:h-48 sm:w-48 overflow-hidden rounded-full border-4 border-[#d8b87d] shadow-xl">
-                <img
-                  src="/images/mentor/vrajangna-portrait.jpg"
-                  alt={section.name}
-                  className="h-full w-full object-cover object-top scale-105"
-                />
+              {/* Stat 1: 10+ years of coaching */}
+              <div
+                className={`flex items-center gap-2.5 transition-all duration-700 delay-350 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+                  }`}
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#eadfd4] bg-[#fff6f0] text-[#E86A24] shadow-xs">
+                  <Users className="size-4.5 stroke-[2]" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">10+ years</div>
+                  <div className="text-[11px] leading-tight text-[#77716C]">of coaching</div>
+                </div>
               </div>
-            </div>
 
-            {/* Header info */}
-            <div className="text-center sm:text-left space-y-2">
-              <span className="inline-flex items-center rounded-full bg-[#f0e9df] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600">
-                {section.eyebrow || "YOUR MENTOR"}
-              </span>
-
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
-                Meet <span className="text-[#c45a28]">{section.name}</span>
-              </h2>
-
-              <p className="text-xs sm:text-sm font-medium text-stone-600">
-                Resin Art Business Coach • Founder, Ravishing Art Hub
-              </p>
-            </div>
-
-            {/* Bio text */}
-            <div className="space-y-2 text-xs sm:text-sm leading-relaxed text-stone-700">
-              {section.bio?.map((paragraph, idx) => (
-                <p key={idx}>{paragraph}</p>
-              ))}
-            </div>
-
-            {/* Button */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={onKnowMore}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-2.5 text-xs sm:text-sm font-semibold shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+              {/* Stat 2: 54,000+ webinar attendees */}
+              <div
+                className={`flex items-center gap-2.5 transition-all duration-700 delay-450 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+                  }`}
               >
-                <span>Know More</span>
-                <ArrowRight size={14} className="stroke-[2.2]" />
-              </button>
-            </div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#eadfd4] bg-[#fff6f0] text-[#E86A24] shadow-xs">
+                  <MonitorPlay className="size-4.5 stroke-[2]" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">54,000+</div>
+                  <div className="text-[11px] leading-tight text-[#77716C]">webinar attendees</div>
+                </div>
+              </div>
 
-            {/* Badges */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              {section.credentials?.map((cred, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#fff6f0] border border-[#eadfd4] px-3 py-1 text-xs font-medium text-stone-700 shadow-2xs"
-                >
-                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#c45a28] text-white text-[8px] font-bold">
-                    ✓
-                  </span>
-                  <span>{cred}</span>
-                </span>
-              ))}
-            </div>
+              {/* Stat 3: Hall of Fame Award */}
+              <div
+                className={`flex items-center gap-2.5 transition-all duration-700 delay-550 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+                  }`}
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#eadfd4] bg-[#fff6f0] text-[#E86A24] shadow-xs">
+                  <Trophy className="size-4.5 stroke-[2]" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">Hall of Fame Award</div>
+                  <div className="text-[10.5px] leading-tight text-[#77716C]">from Siddharth Rajsekar, 2022</div>
+                </div>
+              </div>
 
-            {/* Calligraphy Quote */}
-            {/* <div className="border-t border-[#eadfd4] pt-4 text-center sm:text-right">
-              <blockquote className="font-script text-xl sm:text-2xl text-[#2c2621] leading-snug">
-                “{quoteText}”
-              </blockquote>
-              <p className="font-script text-sm sm:text-base text-stone-600 mt-1">
-                — {section.name}
-              </p>
-            </div> */}
+              {/* Stat 4: Co-author */}
+              <div
+                className={`flex items-center gap-2.5 transition-all duration-700 delay-650 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+                  }`}
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#eadfd4] bg-[#fff6f0] text-[#E86A24] shadow-xs">
+                  <BookOpen className="size-4.5 stroke-[2]" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">Co-author</div>
+                  <div className="text-[10.5px] leading-tight text-[#77716C]">I Can Coach & Featured in Sylph Magazine</div>
+                </div>
+              </div>
+
+            </div>
           </div>
+
         </div>
       </div>
     </section>

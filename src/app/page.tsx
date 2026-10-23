@@ -174,7 +174,7 @@ export default function HomePage() {
       <SiteNavbar />
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
-      <LandingHero artworks={ARTWORKS_ROW_1} />
+      <LandingHero />
 
       {/*
         Old hero section, kept commented.

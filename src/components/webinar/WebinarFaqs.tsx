@@ -15,7 +15,6 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
   const contentInnerRef = useRef<HTMLDivElement>(null);
 
   const [outerHeight, setOuterHeight] = useState<number | null>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Recalculate outer container height based on questions list scrollable height
   const updateDimensions = useCallback(() => {
@@ -45,7 +44,6 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
 
     if (totalScroll <= 0 || maxScroll <= 0) {
       list.scrollTop = 0;
-      setScrollProgress(0);
       return;
     }
 
@@ -54,7 +52,6 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
     const progress = Math.min(1, Math.max(0, scrolled / totalScroll));
 
     list.scrollTop = progress * maxScroll;
-    setScrollProgress(progress);
   }, []);
 
   // ResizeObserver to watch for accordion toggle expansion and window resize
@@ -85,10 +82,14 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
     };
 
     window.addEventListener("scroll", onScrollOrResize, { passive: true });
-    window.addEventListener("resize", () => {
-      updateDimensions();
-      onScrollOrResize();
-    }, { passive: true });
+    window.addEventListener(
+      "resize",
+      () => {
+        updateDimensions();
+        onScrollOrResize();
+      },
+      { passive: true }
+    );
 
     return () => {
       window.removeEventListener("scroll", onScrollOrResize);
@@ -100,7 +101,6 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
 
   // Recalculate dimensions whenever an accordion item is toggled
   useEffect(() => {
-    // Check height immediately and also after CSS max-height transition finishes
     updateDimensions();
     handleScroll();
     const timer = setTimeout(() => {
@@ -113,90 +113,144 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
   return (
     <div
       ref={containerRef}
-      className="faq-sticky-container relative w-full"
+      className="faq-sticky-container relative w-full bg-[#FFFFFF]"
       style={{
         height: outerHeight ? `${outerHeight}px` : "220vh",
       }}
     >
-      <section className="faq-sec faq-sec-sticky sticky top-0 h-screen h-[100dvh] w-full overflow-hidden flex flex-col justify-start">
-        <img
-          src="/images/webinar/faq-bg.jpg"
-          alt=""
-          className="faq-bg absolute inset-0 h-full w-full object-cover pointer-events-none select-none opacity-40 sm:opacity-90"
-        />
+      <section className="sticky top-0 h-screen h-[100dvh] w-full overflow-hidden flex flex-col justify-start bg-[#FAF7F4] rounded-t-[32px] sm:rounded-t-[40px] lg:rounded-t-[48px] border-t border-[#F4E9DF]/80 shadow-[0_-12px_32px_rgba(41,37,34,0.04)]">
+        {/* DESKTOP FULL-HEIGHT LEFT ARTWORK: Full height from top to bottom of section */}
+        <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[44%] xl:w-[46%] h-full overflow-hidden select-none pointer-events-none z-0">
+          <img
+            src="/images/webinar/faq-art-desktop.png"
+            alt="Resin Art Masterclass FAQs"
+            className="w-full h-full object-cover object-left-top select-none"
+          />
+        </div>
 
-        <div className="nav-width faq-wrap relative z-10 flex flex-col h-full max-h-screen pt-5 pb-20 sm:pt-8 sm:pb-24">
-          <div className="faq-head shrink-0 mb-3 sm:mb-5">
-            <p className="faq-eyebrow">QUESTIONS</p>
-            <h2>Frequently asked</h2>
-          </div>
+        {/* MOBILE TOP BANNER: Half image on top with rounded top edge and subtle blur fade (< lg) */}
+        <div className="lg:hidden relative w-full h-[28vh] min-h-[175px] max-h-[235px] shrink-0 overflow-hidden select-none pointer-events-none rounded-t-[32px] sm:rounded-t-[40px]">
+          <img
+            src="/images/webinar/faq-art-mobile.png"
+            alt="Resin Art Masterclass FAQs"
+            className="w-full h-full object-cover object-top"
+          />
+          {/* Subtle blur overlay and soft gradient fade into the content below */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF7F4] via-[#FAF7F4]/85 to-transparent backdrop-blur-[2px]" />
+        </div>
 
-          {/* Scrollable questions container pinned inside the h-screen sticky viewport */}
-          <div className="relative flex-1 min-h-0 w-full max-w-[760px] mx-auto">
-            <div
-              ref={listRef}
-              className="faq-list flex-1 min-h-0 h-full w-full overflow-y-hidden pr-2 sm:pr-3 relative"
-              tabIndex={0}
-              aria-label="Frequently Asked Questions"
-              style={{
-                touchAction: "pan-y",
-                maskImage:
-                  "linear-gradient(to bottom, transparent 0%, black 16px, black calc(100% - 20px), transparent 100%)",
-                WebkitMaskImage:
-                  "linear-gradient(to bottom, transparent 0%, black 16px, black calc(100% - 20px), transparent 100%)",
-              }}
-            >
-              <div ref={contentInnerRef} className="flex flex-col gap-3 py-3">
-                {faqs.map((faq, idx) => {
-                  const expanded = open === idx;
-                  return (
-                    <article
-                      key={faq.q}
-                      className={expanded ? "faq-item is-open" : "faq-item"}
-                    >
-                      <button
-                        type="button"
-                        aria-expanded={expanded}
-                        onClick={() => setOpen(expanded ? null : idx)}
-                        onFocus={(e) => {
-                          e.currentTarget.scrollIntoView({
-                            block: "nearest",
-                            behavior: "smooth",
-                          });
-                        }}
-                      >
-                        <span>{faq.q}</span>
-                        <span className="faq-toggle" aria-hidden="true">
-                          <svg viewBox="0 0 16 16">
-                            <path d="M3.2 8h9.6" />
-                            <path className="faq-plus-stem" d="M8 3.2v9.6" />
-                          </svg>
-                        </span>
-                      </button>
-                      <div className="faq-answer">
-                        <div>
-                          <p>{faq.a}</p>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
+        {/* MAIN RESPONSIVE CONTAINER */}
+        <div className="relative z-10 flex-1 min-h-0 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col lg:grid lg:grid-cols-12 lg:items-center h-full">
+          {/* Spacer column on desktop where full-height left art is positioned */}
+          <div className="hidden lg:block lg:col-span-5 xl:col-span-5 h-full pointer-events-none" />
+
+          {/* RIGHT / MAIN CONTENT COLUMN: Header + Scrollable Accordion List */}
+          <div className="flex-1 min-h-0 w-full lg:col-span-7 xl:col-span-7 h-full max-h-[92vh] flex flex-col justify-center py-2 lg:py-6 lg:pl-6 xl:pl-10">
+            {/* FAQ HEADER */}
+            <div className="shrink-0 mb-3 sm:mb-4 lg:mb-5">
+              {/* Mobile FAQ Badge */}
+              <div className="lg:hidden mb-1.5">
+                <span className="inline-block px-3 py-0.5 bg-[#F4E9DF] text-[#B94F1B] rounded-full text-[10px] sm:text-xs font-bold tracking-wider uppercase shadow-2xs">
+                  FAQ
+                </span>
               </div>
+
+              {/* Desktop Eyebrow */}
+              <p className="hidden lg:block text-xs font-semibold uppercase tracking-[0.22em] text-[#77716C] mb-2 sm:mb-2.5">
+                HAVE QUESTIONS?
+              </p>
+
+              {/* Title with two-tone styling matching Reference Image 2 */}
+              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium tracking-tight text-[#292522] leading-[1.15]">
+                Frequently Asked <span className="text-[#B94F1B]">Questions</span>
+              </h2>
+
+              {/* Subtitle */}
+              <p className="text-xs sm:text-sm lg:text-[15px] font-normal text-[#77716C] leading-relaxed mt-1.5 max-w-xl">
+                Everything you need to know about the masterclass, materials, access and support.
+              </p>
             </div>
 
-            {/* Subtle custom vertical scroll track indicator */}
-            {/* <div
-              className="absolute right-0 top-3 bottom-3 w-1 rounded-full bg-stone-300/40 pointer-events-none hidden sm:block"
-              aria-hidden="true"
-            >
+            {/* SCROLLABLE QUESTIONS LIST PINNED INSIDE THE VIEWPORT */}
+            <div className="relative flex-1 min-h-0 w-full">
               <div
-                className="w-full rounded-full bg-orange-500/80 transition-transform duration-75 ease-out shadow-xs"
+                ref={listRef}
+                className="faq-scroll-list flex-1 min-h-0 h-full w-full overflow-y-hidden pr-1.5 sm:pr-3 relative"
+                tabIndex={0}
+                aria-label="Frequently Asked Questions"
                 style={{
-                  height: "28%",
-                  transform: `translateY(${scrollProgress * 255}%)`,
+                  touchAction: "pan-y",
+                  maskImage:
+                    "linear-gradient(to bottom, transparent 0%, black 14px, black calc(100% - 20px), transparent 100%)",
+                  WebkitMaskImage:
+                    "linear-gradient(to bottom, transparent 0%, black 14px, black calc(100% - 20px), transparent 100%)",
                 }}
-              />
-            </div> */}
+              >
+                <div ref={contentInnerRef} className="flex flex-col gap-2.5 sm:gap-3 py-2 sm:py-3">
+                  {faqs.map((faq, idx) => {
+                    const expanded = open === idx;
+                    return (
+                      <article
+                        key={faq.q}
+                        className={`transition-all duration-300 rounded-2xl border ${
+                          expanded
+                            ? "bg-[#FFF6F2] border-[#E86A24]/35 shadow-[0_8px_24px_-8px_rgba(232,106,36,0.12)]"
+                            : "bg-white border-[#F4E9DF]/80 shadow-[0_4px_16px_-6px_rgba(41,37,34,0.06)] hover:border-[#E86A24]/30 hover:shadow-md"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          aria-expanded={expanded}
+                          onClick={() => setOpen(expanded ? null : idx)}
+                          onFocus={(e) => {
+                            e.currentTarget.scrollIntoView({
+                              block: "nearest",
+                              behavior: "smooth",
+                            });
+                          }}
+                          className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 text-left cursor-pointer group select-none"
+                        >
+                          <span className="font-semibold text-[14px] sm:text-[15.5px] text-[#292522] group-hover:text-[#B94F1B] transition-colors leading-snug">
+                            {faq.q}
+                          </span>
+                          <span
+                            className={`inline-flex w-7 h-7 sm:w-8 sm:h-8 rounded-full items-center justify-center shrink-0 transition-all duration-300 ${
+                              expanded
+                                ? "bg-[#F0DDD1] text-[#B94F1B] rotate-180"
+                                : "bg-[#F5F2EE] text-[#77716C] group-hover:bg-[#F4E9DF] group-hover:text-[#B94F1B]"
+                            }`}
+                            aria-hidden="true"
+                          >
+                            <svg
+                              className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-none stroke-current stroke-2"
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M3.5 8h9" strokeLinecap="round" />
+                              <path
+                                d="M8 3.5v9"
+                                strokeLinecap="round"
+                                className={`transition-all duration-300 origin-center ${
+                                  expanded ? "scale-y-0 opacity-0" : "scale-y-100 opacity-100"
+                                }`}
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                        <div
+                          className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+                            expanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <p className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-[13.5px] leading-relaxed text-[#77716C]">
+                            {faq.a}
+                          </p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
