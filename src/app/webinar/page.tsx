@@ -11,6 +11,10 @@ import WebinarFaqs from "@/components/webinar/WebinarFaqs";
 import WebinarMentor from "@/components/webinar/WebinarMentor";
 import { SocialProofToaster } from "@/components/webinar/SocialProofToaster";
 import { ExitIntentModal } from "@/components/webinar/ExitIntentModal";
+import SoundFamiliarSection from "@/components/webinar/SoundFamiliarSection";
+import WhatChangesSection from "@/components/webinar/WhatChangesSection";
+import WebinarPhilosophy from "@/components/webinar/WebinarPhilosophy";
+import ThreeSecretsSection from "@/components/webinar/ThreeSecretsSection";
 import { API_BASE_URL } from "@/config/api";
 import { trackingService } from "@/services/trackingService";
 import Link from "next/link";
@@ -756,124 +760,17 @@ export default function WebinarPage() {
           <div id="gate-content">
             
             {/* 1. SOUND FAMILIAR? (W -> e2) */}
-            <section id="sound-familiar" className="bg-transparent py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
-                    {SOUND_FAMILIAR.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {SOUND_FAMILIAR.heading}
-                  </h2>
-                  <p className="text-stone-500 text-base leading-relaxed">
-                    {SOUND_FAMILIAR.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  {SOUND_FAMILIAR.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 rounded-2xl border border-[#eadfd4] bg-white p-4 shadow-[0_12px_28px_-24px_rgba(90,55,20,0.5)]">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#fff1ea] text-xs font-bold text-[#c45a28]">✕</span>
-                      <p className="text-sm text-stone-600">{item}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="text-center max-w-3xl mx-auto pt-4">
-                  <p className="text-sm sm:text-base text-stone-500 leading-relaxed">
-                    {SOUND_FAMILIAR.turn}
-                  </p>
-                </div>
-              </div>
-            </section>
+            <SoundFamiliarSection data={SOUND_FAMILIAR} />
 
             {/* 2. MY PHILOSOPHY (H -> n2) */}
-            <section className="bg-white py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
-                    {PHILOSOPHY.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {PHILOSOPHY.heading}
-                  </h2>
-                  <p className="text-stone-500 text-base">
-                    {PHILOSOPHY.subheading}
-                  </p>
-                </div>
+            <WebinarPhilosophy data={PHILOSOPHY} />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                  {PHILOSOPHY.steps.map((step, idx) => (
-                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
-                      <span className="mb-4 inline-flex rounded-full bg-[#fff6f0] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[#c45a28]">
-                        {step.label}
-                      </span>
-                      <h3 className="text-xl font-bold text-stone-950 mb-3">{step.title}</h3>
-                      <p className="text-sm text-stone-500 leading-relaxed">{step.body}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="text-center text-stone-500 text-sm max-w-2xl mx-auto leading-relaxed">
-                  {PHILOSOPHY.closing}
-                </p>
-              </div>
-            </section>
-
-            {/* 3. ON THE MASTERCLASS: THE THREE SECRETS (q -> t2) */}
-            <section className="bg-transparent py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
-                    {THREE_SECRETS.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {THREE_SECRETS.heading}
-                  </h2>
-                  <p className="text-stone-500 text-base">
-                    {THREE_SECRETS.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                  {THREE_SECRETS.items.map((secret, idx) => (
-                    <div key={idx} className="flex flex-col justify-between rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
-                      <div>
-                        <span className="mb-4 inline-flex rounded-full bg-[#2a211c] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-                          {secret.label}
-                        </span>
-                        <h3 className="text-lg font-bold text-stone-950 mb-4 leading-snug">
-                          {secret.title}
-                        </h3>
-                        
-                        <p className="text-xs text-stone-500 italic mb-4 leading-relaxed">
-                          {secret.myth}
-                        </p>
-
-                        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                          {secret.truth}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* 4. LIVE SEATS ARE LIMITED BANNER (ve -> o2) */}
-                <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#2a211c] p-6 text-white sm:flex-row sm:items-center sm:p-8">
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{LIVE_SEATS_BANNER.heading}</h3>
-                    <p className="mt-1 text-sm text-stone-300">{LIVE_SEATS_BANNER.body}</p>
-                  </div>
-                  <button
-                    onClick={scrollToRegister}
-                    className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm font-semibold text-white transition hover:from-orange-600 hover:to-amber-600"
-                  >
-                    {LIVE_SEATS_BANNER.cta}
-                    <ArrowRight size={14} />
-                  </button>
-                </div>
-              </div>
-            </section>
+            {/* 3 & 4. ON THE MASTERCLASS: THE THREE SECRETS & LIVE SEATS BANNER */}
+            <ThreeSecretsSection
+              data={THREE_SECRETS}
+              bannerData={LIVE_SEATS_BANNER}
+              onScrollToRegister={scrollToRegister}
+            />
 
             {/* 5. THE SHIFT (L -> i2) */}
             <section className="bg-white py-16 sm:py-20">
@@ -916,31 +813,7 @@ export default function WebinarPage() {
             </section>
 
             {/* 6. WHAT CHANGES (X -> l2) */}
-            <section className="bg-transparent py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
-                    {WHAT_CHANGES.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {WHAT_CHANGES.heading}
-                  </h2>
-                  <p className="text-stone-500 text-sm sm:text-base">
-                    {WHAT_CHANGES.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {WHAT_CHANGES.items.map((item, idx) => (
-                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
-                      <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
-                      <h3 className="mb-2 text-base font-bold text-stone-950">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <WhatChangesSection data={WHAT_CHANGES} />
 
             {/* 7. RIGHT FIT? (ee -> s2) */}
             <section className="bg-white py-16 sm:py-20">
