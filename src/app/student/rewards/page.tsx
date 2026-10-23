@@ -26,7 +26,14 @@ export default function StudentRewards() {
       });
       const statsData = await statsRes.json();
       if (statsData && !statsData.message) {
-        setStats({ points: statsData.points, notifications: statsData.notifications });
+        setStats({
+          points: statsData.points ?? 0,
+          notifications: statsData.notifications ?? [],
+          membershipLevel: statsData.membershipLevel,
+          rank: statsData.rank,
+          currentTier: statsData.currentTier,
+          ...statsData,
+        });
       }
 
       // Rewards Store
@@ -77,27 +84,45 @@ export default function StudentRewards() {
     }
   };
 
-  const effectiveLevel = user?.membershipLevel || user?.rank || "";
+  const candidateLevels = [
+    stats?.membershipLevel,
+    user?.membershipLevel,
+    stats?.currentTier?.code,
+    stats?.currentTier?.name,
+    user?.level,
+    user?.rank,
+    stats?.rank,
+  ].filter(Boolean);
+
+  let effectiveLevel = candidateLevels[0] || "";
+  for (const cand of candidateLevels) {
+    if (getLevelCode(cand, stats.points || 0) !== "GENERAL") {
+      effectiveLevel = cand;
+      break;
+    }
+  }
+
   const studentLevelCode = getLevelCode(effectiveLevel, stats.points || 0);
   const isGeneral = studentLevelCode === "GENERAL";
+  const isL3 = studentLevelCode === "L3" || studentLevelCode === "L3+";
 
-  const uLvl = (user?.membershipLevel || stats?.membershipLevel || user?.rank || "").toUpperCase();
-  const isL3 = uLvl.includes("L3") || uLvl.includes("DIAMOND") || uLvl.includes("RENAISSANCE") || uLvl.includes("MASTERS");
-
-  const getLevelName = (points: number) => {
+  const getLevelName = () => {
     if (isGeneral) return "General Member";
-    if (points < 500) return "Fast Start (L0)";
-    if (points < 5000) return "Silver Member (L1)";
-    if (points < 10000) return "Gold Member (L2)";
-    if (points < 50000) return "Diamond Club (L3)";
-    return "Masters Club (L3+)";
+    if (effectiveLevel) return effectiveLevel;
+    if (stats?.membershipLevel) return stats.membershipLevel;
+    if (user?.membershipLevel) return user.membershipLevel;
+    if (stats?.rank) return stats.rank;
+    if (stats?.currentTier?.name) {
+      return `${stats.currentTier.name} (${stats.currentTier.code})`;
+    }
+    return "Fast Track (L0)";
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <StudentNav 
-        user={user} 
-        level={getLevelName(stats.points)} 
+        user={user || stats} 
+        level={getLevelName()} 
         points={stats.points} 
         logout={logout} 
         notifications={stats.notifications}
