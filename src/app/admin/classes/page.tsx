@@ -116,16 +116,23 @@ export default function AdminClassesPage() {
     }
   }, [token]);
 
+  const formatIsoForLocalInput = (dateInput: string | Date) => {
+    if (!dateInput) return "";
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return "";
+    const offset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - offset).toISOString().slice(0, 16);
+  };
+
   const openCreateModal = () => {
     setEditingClass(null);
     const inTwoDays = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
     inTwoDays.setMinutes(0);
-    const isoString = inTwoDays.toISOString().slice(0, 16);
 
     setFormData({
       title: "",
       description: "",
-      scheduledAt: isoString,
+      scheduledAt: formatIsoForLocalInput(inTwoDays),
       durationMinutes: 60,
       meetingUrl: "https://zoom.us/j/your-meeting-id",
       recordingUrl: "",
@@ -138,11 +145,10 @@ export default function AdminClassesPage() {
 
   const openEditModal = (cls: LiveClass) => {
     setEditingClass(cls);
-    const localDate = new Date(cls.scheduledAt).toISOString().slice(0, 16);
     setFormData({
       title: cls.title,
       description: cls.description || "",
-      scheduledAt: localDate,
+      scheduledAt: formatIsoForLocalInput(cls.scheduledAt),
       durationMinutes: cls.durationMinutes || 60,
       meetingUrl: cls.meetingUrl || "",
       recordingUrl: cls.recordingUrl || "",
