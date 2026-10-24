@@ -505,10 +505,10 @@ export default function LandingHero2() {
           .landing-page .lh2 h1.lh2-title {
             font-family: Bahnschrift, "Segoe UI", Arial, sans-serif;
             font-stretch: 100%;
-            font-size: clamp(5.15rem, 8.7vw, 9rem);
+            font-size: clamp(3.15rem, 7.7vw, 6rem);
             font-weight: 600;
             letter-spacing: -0.02em;
-            line-height: 0.78;
+            line-height: 0.95;
           }
           .lh2-title .line-2 { padding-left: 16rem; }
           .landing-page .lh2 .lh2-lead {
@@ -529,7 +529,7 @@ export default function LandingHero2() {
         }
 
         @media (min-width: 861px) and (max-width: 1180px) {
-          .landing-page .lh2 h1.lh2-title { font-size: clamp(4.15rem, 7.1vw, 6.3rem); }
+          .landing-page .lh2 h1.lh2-title { font-size: clamp(1.15rem, 4.1vw, 1.3rem); }
           .lh2-title .line-2 { padding-left: 14rem; }
           .landing-page .lh2 .lh2-lead { width: 12.4rem; }
         }
@@ -608,64 +608,64 @@ export default function LandingHero2() {
 
         <div className="lh2-sink" ref={sinkRef}>
           <div className="lh2-bar-wrap" ref={barRef}>
-          <header className="lh2-bar">
-            <Link href="/" className="lh2-brand" aria-label="Ravishing Art home">
-              <strong>RAVISHING</strong>
-              <span>
-                ART
-                <i />
-              </span>
-            </Link>
+            <header className="lh2-bar">
+              <Link href="/" className="lh2-brand" aria-label="Ravishing Art home">
+                <strong>RAVISHING</strong>
+                <span>
+                  ART
+                  <i />
+                </span>
+              </Link>
 
-            <div className="lh2-nav">
-              <nav className="lh2-links" aria-label="Primary">
-                {NAV.map((item) => (
-                  <a key={item.href} href={item.href}>
+              <div className="lh2-nav">
+                <nav className="lh2-links" aria-label="Primary">
+                  {NAV.map((item) => (
+                    <a key={item.href} href={item.href}>
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+                <Link href="/login" className="lh2-signin">
+                  Sign In
+                </Link>
+                <Link href="/webinar" className="lh2-btn lh2-btn-fill lh2-btn-nav">
+                  <span>Join Free Masterclass</span>
+                </Link>
+                <button
+                  type="button"
+                  className="lh2-menu-btn"
+                  aria-expanded={menuOpen}
+                  aria-label={menuOpen ? "Close menu" : "Open menu"}
+                  onClick={() => setMenuOpen((open) => !open)}
+                >
+                  {menuOpen ? <X size={18} /> : <Menu size={18} />}
+                </button>
+              </div>
+            </header>
+
+            {menuOpen && (
+              <div className="lh2-drawer">
+                {MENU_LINKS.map((item) => (
+                  <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
                     {item.label}
                   </a>
                 ))}
-              </nav>
-              <Link href="/login" className="lh2-signin">
-                Sign In
-              </Link>
-              <Link href="/webinar" className="lh2-btn lh2-btn-fill lh2-btn-nav">
-                <span>Join Free Masterclass</span>
-              </Link>
-              <button
-                type="button"
-                className="lh2-menu-btn"
-                aria-expanded={menuOpen}
-                aria-label={menuOpen ? "Close menu" : "Open menu"}
-                onClick={() => setMenuOpen((open) => !open)}
-              >
-                {menuOpen ? <X size={18} /> : <Menu size={18} />}
-              </button>
-            </div>
-          </header>
-
-          {menuOpen && (
-            <div className="lh2-drawer">
-              {MENU_LINKS.map((item) => (
-                <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
-                  {item.label}
-                </a>
-              ))}
-              <Link href="/login" onClick={() => setMenuOpen(false)}>
-                Sign In
-              </Link>
-              <Link href="/webinar" onClick={() => setMenuOpen(false)}>
-                Free Masterclass
-              </Link>
-            </div>
-          )}
+                <Link href="/login" onClick={() => setMenuOpen(false)}>
+                  Sign In
+                </Link>
+                <Link href="/webinar" onClick={() => setMenuOpen(false)}>
+                  Free Masterclass
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="lh2-stage">
             <div className="lh2-copy">
               <h1 className="lh2-title">
-                <span className="line">Resin Art</span>
-                <span className="line line-2">&amp; Creative</span>
-                <span className="line">Journeys</span>
+                <span className="line">Turn Your Resin Art Passion</span>
+                <span className="line line-2"> Into Skill, Identity</span>
+                <span className="line">&amp; Financial Freedom</span>
               </h1>
 
               <p className="lh2-lead">
