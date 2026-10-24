@@ -1,6 +1,8 @@
 "use client";
 
-import LandingHero from "@/components/landing/LandingHero";
+// Option 1 hero UI stays in LandingHero.tsx. This page uses option 2.
+// import LandingHero from "@/components/landing/LandingHero";
+import LandingHero2 from "@/components/landing/LandingHero2";
 // import SiteFooter from "@/components/layout/SiteFooter";
 import SiteNavbar from "@/components/layout/SiteNavbar";
 import AlreadyHaveSec from "@/components/landing/alreadyhavesec";
@@ -174,7 +176,12 @@ export default function HomePage() {
       <SiteNavbar />
 
       {/* ─── SECTION 1: HERO SECTION ─── */}
+      {/* Option 1 hero UI, kept commented.
       <LandingHero />
+      */}
+      <LandingHero2 />
+
+      <div className="lh2-sheet">
 
       {/*
         Old hero section, kept commented.
@@ -590,6 +597,7 @@ export default function HomePage() {
       <FinalCtaSec />
 
       {/* <SiteFooter /> */}
+      </div>
     </div>
   );
 }
