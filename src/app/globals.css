@@ -4314,3 +4314,332 @@ section.already-have-sec,
     transform: rotate(var(--tilt));
   }
 }
+/* ─── The Real Challenge (#problem) — scalloped photo cards, Krackerz-style motion ─── */
+.rc-sec {
+  --rc-cream: #f7f6f0;
+  --rc-cloud: #ffffff;
+  --rc-ink: #1b1714;
+  --rc-muted: #4a423b;
+  --rc-orange: #e2622a;
+  --rc-card-orange: #d9693c;
+  --rc-panel: #fdf6ee;
+  isolation: isolate;
+}
+
+.rc-sec__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--rc-cream);
+}
+
+.rc-cloud {
+  --rc-cloud-size: max(180vw, 1100px);
+  position: absolute;
+  z-index: -1;
+  left: calc(50% - var(--rc-cloud-size) / 2);
+  /* keep the shape's valleys (~4.5% in from its box) ~40px below the lead text */
+  bottom: calc(-40px - var(--rc-cloud-size) * 0.045);
+  width: var(--rc-cloud-size);
+  height: var(--rc-cloud-size);
+  pointer-events: none;
+}
+
+.rc-cloud__shape {
+  width: 100%;
+  height: 100%;
+  background: var(--rc-cloud);
+  -webkit-mask: url("/images/real-challenge/cloud-circle.svg") center / contain no-repeat;
+  mask: url("/images/real-challenge/cloud-circle.svg") center / contain no-repeat;
+}
+
+.rc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #3a332d;
+}
+
+.rc-eyebrow__line {
+  display: block;
+  width: clamp(32px, 6vw, 72px);
+  height: 1.5px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.landing-page .rc-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.15rem, 5.2vw, 4.6rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--rc-ink);
+}
+
+.rc-word-mask {
+  display: inline-block;
+  margin-right: 0.22em;
+  padding-bottom: 0.08em;
+}
+
+.rc-accent-word {
+  position: relative;
+  display: inline-block;
+  font-style: italic;
+  color: var(--rc-orange);
+}
+
+.rc-underline {
+  position: absolute;
+  left: -2%;
+  bottom: -0.2em;
+  width: 104%;
+  height: 0.28em;
+  overflow: visible;
+  stroke: var(--rc-orange);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.rc-star {
+  position: absolute;
+  top: 0.05em;
+  left: -0.95em;
+  width: 0.62em;
+  height: 0.62em;
+  display: block;
+  fill: var(--rc-orange);
+}
+
+.rc-sparks {
+  position: absolute;
+  width: 0.55em;
+  height: 0.55em;
+  stroke: var(--rc-ink);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.rc-sparks--left {
+  left: -0.7em;
+  bottom: -0.15em;
+  transform: rotate(-10deg);
+}
+
+.rc-sparks--right {
+  right: -0.75em;
+  top: 0.62em;
+  transform: rotate(-18deg);
+}
+
+.rc-lead {
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: var(--rc-muted);
+}
+
+.rc-grid-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1540px;
+  margin: 72px auto 0;
+  padding: 0 16px;
+}
+
+@media (min-width: 1024px) {
+  .rc-grid-wrap {
+    margin-top: 96px;
+    padding: 0 32px;
+  }
+}
+
+.rc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .rc-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .rc-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .landing-page .rc-card__title {
+    white-space: nowrap;
+  }
+}
+
+.rc-card {
+  --rc-panel-bg: var(--rc-panel);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--rc-panel-bg);
+  box-shadow:
+    0 1px 2px rgba(74, 40, 16, 0.06),
+    0 14px 30px -14px rgba(74, 40, 16, 0.28);
+  will-change: transform;
+}
+
+.rc-card--accent {
+  --rc-panel-bg: var(--rc-card-orange);
+}
+
+.rc-card__media {
+  position: relative;
+  aspect-ratio: 232 / 196;
+  overflow: hidden;
+}
+
+.rc-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rc-card:hover .rc-card__img {
+  transform: scale(1.08);
+}
+
+.rc-card__step {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--rc-ink);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.25);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rc-card--accent .rc-card__step {
+  background: var(--rc-card-orange);
+  color: #fff;
+}
+
+.rc-card:hover .rc-card__step {
+  transform: rotate(-12deg) scale(1.1);
+}
+
+.rc-card__body {
+  position: relative;
+  flex: 1;
+  padding: 14px 14px 22px;
+  text-align: center;
+  background: var(--rc-panel-bg);
+}
+
+/* Scalloped edge (same semicircle strip Krackerz uses under its photo cards) */
+.rc-card__scallop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -11px;
+  height: 12px;
+  background: var(--rc-panel-bg);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 14'%3E%3Cpath d='M0 14 A14 14 0 0 1 28 14 Z'/%3E%3C/svg%3E") center bottom / 24px 12px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 14'%3E%3Cpath d='M0 14 A14 14 0 0 1 28 14 Z'/%3E%3C/svg%3E") center bottom / 24px 12px repeat-x;
+}
+
+.landing-page .rc-card__title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(16px, 1.3vw, 21px);
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--rc-ink);
+}
+
+.rc-card__text {
+  margin-top: 6px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #4d453e;
+}
+
+#problem .rc-card--accent .rc-card__title,
+#problem .rc-card--accent .rc-card__text {
+  color: #fff !important;
+}
+
+.rc-card--accent .rc-card__text {
+  opacity: 0.92;
+}
+
+.rc-quote__muted {
+  font-size: 15px;
+  color: var(--rc-muted);
+}
+
+.rc-quote__strong {
+  margin-top: 6px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--rc-ink);
+}
+
+.rc-quote__accent {
+  font-style: italic;
+  color: var(--rc-orange);
+}
+
+@media (max-width: 639px) {
+  .rc-card {
+    border-radius: 18px;
+  }
+
+  .rc-card__step {
+    top: 10px;
+    left: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .rc-card__body {
+    padding: 10px 10px 16px;
+  }
+
+  .rc-card__text {
+    font-size: 12.5px;
+  }
+
+  .rc-star {
+    left: 0.15em;
+    top: -0.7em;
+  }
+
+  .rc-sparks--left {
+    left: 0.1em;
+  }
+
+  .rc-sparks--right {
+    right: 0;
+    top: -0.35em;
+  }
+}
