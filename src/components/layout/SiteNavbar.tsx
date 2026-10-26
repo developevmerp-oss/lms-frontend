@@ -38,8 +38,8 @@ export default function SiteNavbar() {
   }, []);
 
   const surface = onHome
-    ? "border-orange-300 bg-[#f3eee6]/55 shadow-[0_10px_32px_-16px_rgba(90,55,20,0.35)] backdrop-blur-2xl"
-    : "border-orange-300 bg-white/70 shadow-[0_8px_24px_-16px_rgba(15,23,42,0.28)] backdrop-blur-2xl";
+    ? "border-orange-200/80 bg-white/95 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.22)] backdrop-blur-xl"
+    : "border-orange-200/80 bg-white/95 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.18)] backdrop-blur-xl";
 
   return (
     <div className="site-navbar sticky top-0 z-50 bg-transparent">
@@ -47,7 +47,7 @@ export default function SiteNavbar() {
         <nav className={`flex items-center justify-between gap-2 rounded-full border-2 px-2.5 py-2 transition-transform duration-300 ease-out sm:gap-3 sm:px-3 ${hidden ? "pointer-events-none -translate-y-[calc(100%+0.75rem)]" : "translate-y-0"} ${surface}`}>
           <BrandLogo size="sm" />
 
-          <div className="hidden min-w-0 items-center gap-4 text-[13px] font-medium text-stone-600 xl:flex">
+          <div className="hidden min-w-0 items-center gap-2.5 xl:gap-4 text-[12px] xl:text-[13px] font-medium text-stone-700 lg:flex">
             {LINKS.map((link) => (
               <a key={link.href} href={link.href} className="whitespace-nowrap transition-colors hover:text-orange-600">
                 {link.label}
@@ -58,13 +58,13 @@ export default function SiteNavbar() {
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Link
               href="/login"
-              className="hidden rounded-full px-3 py-2 text-sm font-medium text-stone-600 hover:bg-orange-50 hover:text-orange-700 xl:inline-flex"
+              className="hidden rounded-full px-2.5 py-1.5 xl:px-3 xl:py-2 text-xs xl:text-sm font-medium text-stone-700 hover:bg-orange-50 hover:text-orange-700 lg:inline-flex"
             >
               Sign In
             </Link>
             <Link
               href="/webinar"
-              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 sm:px-4 sm:py-2.5"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-950 shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 sm:px-4 sm:py-2.5 whitespace-nowrap"
             >
               <span className="sm:hidden">Join</span>
               <span className="hidden sm:inline">Free Masterclass</span>
@@ -72,7 +72,7 @@ export default function SiteNavbar() {
             </Link>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-stone-800 transition hover:bg-black/5 xl:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-stone-800 transition hover:bg-black/5 lg:hidden"
               aria-expanded={menuOpen}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMenuOpen((open) => !open)}
@@ -83,7 +83,7 @@ export default function SiteNavbar() {
         </nav>
 
         {menuOpen && (
-          <div className={`absolute inset-x-3 top-[calc(100%-0.35rem)] z-50 rounded-3xl border-2 p-3 sm:inset-x-5 xl:hidden ${surface}`}>
+          <div className={`absolute inset-x-3 top-[calc(100%-0.35rem)] z-50 rounded-3xl border-2 p-3 sm:inset-x-5 lg:hidden ${surface}`}>
             <div className="flex flex-col">
               {LINKS.map((link) => (
                 <a

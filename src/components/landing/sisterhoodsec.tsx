@@ -10,7 +10,16 @@ const SUPPORTS = [
 
 export default function SisterhoodSec() {
   return (
-    <section id="community" className="sisterhood-sec relative z-10 bg-white py-16 sm:py-20 lg:py-24">
+    <section
+      id="community"
+      className="sisterhood-sec relative z-20 py-16 sm:py-20 lg:py-24"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <div className="nav-width page-rise">
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
           <span className="mb-2 block text-xs font-black uppercase tracking-widest text-orange-400">Sisterhood &amp; Support</span>
@@ -25,14 +34,13 @@ export default function SisterhoodSec() {
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-10 sm:gap-x-10 lg:gap-x-14">
           {SUPPORTS.map((item) => (
             <article key={item.title} className="sister-item w-[140px] text-center sm:w-[150px]">
-              <div className="sister-tile">
-                <img src={item.image} alt="" />
+              <div className="sister-tile rounded-[28px] overflow-hidden shadow-md">
+                <img src={item.image} alt="" className="rounded-[28px]" />
               </div>
               <div className="pt-5">
-                <p className="text-sm font-bold text-black">{item.title}</p>
-                <p className="mt-1 text-[11px] text-slate-400">{item.desc}</p>
+                <p className="text-xl font-bold text-black">{item.title}</p>
+                <p className="mt-1 text-base text-slate-400">{item.desc}</p>
               </div>
-              
             </article>
           ))}
         </div>

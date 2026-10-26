@@ -57,8 +57,34 @@ export default function CurriculumSec() {
     <section
       id="curriculum"
       ref={sectionRef}
-      className="curriculum-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20"
+      className="curriculum-sec relative z-20 py-16 text-neutral-950 sm:py-20 lg:py-24 overflow-visible"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
     >
+      {/* ─── TOP CLOUDY WAVE (MATCHING MENTOR SECTION TOP) ─── */}
+      <div
+        className="curriculum-cloud-wave-top absolute -top-[27px] sm:-top-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-40"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+          WebkitMaskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
+          maskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
+          WebkitMaskSize: "64px 32px",
+          maskSize: "64px 32px",
+          WebkitMaskRepeat: "repeat-x",
+          maskRepeat: "repeat-x",
+          WebkitMaskPosition: "center bottom",
+          maskPosition: "center bottom",
+          filter: "drop-shadow(0 -3px 4px rgba(0, 0, 0, 0.04))",
+        }}
+        aria-hidden="true"
+      />
       <div className="nav-width">
         <motion.div
           className="mx-auto max-w-3xl text-center"
@@ -179,6 +205,26 @@ export default function CurriculumSec() {
         </div>
         */}
       </div>
+      {/* ─── BOTTOM CLOUDY WAVE (MATCHING MENTOR SECTION BOTTOM) ─── */}
+      <div
+        className="curriculum-cloud-wave-bottom absolute -bottom-[27px] sm:-bottom-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-40"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+          WebkitMaskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
+          maskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
+          WebkitMaskSize: "64px 32px",
+          maskSize: "64px 32px",
+          WebkitMaskRepeat: "repeat-x",
+          maskRepeat: "repeat-x",
+          WebkitMaskPosition: "center top",
+          maskPosition: "center top",
+          filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08))",
+        }}
+        aria-hidden="true"
+      />
     </section>
   );
 }

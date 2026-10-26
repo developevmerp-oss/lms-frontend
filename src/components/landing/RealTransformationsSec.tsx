@@ -86,7 +86,16 @@ export default function RealTransformationsSec({
   });
 
   return (
-    <section id="real-transformations" className="relative z-10 overflow-hidden bg-white py-16 sm:py-20 lg:py-24">
+    <section
+      id="real-transformations"
+      className="relative z-20 overflow-visible py-16 sm:py-20 lg:py-24"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <div className="pointer-events-none absolute -left-24 top-8 h-72 w-72 rounded-full bg-[#fde4d2] blur-3xl" />
       <div className="pointer-events-none absolute -right-16 top-0 h-80 w-80 rounded-full bg-[#fff0e4] blur-3xl" />
       <div className="pointer-events-none absolute bottom-16 left-1/2 h-56 w-[36rem] -translate-x-1/2 rounded-full bg-[#ffe8d8]/80 blur-3xl" />
@@ -245,6 +254,27 @@ export default function RealTransformationsSec({
           ))}
         </div>
       </div>
+
+      {/* ─── BOTTOM CLOUDY WAVE ─── */}
+      <div
+        className="real-transformations-cloud-wave-bottom absolute -bottom-[27px] sm:-bottom-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-40"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+          WebkitMaskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
+          maskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
+          WebkitMaskSize: "64px 32px",
+          maskSize: "64px 32px",
+          WebkitMaskRepeat: "repeat-x",
+          maskRepeat: "repeat-x",
+          WebkitMaskPosition: "center top",
+          maskPosition: "center top",
+          filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08))",
+        }}
+        aria-hidden="true"
+      />
     </section>
   );
 }
