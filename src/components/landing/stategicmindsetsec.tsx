@@ -11,7 +11,7 @@ const STAGES = [
 
 export default function StategicMindsetSec() {
   return (
-    <section className="strategic-mindset relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
+    <section className="strategic-mindset relative z-10 bg-[#f7f6f0] py-16 text-neutral-950 sm:py-20 lg:pb-24">
       <div className="nav-width">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
@@ -54,14 +54,14 @@ export default function StategicMindsetSec() {
           ))}
         </div>
 
-        <div className="mt-8 rounded-3xl bg-slate-50 px-5 py-8 text-center sm:mt-10 sm:px-8">
+        {/* <div className="mt-8 rounded-3xl bg-slate-50 px-5 py-8 text-center sm:mt-10 sm:px-8">
           <p className="text-sm text-neutral-500 sm:text-base">
             You don't have to choose between being an artist and building a successful life.
           </p>
           <p className="vehicle-quote mt-2 text-lg font-bold leading-snug text-neutral-950 sm:text-2xl">
             You can create beautiful art and <span className="vehicle-accent">create a beautiful future with it.</span>
           </p>
-        </div>
+        </div> */}
       </div>
     </section>
   );

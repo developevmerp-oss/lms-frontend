@@ -392,13 +392,16 @@ body {
 section.strategic-mindset,
 .light section.strategic-mindset {
   background-color: #f7f6f0 !important;
+  background-color: #f7f6f0 !important;
   border-top: none !important;
   border-bottom: none !important;
 }
 
 section.sound-like-sec,
-.light section.sound-like-sec {
-  background-color: #ffffff !important;
+.light section.sound-like-sec,
+.light section.sound-like-sec:nth-of-type(even) {
+  background-color: transparent !important;
+  background-image: none !important;
   border-top: none !important;
   border-bottom: none !important;
   overflow: visible;
@@ -5211,6 +5214,29 @@ section#real-transformations,
   color: var(--rc-muted);
 }
 
+.rc-pin-sec {
+  position: relative;
+  isolation: isolate;
+}
+
+@media (min-width: 1024px) {
+  .rc-pin-sec {
+    height: 200vh;
+  }
+
+  .rc-sticky-wrap {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 3rem 0 2rem;
+  }
+}
+
 .rc-grid-wrap {
   position: relative;
   width: 100%;
@@ -5221,9 +5247,18 @@ section#real-transformations,
 
 @media (min-width: 1024px) {
   .rc-grid-wrap {
-    margin-top: 96px;
+    margin-top: 180px;
     padding: 0 32px;
   }
+}
+
+.rc-slider-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.rc-slider-track::-webkit-scrollbar {
+  display: none;
 }
 
 .rc-grid {
@@ -5248,6 +5283,20 @@ section#real-transformations,
   .landing-page .rc-card__title {
     white-space: nowrap;
   }
+}
+
+.rc-grid-cell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.rc-card-slot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform-origin: center center;
 }
 
 .rc-card {

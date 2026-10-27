@@ -458,10 +458,10 @@ export default function LandingHero2() {
           .landing-page .lh2 h1.lh2-title {
             font-family: Bahnschrift, "Segoe UI", Arial, sans-serif;
             font-stretch: 100%;
-            font-size: clamp(5.15rem, 8.7vw, 9rem);
+            font-size: clamp(3.15rem, 7.7vw, 6rem);
             font-weight: 600;
             letter-spacing: -0.02em;
-            line-height: 0.78;
+            line-height: 0.95;
           }
           .lh2-title .line-2 { padding-left: 16rem; }
           .landing-page .lh2 .lh2-lead {
@@ -482,7 +482,7 @@ export default function LandingHero2() {
         }
 
         @media (min-width: 861px) and (max-width: 1180px) {
-          .landing-page .lh2 h1.lh2-title { font-size: clamp(4.15rem, 7.1vw, 6.3rem); }
+          .landing-page .lh2 h1.lh2-title { font-size: clamp(1.15rem, 4.1vw, 1.3rem); }
           .lh2-title .line-2 { padding-left: 14rem; }
           .landing-page .lh2 .lh2-lead { width: 12.4rem; }
         }
@@ -563,9 +563,9 @@ export default function LandingHero2() {
           <div className="lh2-stage">
             <div className="lh2-copy">
               <h1 className="lh2-title">
-                <span className="line">Resin Art</span>
-                <span className="line line-2">&amp; Creative</span>
-                <span className="line">Journeys</span>
+                <span className="line">Turn Your Resin Art Passion</span>
+                <span className="line line-2"> Into Skill, Identity</span>
+                <span className="line">&amp; Financial Freedom</span>
               </h1>
 
               <p className="lh2-lead">
