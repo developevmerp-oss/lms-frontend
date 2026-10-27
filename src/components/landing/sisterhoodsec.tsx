@@ -65,11 +65,11 @@ export default function SisterhoodSec() {
         </div>
         */}
 
-        <div className="mt-12 text-center">
+        {/* <div className="mt-12 text-center">
           <p className="bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-xl font-bold text-transparent">
             "Because when women grow together, everyone grows stronger."
           </p>
-        </div>
+        </div> */}
       </div>
     </section>
   );

@@ -163,7 +163,7 @@ export default function MentorAboutSec() {
     <section
       id="mentor"
       ref={sectionRef}
-      className="relative z-30 scroll-mt-24 py-16 sm:py-20 lg:py-24 bg-white text-stone-900 overflow-x-clip overflow-y-visible lg:-mt-[100vh]"
+      className="relative z-30 scroll-mt-24 py-16 sm:py-20 lg:py-24 bg-white text-stone-900 overflow-x-clip overflow-y-visible lg:-mt-[100vh] shadow-[0_-20px_50px_rgba(0,0,0,0.06)]"
       style={{
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",

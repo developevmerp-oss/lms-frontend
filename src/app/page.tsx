@@ -51,18 +51,18 @@ import {
 // Real Student Artworks for Live Exhibition Showcase (73 Total Works: 24 Original + 49 New Real Works)
 const ARTWORKS_ROW_1 = [
   // Original Showcase Works (1-12)
-  { title: "Botanical Floral Resin Coaster Set", artist: "Priya S.", type: "Real Flower Preservation", level: "Gold Member", price: "₹4,500 Sold", image: "/images/student-art/art-1.jpg", badge: "Floral Art" },
-  { title: "Midnight Agate Ring Coaster Duo", artist: "Pooja V.", type: "Gold Trim Geode Pour", level: "Silver Member", price: "₹5,200 Sold", image: "/images/student-art/art-2.jpg", badge: "Luxury Coasters" },
-  { title: "Black Obsidian & Gold Leaf Geode Coasters", artist: "Aarav K.", type: "3D Geode & Metallic Edge", level: "Silver Member", price: "₹6,900 Sold", image: "/images/student-art/art-3.jpg", badge: "Geode Inlay" },
-  { title: "Vintage Botanical Bloom Clock", artist: "Ritu M.", type: "Floral Preservation Wall Art", level: "Renaissance Certification", price: "₹18,500 Sold", image: "/images/student-art/art-4.jpg", badge: "Preservation" },
-  { title: "Pressed Petals Serving Platter", artist: "Sonia G.", type: "Crystal Clear Epoxy Layering", level: "Gold Member", price: "₹8,500 Sold", image: "/images/student-art/art-5.jpg", badge: "Tableware" },
-  { title: "Emerald Crystal Butterfly Sculpt", artist: "Neha & Team", type: "Cellular Texture Pour", level: "Renaissance Certification", price: "₹12,000 Sold", image: "/images/student-art/art-6.jpg", badge: "3D Sculpt" },
-  { title: "Rose Quartz Gold Foil Tray Set", artist: "Ananya D.", type: "Hand-Gilded Metallic Trim", level: "Silver Member", price: "₹7,500 Sold", image: "/images/student-art/art-7.jpg", badge: "Tableware" },
-  { title: "Deep Sea Coastal Resin Platter", artist: "Divya N.", type: "Wave Foam Pour", level: "Silver Member", price: "₹6,800 Sold", image: "/images/student-art/art-8.jpg", badge: "Ocean Wave" },
-  { title: "Golden Sands Shoreline Art", artist: "Kavya P.", type: "Real Shell & Resin Sand", level: "Silver Member", price: "₹5,900 Sold", image: "/images/student-art/art-9.jpg", badge: "Ocean Art" },
-  { title: "Sunburst Agate Geode Serving Board", artist: "Kiran J.", type: "Gold Vein & Crystal Inlay", level: "Gold Member", price: "₹11,500 Sold", image: "/images/student-art/art-10.jpg", badge: "Geode Inlay" },
-  { title: "Amethyst Shimmer Coaster Quad", artist: "Nisha R.", type: "Raw Quartz Cluster", level: "Gold Member", price: "₹6,200 Sold", image: "/images/student-art/art-11.jpg", badge: "Coasters" },
-  { title: "Sapphire Ocean Resin Desk Organizer", artist: "Vikram P.", type: "3-Tier Resin Wave Pour", level: "Gold Member", price: "₹9,800 Sold", image: "/images/student-art/art-12.jpg", badge: "Ocean Art" },
+  // { title: "Botanical Floral Resin Coaster Set", artist: "Priya S.", type: "Real Flower Preservation", level: "Gold Member", price: "₹4,500 Sold", image: "/images/student-art/art-1.jpg", badge: "Floral Art" },
+  // { title: "Midnight Agate Ring Coaster Duo", artist: "Pooja V.", type: "Gold Trim Geode Pour", level: "Silver Member", price: "₹5,200 Sold", image: "/images/student-art/art-2.jpg", badge: "Luxury Coasters" },
+  // { title: "Black Obsidian & Gold Leaf Geode Coasters", artist: "Aarav K.", type: "3D Geode & Metallic Edge", level: "Silver Member", price: "₹6,900 Sold", image: "/images/student-art/art-3.jpg", badge: "Geode Inlay" },
+  // { title: "Vintage Botanical Bloom Clock", artist: "Ritu M.", type: "Floral Preservation Wall Art", level: "Renaissance Certification", price: "₹18,500 Sold", image: "/images/student-art/art-4.jpg", badge: "Preservation" },
+  // { title: "Pressed Petals Serving Platter", artist: "Sonia G.", type: "Crystal Clear Epoxy Layering", level: "Gold Member", price: "₹8,500 Sold", image: "/images/student-art/art-5.jpg", badge: "Tableware" },
+  // { title: "Emerald Crystal Butterfly Sculpt", artist: "Neha & Team", type: "Cellular Texture Pour", level: "Renaissance Certification", price: "₹12,000 Sold", image: "/images/student-art/art-6.jpg", badge: "3D Sculpt" },
+  // { title: "Rose Quartz Gold Foil Tray Set", artist: "Ananya D.", type: "Hand-Gilded Metallic Trim", level: "Silver Member", price: "₹7,500 Sold", image: "/images/student-art/art-7.jpg", badge: "Tableware" },
+  // { title: "Deep Sea Coastal Resin Platter", artist: "Divya N.", type: "Wave Foam Pour", level: "Silver Member", price: "₹6,800 Sold", image: "/images/student-art/art-8.jpg", badge: "Ocean Wave" },
+  // { title: "Golden Sands Shoreline Art", artist: "Kavya P.", type: "Real Shell & Resin Sand", level: "Silver Member", price: "₹5,900 Sold", image: "/images/student-art/art-9.jpg", badge: "Ocean Art" },
+  // { title: "Sunburst Agate Geode Serving Board", artist: "Kiran J.", type: "Gold Vein & Crystal Inlay", level: "Gold Member", price: "₹11,500 Sold", image: "/images/student-art/art-10.jpg", badge: "Geode Inlay" },
+  // { title: "Amethyst Shimmer Coaster Quad", artist: "Nisha R.", type: "Raw Quartz Cluster", level: "Gold Member", price: "₹6,200 Sold", image: "/images/student-art/art-11.jpg", badge: "Coasters" },
+  // { title: "Sapphire Ocean Resin Desk Organizer", artist: "Vikram P.", type: "3-Tier Resin Wave Pour", level: "Gold Member", price: "₹9,800 Sold", image: "/images/student-art/art-12.jpg", badge: "Ocean Art" },
 
   // New Real Student Works (1-25)
   { title: "Preserved Botanical Coaster Set", artist: "Priya S.", type: "Floral Preservation", level: "Gold Member", price: "₹4,500 Sold", image: "/images/student-art/real-art-1.jpg", badge: "Floral Art" },
@@ -94,18 +94,18 @@ const ARTWORKS_ROW_1 = [
 
 const ARTWORKS_ROW_2 = [
   // Original Showcase Works (13-24)
-  { title: "Tree of Life Wire & Resin Clock", artist: "Meenal B.", type: "Handcrafted Copper Wire", level: "Gold Member", price: "₹16,000 Sold", image: "/images/student-art/art-13.jpg", badge: "Luxury Clocks" },
-  { title: "Caribbean Coral Lacing Wall Canvas", artist: "Meera K.", type: "Cell Lacing Masterpiece", level: "Gold Member", price: "₹24,000 Sold", image: "/images/student-art/art-14.jpg", badge: "Fine Art" },
-  { title: "Global Ocean Wave World Map Wall Art", artist: "Tanvi R.", type: "Multi-Layer Ocean Lacing", level: "Renaissance Certification", price: "₹48,000 Sold", image: "/images/student-art/art-15.jpg", badge: "Statement Decor" },
-  { title: "Lotus Pond 3D Water Simulation", artist: "Dipti V.", type: "Floating Petal Casting", level: "Silver Member", price: "₹9,500 Sold", image: "/images/student-art/art-16.jpg", badge: "Lotus Art" },
-  { title: "Bridal Varmala Keepsake Pyramid", artist: "Bhavika T.", type: "Resin Flower Pyramid", level: "Renaissance Certification", price: "₹14,000 Sold", image: "/images/student-art/art-17.jpg", badge: "Preservation" },
-  { title: "Turquoise Geode Resin Mirror", artist: "Shradha M.", type: "Large Format Geode", level: "Gold Member", price: "₹29,000 Sold", image: "/images/student-art/art-18.jpg", badge: "Geode Inlay" },
-  { title: "Epoxy Teak River Slab Coffee Table", artist: "Aakash & Team", type: "Live Edge Wood Pour", level: "Renaissance Certification", price: "₹58,000 Sold", image: "/images/student-art/art-19.jpg", badge: "River Table" },
-  { title: "Gold Foil Mantra Wall Plaque", artist: "Sunita G.", type: "Sanskrit Devotional Foil", level: "Gold Member", price: "₹13,500 Sold", image: "/images/student-art/art-20.jpg", badge: "Mantra Art" },
-  { title: "Evil Eye Concentric Ring Tray", artist: "Priti N.", type: "High Gloss Color Layering", level: "Silver Member", price: "₹6,100 Sold", image: "/images/student-art/art-21.jpg", badge: "Evil Eye" },
-  { title: "Alcohol Ink Celestial Swirl Art", artist: "Juhi C.", type: "Fluid Ink Dispersal", level: "Silver Member", price: "₹8,000 Sold", image: "/images/student-art/art-22.jpg", badge: "Fine Art" },
-  { title: "Pressed Wildflower Bookmark Trio", artist: "Kinjal A.", type: "Starter Foil & Flower", level: "Fast Track", price: "₹2,800 Sold", image: "/images/student-art/art-23.jpg", badge: "Starter Art" },
-  { title: "Deep Sea Coastal Resin Platter Duo", artist: "Reena S.", type: "Multi-Depth Ocean Foam", level: "Gold Member", price: "₹11,000 Sold", image: "/images/student-art/art-24.jpg", badge: "Ocean Wave" },
+  // { title: "Tree of Life Wire & Resin Clock", artist: "Meenal B.", type: "Handcrafted Copper Wire", level: "Gold Member", price: "₹16,000 Sold", image: "/images/student-art/art-13.jpg", badge: "Luxury Clocks" },
+  // { title: "Caribbean Coral Lacing Wall Canvas", artist: "Meera K.", type: "Cell Lacing Masterpiece", level: "Gold Member", price: "₹24,000 Sold", image: "/images/student-art/art-14.jpg", badge: "Fine Art" },
+  // { title: "Global Ocean Wave World Map Wall Art", artist: "Tanvi R.", type: "Multi-Layer Ocean Lacing", level: "Renaissance Certification", price: "₹48,000 Sold", image: "/images/student-art/art-15.jpg", badge: "Statement Decor" },
+  // { title: "Lotus Pond 3D Water Simulation", artist: "Dipti V.", type: "Floating Petal Casting", level: "Silver Member", price: "₹9,500 Sold", image: "/images/student-art/art-16.jpg", badge: "Lotus Art" },
+  // { title: "Bridal Varmala Keepsake Pyramid", artist: "Bhavika T.", type: "Resin Flower Pyramid", level: "Renaissance Certification", price: "₹14,000 Sold", image: "/images/student-art/art-17.jpg", badge: "Preservation" },
+  // { title: "Turquoise Geode Resin Mirror", artist: "Shradha M.", type: "Large Format Geode", level: "Gold Member", price: "₹29,000 Sold", image: "/images/student-art/art-18.jpg", badge: "Geode Inlay" },
+  // { title: "Epoxy Teak River Slab Coffee Table", artist: "Aakash & Team", type: "Live Edge Wood Pour", level: "Renaissance Certification", price: "₹58,000 Sold", image: "/images/student-art/art-19.jpg", badge: "River Table" },
+  // { title: "Gold Foil Mantra Wall Plaque", artist: "Sunita G.", type: "Sanskrit Devotional Foil", level: "Gold Member", price: "₹13,500 Sold", image: "/images/student-art/art-20.jpg", badge: "Mantra Art" },
+  // { title: "Evil Eye Concentric Ring Tray", artist: "Priti N.", type: "High Gloss Color Layering", level: "Silver Member", price: "₹6,100 Sold", image: "/images/student-art/art-21.jpg", badge: "Evil Eye" },
+  // { title: "Alcohol Ink Celestial Swirl Art", artist: "Juhi C.", type: "Fluid Ink Dispersal", level: "Silver Member", price: "₹8,000 Sold", image: "/images/student-art/art-22.jpg", badge: "Fine Art" },
+  // { title: "Pressed Wildflower Bookmark Trio", artist: "Kinjal A.", type: "Starter Foil & Flower", level: "Fast Track", price: "₹2,800 Sold", image: "/images/student-art/art-23.jpg", badge: "Starter Art" },
+  // { title: "Deep Sea Coastal Resin Platter Duo", artist: "Reena S.", type: "Multi-Depth Ocean Foam", level: "Gold Member", price: "₹11,000 Sold", image: "/images/student-art/art-24.jpg", badge: "Ocean Wave" },
 
   // New Real Student Works (26-49)
   { title: "Sunset Ocean Foam Canvas", artist: "Payal K.", type: "Coral Gradient Waves", level: "Gold Member", price: "₹13,500 Sold", image: "/images/student-art/real-art-26.jpg", badge: "Ocean Art" },
@@ -183,7 +183,7 @@ export default function HomePage() {
 
       <div className="lh2-sheet">
 
-      {/*
+        {/*
         Old hero section, kept commented.
         <section className="relative pt-16 pb-16 px-6 z-10">
           <div className="max-w-5xl mx-auto text-center">
@@ -232,18 +232,18 @@ export default function HomePage() {
         </section>
       */}
 
-      {/* ─── SECTION 2: THE REAL PROBLEM ─── */}
-      <RealChallangeSec />
+        {/* ─── SECTION 2: THE REAL PROBLEM ─── */}
+        <RealChallangeSec />
 
-      {/* ─── SECTION 3: THE REFRAME ─── */}
-      <StategicMindsetSec />
+        {/* ─── SECTION 3: THE REFRAME ─── */}
+        {/* <StategicMindsetSec /> */}
 
-      {/* ─── SECTION 4: DOES THIS SOUND LIKE YOU? ─── */}
-      <SoundLikeSec />
+        {/* ─── SECTION 4: DOES THIS SOUND LIKE YOU? ─── */}
+        <SoundLikeSec />
 
-      <MentorAboutSec />
+        <MentorAboutSec />
 
-      {/*
+        {/*
       {/* ─── SECTION 5: ABOUT VRAJANGNA & PORTFOLIO ─── * /}
       <section id="mentor" className="py-24 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
@@ -470,13 +470,13 @@ export default function HomePage() {
 
       */}
 
-      {/* ─── SECTION 6: SOCIAL PROOF ─── */}
-      <TestimoniaSec />
+        {/* ─── SECTION 6: SOCIAL PROOF ─── */}
+        <TestimoniaSec />
 
-      {/* ─── SECTION 7: VISIBLE GROWTH ─── */}
-      <VisibleGrowthSec />
+        {/* ─── SECTION 7: VISIBLE GROWTH ─── */}
+        <VisibleGrowthSec />
 
-      {/*
+        {/*
         Old visible growth section, kept commented.
         <section className="py-24 px-6 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
@@ -504,28 +504,28 @@ export default function HomePage() {
         </section>
       */}
 
-      {/* ─── SECTION 8: YOUR JOURNEY ─── */}
-      <AlreadyHaveSec />
+        {/* ─── SECTION 8: YOUR JOURNEY ─── */}
+        <AlreadyHaveSec />
 
-      {/* ─── SECTION 9: THE PATH ─── */}
-      <PathSec />
+        {/* ─── SECTION 9: THE PATH ─── */}
+        <PathSec />
 
-      {/* ─── SECTION 10: WHAT YOU WILL LEARN ─── */}
-      <CurriculumSec />
+        {/* ─── SECTION 10: WHAT YOU WILL LEARN ─── */}
+        <CurriculumSec />
 
-      {/* ─── SECTION 11: SIX DIMENSIONS OF SUCCESS ─── */}
-      <DimensionsSec />
+        {/* ─── SECTION 11: SIX DIMENSIONS OF SUCCESS ─── */}
+        <DimensionsSec />
 
-      {/* ─── SECTION 12: ART-O-THON ─── */}
-      <ArtOThonSec sprintImages={ARTWORKS_ROW_1.map((art) => art.image)} />
+        {/* ─── SECTION 12: ART-O-THON ─── */}
+        <ArtOThonSec sprintImages={ARTWORKS_ROW_1.map((art) => art.image)} />
 
-      {/* ─── SECTION 13: COMMUNITY ─── */}
-      <SisterhoodSec />
+        {/* ─── SECTION 13: COMMUNITY ─── */}
+        <SisterhoodSec />
 
-      {/* ─── SECTION 14: STUDENT TRANSFORMATION ─── */}
-      <RealTransformationsSec rowOne={ARTWORKS_ROW_1} rowTwo={ARTWORKS_ROW_2} />
+        {/* ─── SECTION 14: STUDENT TRANSFORMATION ─── */}
+        <RealTransformationsSec rowOne={ARTWORKS_ROW_1} rowTwo={ARTWORKS_ROW_2} />
 
-      {/*
+        {/*
         Previous Real Transformations UI, kept commented.
         < section className="py-20 overflow-hidden relative border-y border-slate-800/80 bg-slate-950/60 z-10" >
           <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
@@ -587,16 +587,16 @@ export default function HomePage() {
         </section >
       */}
 
-      {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
-      <JourneySec levelTiers={levelTiers} levelCourses={levelCourses} />
+        {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
+        <JourneySec levelTiers={levelTiers} levelCourses={levelCourses} />
 
-      {/* ─── SECTION 16: FREE MASTERCLASS ─── */}
-      <MasterclassSec />
+        {/* ─── SECTION 16: FREE MASTERCLASS ─── */}
+        <MasterclassSec />
 
-      {/* ─── SECTION 17: FINAL EMOTIONAL CTA ─── */}
-      <FinalCtaSec />
+        {/* ─── SECTION 17: FINAL EMOTIONAL CTA ─── */}
+        <FinalCtaSec />
 
-      {/* <SiteFooter /> */}
+        {/* <SiteFooter /> */}
       </div>
     </div>
   );

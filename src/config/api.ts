@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 export const getApiUrl = (path: string): string => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -16,9 +16,14 @@ export const getImageUrl = (url?: string): string => {
   }
   if (!clean.startsWith('/')) clean = '/' + clean;
 
+  // If already pointing to frontend public /images, /icons, /fonts, or /svg
+  if (clean.startsWith('/images/') || clean.startsWith('/icons/') || clean.startsWith('/fonts/') || clean.startsWith('/svg/')) {
+    return clean;
+  }
+
   // Local development vs Live production environment
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return `http://localhost:5000${clean}`;
+    return `http://localhost:5001${clean}`;
   }
   return `https://api.ravishingarthub.com${clean}`;
 };
@@ -30,8 +35,13 @@ export const getFileUrl = (url?: string): string => {
     return clean;
   }
   if (!clean.startsWith('/')) clean = '/' + clean;
+
+  if (clean.startsWith('/images/') || clean.startsWith('/icons/') || clean.startsWith('/fonts/') || clean.startsWith('/svg/')) {
+    return clean;
+  }
+
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return `http://localhost:5000${clean}`;
+    return `http://localhost:5001${clean}`;
   }
   return `https://api.ravishingarthub.com${clean}`;
 };
