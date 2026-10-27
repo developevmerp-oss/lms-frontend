@@ -92,7 +92,7 @@ export default function StudentEventsPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setJoinSuccessMsg(`✅ Attendance Recorded! +50 XP Awarded to your profile.`);
+        setJoinSuccessMsg(`✅ Attendance Recorded! +100 XP Awarded to your profile.`);
         setTimeout(() => setJoinSuccessMsg(""), 4000);
         fetchData();
 
@@ -301,7 +301,7 @@ export default function StudentEventsPage() {
                         ? "Recording Attendance..."
                         : ev.isAttended
                         ? "Re-Join Live Class Room"
-                        : "Join Live Class & Mark Attendance (+50 XP)"}
+                        : "Join Live Class & Mark Attendance (+100 XP)"}
                     </button>
                   ) : (
                     <div className="w-full flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950 border border-slate-800">

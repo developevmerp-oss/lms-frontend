@@ -21,7 +21,10 @@ import {
   Check,
   UserCheck,
   UserX,
-  Layers
+  Layers,
+  FileSpreadsheet,
+  History,
+  Download,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -73,6 +76,13 @@ export default function AdminClassesPage() {
   });
   const [rosterSearch, setRosterSearch] = useState("");
 
+  // Attendance History Modal
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyRecords, setHistoryRecords] = useState<any[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [historySearch, setHistorySearch] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
 
@@ -84,6 +94,68 @@ export default function AdminClassesPage() {
   const showError = (msg: string) => {
     setErrorMsg(msg);
     setTimeout(() => setErrorMsg(""), 3500);
+  };
+
+  // Download full attendance sheet (.xlsx / .csv)
+  const handleExportAllAttendance = async () => {
+    try {
+      setIsExporting(true);
+      const res = await fetch(`${API}/classes/attendance/export`, { headers });
+      if (!res.ok) throw new Error("Failed to download attendance sheet");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `live_classes_full_attendance_history_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showSuccess("Full attendance history sheet downloaded successfully!");
+    } catch (err: any) {
+      showError(err.message || "Failed to download attendance sheet");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Download class-wise attendance sheet (.xlsx / .csv)
+  const handleExportClassAttendance = async (classId?: string, classTitle?: string) => {
+    if (!classId) return;
+    try {
+      const res = await fetch(`${API}/classes/attendance/export?classId=${classId}`, { headers });
+      if (!res.ok) throw new Error("Failed to download class attendance sheet");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeTitle = (classTitle || "class").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 30);
+      a.download = `class_attendance_${safeTitle}_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showSuccess("Class attendance sheet downloaded successfully!");
+    } catch (err: any) {
+      showError(err.message || "Failed to download class attendance sheet");
+    }
+  };
+
+  // Fetch complete attendance history
+  const fetchAttendanceHistory = async () => {
+    setIsHistoryLoading(true);
+    try {
+      const res = await fetch(`${API}/classes/attendance/history`, { headers });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setHistoryRecords(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching attendance history:", err);
+      showError("Failed to fetch attendance history");
+    } finally {
+      setIsHistoryLoading(false);
+    }
   };
 
   const fetchClasses = async () => {
@@ -343,12 +415,34 @@ export default function AdminClassesPage() {
             </p>
           </div>
 
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-6 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer self-start md:self-auto"
-          >
-            <Plus size={18} /> Schedule Live Class
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap self-start md:self-auto">
+            <button
+              onClick={handleExportAllAttendance}
+              disabled={isExporting}
+              className="inline-flex items-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs h-11 px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105"
+              title="Download complete attendance history across all classes in Excel / CSV format"
+            >
+              <FileSpreadsheet size={16} />
+              {isExporting ? "Exporting..." : "Download Full Sheet (.xlsx / .csv)"}
+            </button>
+
+            <button
+              onClick={() => {
+                setIsHistoryModalOpen(true);
+                fetchAttendanceHistory();
+              }}
+              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs h-11 px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:border-orange-500/50"
+            >
+              <History size={16} className="text-orange-400" /> Attendance History
+            </button>
+
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-5 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer"
+            >
+              <Plus size={18} /> Schedule Live Class
+            </button>
+          </div>
         </div>
 
         {/* Success Alert */}
@@ -483,6 +577,14 @@ export default function AdminClassesPage() {
                           <ExternalLink size={12} /> Join Call
                         </a>
                       )}
+
+                      <button
+                        onClick={() => handleExportClassAttendance(cls.id, cls.title)}
+                        className="p-2 bg-slate-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-400 rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                        title="Download Class Attendance Sheet (.xlsx / .csv)"
+                      >
+                        <Download size={13} />
+                      </button>
 
                       <button
                         onClick={() => openEditModal(cls)}
@@ -710,12 +812,21 @@ export default function AdminClassesPage() {
                     Total recorded attendees: <strong className="text-emerald-400">{rosterModal.liveClass.totalAttendees} Students</strong>
                   </p>
                 </div>
-                <button
-                  onClick={() => setRosterModal({ isOpen: false, liveClass: null })}
-                  className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleExportClassAttendance(rosterModal.liveClass?.id, rosterModal.liveClass?.title)}
+                    className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="Download this class's attendance sheet (.csv)"
+                  >
+                    <Download size={13} /> Export Sheet
+                  </button>
+                  <button
+                    onClick={() => setRosterModal({ isOpen: false, liveClass: null })}
+                    className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
 
               {/* Roster Search */}
@@ -798,6 +909,133 @@ export default function AdminClassesPage() {
                                 </>
                               )}
                             </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Full Attendance History Modal */}
+        {isHistoryModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-2xl relative animate-scale-up max-h-[85vh] flex flex-col">
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800 shrink-0">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-orange-400 mb-1">
+                    <History size={13} /> Complete Attendance History &amp; Records
+                  </span>
+                  <h3 className="text-xl font-black text-white">All Sessions Attendance Ledger</h3>
+                  <p className="text-xs text-slate-400">
+                    Showing all historical attendance logs (including sessions concluded or removed from schedule).
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleExportAllAttendance}
+                    disabled={isExporting}
+                    className="px-3.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <FileSpreadsheet size={14} /> Download Excel (.csv)
+                  </button>
+                  <button
+                    onClick={() => setIsHistoryModalOpen(false)}
+                    className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="mb-4 shrink-0 flex items-center justify-between gap-3">
+                <input
+                  type="text"
+                  placeholder="Search by student name, email, level, or class title..."
+                  value={historySearch}
+                  onChange={(e) => setHistorySearch(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+                />
+                <span className="text-xs text-slate-400 shrink-0 hidden sm:inline">
+                  Total Records: <strong className="text-white font-mono">{historyRecords.length}</strong>
+                </span>
+              </div>
+
+              {/* History Table / Records */}
+              <div className="overflow-y-auto flex-1 space-y-2 pr-1">
+                {isHistoryLoading ? (
+                  <div className="p-12 text-center text-slate-500 text-sm">Loading attendance history ledger...</div>
+                ) : historyRecords.length === 0 ? (
+                  <div className="p-12 text-center bg-slate-950/50 border border-slate-800 rounded-2xl">
+                    <Users size={32} className="text-slate-700 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm font-bold">No Attendance History Recorded Yet</p>
+                    <p className="text-slate-600 text-xs mt-1">
+                      As students join your live classes, their attendance and +100 XP credit logs will accumulate here forever.
+                    </p>
+                  </div>
+                ) : (
+                  historyRecords
+                    .filter((rec: any) =>
+                      (rec.studentName || "").toLowerCase().includes(historySearch.toLowerCase()) ||
+                      (rec.studentEmail || "").toLowerCase().includes(historySearch.toLowerCase()) ||
+                      (rec.classTitle || "").toLowerCase().includes(historySearch.toLowerCase()) ||
+                      (rec.studentLevel || "").toLowerCase().includes(historySearch.toLowerCase())
+                    )
+                    .map((rec: any) => {
+                      const joinDate = rec.joinedAt ? new Date(rec.joinedAt) : null;
+                      return (
+                        <div
+                          key={rec.id}
+                          className="p-3.5 bg-slate-950/80 border border-slate-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-700 transition-colors"
+                        >
+                          <div className="flex items-start sm:items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center font-bold text-orange-400 text-sm shrink-0 mt-0.5 sm:mt-0">
+                              {rec.studentName?.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-bold text-white text-xs sm:text-sm">{rec.studentName}</h4>
+                                <span className="text-[10px] text-amber-400 font-semibold px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-md">
+                                  {rec.studentLevel}
+                                </span>
+                                {rec.classStatus && rec.classStatus.includes("Removed") && (
+                                  <span className="text-[10px] text-slate-400 font-medium px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded">
+                                    Concluded Session
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-400 mt-0.5">
+                                Class: <strong className="text-slate-200">{rec.classTitle}</strong>
+                              </p>
+                              <p className="text-[10px] text-slate-500">
+                                {rec.studentEmail} {rec.studentPhone && rec.studentPhone !== "N/A" ? `· ${rec.studentPhone}` : ""}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-800/60">
+                            {joinDate && (
+                              <div className="text-left sm:text-right">
+                                <span className="text-[10px] text-slate-500 block">Attended On</span>
+                                <span className="text-xs text-slate-300 font-mono">
+                                  {joinDate.toLocaleDateString("en-IN", {
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                            )}
+
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                              <CheckCircle2 size={13} /> +100 XP Earned
+                            </span>
                           </div>
                         </div>
                       );
