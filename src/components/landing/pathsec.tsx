@@ -186,7 +186,7 @@ function PathCard({ item }: { item: (typeof STAGES)[number] }) {
 
 export default function PathSec() {
   const sectionRef = useRef<HTMLElement>(null);
-  const inView = useInView(sectionRef, { once: true, amount: 0.35 });
+  const inView = useInView(sectionRef, { once: true, amount: 0.05 });
 
   return (
     <section
@@ -198,7 +198,8 @@ export default function PathSec() {
         <motion.div
           className="mx-auto max-w-3xl text-center"
           initial={{ opacity: 0, y: 18 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.05 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <p className="path-kicker text-xs font-semibold uppercase tracking-[0.18em]">
@@ -242,9 +243,10 @@ export default function PathSec() {
             <motion.div
               key={item.stage}
               className="path-expand-slot"
-              initial={{ opacity: 0, y: 28 }}
-              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-              transition={{ delay: 0.12 + index * 0.16, duration: 0.55, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.05 }}
+              transition={{ delay: 0.08 + index * 0.1, duration: 0.5, ease: "easeOut" }}
             >
               <PathCard item={item} />
             </motion.div>

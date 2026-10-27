@@ -23,7 +23,36 @@ export default function ArtOThonSec({ sprintImages }: { sprintImages: string[] }
   const back = images[(frame + 1) % Math.max(images.length, 1)];
 
   return (
-    <section id="artothon" className="artothon-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
+    <section
+      id="artothon"
+      className="artothon-sec relative z-20 py-16 text-neutral-950 sm:py-20 lg:py-24 overflow-visible"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      {/* ─── TOP CLOUDY WAVE ─── */}
+      <div
+        className="artothon-cloud-wave-top absolute -top-[27px] sm:-top-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-40"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+          WebkitMaskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
+          maskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
+          WebkitMaskSize: "64px 32px",
+          maskSize: "64px 32px",
+          WebkitMaskRepeat: "repeat-x",
+          maskRepeat: "repeat-x",
+          WebkitMaskPosition: "center bottom",
+          maskPosition: "center bottom",
+          filter: "drop-shadow(0 -3px 4px rgba(0, 0, 0, 0.04))",
+        }}
+        aria-hidden="true"
+      />
       <div className="nav-width page-rise">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-50">
           <div>

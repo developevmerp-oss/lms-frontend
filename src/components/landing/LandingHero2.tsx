@@ -1,25 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-
-const NAV = [
-  { href: "/#real-transformations", label: "Work" },
-  { href: "/#mentor", label: "About" },
-  { href: "/#curriculum", label: "Classes" },
-];
-
-const MENU_LINKS = [
-  { href: "/#problem", label: "The Journey" },
-  { href: "/#mentor", label: "Meet Mentor" },
-  { href: "/#path", label: "The Path" },
-  { href: "/#curriculum", label: "What You'll Learn" },
-  { href: "/#dimensions", label: "6 Dimensions" },
-  { href: "/#community", label: "Community" },
-  { href: "/#membership", label: "Memberships" },
-  { href: "/#real-transformations", label: "Artworks" },
-];
 
 function organizeDesktop() {
   const line1 = document.querySelector<HTMLElement>(".lh2-title .line");
@@ -52,8 +35,6 @@ function organizeDesktop() {
 export default function LandingHero2() {
   const sinkRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [entered, setEntered] = useState(false);
 
   useEffect(() => {
@@ -73,21 +54,7 @@ export default function LandingHero2() {
       if (!reduce && bgRef.current) {
         bgRef.current.style.transform = `scale(${(1 + progress * 0.07).toFixed(4)})`;
       }
-      if (barRef.current) {
-        if (reduce) {
-          barRef.current.style.transform = "";
-          barRef.current.style.opacity = "";
-          barRef.current.style.pointerEvents = "";
-        } else {
-          const hide = Math.min(window.scrollY / 220, 1);
-          const lift = hide * (barRef.current.offsetHeight + 18);
-          barRef.current.style.transform = `translate3d(0, ${(-(lift + drop)).toFixed(2)}px, 0)`;
-          barRef.current.style.opacity = (1 - hide).toFixed(3);
-          barRef.current.style.pointerEvents = hide > 0.85 ? "none" : "";
-        }
-      }
       organizeDesktop();
-      nav?.classList.toggle("lh2-nav-show", window.scrollY > height * 0.82);
     };
 
     const onScroll = () => {
@@ -112,18 +79,8 @@ export default function LandingHero2() {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
-      document.querySelector(".site-navbar")?.classList.remove("lh2-nav-show");
     };
   }, []);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [menuOpen]);
 
   const scrollNext = () => {
     document.getElementById("problem")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -136,10 +93,6 @@ export default function LandingHero2() {
           position: fixed;
           inset: 0 0 auto 0;
           z-index: 70;
-          visibility: hidden;
-          pointer-events: none;
-        }
-        .landing-page:has(.lh2) > .site-navbar.lh2-nav-show {
           visibility: visible;
           pointer-events: auto;
         }
@@ -184,7 +137,7 @@ export default function LandingHero2() {
           height: 100%;
           display: flex;
           flex-direction: column;
-          padding: clamp(1.15rem, 2.2vw, 1.8rem) clamp(1.15rem, 3.4vw, 3.4rem) clamp(1rem, 2vw, 1.5rem);
+          padding: clamp(5.2rem, 8vw, 6.2rem) clamp(1.15rem, 3.4vw, 3.4rem) clamp(1rem, 2vw, 1.5rem);
           will-change: transform;
         }
 
@@ -607,59 +560,6 @@ export default function LandingHero2() {
         </div>
 
         <div className="lh2-sink" ref={sinkRef}>
-          <div className="lh2-bar-wrap" ref={barRef}>
-            <header className="lh2-bar">
-              <Link href="/" className="lh2-brand" aria-label="Ravishing Art home">
-                <strong>RAVISHING</strong>
-                <span>
-                  ART
-                  <i />
-                </span>
-              </Link>
-
-              <div className="lh2-nav">
-                <nav className="lh2-links" aria-label="Primary">
-                  {NAV.map((item) => (
-                    <a key={item.href} href={item.href}>
-                      {item.label}
-                    </a>
-                  ))}
-                </nav>
-                <Link href="/login" className="lh2-signin">
-                  Sign In
-                </Link>
-                <Link href="/webinar" className="lh2-btn lh2-btn-fill lh2-btn-nav">
-                  <span>Join Free Masterclass</span>
-                </Link>
-                <button
-                  type="button"
-                  className="lh2-menu-btn"
-                  aria-expanded={menuOpen}
-                  aria-label={menuOpen ? "Close menu" : "Open menu"}
-                  onClick={() => setMenuOpen((open) => !open)}
-                >
-                  {menuOpen ? <X size={18} /> : <Menu size={18} />}
-                </button>
-              </div>
-            </header>
-
-            {menuOpen && (
-              <div className="lh2-drawer">
-                {MENU_LINKS.map((item) => (
-                  <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
-                    {item.label}
-                  </a>
-                ))}
-                <Link href="/login" onClick={() => setMenuOpen(false)}>
-                  Sign In
-                </Link>
-                <Link href="/webinar" onClick={() => setMenuOpen(false)}>
-                  Free Masterclass
-                </Link>
-              </div>
-            )}
-          </div>
-
           <div className="lh2-stage">
             <div className="lh2-copy">
               <h1 className="lh2-title">

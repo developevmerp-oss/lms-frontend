@@ -81,6 +81,62 @@ const ENDORSEMENTS = [
   { name: "DIAMOND CLUB", color: "bg-[#0f172a] text-[#38bdf8]" },
 ];
 
+const FEATURES = [
+  { icon: Briefcase, label: "6+ Years Professional Experience" },
+  { icon: Trophy, label: "Nationally Recognized Art Coach" },
+  { icon: Users, label: "Step-by-Step Business Frameworks" },
+  { icon: Gem, label: "Hands-On Lifetime Community" },
+];
+
+const STATS = [
+  { icon: GraduationCap, value: "54K+", label: "Students" },
+  { icon: Package, value: "8K+", label: "Orders" },
+  { icon: Star, value: "5.0 ★", label: "Google" },
+];
+
+const ACCOLADES = [
+  {
+    image: "/images/mentor/hall-of-fame-award.jpg",
+    alt: "Vrajangna Patel Hall of Fame Award",
+    badge: "Hall of Fame Award",
+    icon: Trophy,
+    title: "Hall of Fame Felicitation 2022–23",
+    tag: "Freedom Retreat",
+    text: "Awarded national stage recognition by India's leading coach Siddharth Rajsekar at Freedom Retreat for establishing one of the country's most vibrant and student-centric creative academies.",
+    position: "object-top",
+  },
+  {
+    image: "/images/mentor/diamond-award.jpg",
+    alt: "Vrajangna Patel Diamond Awards",
+    badge: "Diamond Club Felicitation",
+    icon: Gem,
+    title: "Diamond Club Top Mentor Award",
+    tag: "Elite Recognition",
+    text: "Felicitated with the Diamond status for impacting thousands of households by teaching high-margin resin craft, floral preservation, and order fulfillment systems.",
+    position: "object-top",
+  },
+  {
+    image: "/images/mentor/author-feature.jpg",
+    alt: "Vrajangna Patel Published Author",
+    badge: "Published Author",
+    icon: BookOpen,
+    title: 'Authored in "I Can Coach" Book',
+    tag: "Published Work",
+    text: "Featured alongside top educators nationwide, detailing her transformation from crafting at a small kitchen table to operating a premier art academy and mentoring 54,000+ creators.",
+    position: "object-center",
+  },
+  {
+    image: "/images/mentor/live-workshop.jpg",
+    alt: "Vrajangna Patel Live Workshop Mentorship",
+    badge: "Live Interactive Coaching",
+    icon: Users,
+    title: "Weekly Live Sessions & Personal Feedback",
+    tag: "Hands-on Support",
+    text: "Every student receives real-time guidance, artwork critique, formula troubleshooting, and client pricing blueprints directly in our interactive live workshops and community calls.",
+    position: "object-top",
+  },
+];
+
 export default function MentorAboutSec() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isCounterStarted, setIsCounterStarted] = useState(false);
@@ -103,18 +159,56 @@ export default function MentorAboutSec() {
 
     return () => observer.disconnect();
   }, []);
-
   return (
     <section
       id="mentor"
       ref={sectionRef}
-      className="relative z-30 scroll-mt-24 py-16 sm:py-20 lg:py-24 bg-white text-stone-900 overflow-hidden shadow-[0_-25px_50px_rgba(0,0,0,0.06)] lg:-mt-[100vh]"
+      className="relative z-30 scroll-mt-24 py-16 sm:py-20 lg:py-24 bg-white text-stone-900 overflow-x-clip overflow-y-visible lg:-mt-[100vh]"
       style={{
         backgroundColor: "#ffffff",
-        backgroundImage: "radial-gradient(circle, #dfdbca 1.6px, #f7f6f0 3.2px, transparent 3.6px)",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
         backgroundSize: "24px 24px",
       }}
     >
+      {/* ─── TOP CLOUDY WAVE (MATCHING 2ND REFERENCE IMAGE) ─── */}
+      <div
+        className="mentor-cloud-wave-top absolute -top-[27px] sm:-top-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-20"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          WebkitMaskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
+          maskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
+          WebkitMaskSize: "64px 32px",
+          maskSize: "64px 32px",
+          WebkitMaskRepeat: "repeat-x",
+          maskRepeat: "repeat-x",
+          WebkitMaskPosition: "center bottom",
+          maskPosition: "center bottom",
+          filter: "drop-shadow(0 -3px 4px rgba(0, 0, 0, 0.03))",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* ─── BOTTOM CLOUDY WAVE (MATCHING 2ND REFERENCE IMAGE) ─── */}
+      <div
+        className="mentor-cloud-wave-bottom absolute -bottom-[27px] sm:-bottom-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-20"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          WebkitMaskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
+          maskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
+          WebkitMaskSize: "64px 32px",
+          maskSize: "64px 32px",
+          WebkitMaskRepeat: "repeat-x",
+          maskRepeat: "repeat-x",
+          WebkitMaskPosition: "center top",
+          maskPosition: "center top",
+          filter: "drop-shadow(0 3px 4px rgba(0, 0, 0, 0.04))",
+        }}
+        aria-hidden="true"
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ─── HEADER: MEET VRAJANGNA + SUBTITLE ─── */}
         <div className="text-center mb-10 sm:mb-14">
@@ -125,11 +219,13 @@ export default function MentorAboutSec() {
             <div className="relative inline-flex items-center px-4 py-1 sm:px-6 sm:py-1.5 bg-[#171717] text-[#cbf530] font-black text-2xl sm:text-4xl lg:text-5xl rounded-2xl -rotate-2 shadow-xl border-2 border-neutral-900 tracking-wide select-none">
               VRAJANGNA
               {/* Overlapping Orange Verified Checkmark Badge */}
-              <img
-                src="/images/mentor/verified-badge.png"
-                alt="Verified Badge"
-                className="absolute -top-3.5 -right-3.5 sm:-top-4 sm:-right-4 w-8 h-8 sm:w-11 sm:h-11 object-contain drop-shadow-md z-10"
-              />
+              <div className="absolute -top-3.5 -right-3.5 sm:-top-4 sm:-right-4 w-8 h-8 sm:w-11 sm:h-11 z-10 drop-shadow-md flex items-center justify-center">
+                <img
+                  src="/images/mentor/verified-badge.png"
+                  alt="Verified Badge"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           </div>
           <p
