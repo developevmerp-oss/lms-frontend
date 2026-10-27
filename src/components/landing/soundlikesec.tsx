@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Lightbulb, Palette, Target, type LucideIcon } from "lucide-react";
+
 /*
 function CardArt({ stage }: { stage: string }) {
   if (stage === "01") {
@@ -36,111 +41,326 @@ function CardArt({ stage }: { stage: string }) {
 }
 */
 
-const CARDS = [
+type SoundCard = {
+  stage: string;
+  label: string;
+  title: string;
+  description: string;
+  solution: string;
+  stageClass: string;
+  wash: string;
+  icon: string;
+  photo: string;
+  photoPosition: string;
+  stickerClass: string;
+  TabIcon: LucideIcon;
+};
+
+const CARDS: SoundCard[] = [
   {
     stage: "01",
     label: "The Explorer",
     title: "You Love Creating, But You Don't Know What To Focus On.",
-    description: "You keep learning different techniques from scattered videos but still feel confused about what you should master next to make real progress.",
+    description:
+      "You keep learning different techniques from scattered videos but still feel confused about what you should master next to make real progress.",
     solution: "Structured Step-by-Step Curriculum",
     stageClass: "sound-stage-explorer",
     wash: "sound-wash-explorer",
     icon: "/images/sound-like/explorer.png",
+    photo: "/images/sound-like/explorer-studio.jpg",
+    photoPosition: "center center",
+    stickerClass: "is-tr",
+    TabIcon: Lightbulb,
   },
   {
     stage: "02",
     label: "The Creator",
     title: "You Create Beautiful Work, But You're Not Getting Consistent Orders.",
-    description: "You know your creations have value, but you don't know how to consistently attract the right customers and convert your creativity into predictable income.",
+    description:
+      "You know your creations have value, but you don't know how to consistently attract the right customers and convert your creativity into predictable income.",
     solution: "Client Acquisition & Order Pricing",
     stageClass: "sound-stage-creator",
     wash: "sound-wash-creator",
     icon: "/images/sound-like/creator.png",
+    photo: "/images/sound-like/creator-studio.jpg",
+    photoPosition: "center 22%",
+    stickerClass: "is-bl",
+    TabIcon: Palette,
   },
   {
     stage: "03",
     label: "The Visionary",
     title: "You Want Your Own Identity and Income—Not Another Hobby.",
-    description: "You want people to recognise you for your talent, you want something that is truly yours and you want your creativity to contribute to your financial freedom.",
+    description:
+      "You want people to recognise you for your talent, you want something that is truly yours and you want your creativity to contribute to your financial freedom.",
     solution: "Signature Brand & Lifetime Mentorship",
     stageClass: "sound-stage-visionary",
     wash: "sound-wash-visionary",
     icon: "/images/sound-like/visionary.png",
+    photo: "/images/sound-like/visionary-studio.jpg",
+    photoPosition: "center 28%",
+    stickerClass: "is-bc",
+    TabIcon: Target,
   },
 ];
 
-export default function SoundLikeSec() {
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function easeOutCubic(value: number) {
+  return 1 - (1 - value) ** 3;
+}
+
+function segment(progress: number, start: number, end: number) {
+  return easeOutCubic(clamp01((progress - start) / (end - start)));
+}
+
+function SoundHeading({ headingRef }: { headingRef?: React.RefObject<HTMLDivElement | null> }) {
   return (
-    <section className="sound-like-sec nav-width relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="sound-kicker text-xs font-semibold uppercase tracking-[0.18em]">
-            Self Reflection
-          </p>
-          <h2 className="sound-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-            Does This Sound Like <span className="sound-accent">You?</span>
-          </h2>
-          <p className="sound-muted mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
-            Recognize where you are right now so we can guide you to where you want to be.
-          </p>
-        </div>
+    <div ref={headingRef} className="mx-auto max-w-3xl text-center will-change-transform">
+      <p className="sound-kicker text-xs font-semibold uppercase tracking-[0.18em]">Self Reflection</p>
+      <h2 className="sound-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+        Does This Sound Like <span className="sound-accent">You?</span>
+      </h2>
+      <p className="sound-muted mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
+        Recognize where you are right now so we can guide you to where you want to be.
+      </p>
+    </div>
+  );
+}
 
-        {/*
-          Current card ui
-          <div className="mx-auto mt-10 flex w-full flex-col items-center gap-4 sm:mt-14 sm:gap-5 lg:flex-row lg:items-stretch lg:justify-center lg:gap-5">
-            {CARDS.map((card) => (
-              <article className="sound-card relative flex w-full max-w-[480px] flex-col overflow-hidden rounded-[26px] px-7 pb-7 pt-7 lg:w-[calc((100%-2.5rem)/3)] lg:max-w-[450px] lg:shrink">
-                <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-48 ${card.wash}`} />
-                <div className="relative z-10 flex flex-1 flex-col">
-                  <p className={`text-xs font-semibold uppercase tracking-[0.16em] ${card.stageClass}`}>Stage {card.stage}</p>
-                  <p className="sound-stage-name mt-1 text-sm font-semibold uppercase tracking-[0.16em]">{card.label}</p>
-                  <h3 className="sound-title mt-8 text-[1.7rem] font-semibold leading-[1.3] tracking-wide">{card.title}</h3>
-                  <p className="sound-muted mt-4 text-base leading-relaxed">{card.description}</p>
-                  <div className="mt-20 h-px w-10 bg-neutral-200" />
-                  <div className="mt-5">
-                    <p className="sound-muted text-xs font-semibold uppercase tracking-[0.16em]">Solution</p>
-                    <p className="sound-solution mt-2 text-sm font-semibold leading-snug">{card.solution}</p>
-                    <ArrowRight className="sound-arrow mt-5" size={18} />
-                  </div>
+function StackFace({ item }: { item: SoundCard }) {
+  return (
+    <div className="sound-stack-swap">
+      <div className="sound-stack-copy">
+        <p className="sound-stack-kicker">Stage {item.stage}</p>
+        <h3 className="sound-stack-title">{item.title}</h3>
+        <p className="sound-stack-desc">{item.description}</p>
+        <p className="sound-stack-solution">
+          <span className="sound-stack-check" aria-hidden="true">
+            ✓
+          </span>
+          <span>Solution: {item.solution}</span>
+        </p>
+      </div>
+      <div className="sound-stack-photo">
+        <img
+          src={item.photo}
+          alt={item.label}
+          className="sound-stack-shot"
+          style={{ objectPosition: item.photoPosition }}
+        />
+        <img src={item.icon} alt="" className={`sound-stack-sticker ${item.stickerClass}`} />
+      </div>
+    </div>
+  );
+}
+
+export default function SoundLikeSec() {
+  const pinRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [activeStage, setActiveStage] = useState(0);
+  const [tabOffsets, setTabOffsets] = useState<number[]>([0, 180, 360]);
+
+  // Dynamically measure tab widths so tabs align neatly side-by-side
+  useEffect(() => {
+    const updateOffsets = () => {
+      const w0 = tabRefs.current[0]?.offsetWidth || 165;
+      const w1 = tabRefs.current[1]?.offsetWidth || 165;
+      setTabOffsets([0, w0 + 12, w0 + 12 + w1 + 12]);
+    };
+    updateOffsets();
+    window.addEventListener("resize", updateOffsets);
+    return () => window.removeEventListener("resize", updateOffsets);
+  }, []);
+
+  useEffect(() => {
+    const pin = pinRef.current;
+    if (!pin) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      setActiveStage(CARDS.length - 1);
+      return;
+    }
+
+    let frame = 0;
+    const update = () => {
+      const travel = pin.offsetHeight - window.innerHeight;
+      if (travel <= 0) return;
+      const scrolled = Math.min(Math.max(-pin.getBoundingClientRect().top, 0), travel);
+      const progress = scrolled / travel;
+
+      // Calculate bottom entry distance from below the viewport
+      const vh = window.innerHeight;
+      const stageRect = stageRef.current?.getBoundingClientRect();
+      const restingTop = stageRect ? stageRect.top : 220;
+      const enterDistance = Math.max(vh - restingTop + 80, 750);
+
+      // Smooth, natural card entrance timing
+      // Card 1 (The Creator) enters from bottom between 0.05 and 0.40
+      const second = segment(progress, 0.05, 0.40);
+      // Card 2 (The Visionary) enters from bottom between 0.42 and 0.76
+      const third = segment(progress, 0.42, 0.76);
+
+      const shift1 = (1 - second) * enterDistance;
+      const shift2 = (1 - third) * enterDistance;
+
+      const card1 = cardRefs.current[1];
+      const card2 = cardRefs.current[2];
+      if (card1) {
+        card1.style.transform = `translate3d(0, ${shift1}px, 0)`;
+      }
+      if (card2) {
+        card2.style.transform = `translate3d(0, ${shift2}px, 0)`;
+      }
+
+      // Exit transition when mentor section rolls up (0.78 to 0.98):
+      // - Heading title & description float UPSIDE
+      // - Cards smoothly sink downwards
+      const exitProgress = segment(progress, 0.78, 0.98);
+      const headingLift = exitProgress * 150;
+      const cardsDrop = exitProgress * 140;
+
+      if (headingRef.current) {
+        headingRef.current.style.transform = `translate3d(0, -${headingLift.toFixed(2)}px, 0)`;
+        headingRef.current.style.opacity = `${(1 - exitProgress * 0.9).toFixed(3)}`;
+      }
+
+      if (stageRef.current) {
+        stageRef.current.style.transform = `translate3d(0, ${cardsDrop.toFixed(2)}px, 0)`;
+      }
+
+      const currentActive = third > 0.70 ? 2 : second > 0.70 ? 1 : 0;
+      setActiveStage(currentActive);
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  const handleTabClick = (index: number) => {
+    const pin = pinRef.current;
+    if (!pin) return;
+    const travel = pin.offsetHeight - window.innerHeight;
+    const targetProgress = index === 0 ? 0.02 : index === 1 ? 0.38 : 0.74;
+    const pinTop = pin.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: pinTop + travel * targetProgress, behavior: "smooth" });
+  };
+
+  return (
+    <section className="sound-like-sec relative z-10 text-neutral-950">
+      <div className="sound-scallop-top" aria-hidden="true" />
+      <div className="sound-like-fill" aria-hidden="true" />
+
+      {/* Mobile view (< lg) */}
+      <div className="nav-width relative z-[1] py-16 sm:py-20 lg:hidden">
+        <SoundHeading />
+        <div className="mt-10 flex flex-col gap-4 sm:mt-12 sm:gap-5 lg:hidden">
+          {CARDS.map((item) => (
+            <article key={item.stage} className="sound-simple-card">
+              <div className="sound-simple-photo">
+                <img
+                  src={item.photo}
+                  alt=""
+                  style={{ objectPosition: item.photoPosition }}
+                />
+              </div>
+              <div className="sound-simple-body">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="sound-option-num flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">
+                    {Number(item.stage)}
+                  </span>
+                  <span className={`sound-option-pill rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${item.stageClass}`}>
+                    Stage: {item.label}
+                  </span>
                 </div>
-              </article>
-            ))}
-          </div>
-        */}
-
-        {/* 2nd option ui */}
-        <div className="mx-auto mt-10 grid w-full grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {CARDS.map((card) => (
-            <article
-              key={card.stage}
-              className="page-rise-item sound-card flex h-full flex-col rounded-[1.75rem] px-5 py-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-24px_rgba(90,55,20,0.35)] sm:px-6"
-              style={{ animationDelay: `${Number(card.stage) * 0.08}s` }}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className="sound-option-num flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">
-                  {Number(card.stage)}
-                </span>
-                <span className={`sound-option-pill rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${card.stageClass}`}>
-                  Stage: {card.label}
-                </span>
+                <h3 className="sound-title mt-4 text-xl font-bold leading-snug sm:text-[1.65rem]">{item.title}</h3>
+                <p className="sound-muted mt-3 text-sm leading-relaxed sm:text-base">{item.description}</p>
+                <p className="sound-option-solution mt-5 inline-flex items-start gap-2 text-sm font-semibold leading-snug">
+                  <span className="sound-option-check mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px]">
+                    ✓
+                  </span>
+                  Solution: {item.solution}
+                </p>
               </div>
-              <div className="mx-auto mt-3 flex h-32 w-full items-center justify-center">
-                <img src={card.icon} alt="" className="h-28 w-auto object-contain" />
-              </div>
-              <h3 className="sound-title mt-2 text-lg font-bold leading-snug sm:text-xl">{card.title}</h3>
-              <p className="sound-muted mt-3 flex-1 text-sm leading-relaxed">{card.description}</p>
-              <p className="sound-option-solution mt-5 inline-flex items-start gap-2 text-sm font-semibold leading-snug">
-                <span className="sound-option-check mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px]">✓</span>
-                Solution: {card.solution}
-              </p>
             </article>
           ))}
         </div>
+      </div>
 
-        <div className="mt-8 rounded-3xl bg-slate-50 px-5 py-8 text-center sm:mt-10 sm:px-8">
-          <p className="sound-quote text-lg font-bold leading-snug sm:text-2xl">
-            ✨ If you see yourself in any of these, you're in the <span className="sound-accent">right place.</span>
-          </p>
+      {/* Desktop view (lg+) */}
+      <div ref={pinRef} className="sound-pin hidden lg:block">
+        <div className="sound-pin-sticky">
+          <div className="nav-width w-full">
+            <SoundHeading headingRef={headingRef} />
+            <div ref={stageRef} className="sound-stack">
+              <div className="sound-stack-cards-wrap relative">
+                {CARDS.map((item, index) => {
+                  const Icon = item.TabIcon;
+                  const isActive = activeStage === index;
+                  return (
+                    <article
+                      key={item.stage}
+                      ref={(node) => {
+                        cardRefs.current[index] = node;
+                      }}
+                      className={`sound-stack-card${index > 0 ? " is-stacked" : ""}`}
+                      style={{
+                        zIndex: index + 1,
+                      }}
+                      aria-hidden={!isActive}
+                    >
+                      {/* Attached tab for this folder card */}
+                      <div
+                        className="sound-card-tab-wrap"
+                        style={{
+                          paddingLeft: `calc(2rem + ${tabOffsets[index]}px)`,
+                        }}
+                      >
+                        <button
+                          type="button"
+                          ref={(node) => {
+                            tabRefs.current[index] = node;
+                          }}
+                          onClick={() => handleTabClick(index)}
+                          className={`sound-stack-tab${isActive ? " is-active" : ""}`}
+                          aria-label={`Jump to stage ${item.stage}: ${item.label}`}
+                        >
+                          <Icon size={15} strokeWidth={2.4} aria-hidden="true" />
+                          <span>{item.label}</span>
+                        </button>
+                      </div>
+
+                      {/* Card Body with exactly unchanged StackFace */}
+                      <div className="sound-stack-card-body">
+                        <StackFace item={item} />
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div className="sound-scallop-foot" aria-hidden="true" />
     </section>
   );
 }
