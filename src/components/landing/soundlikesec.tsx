@@ -118,7 +118,7 @@ function segment(progress: number, start: number, end: number) {
 
 function SoundHeading({ headingRef }: { headingRef?: React.RefObject<HTMLDivElement | null> }) {
   return (
-    <div ref={headingRef} className="mx-auto max-w-3xl text-center will-change-transform">
+    <div ref={headingRef} className="mx-auto max-w-3xl text-center">
       <p className="sound-kicker text-xs font-semibold uppercase tracking-[0.18em]">Self Reflection</p>
       <h2 className="sound-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
         Does This Sound Like <span className="sound-accent">You?</span>
@@ -202,10 +202,10 @@ export default function SoundLikeSec() {
       const enterDistance = Math.max(vh - restingTop + 80, 750);
 
       // Smooth, natural card entrance timing
-      // Card 1 (The Creator) enters from bottom between 0.05 and 0.40
-      const second = segment(progress, 0.05, 0.40);
-      // Card 2 (The Visionary) enters from bottom between 0.42 and 0.76
-      const third = segment(progress, 0.42, 0.76);
+      // Card 1 (The Creator) enters from bottom between 0.04 and 0.24
+      const second = segment(progress, 0.04, 0.24);
+      // Card 2 (The Visionary) enters from bottom between 0.26 and 0.48
+      const third = segment(progress, 0.26, 0.48);
 
       const shift1 = (1 - second) * enterDistance;
       const shift2 = (1 - third) * enterDistance;
@@ -213,29 +213,13 @@ export default function SoundLikeSec() {
       const card1 = cardRefs.current[1];
       const card2 = cardRefs.current[2];
       if (card1) {
-        card1.style.transform = `translate3d(0, ${shift1}px, 0)`;
+        card1.style.transform = `translate3d(0, ${shift1.toFixed(2)}px, 0)`;
       }
       if (card2) {
-        card2.style.transform = `translate3d(0, ${shift2}px, 0)`;
+        card2.style.transform = `translate3d(0, ${shift2.toFixed(2)}px, 0)`;
       }
 
-      // Exit transition when mentor section rolls up (0.78 to 0.98):
-      // - Heading title & description float UPSIDE
-      // - Cards smoothly sink downwards
-      const exitProgress = segment(progress, 0.78, 0.98);
-      const headingLift = exitProgress * 150;
-      const cardsDrop = exitProgress * 140;
-
-      if (headingRef.current) {
-        headingRef.current.style.transform = `translate3d(0, -${headingLift.toFixed(2)}px, 0)`;
-        headingRef.current.style.opacity = `${(1 - exitProgress * 0.9).toFixed(3)}`;
-      }
-
-      if (stageRef.current) {
-        stageRef.current.style.transform = `translate3d(0, ${cardsDrop.toFixed(2)}px, 0)`;
-      }
-
-      const currentActive = third > 0.70 ? 2 : second > 0.70 ? 1 : 0;
+      const currentActive = third > 0.60 ? 2 : second > 0.60 ? 1 : 0;
       setActiveStage(currentActive);
     };
 
@@ -258,7 +242,7 @@ export default function SoundLikeSec() {
     const pin = pinRef.current;
     if (!pin) return;
     const travel = pin.offsetHeight - window.innerHeight;
-    const targetProgress = index === 0 ? 0.02 : index === 1 ? 0.38 : 0.74;
+    const targetProgress = index === 0 ? 0.01 : index === 1 ? 0.24 : 0.48;
     const pinTop = pin.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: pinTop + travel * targetProgress, behavior: "smooth" });
   };

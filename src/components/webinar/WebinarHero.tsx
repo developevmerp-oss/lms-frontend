@@ -47,7 +47,7 @@ type WebinarHeroProps = {
 };
 
 const inputClass =
-  "flex h-12 w-full rounded-xl border border-[#eadfd4] bg-white py-2 pl-11 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40";
+  "flex h-11 sm:h-12 w-full rounded-xl border border-[#eadfd4] bg-white py-2.5 pl-11 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40 shadow-sm";
 
 export default function WebinarHero({
   displayDateStr,
@@ -71,33 +71,33 @@ export default function WebinarHero({
   ];
 
   return (
-    <section className="webinar-hero relative overflow-hidden">
-      <div className="nav-width webinar-hero-grid relative grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(440px,520px)] lg:gap-8 pt-8">
-        <div>
-          <span className="mb-5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
+    <section className="webinar-hero relative flex items-center justify-center overflow-hidden w-full">
+      <div className="nav-width webinar-hero-grid relative grid items-center justify-center gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,480px)] lg:gap-10 xl:gap-14">
+        <div className="flex flex-col justify-center">
+          {/* <span className="mb-5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#e36b32]" />
             <Sparkles size={13} className="sr-only" />
             Free live masterclass
-          </span>
+          </span> */}
 
-          <h1 className="mb-5 max-w-xl text-[2rem] font-semibold leading-[1.02] tracking-tight text-stone-950 sm:text-5xl lg:text-[3.2rem]">
+          <h1 className="mb-4 max-w-xl text-[2rem] font-semibold leading-[1.04] tracking-tight text-stone-950 sm:text-5xl lg:text-[2.85rem] xl:text-[3.15rem]">
             From Resin Art Passion
             <span className="mt-1 block text-[#c56a45]">to a ₹3 Lakh/Month</span>
             <span className="block text-[#c56a45]">Business</span>
-            <span className="mt-4 block max-w-md text-[1.35rem] font-semibold leading-snug text-stone-950 sm:text-[1.65rem]">
+            <span className="mt-3 block max-w-md text-[1.25rem] font-semibold leading-snug text-stone-950 sm:text-[1.5rem]">
               — Without Random Tutorials, Self-Doubt or Guesswork.
             </span>
           </h1>
 
-          <p className="mb-7 max-w-xl text-sm leading-relaxed text-stone-600 sm:text-base">
+          <p className="mb-4 max-w-xl text-sm leading-relaxed text-stone-600 sm:text-[15px]">
             Join the Resin Mastery Masterclass and discover the 3 secrets to mastering premium resin skills, creating a signature portfolio and turning your art into a business with a clear roadmap.
           </p>
 
-          <blockquote className="mb-7 max-w-xl border-l-2 border-[#e7c3ae] pl-4 text-sm italic leading-relaxed text-stone-600 sm:text-[15px]">
+          <blockquote className="mb-5 max-w-xl border-l-2 border-[#e7c3ae] pl-4 text-xs sm:text-sm italic leading-relaxed text-stone-600">
             &quot;You don&apos;t need more random tutorials. You need the right skills, the confidence to own your creativity, and a roadmap that shows you how to turn what you love into something people will pay for.&quot;
           </blockquote>
 
-          <div className="mb-7 flex flex-wrap items-center gap-3">
+          {/* <div className="mb-7 flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={onScrollToRegister}
@@ -114,14 +114,14 @@ export default function WebinarHero({
               <Play className="size-3.5 fill-current" />
               Show me what I&apos;ll learn
             </button>
-          </div>
+          </div> */}
 
-          <p className="mb-7 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+          {/* <p className="mb-7 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
             100% Free • Live Masterclass • Limited Seats
-          </p>
+          </p> */}
 
-          <div className="mb-6.5 inline-flex items-center gap-3">
-            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm">
+          <div className="mb-5 inline-flex items-center gap-3">
+            <div className="h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm">
               <img src="/images/mentor/vrajangna-portrait.jpg" alt="Vrajangna Patel" className="h-full w-full object-cover" />
             </div>
             <div>
@@ -130,34 +130,34 @@ export default function WebinarHero({
             </div>
           </div>
 
-          <dl className="mb-6.5 grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6">
+          <dl className="mb-5 grid grid-cols-2 gap-x-4 gap-y-2.5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6">
             {details.map((item) => (
               <div key={item.label} className="flex items-center gap-2">
                 <item.icon size={16} className="shrink-0 text-[#c56a45]" />
                 <div>
                   <dt className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">{item.label}</dt>
-                  <dd className="text-sm font-semibold text-stone-800">{item.value}</dd>
+                  <dd className="text-xs sm:text-sm font-semibold text-stone-800">{item.value}</dd>
                 </div>
               </div>
             ))}
           </dl>
 
-          <div className="mb-5.5">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Live Masterclass Starts In:</p>
+          <div className="mb-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">Live Masterclass Starts In:</p>
             <WebinarCountdown onWebinarLoaded={onWebinarLoaded} />
           </div>
 
-          <p className="max-w-xl text-base font-semibold text-[#c45a28]">
+          <p className="max-w-xl text-sm sm:text-base font-semibold text-[#c45a28]">
             Don&apos;t just learn resin. Learn how to make your resin skills matter in the market.
           </p>
         </div>
 
-        <div id="register" className="webinar-hero-card scroll-mt-24">
-          <div className="rounded-[1.75rem] border border-white/80 bg-white p-5 shadow-[0_28px_60px_-28px_rgba(90,55,20,0.45)] sm:p-7">
-            <h2 className="text-2xl font-semibold tracking-tight text-stone-950">Reserve your free seat</h2>
+        <div id="register" className="webinar-hero-card scroll-mt-24 w-full max-w-[480px] justify-self-center lg:justify-self-end">
+          <div className="rounded-[1.75rem] border border-white/80 bg-white p-6 sm:p-7 md:p-8 shadow-[0_28px_60px_-28px_rgba(90,55,20,0.45)]">
+            <h2 className="text-2xl font-bold tracking-tight text-stone-950">Reserve your free seat</h2>
             <p className="mb-4 mt-1 text-sm text-stone-500">Where should we send your Masterclass details?</p>
 
-            <div className="mb-5 rounded-2xl border border-[#f3d3c0] bg-[#fff6f0] p-3.5">
+            <div className="mb-5 rounded-2xl border border-[#f3d3c0] bg-[#fff6f0] p-3.5 sm:p-4">
               <div className="flex items-center justify-between text-xs sm:text-sm">
                 <span className="inline-flex items-center gap-1.5 font-bold text-[#c45a28]">
                   <Users size={16} className="text-[#c45a28]" />
@@ -178,9 +178,9 @@ export default function WebinarHero({
               <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-xs text-red-400">{error}</div>
             )}
 
-            <form onSubmit={onSubmit} className="webinar-hero-form space-y-4">
+            <form onSubmit={onSubmit} className="webinar-hero-form space-y-3.5 sm:space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-stone-700" htmlFor="lead-name">
+                <label className="block text-xs font-semibold text-stone-700" htmlFor="lead-name">
                   Full name
                 </label>
                 <div className="relative">
@@ -198,7 +198,7 @@ export default function WebinarHero({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-stone-700" htmlFor="lead-email">
+                <label className="block text-xs font-semibold text-stone-700" htmlFor="lead-email">
                   Email address
                 </label>
                 <div className="relative">
@@ -217,7 +217,7 @@ export default function WebinarHero({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-stone-700" htmlFor="lead-phone">
+                <label className="block text-xs font-semibold text-stone-700" htmlFor="lead-phone">
                   WhatsApp number
                 </label>
                 <div className="relative">
@@ -235,13 +235,13 @@ export default function WebinarHero({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-stone-700" htmlFor="lead-message">
+                <label className="block text-xs font-semibold text-stone-700" htmlFor="lead-message">
                   Your biggest challenge right now <span className="font-normal lowercase text-stone-400">(optional)</span>
                 </label>
                 <div className="relative">
                   <MessageSquare size={16} className="pointer-events-none absolute left-4 top-3.5 text-stone-400" />
                   <textarea
-                    className="flex min-h-[76px] w-full resize-none rounded-xl border border-[#eadfd4] bg-white py-2.5 pl-11 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40"
+                    className="flex min-h-[76px] sm:min-h-[82px] w-full resize-none rounded-xl border border-[#eadfd4] bg-white py-2.5 pl-11 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40 shadow-sm"
                     id="lead-message"
                     placeholder="e.g. I don't know which resin techniques to learn first, or how to price my work."
                     rows={3}
@@ -250,8 +250,7 @@ export default function WebinarHero({
                   />
                 </div>
               </div>
-
-              <label className="flex cursor-pointer items-start gap-2.5 pt-1 text-xs leading-relaxed text-stone-500">
+               {/* <label className="flex cursor-pointer items-start gap-2.5 pt-1 text-xs leading-relaxed text-stone-500">
                 <input
                   type="checkbox"
                   checked={form.consent}
@@ -261,10 +260,10 @@ export default function WebinarHero({
                 <span>
                   I agree to receive webinar reminders, resources and relevant updates from Ravishing Art Hub Learning Academy LLP via email and WhatsApp.
                 </span>
-              </label>
+              </label> */}
 
               <button
-                className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#e36b32] to-[#f08a45] px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600 disabled:opacity-60"
+                className="mt-2 inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#e36b32] to-[#f08a45] px-8 text-sm sm:text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600 disabled:opacity-60"
                 type="submit"
                 disabled={loading}
               >
@@ -272,11 +271,11 @@ export default function WebinarHero({
                 {!loading && <ArrowRight className="size-4" />}
               </button>
 
-              <p className="pt-1 text-center text-xs text-stone-500">
+              {/* <p className="pt-1 text-center text-xs text-stone-500">
                 Your confirmation and Zoom joining link are emailed the moment you register — check your inbox.
-              </p>
+              </p> */}
 
-              <ul className="grid grid-cols-3 gap-2 pt-1 text-center text-[11px] font-semibold text-stone-500">
+              {/* <ul className="grid grid-cols-3 gap-2 pt-1 text-center text-[11px] font-semibold text-stone-500">
                 <li className="flex flex-col items-center gap-1">
                   <Wifi size={15} className="text-[#c56a45]" />
                   100% free to attend
@@ -289,10 +288,10 @@ export default function WebinarHero({
                   <Gift size={15} className="text-[#c56a45]" />
                   Clarity Kit included
                 </li>
-              </ul>
+              </ul> */}
             </form>
 
-            <div className="mt-5.5 flex gap-3 rounded-2xl border border-[#eadfd4] bg-[#fbf7f3] p-4">
+            {/* <div className="mt-5.5 flex gap-3 rounded-2xl border border-[#eadfd4] bg-[#fbf7f3] p-4">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#c45a28]" />
               <div>
                 <p className="text-xs font-semibold text-stone-950">No credit card required</p>
@@ -300,7 +299,7 @@ export default function WebinarHero({
                   Registration is completely free. Your details are used only for webinar communications and relevant updates — never sold.
                 </p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

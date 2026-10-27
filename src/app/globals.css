@@ -416,7 +416,9 @@ section.sound-like-sec,
   bottom: 0;
   pointer-events: none;
   background-color: #ffffff;
-  background-image: none !important;
+  background-image: radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
 }
 
 .sound-scallop-top {
@@ -428,7 +430,9 @@ section.sound-like-sec,
   height: 52px;
   pointer-events: none;
   background-color: #ffffff;
-  background-image: none !important;
+  background-image: radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
   -webkit-mask-image: radial-gradient(circle at 50% 100%, #000 52px, transparent 52.5px);
   mask-image: radial-gradient(circle at 50% 100%, #000 52px, transparent 52.5px);
   -webkit-mask-size: 104px 52px;
@@ -819,7 +823,7 @@ section.sound-like-sec,
 .sound-pin {
   position: relative;
   z-index: 1;
-  height: 420vh;
+  height: 320vh;
 }
 
 .sound-pin-sticky {
@@ -835,7 +839,9 @@ section.sound-like-sec,
   box-sizing: border-box;
   overflow: hidden;
   background-color: #ffffff;
-  background-image: none !important;
+  background-image: radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
 }
 
 .sound-stack {
@@ -856,6 +862,46 @@ section.sound-like-sec,
 }
 
 .sound-stack-card.is-stacked {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, 110vh, 0);
+  will-change: transform;
+}
+
+.rightfit-pin {
+  position: relative;
+  z-index: 1;
+  height: 420vh;
+}
+
+.rightfit-pin-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: #ffffff;
+  background-image: radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
+}
+
+.rightfit-stack-cards-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.rightfit-stack-card {
+  position: relative;
+  width: 100%;
+}
+
+.rightfit-stack-card.is-stacked {
   position: absolute;
   inset: 0;
   transform: translate3d(0, 110vh, 0);
@@ -3133,97 +3179,33 @@ section.path-sec,
   .landing-page>.site-navbar+main .webinar-hero {
     box-sizing: border-box;
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    height: 100dvh;
-    max-height: 100dvh;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
     margin-top: -5.75rem;
-    padding: 6.1rem 0 0.6rem;
-    overflow: hidden;
+    padding-top: calc(5.75rem + 1.5rem);
+    padding-bottom: 2rem;
   }
 
   .landing-page>div+.site-navbar+main .webinar-hero {
+    min-height: 100dvh;
     margin-top: calc(-5.75rem - 41px);
-    padding-top: calc(6.1rem + 41px);
+    padding-top: calc(5.75rem + 41px + 1.5rem);
+    padding-bottom: 2rem;
   }
 
   .webinar-hero-grid {
-    flex: 1 1 auto;
+    display: grid;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    min-height: 0;
-    max-height: 100%;
-    align-items: stretch;
-  }
-
-  .webinar-hero-grid>div {
-    min-height: 0;
-    max-height: 100%;
-    overflow: auto;
-  }
-
-  .webinar-hero h1 {
-    margin-bottom: 0.35rem !important;
-    font-size: 2.2rem !important;
-    line-height: 1.05 !important;
-  }
-
-  .webinar-hero .mb-5 {
-    margin-bottom: 0.7rem;
-  }
-
-  .webinar-hero .mb-6,
-  .webinar-hero .mb-4 {
-    margin-bottom: 0.55rem;
+    margin-inline: auto;
   }
 
   .webinar-hero-card {
-    max-height: 100%;
-  }
-
-  .webinar-hero-card>div {
-    padding: 0.35rem 1.15rem 0.2rem;
-  }
-
-  .webinar-hero-card textarea {
-    min-height: 2.4rem;
-    height: 2.4rem;
-  }
-
-  .webinar-hero-card input {
-    height: 2.35rem;
-  }
-
-  .webinar-hero-card .mb-5 {
-    margin-bottom: 0.45rem;
-  }
-
-  .webinar-hero-card .p-3\.5,
-  .webinar-hero-card .p-4 {
-    padding: 0.5rem 0.7rem;
-  }
-
-  .webinar-hero-form .space-y-1\.5> :not([hidden])~ :not([hidden]) {
-    margin-top: 0.15rem;
-  }
-
-  .webinar-hero-form> :not([hidden])~ :not([hidden]) {
-    margin-top: 0.15rem;
-  }
-
-  .webinar-hero-form label {
-    margin-bottom: 0;
-  }
-
-  .webinar-hero-card .mt-5 {
-    margin-top: 0;
-  }
-
-  .webinar-hero-card .mt-2\.5 {
-    margin-top: 0.25rem;
-  }
-
-  .webinar-hero-card .mt-2 {
-    margin-top: 0.1rem;
+    width: 100%;
+    max-width: 490px;
+    margin-inline: auto;
   }
 }
 
@@ -3395,128 +3377,62 @@ section.journey-sec,
   color: #737373 !important;
 }
 
-.journey-sec .journey-card-dark,
-.light .journey-sec .journey-card-dark,
-.journey-sec .journey-card-light,
-.light .journey-sec .journey-card-light {
+.journey-sec .journey-card {
   background: #ffffff !important;
-  border: 1px solid #f1f1f4 !important;
+  border: 1px solid rgba(229, 231, 235, 0.8) !important;
   color: #171717 !important;
-  box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.28) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
 }
 
-.journey-sec .journey-panel {
-  background: linear-gradient(180deg, #d5e3ff 0%, #e4d6fb 34%, #f4d4e6 68%, #f8d4c4 100%) !important;
+.journey-sec .journey-wash-0 .journey-panel {
+  background: #fff8f2 !important;
+}
+
+.journey-sec .journey-wash-1 .journey-panel {
+  background: #f3f5fd !important;
+}
+
+.journey-sec .journey-wash-2 .journey-panel {
+  background: #fffcf0 !important;
+}
+
+.journey-sec .journey-wash-3 .journey-panel {
+  background: #faf5ff !important;
 }
 
 .journey-sec .journey-btn {
-  margin-top: auto !important;
-}
-
-.journey-sec .journey-card-dark .journey-btn,
-.light .journey-sec .journey-card-dark .journey-btn,
-.journey-sec .journey-card-light .journey-btn,
-.light .journey-sec .journey-card-light .journey-btn {
-  background-color: #171717 !important;
+  background-color: #18181b !important;
   color: #ffffff !important;
   border: none !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 20px -12px rgba(23, 23, 23, 0.65) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
 
-.journey-sec .journey-btn svg,
-.light .journey-sec .journey-btn svg {
+.journey-sec .journey-btn:hover {
+  background-color: #09090b !important;
+  color: #ffffff !important;
+}
+
+.journey-sec .journey-btn svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
 
-.journey-sec .journey-card-dark .journey-btn:hover,
-.light .journey-sec .journey-card-dark .journey-btn:hover,
-.journey-sec .journey-card-light .journey-btn:hover,
-.light .journey-sec .journey-card-light .journey-btn:hover {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-.journey-sec .journey-card-dark .journey-title,
-.journey-sec .journey-card-dark .journey-price,
-.light .journey-sec .journey-card-dark .journey-title,
-.light .journey-sec .journey-card-dark .journey-price {
+.journey-sec .journey-title {
   color: #171717 !important;
 }
 
-.journey-sec .journey-card-dark .journey-desc,
-.journey-sec .journey-card-dark .journey-feature,
-.journey-sec .journey-card-dark .journey-more,
-.journey-sec .journey-card-dark .journey-level,
-.light .journey-sec .journey-card-dark .journey-desc,
-.light .journey-sec .journey-card-dark .journey-feature,
-.light .journey-sec .journey-card-dark .journey-more,
-.light .journey-sec .journey-card-dark .journey-level {
-  color: #737373 !important;
+.journey-sec .journey-price {
+  color: #09090b !important;
 }
 
-.journey-sec .journey-check,
-.light .journey-sec .journey-check {
-  color: #171717 !important;
-  background: transparent !important;
-  font-weight: 700;
-}
-
-.journey-sec .journey-card-dark .journey-btn,
-.light .journey-sec .journey-card-dark .journey-btn,
-.journey-sec .journey-card-light .journey-btn,
-.light .journey-sec .journey-card-light .journey-btn {
-  background-color: #171717 !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 20px -12px rgba(23, 23, 23, 0.65) !important;
-}
-
-.journey-sec .journey-card-dark .journey-btn:hover,
-.light .journey-sec .journey-card-dark .journey-btn:hover,
-.journey-sec .journey-card-light .journey-btn:hover,
-.light .journey-sec .journey-card-light .journey-btn:hover {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 22px -12px rgba(23, 23, 23, 0.7) !important;
-}
-
-.journey-sec .journey-card-light,
-.light .journey-sec .journey-card-light {
-  background: #ffffff !important;
-  color: #171717 !important;
-}
-
-.journey-sec .journey-card-light .journey-title,
-.journey-sec .journey-card-light .journey-price,
-.light .journey-sec .journey-card-light .journey-title,
-.light .journey-sec .journey-card-light .journey-price {
-  color: #171717 !important;
-}
-
-.journey-sec .journey-card-light .journey-desc,
-.journey-sec .journey-card-light .journey-feature,
-.journey-sec .journey-card-light .journey-more,
-.journey-sec .journey-card-light .journey-level,
-.light .journey-sec .journey-card-light .journey-desc,
-.light .journey-sec .journey-card-light .journey-feature,
-.light .journey-sec .journey-card-light .journey-more,
-.light .journey-sec .journey-card-light .journey-level {
+.journey-sec .journey-desc {
   color: #525252 !important;
 }
 
-.journey-sec .journey-card-light .journey-check,
-.light .journey-sec .journey-card-light .journey-check {
-  color: #171717 !important;
-  background: transparent !important;
-}
-
-.journey-sec .journey-cert,
-.light .journey-sec .journey-cert {
-  background-color: #fff7ed !important;
-  color: #f97316 !important;
+.journey-sec .journey-cert {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #ea580c !important;
 }
 
 section.masterclass-sec,
@@ -5459,4 +5375,13 @@ section#real-transformations,
     right: 0;
     top: -0.35em;
   }
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

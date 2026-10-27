@@ -161,8 +161,8 @@ export default function VisibleGrowthSec() {
   // Continuous rotation angle dynamically calculated based on STEPS.length
   // Brings each step to the active apex and completes rotation when the last step is reached
   const maxRotationProgress = STEPS.length > 1 ? (STEPS.length - 1) / STEPS.length : 1;
-  const rotationRatio = maxRotationProgress > 0 
-    ? Math.min(progress / maxRotationProgress, 1) 
+  const rotationRatio = maxRotationProgress > 0
+    ? Math.min(progress / maxRotationProgress, 1)
     : 0;
   const continuousRotationDeg = rotationRatio * (STEPS.length - 1) * angleStepDeg;
 
@@ -274,9 +274,9 @@ export default function VisibleGrowthSec() {
                 const currentAngleDeg = baseAngleDeg - continuousRotationDeg;
                 const currentAngleRad = (currentAngleDeg * Math.PI) / 180;
 
-                // Node (x, y) coordinates relative to arc container
-                const nodeX = cx + radius * Math.cos(currentAngleRad);
-                const nodeY = cy - radius * Math.sin(currentAngleRad);
+                // Node (x, y) coordinates relative to arc container (rounded to 2 decimals to match SSR and client)
+                const nodeX = Number((cx + radius * Math.cos(currentAngleRad)).toFixed(2));
+                const nodeY = Number((cy - radius * Math.sin(currentAngleRad)).toFixed(2));
 
                 const isActive = activeStep === idx;
                 const isPassed = activeStep > idx;
@@ -285,6 +285,7 @@ export default function VisibleGrowthSec() {
                   <button
                     key={step.number}
                     type="button"
+                    suppressHydrationWarning
                     onClick={() => scrollToStep(idx)}
                     className="absolute group transition-transform duration-300 focus:outline-none pointer-events-auto"
                     style={{
@@ -386,17 +387,17 @@ export default function VisibleGrowthSec() {
                   <div
                     key={step.number}
                     className={`absolute inset-0 flex items-center justify-center transition-all duration-600 ease-out ${isCurrent
-                        ? "opacity-100 scale-100 pointer-events-auto"
-                        : "opacity-0 scale-95 pointer-events-none"
+                      ? "opacity-100 scale-100 pointer-events-auto"
+                      : "opacity-0 scale-95 pointer-events-none"
                       }`}
                   >
                     <img
                       src={step.image}
                       alt={step.alt}
                       className="max-h-[360px] max-w-[420px] w-auto h-auto object-contain drop-shadow-[0_20px_30px_rgba(223,85,34,0.18)] transition-transform duration-700"
-                      // style={{
-                      //   animation: isCurrent ? "growth-float 6s ease-in-out infinite" : "none",
-                      // }}
+                    // style={{
+                    //   animation: isCurrent ? "growth-float 6s ease-in-out infinite" : "none",
+                    // }}
                     />
                   </div>
                 );
@@ -423,8 +424,8 @@ export default function VisibleGrowthSec() {
                 type="button"
                 onClick={() => setActiveStep(idx)}
                 className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${isTabActive
-                    ? "bg-white text-[#df5522] shadow-sm font-black"
-                    : "text-stone-600 hover:text-stone-900"
+                  ? "bg-white text-[#df5522] shadow-sm font-black"
+                  : "text-stone-600 hover:text-stone-900"
                   }`}
               >
                 <span>{step.number}</span>

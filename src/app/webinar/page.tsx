@@ -15,6 +15,7 @@ import SoundFamiliarSection from "@/components/webinar/SoundFamiliarSection";
 import WhatChangesSection from "@/components/webinar/WhatChangesSection";
 import WebinarPhilosophy from "@/components/webinar/WebinarPhilosophy";
 import ThreeSecretsSection from "@/components/webinar/ThreeSecretsSection";
+import RightFitStackSection from "@/components/webinar/RightFitStackSection";
 import { API_BASE_URL } from "@/config/api";
 import { trackingService } from "@/services/trackingService";
 import Link from "next/link";
@@ -816,31 +817,7 @@ export default function WebinarPage() {
             <WhatChangesSection data={WHAT_CHANGES} />
 
             {/* 7. RIGHT FIT? (ee -> s2) */}
-            <section className="bg-white py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
-                    {RIGHT_FIT.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {RIGHT_FIT.heading}
-                  </h2>
-                  <p className="text-stone-500 text-base">
-                    {RIGHT_FIT.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {RIGHT_FIT.items.map((item, idx) => (
-                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
-                      <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
-                      <h3 className="mb-2 text-base font-bold text-stone-950">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <RightFitStackSection data={RIGHT_FIT} />
 
             {/* 8. PROOF (te -> r2) */}
             <section className="bg-transparent py-16 sm:py-20">
