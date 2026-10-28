@@ -497,9 +497,8 @@ section.sound-like-sec,
   height: 32px;
   pointer-events: none;
   z-index: 20;
-  background-color: #ffffff;
-  background-image: radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
+  background-color: #0a0a0a;
+  background-image: none !important;
   -webkit-mask-image: radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px);
   mask-image: radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px);
   -webkit-mask-size: 64px 32px;
@@ -508,7 +507,7 @@ section.sound-like-sec,
   mask-repeat: repeat-x;
   -webkit-mask-position: center top;
   mask-position: center top;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.2));
 }
 
 @media (max-width: 639px) {
@@ -594,9 +593,8 @@ section.sound-like-sec,
   height: 32px;
   pointer-events: none;
   z-index: 20;
-  background-color: #ffffff;
-  background-image: radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
+  background-color: #0a0a0a;
+  background-image: none !important;
   -webkit-mask-image: radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px);
   mask-image: radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px);
   -webkit-mask-size: 64px 32px;
@@ -605,7 +603,7 @@ section.sound-like-sec,
   mask-repeat: repeat-x;
   -webkit-mask-position: center top;
   mask-position: center top;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.2));
 }
 
 @media (max-width: 639px) {
@@ -778,9 +776,51 @@ section.sound-like-sec,
   flex-direction: column;
   overflow: hidden;
   border-radius: 28px;
-  background: #ffffff;
-  border: 1px solid rgba(23, 23, 23, 0.05);
-  box-shadow: 0 18px 40px -30px rgba(40, 30, 20, 0.45);
+  background: var(--sound-folder, #e3422f) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 20px 45px -18px rgba(120, 28, 16, 0.5);
+  color: #ffffff;
+}
+
+.sound-simple-card .sound-title,
+.sound-like-sec .sound-simple-card .sound-title {
+  color: #ffffff !important;
+  font-family: var(--font-landing), "Nunito Sans", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sound-simple-card .sound-muted,
+.sound-like-sec .sound-simple-card .sound-muted {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.sound-simple-card .sound-option-num,
+.sound-like-sec .sound-simple-card .sound-option-num {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.sound-simple-card .sound-option-pill,
+.sound-like-sec .sound-simple-card .sound-option-pill {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sound-simple-card .sound-option-solution,
+.sound-like-sec .sound-simple-card .sound-option-solution {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.sound-simple-card .sound-option-check,
+.sound-like-sec .sound-simple-card .sound-option-check {
+  background: #ffffff !important;
+  color: #e3422f !important;
 }
 
 .sound-simple-photo {
@@ -857,8 +897,13 @@ section.sound-like-sec,
 }
 
 .sound-stack-card {
+  --card-folder: var(--sound-folder);
   position: relative;
   width: 100%;
+}
+
+.sound-stack-card.is-behind {
+  --card-folder: var(--sound-folder-back);
 }
 
 .sound-stack-card.is-stacked {
@@ -918,7 +963,7 @@ section.sound-like-sec,
 }
 
 .sound-stack-tab {
-  --tab-bg: var(--sound-folder-back);
+  --tab-bg: var(--card-folder);
   position: relative;
   z-index: 1;
   display: inline-flex;
@@ -926,10 +971,10 @@ section.sound-like-sec,
   gap: 0.45rem;
   height: 58px;
   margin: 0;
-  padding: 0 1.2rem 16px;
+  padding: 0 1.2rem 18px;
   border: 0;
   border-radius: 16px 16px 0 0;
-  background: var(--tab-bg);
+  background: var(--card-folder);
   color: #fff;
   font-family: var(--font-landing), "Nunito Sans", sans-serif;
   font-size: 0.95rem;
@@ -939,12 +984,11 @@ section.sound-like-sec,
   white-space: nowrap;
   cursor: pointer;
   pointer-events: auto;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.25s ease, filter 0.25s ease;
 }
 
 .sound-stack-tab:hover {
-  background: #d23b2c;
-  --tab-bg: #d23b2c;
+  filter: brightness(1.08);
 }
 
 .sound-stack-tab:focus-visible {
@@ -953,8 +997,6 @@ section.sound-like-sec,
 }
 
 .sound-stack-tab.is-active {
-  --tab-bg: var(--sound-folder);
-  background: var(--sound-folder);
   z-index: 3;
 }
 
@@ -966,25 +1008,27 @@ section.sound-like-sec,
   width: 18px;
   height: 18px;
   pointer-events: none;
+  transition: background 0.25s ease;
 }
 
 .sound-stack-tab::before {
   left: -18px;
-  background: radial-gradient(circle at 0 0, transparent 17.5px, var(--tab-bg) 18px);
+  background: radial-gradient(circle at 0 0, transparent 17.5px, var(--card-folder) 18px);
 }
 
 .sound-stack-tab::after {
   right: -18px;
-  background: radial-gradient(circle at 100% 0, transparent 17.5px, var(--tab-bg) 18px);
+  background: radial-gradient(circle at 100% 0, transparent 17.5px, var(--card-folder) 18px);
 }
 
 .sound-stack-card-body {
   position: relative;
   z-index: 1;
   border-radius: 30px;
-  background: var(--sound-folder);
+  background: var(--card-folder);
   padding: 1.6rem 1.5rem 1.5rem;
   box-shadow: 0 -8px 24px -10px rgba(0, 0, 0, 0.16), 0 28px 50px -28px rgba(120, 28, 16, 0.55);
+  transition: background-color 0.25s ease;
 }
 
 .sound-stack-layer {
@@ -1115,6 +1159,113 @@ section.sound-like-sec,
   transform: rotate(6deg);
 }
 
+@media (max-width: 1023px) {
+  .sound-pin-sticky {
+    padding: 1.5rem 1rem 1rem;
+    height: 100vh;
+    height: 100dvh;
+    justify-content: center;
+  }
+
+  .sound-card-tab-wrap {
+    margin-bottom: -14px;
+    padding-left: calc(0.75rem + var(--tab-offset, 0px)) !important;
+  }
+
+  .sound-stack-tab {
+    height: 42px;
+    padding: 0 0.85rem 12px;
+    font-size: 0.82rem;
+    gap: 0.35rem;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .sound-stack-tab::before,
+  .sound-stack-tab::after {
+    bottom: 13px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .sound-stack-tab::before {
+    left: -14px;
+    background: radial-gradient(circle at 0 0, transparent 13.5px, var(--card-folder) 14px);
+  }
+
+  .sound-stack-tab::after {
+    right: -14px;
+    background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--card-folder) 14px);
+  }
+
+  .sound-stack-card-body {
+    border-radius: 20px;
+    padding: 1.15rem 1.15rem 1.25rem;
+  }
+
+  .sound-stack-swap {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .sound-stack-copy {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .landing-page h3.sound-stack-title {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    margin-top: 0.35rem;
+  }
+
+  .sound-stack-desc {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-top: 0.35rem;
+  }
+
+  .sound-stack-solution {
+    font-size: 0.82rem;
+    margin-top: 0.65rem;
+  }
+
+  .sound-stack-photo {
+    height: 140px;
+    aspect-ratio: auto;
+  }
+
+  .sound-stack-sticker {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+@media (max-width: 639px) {
+  .sound-pin-sticky {
+    padding: 1rem 0.75rem 0.75rem;
+  }
+
+  .sound-stack-tab {
+    height: 38px;
+    padding: 0 0.65rem 10px;
+    font-size: 0.75rem;
+    gap: 0.25rem;
+  }
+
+  .sound-stack-photo {
+    height: 110px;
+  }
+
+  .landing-page h3.sound-stack-title {
+    font-size: 1rem;
+  }
+
+  .sound-stack-desc {
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+}
+
 @media (min-width: 1280px) {
   .sound-stack-layer {
     padding: 1.85rem 1.75rem 1.7rem 1.9rem;
@@ -1228,17 +1379,52 @@ section.testimonia-sec,
   mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
 }
 
-.testimonia-sec .testimonia-board-1,
-.testimonia-sec .testimonia-board-2 {
-  display: none;
+/* Mobile & Tablet (< 1024px): Only one card scrolling from bottom to top */
+@media (max-width: 1023px) {
+  .testimonia-sec .testimonia-board-1 {
+    display: block;
+    max-width: 32rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .testimonia-sec .testimonia-board-2,
+  .testimonia-sec .testimonia-board-3 {
+    display: none;
+  }
+
+  .testimonia-sec .testimonia-board-1 .testimonia-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .testimonia-sec .testimonia-card {
+    padding: 1.5rem 1.6rem !important;
+    min-height: 14.5rem;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  .testimonia-sec .testimonia-quote {
+    line-height: 1.6 !important;
+  }
 }
 
-.testimonia-sec .testimonia-board-3 {
-  display: block;
-}
+/* Desktop (>= 1024px): 3 columns scrolling (unchanged) */
+@media (min-width: 1024px) {
 
-.testimonia-sec .testimonia-board-3 .testimonia-cols {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  .testimonia-sec .testimonia-board-1,
+  .testimonia-sec .testimonia-board-2 {
+    display: none;
+  }
+
+  .testimonia-sec .testimonia-board-3 {
+    display: block;
+  }
+
+  .testimonia-sec .testimonia-board-3 .testimonia-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .testimonia-sec .testimonia-cols {
@@ -1305,7 +1491,6 @@ section.testimonia-sec,
   }
 
   .testimonia-sec .testimonia-quote {
-    font-size: 11px !important;
     line-height: 1.45 !important;
   }
 }
@@ -5175,6 +5360,39 @@ section#real-transformations,
 
 .rc-slider-track::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes rc-continuous-slide {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-33.333333%, 0, 0);
+  }
+}
+
+.rc-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: rc-continuous-slide 32s linear infinite;
+  will-change: transform;
+}
+
+@media (min-width: 640px) {
+  .rc-marquee-track {
+    animation-duration: 36s;
+  }
+}
+
+.rc-marquee-track.is-paused {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-marquee-track {
+    animation: none;
+  }
 }
 
 .rc-grid {

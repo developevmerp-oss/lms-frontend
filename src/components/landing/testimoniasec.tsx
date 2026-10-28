@@ -71,21 +71,23 @@ function Stars({ count, size = 16 }: { count: number; size?: number }) {
 
 function ReviewCard({ rev }: { rev: (typeof VERIFIED_REVIEWS)[number] }) {
   return (
-    <article className="testimonia-card rounded-[1.35rem] border border-neutral-200/90 bg-white p-5">
-      <div className="flex items-center justify-between gap-3">
-        <Stars count={rev.rating} size={13} />
-        <span className="testimonia-muted shrink-0 text-[11px]">Google Play · {rev.date}</span>
+    <article className="testimonia-card rounded-[1.35rem] border border-neutral-200/90 bg-white p-6 sm:p-7 flex flex-col justify-between min-h-[14rem] sm:min-h-[15.5rem]">
+      <div>
+        <div className="flex items-center justify-between gap-3">
+          <Stars count={rev.rating} size={15} />
+          <span className="testimonia-muted shrink-0 text-xs sm:text-sm">Google Play · {rev.date}</span>
+        </div>
+        <p className="testimonia-quote mt-3.5 text-base sm:text-lg leading-relaxed text-neutral-800">“{rev.comment}”</p>
       </div>
-      <p className="testimonia-quote mt-3 text-sm leading-relaxed">“{rev.comment}”</p>
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mt-5 flex items-center gap-3 pt-3.5 border-t border-neutral-100">
         <div
-          className={`testimonia-initial flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr text-sm font-bold ${rev.avatarBg}`}
+          className={`testimonia-initial flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr text-base font-bold ${rev.avatarBg}`}
         >
           {rev.name[0]}
         </div>
         <div>
-          <p className="testimonia-strong text-sm font-semibold">{rev.name}</p>
-          <p className="testimonia-muted text-xs">{rev.tag}</p>
+          <p className="testimonia-strong text-base font-semibold">{rev.name}</p>
+          <p className="testimonia-muted text-xs sm:text-sm">{rev.tag}</p>
         </div>
       </div>
     </article>

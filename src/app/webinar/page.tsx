@@ -16,6 +16,7 @@ import WhatChangesSection from "@/components/webinar/WhatChangesSection";
 import WebinarPhilosophy from "@/components/webinar/WebinarPhilosophy";
 import ThreeSecretsSection from "@/components/webinar/ThreeSecretsSection";
 import RightFitStackSection from "@/components/webinar/RightFitStackSection";
+import HonestFitCheckSection from "@/components/webinar/HonestFitCheckSection";
 import { API_BASE_URL } from "@/config/api";
 import { trackingService } from "@/services/trackingService";
 import Link from "next/link";
@@ -761,7 +762,10 @@ export default function WebinarPage() {
           <div id="gate-content">
             
             {/* 1. SOUND FAMILIAR? (W -> e2) */}
-            <SoundFamiliarSection data={SOUND_FAMILIAR} />
+            <SoundFamiliarSection
+              data={SOUND_FAMILIAR}
+              onScrollToRegister={scrollToRegister}
+            />
 
             {/* 2. MY PHILOSOPHY (H -> n2) */}
             <WebinarPhilosophy data={PHILOSOPHY} />
@@ -929,51 +933,7 @@ export default function WebinarPage() {
             </section>
 
             {/* 11. HONEST FIT CHECK (D -> a2) */}
-            <section className="bg-white py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
-                    {HONEST_FIT_CHECK.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {HONEST_FIT_CHECK.heading}
-                  </h2>
-                  <p className="text-stone-500 text-sm sm:text-base">
-                    {HONEST_FIT_CHECK.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-7">
-                    <h3 className="text-base font-bold text-stone-950 mb-4">
-                      {HONEST_FIT_CHECK.forHeading}
-                    </h3>
-                    <ul className="space-y-3 text-xs sm:text-sm text-stone-600">
-                      {HONEST_FIT_CHECK.forItems.map((it, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5">
-                          <Check size={16} className="text-emerald-600 mt-0.5 shrink-0" />
-                          <span>{it}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-7">
-                    <h3 className="text-base font-bold text-stone-950 mb-4">
-                      {HONEST_FIT_CHECK.notForHeading}
-                    </h3>
-                    <ul className="space-y-3 text-xs sm:text-sm text-stone-600">
-                      {HONEST_FIT_CHECK.notForItems.map((it, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5">
-                          <X size={16} className="text-red-400 mt-0.5 shrink-0" />
-                          <span>{it}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <HonestFitCheckSection data={HONEST_FIT_CHECK} />
 
             {/* 12. AGENDA (se -> c2) */}
             <section className="bg-transparent py-16 sm:py-20">

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Image as ImageIcon } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
 
 export interface InstallmentPlan {
@@ -73,6 +73,57 @@ function getTierHighlights(tier: LevelTier, dynamicCourses: LevelCourse[]): stri
   }
 
   return [];
+}
+
+/**
+ * Dedicated plan banner component:
+ * - Shows dynamic image if provided by backend
+ * - Shows an elegant image placeholder with Image Icon when no image is configured or if load fails
+ * - Maintains equal aspect ratio and visual balance across all responsive screens
+ */
+function PlanImageBanner({
+  src,
+  alt,
+  isMainCertification,
+  badgeTag,
+}: {
+  src: string | null;
+  alt: string;
+  isMainCertification: boolean;
+  badgeTag?: string;
+}) {
+  const [hasError, setHasError] = useState(false);
+  const showPlaceholder = !src || hasError;
+
+  return (
+    <div className="relative w-full aspect-[16/11] bg-stone-100/90 overflow-hidden flex items-center justify-center border-b border-stone-200/60 group/banner">
+      {showPlaceholder ? (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200/80 text-stone-400 select-none p-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-sm border border-stone-200/80 flex items-center justify-center text-stone-400 transition-transform duration-300 group-hover/banner:scale-105">
+            <ImageIcon className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.75]" aria-hidden="true" />
+          </div>
+          <span className="mt-2.5 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-stone-400">
+            {badgeTag || "Course Plan"}
+          </span>
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          onError={() => setHasError(true)}
+        />
+      )}
+
+      {isMainCertification && (
+        <div className="absolute top-3.5 right-3.5 z-10">
+          <span className="journey-cert inline-flex items-center gap-1 bg-white/95 backdrop-blur-sm text-[#ea580c] text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm border border-orange-200/40">
+            ★ MAIN CERTIFICATION
+          </span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function JourneySec({
@@ -158,8 +209,8 @@ export default function JourneySec({
 
   return (
     <section id="membership" className="journey-sec relative z-10 flex items-center bg-[#fcfbf9] py-16 sm:py-20 lg:py-24">
-      <div className="nav-width page-rise">
-        <div className="mb-8 max-w-2xl sm:mb-10 lg:mb-8">
+      <div className="w-full max-w-[96rem] mx-auto px-3.5 sm:px-6 lg:px-8 xl:px-10 page-rise">
+        <div className="mb-8 max-w-3xl sm:mb-10 lg:mb-10">
           <p className="journey-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
             Level Progression
           </p>
@@ -172,7 +223,7 @@ export default function JourneySec({
         </div>
 
         {/* Dynamic Cards Grid from API */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 sm:gap-6 lg:gap-6 xl:gap-6">
           {loading && activeTiers.length === 0 ? (
             // Skeleton Loader while API is fetching
             [0, 1, 2, 3].map((n) => (
@@ -181,7 +232,9 @@ export default function JourneySec({
                 className="journey-card flex h-[580px] flex-col justify-between rounded-[2rem] p-3.5 animate-pulse bg-white border border-stone-200/80 shadow-sm"
               >
                 <div className="journey-panel flex flex-col rounded-[1.5rem] overflow-hidden bg-stone-100/70">
-                  <div className="w-full aspect-[16/11] bg-stone-200/80" />
+                  <div className="w-full aspect-[16/11] bg-stone-200/80 flex items-center justify-center text-stone-300">
+                    <ImageIcon className="w-8 h-8 stroke-[1.5]" />
+                  </div>
                   <div className="p-5 space-y-3">
                     <div className="h-4 w-24 bg-stone-200 rounded" />
                     <div className="h-3 w-36 bg-stone-200 rounded" />
@@ -308,31 +361,17 @@ export default function JourneySec({
               return (
                 <article
                   key={tier.id || tier.code || idx}
-                  className={`journey-card journey-wash-${idx % 4} flex h-full flex-col justify-between rounded-[2rem] p-3 sm:p-3.5 bg-white border border-stone-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300`}
+                  className={`journey-card journey-wash-${idx % 4} flex h-full flex-col justify-between rounded-[2rem] p-3 sm:p-3.5 lg:p-4 bg-white border border-stone-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 w-full`}
                 >
                   {/* Top Colored Hero Block */}
                   <div className="journey-panel flex flex-col rounded-[1.5rem] overflow-hidden">
-                    {/* Image Banner strictly if provided by backend */}
-                    {thumbnailSrc ? (
-                      <div className="relative w-full aspect-[16/11] bg-stone-100 overflow-hidden">
-                        <img
-                          src={thumbnailSrc}
-                          alt={displayTitle}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                          onError={(e) => {
-                            const parent = (e.target as HTMLElement).parentElement;
-                            if (parent) parent.style.display = "none";
-                          }}
-                        />
-                        {isMainCertification && (
-                          <div className="absolute top-3.5 right-3.5 z-10">
-                            <span className="journey-cert inline-flex items-center gap-1 bg-white/95 backdrop-blur-sm text-[#ea580c] text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm border border-orange-200/40">
-                              ★ MAIN CERTIFICATION
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    ) : null}
+                    {/* Image Banner: Shows plan image or image icon placeholder if plan has no image */}
+                    <PlanImageBanner
+                      src={thumbnailSrc}
+                      alt={displayTitle}
+                      isMainCertification={isMainCertification}
+                      badgeTag={badgeTag}
+                    />
 
                     {/* Content inside top hero panel */}
                     <div className="p-5 sm:p-5.5 flex flex-col flex-1">
