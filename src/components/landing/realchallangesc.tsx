@@ -148,79 +148,53 @@ function ChallengeCard({
   );
 }
 
-// Auto-sliding carousel for Mobile and Tablet (< 1024px)
+// Continuous Auto-sliding carousel for Mobile and Tablet (< 1024px)
 function ChallengeAutoSlider({ cards }: { cards: ChallengeCardItem[] }) {
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isInteracting, setIsInteracting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-advance timer every 2.8s
-  useEffect(() => {
-    if (isInteracting) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % cards.length);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [isInteracting, cards.length]);
+  // Repeat cards 3 times for a seamless, continuous infinite loop
+  const infiniteCards = [...cards, ...cards, ...cards];
 
-  // Smooth scroll to active index
-  useEffect(() => {
-    const slider = sliderRef.current;
-    if (!slider) return;
-    const cardEl = slider.children[activeIndex] as HTMLElement;
-    if (cardEl) {
-      const scrollPos = cardEl.offsetLeft - (slider.offsetWidth - cardEl.offsetWidth) / 2;
-      slider.scrollTo({ left: scrollPos, behavior: "smooth" });
-    }
-  }, [activeIndex]);
-
-  const handleScroll = () => {
-    const slider = sliderRef.current;
-    if (!slider) return;
-    const center = slider.scrollLeft + slider.offsetWidth / 2;
-    let closestIdx = 0;
-    let minDiff = Infinity;
-    Array.from(slider.children).forEach((child, idx) => {
-      const el = child as HTMLElement;
-      const elCenter = el.offsetLeft + el.offsetWidth / 2;
-      const diff = Math.abs(center - elCenter);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIdx = idx;
-      }
-    });
-    if (closestIdx !== activeIndex) {
-      setActiveIndex(closestIdx);
-    }
+  const handleInteractionStart = () => {
+    setIsPaused(true);
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
   };
+
+  const handleInteractionEnd = () => {
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 1800);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    };
+  }, []);
 
   return (
     <div
-      className="rc-slider-wrap relative w-full overflow-hidden mt-8 pb-4"
-      onMouseEnter={() => setIsInteracting(true)}
-      onMouseLeave={() => setIsInteracting(false)}
-      onTouchStart={() => setIsInteracting(true)}
-      onTouchEnd={() => {
-        setTimeout(() => setIsInteracting(false), 2500);
-      }}
+      className="rc-slider-wrap relative w-full overflow-hidden mt-6 sm:mt-8 pt-6 sm:pt-8 pb-20 sm:pb-24"
+      onMouseEnter={handleInteractionStart}
+      onMouseLeave={handleInteractionEnd}
+      onTouchStart={handleInteractionStart}
+      onTouchEnd={handleInteractionEnd}
     >
-      <div
-        ref={sliderRef}
-        onScroll={handleScroll}
-        className="rc-slider-track flex gap-4 overflow-x-auto px-6 pb-6 pt-2 scrollbar-none snap-x snap-mandatory"
-        style={{ scrollBehavior: "smooth", WebkitOverflowScrolling: "touch" }}
-      >
-        {cards.map((item, index) => {
+      <div className={`rc-marquee-track flex gap-4 sm:gap-6 ${isPaused ? "is-paused" : ""}`}>
+        {infiniteCards.map((item, index) => {
           const accent = index % 2 === 1;
-          const isActive = index === activeIndex;
+          const isTop = index % 2 === 0;
+
           return (
             <div
-              key={item.step}
-              className="snap-center shrink-0 w-[270px] sm:w-[310px] transition-all duration-300"
-              style={{
-                transform: isActive ? "scale(1.02)" : "scale(0.97)",
-                opacity: isActive ? 1 : 0.85,
-              }}
+              key={`${item.step}-${index}`}
+              className={`shrink-0 w-[265px] sm:w-[310px] transition-transform duration-300 ${
+                isTop
+                  ? "-translate-y-3 sm:-translate-y-4"
+                  : "translate-y-3.5 sm:translate-y-5"
+              }`}
             >
               <article className={`rc-card group ${accent ? "rc-card--accent" : ""}`}>
                 <div className="rc-card__media">
@@ -236,26 +210,6 @@ function ChallengeAutoSlider({ cards }: { cards: ChallengeCardItem[] }) {
             </div>
           );
         })}
-      </div>
-
-      {/* Slider Pagination Dots */}
-      <div className="flex items-center justify-center gap-2 mt-2">
-        {cards.map((item, idx) => (
-          <button
-            key={item.step}
-            type="button"
-            onClick={() => {
-              setActiveIndex(idx);
-              setIsInteracting(true);
-              setTimeout(() => setIsInteracting(false), 2500);
-            }}
-            className={`h-2.5 rounded-full transition-all duration-300 ${idx === activeIndex
-              ? "w-7 bg-amber-600"
-              : "w-2.5 bg-neutral-300 hover:bg-neutral-400"
-              }`}
-            aria-label={`Go to card ${idx + 1}`}
-          />
-        ))}
       </div>
     </div>
   );
@@ -502,8 +456,8 @@ export default function RealChallangeSec() {
           </div>
         </div>
 
-        {/* Mobile & Tablet View (< 1024px): Smooth Auto Slider */}
-        <div className="block lg:hidden w-full">
+        {/* Mobile & Tablet View (< 1024px): Continuous Auto Slider */}
+        <div className="block lg:hidden w-full pb-14 sm:pb-20">
           <ChallengeAutoSlider cards={CARDS} />
         </div>
       </div>

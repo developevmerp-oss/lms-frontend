@@ -151,7 +151,7 @@ function StackFace({ item }: { item: SoundCard }) {
           className="sound-stack-shot"
           style={{ objectPosition: item.photoPosition }}
         />
-        <img src={item.icon} alt="" className={`sound-stack-sticker ${item.stickerClass}`} />
+        {/* <img src={item.icon} alt="" className={`sound-stack-sticker ${item.stickerClass}`} /> */}
       </div>
     </div>
   );
@@ -169,9 +169,11 @@ export default function SoundLikeSec() {
   // Dynamically measure tab widths so tabs align neatly side-by-side
   useEffect(() => {
     const updateOffsets = () => {
-      const w0 = tabRefs.current[0]?.offsetWidth || 165;
-      const w1 = tabRefs.current[1]?.offsetWidth || 165;
-      setTabOffsets([0, w0 + 12, w0 + 12 + w1 + 12]);
+      const isMobile = window.innerWidth < 1024;
+      const gap = isMobile ? 8 : 12;
+      const w0 = tabRefs.current[0]?.offsetWidth || (isMobile ? 110 : 165);
+      const w1 = tabRefs.current[1]?.offsetWidth || (isMobile ? 110 : 165);
+      setTabOffsets([0, w0 + gap, w0 + gap + w1 + gap]);
     };
     updateOffsets();
     window.addEventListener("resize", updateOffsets);
@@ -219,7 +221,9 @@ export default function SoundLikeSec() {
         card2.style.transform = `translate3d(0, ${shift2.toFixed(2)}px, 0)`;
       }
 
-      const currentActive = third > 0.60 ? 2 : second > 0.60 ? 1 : 0;
+      // Card sticks and is covered: when card 1 sticks, stage 0 is behind.
+      // When card 2 sticks, stage 0 and 1 are behind.
+      const currentActive = third >= 0.85 ? 2 : second >= 0.85 ? 1 : 0;
       setActiveStage(currentActive);
     };
 
@@ -252,12 +256,15 @@ export default function SoundLikeSec() {
       <div className="sound-scallop-top" aria-hidden="true" />
       <div className="sound-like-fill" aria-hidden="true" />
 
-      {/* Mobile view (< lg) */}
-      <div className="nav-width relative z-[1] py-16 sm:py-20 lg:hidden">
+      {/* Mobile and Tablet view (< lg): Clean simple cards with natural gap before mentor section */}
+      <div className="nav-width relative z-[1] pt-16 sm:pt-20 pb-20 sm:pb-28 lg:hidden">
         <SoundHeading />
-        <div className="mt-10 flex flex-col gap-4 sm:mt-12 sm:gap-5 lg:hidden">
+        <div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:gap-7">
           {CARDS.map((item) => (
-            <article key={item.stage} className="sound-simple-card">
+            <article
+              key={item.stage}
+              className="sound-simple-card"
+            >
               <div className="sound-simple-photo">
                 <img
                   src={item.photo}
@@ -267,15 +274,21 @@ export default function SoundLikeSec() {
               </div>
               <div className="sound-simple-body">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="sound-option-num flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">
+                  {/* <span className="sound-option-num flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">
                     {Number(item.stage)}
-                  </span>
-                  <span className={`sound-option-pill rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${item.stageClass}`}>
+                  </span> */}
+                  <span
+                    className={`sound-option-pill rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${item.stageClass}`}
+                  >
                     Stage: {item.label}
                   </span>
                 </div>
-                <h3 className="sound-title mt-4 text-xl font-bold leading-snug sm:text-[1.65rem]">{item.title}</h3>
-                <p className="sound-muted mt-3 text-sm leading-relaxed sm:text-base">{item.description}</p>
+                <h3 className="sound-title mt-4 text-xl font-bold leading-snug sm:text-[1.65rem]">
+                  {item.title}
+                </h3>
+                <p className="sound-muted mt-3 text-sm leading-relaxed sm:text-base">
+                  {item.description}
+                </p>
                 <p className="sound-option-solution mt-5 inline-flex items-start gap-2 text-sm font-semibold leading-snug">
                   <span className="sound-option-check mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px]">
                     ✓
@@ -298,13 +311,14 @@ export default function SoundLikeSec() {
                 {CARDS.map((item, index) => {
                   const Icon = item.TabIcon;
                   const isActive = activeStage === index;
+                  const isBehind = index < activeStage;
                   return (
                     <article
                       key={item.stage}
                       ref={(node) => {
                         cardRefs.current[index] = node;
                       }}
-                      className={`sound-stack-card${index > 0 ? " is-stacked" : ""}`}
+                      className={`sound-stack-card${index > 0 ? " is-stacked" : ""}${isBehind ? " is-behind" : ""}`}
                       style={{
                         zIndex: index + 1,
                       }}
@@ -315,6 +329,7 @@ export default function SoundLikeSec() {
                         className="sound-card-tab-wrap"
                         style={{
                           paddingLeft: `calc(2rem + ${tabOffsets[index]}px)`,
+                          ["--tab-offset" as any]: `${tabOffsets[index]}px`,
                         }}
                       >
                         <button
@@ -344,7 +359,7 @@ export default function SoundLikeSec() {
         </div>
       </div>
 
-      <div className="sound-scallop-foot" aria-hidden="true" />
+      <div className="sound-scallop-foot hidden lg:block" aria-hidden="true" />
     </section>
   );
 }

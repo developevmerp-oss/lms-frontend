@@ -253,6 +253,10 @@ export default function LandingHero2() {
           position: relative;
           flex: 1;
           min-height: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
         }
 
         .lh2-bar-wrap {
@@ -262,24 +266,20 @@ export default function LandingHero2() {
         }
 
         .lh2-copy {
-          position: absolute;
-          left: 0;
-          top: 3%;
-          width: min(100%, 72rem);
+          position: relative;
+          width: 100%;
+          max-width: 58rem;
         }
 
         .landing-page .lh2 h1.lh2-title {
           position: relative;
-          left: auto;
-          top: auto;
           margin: 0;
           max-width: none;
-          font-family: Bahnschrift, "Arial Narrow", "Segoe UI", Impact, sans-serif;
-          font-stretch: condensed;
-          font-size: clamp(4.05rem, 7.15vw, 7.35rem);
+          font-family: Bahnschrift, "Segoe UI", Arial, sans-serif;
+          font-size: clamp(2.35rem, 4.4vw, 3.85rem);
           font-weight: 600;
-          letter-spacing: 0.012em;
-          line-height: 0.84;
+          letter-spacing: -0.015em;
+          line-height: 1.02;
           text-transform: uppercase;
           color: #f4efe6;
         }
@@ -287,69 +287,24 @@ export default function LandingHero2() {
           display: block;
         }
         .lh2-title .line-2 {
-          padding-left: 14.8rem;
+          padding-left: 0;
         }
 
         .landing-page .lh2 .lh2-lead {
-          position: absolute;
-          left: 0;
-          top: 34%;
-          width: 13.2rem;
-          margin: 0;
-          color: rgba(246, 241, 232, 0.92);
-          font-family: var(--font-landing), "Nunito Sans", sans-serif;
-          font-size: 0.98rem;
-          font-weight: 550;
-          line-height: 1.38;
-          letter-spacing: 0;
-          text-transform: none;
+          display: none;
         }
 
         .lh2-note {
-          border: 1px solid rgba(246, 241, 232, 0.62);
-          padding: 0.85rem 0.9rem 0.72rem;
-          width: max-content;
-          max-width: 11.5rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.08rem;
-          font-family: var(--font-landing), "Nunito Sans", sans-serif;
-          font-size: 0.66rem;
-          font-weight: 700;
-          letter-spacing: 0.14em;
-          line-height: 1.35;
-          text-transform: uppercase;
-          color: #f6f1e8;
-          background: rgba(20, 16, 14, 0.08);
-        }
-        .lh2-note b {
-          font-weight: 700;
-        }
-        .lh2-note i {
-          display: block;
-          width: 1.7rem;
-          height: 1px;
-          margin-top: 0.5rem;
-          background: rgba(246, 241, 232, 0.85);
-        }
-        .lh2-note-a {
-          position: absolute;
-          right: 24%;
-          top: 6%;
-        }
-        .lh2-note-b {
-          position: absolute;
-          right: 0;
-          bottom: 16%;
+          display: none;
         }
 
         .lh2-actions {
-          position: absolute;
-          left: 0;
-          bottom: 9%;
+          position: relative;
           display: flex;
           flex-wrap: wrap;
-          gap: 0.75rem;
+          align-items: center;
+          gap: 0.85rem;
+          margin-top: clamp(1.4rem, 2.5vw, 2.2rem);
         }
 
         .lh2-btn {
@@ -446,10 +401,12 @@ export default function LandingHero2() {
         }
 
         @media (min-width: 861px) {
+          .lh2-stage {
+            justify-content: center;
+            padding-bottom: 2.5rem;
+          }
           .lh2-copy {
-            top: 42%;
-            width: 100%;
-            transform: translateY(-48%);
+            max-width: 58rem;
           }
           .lh2-title .line {
             width: max-content;
@@ -458,79 +415,79 @@ export default function LandingHero2() {
           .landing-page .lh2 h1.lh2-title {
             font-family: Bahnschrift, "Segoe UI", Arial, sans-serif;
             font-stretch: 100%;
-            font-size: clamp(3.15rem, 7.7vw, 6rem);
+            font-size: clamp(2.35rem, 4.4vw, 3.85rem);
             font-weight: 600;
-            letter-spacing: -0.02em;
-            line-height: 0.95;
+            letter-spacing: -0.015em;
+            line-height: 1.02;
           }
-          .lh2-title .line-2 { padding-left: 16rem; }
-          .landing-page .lh2 .lh2-lead {
-            width: 14.2rem;
-            font-size: 1.02rem;
-            line-height: 1.35;
+          .lh2-title .line-2 { padding-left: 0; }
+          .lh2-actions {
+            margin-top: clamp(1.4rem, 2.4vw, 2.2rem);
           }
-          .lh2-note-a {
-            left: 46%;
-            right: auto;
-            top: 0;
-          }
-          .lh2-note-b {
-            right: 0.4rem;
-            bottom: 11%;
-          }
-          .lh2-actions { bottom: 6%; }
         }
 
         @media (min-width: 861px) and (max-width: 1180px) {
-          .landing-page .lh2 h1.lh2-title { font-size: clamp(1.15rem, 4.1vw, 1.3rem); }
-          .lh2-title .line-2 { padding-left: 14rem; }
-          .landing-page .lh2 .lh2-lead { width: 12.4rem; }
+          .landing-page .lh2 h1.lh2-title {
+            font-size: clamp(2.05rem, 3.8vw, 2.95rem);
+            line-height: 1.04;
+          }
+          .lh2-title .line-2 { padding-left: 0; }
+          .lh2-actions {
+            margin-top: 1.5rem;
+          }
         }
 
         @media (max-width: 860px) {
           .lh2 { min-height: 100dvh; }
-          .lh2-bg img { object-position: 74% 22%; }
+          .lh2-bg img { object-position: 72% 20%; }
           .lh2-shade {
             background:
-              linear-gradient(180deg, rgba(16,13,11,0.62) 0%, rgba(16,13,11,0.18) 22%, rgba(16,13,11,0.18) 42%, rgba(16,13,11,0.72) 100%);
+              linear-gradient(180deg, rgba(16,13,11,0.55) 0%, rgba(16,13,11,0.18) 25%, rgba(16,13,11,0.52) 58%, rgba(16,13,11,0.9) 100%);
           }
           .lh2-links, .lh2-signin { display: none; }
           .lh2-menu-btn { display: inline-flex; }
-          .lh2-sink { padding: 1rem 1.1rem 0.9rem; }
+          .lh2-sink {
+            padding: clamp(5rem, 11vh, 6.5rem) clamp(1.2rem, 4vw, 2rem) 2rem clamp(1.2rem, 4vw, 2rem);
+          }
           .lh2-stage {
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            gap: 0.9rem;
-            padding-bottom: 0.4rem;
+            align-items: flex-start;
+            gap: 0;
+            padding-bottom: 0.8rem;
           }
           .landing-page .lh2 .lh2-copy,
           .landing-page .lh2 h1.lh2-title,
-          .landing-page .lh2 .lh2-lead,
-          .lh2-note-a,
-          .lh2-note-b,
           .lh2-actions {
-            position: static;
+            position: relative;
             top: auto;
             right: auto;
+            bottom: auto;
             left: auto;
+            width: 100%;
           }
           .landing-page .lh2 h1.lh2-title {
-            max-width: none;
-            font-size: clamp(2.65rem, 12.4vw, 3.7rem);
-            line-height: 0.88;
+            max-width: 100%;
+            font-size: clamp(1.75rem, 7.4vw, 2.45rem);
+            line-height: 1.08;
+            letter-spacing: -0.01em;
           }
-          .lh2-title .line-2 { padding-left: 0.8rem; }
-          .landing-page .lh2 .lh2-copy { width: auto; top: auto; }
-          .landing-page .lh2 .lh2-lead {
-            width: min(18.5rem, 100%);
-            font-size: 0.95rem;
-            margin: 0.15rem 0 0;
+          .lh2-title .line-2 { padding-left: 0; }
+          .lh2-actions {
+            margin-top: 1.35rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
           }
-          .lh2-note { max-width: none; }
-          .lh2-actions { bottom: auto; }
-          .lh2-btn { flex: 1 1 12rem; }
-          .lh2-note-b { align-self: flex-end; }
+          .lh2-btn {
+            width: 100%;
+            min-height: 2.95rem;
+            justify-content: center;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+          }
           .lh2-scroll { display: none; }
         }
 
@@ -538,9 +495,18 @@ export default function LandingHero2() {
           .lh2-brand strong, .lh2-brand span { letter-spacing: 0.18em; font-size: 0.68rem; }
           .lh2-btn-nav span { display: none; }
           .lh2-btn-nav::after { content: "Join"; letter-spacing: 0.14em; }
-          .landing-page .lh2 h1.lh2-title { font-size: clamp(2.45rem, 12vw, 3.15rem); }
-          .lh2-actions { width: 100%; }
-          .lh2-btn { width: 100%; }
+          .landing-page .lh2 h1.lh2-title {
+            font-size: clamp(1.6rem, 7vw, 2.15rem);
+            line-height: 1.08;
+          }
+          .lh2-actions {
+            margin-top: 1.15rem;
+            gap: 0.65rem;
+          }
+          .lh2-btn {
+            padding: 0.72rem 1rem;
+            font-size: 0.72rem;
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -564,28 +530,28 @@ export default function LandingHero2() {
             <div className="lh2-copy">
               <h1 className="lh2-title">
                 <span className="line">Turn Your Resin Art Passion</span>
-                <span className="line line-2"> Into Skill, Identity</span>
+                <span className="line line-2">Into Skill, Identity</span>
                 <span className="line">&amp; Financial Freedom</span>
               </h1>
 
-              <p className="lh2-lead">
+              {/* <p className="lh2-lead">
                 Turn your creativity into meaningful skills, unique art and real opportunities.
-              </p>
+              </p> */}
 
-              <aside className="lh2-note lh2-note-a">
+              {/* <aside className="lh2-note lh2-note-a">
                 <b>Art Classes</b>
                 <b>For a Brighter</b>
                 <b>Tomorrow</b>
                 <i />
-              </aside>
+              </aside> */}
             </div>
 
-            <aside className="lh2-note lh2-note-b">
+            {/* <aside className="lh2-note lh2-note-b">
               <b>Real Art</b>
               <b>Real Skills</b>
               <b>Real Growth</b>
               <i />
-            </aside>
+            </aside> */}
 
             <div className="lh2-actions">
               <Link href="/webinar" className="lh2-btn lh2-btn-fill">

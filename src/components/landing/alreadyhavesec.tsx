@@ -121,27 +121,42 @@ export default function AlreadyHaveSec() {
 
   const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
 
-  // Each card arrives on scroll:
-  // Card 1: arrives between progress 0.02 -> 0.30
-  // Card 2: arrives between progress 0.32 -> 0.60
-  // Card 3: arrives between progress 0.62 -> 0.90
+  // Desktop:
+  // Card 1: 0.02 -> 0.30, Card 2: 0.32 -> 0.60, Card 3: 0.62 -> 0.90
+  // Mobile & Tablet:
+  // Card 1 arrives 0.02 -> 0.12, stays resting until 0.38 (ample time to read)
+  // Card 2 arrives 0.38 -> 0.48, stays resting until 0.74 (ample time to read)
+  // Card 3 arrives 0.74 -> 0.84, stays resting through 1.00 (ample time to read)
   const getCardTransform = (index: number) => {
     const card = CARDS[index];
 
     let startP = 0.02;
     let endP = 0.30;
 
-    if (index === 1) {
-      startP = 0.32;
-      endP = 0.60;
-    } else if (index === 2) {
-      startP = 0.62;
-      endP = 0.90;
+    if (isDesktop) {
+      if (index === 1) {
+        startP = 0.32;
+        endP = 0.60;
+      } else if (index === 2) {
+        startP = 0.62;
+        endP = 0.90;
+      }
+    } else {
+      if (index === 0) {
+        startP = 0.02;
+        endP = 0.12;
+      } else if (index === 1) {
+        startP = 0.38;
+        endP = 0.48;
+      } else {
+        startP = 0.74;
+        endP = 0.84;
+      }
     }
 
     const rawT = Math.max(0, Math.min(1, (progress - startP) / (endP - startP)));
     const easedT = easeOutCubic(rawT);
-    const enterY = (1 - easedT) * 240;
+    const enterY = (1 - easedT) * (isMobile ? 180 : 240);
     const opacity = Math.min(1, rawT * 2.5);
 
     if (isDesktop) {
@@ -182,7 +197,7 @@ export default function AlreadyHaveSec() {
       <div
         ref={containerRef}
         className="relative w-full"
-        style={{ height: isMobile ? "120vh" : "260vh" }}
+        style={{ height: isDesktop ? "260vh" : isTablet ? "340vh" : "380vh" }}
       >
         {/* Sticky viewport frame pinned while scrolling through this section */}
         <div className="sticky top-0 h-screen w-full flex flex-col justify-between items-center py-6 sm:py-8 lg:py-10 px-4 overflow-hidden select-none">
@@ -195,11 +210,11 @@ export default function AlreadyHaveSec() {
               Your Journey Starts With What You Already Have.
             </h2>
             <p className="mt-1.5 text-xs sm:text-sm text-stone-500 max-w-md mx-auto hidden sm:block">
-              {progress < 0.28
+              {(isDesktop ? progress < 0.28 : progress < 0.12)
                 ? "Scroll down to reveal what lies ahead..."
-                : progress < 0.58
+                : (isDesktop ? progress < 0.58 : progress < 0.38)
                   ? "No art degree? No problem. Every expert began right here."
-                  : progress < 0.88
+                  : (isDesktop ? progress < 0.88 : progress < 0.74)
                     ? "No fancy studio needed. A simple table is all you need."
                     : "You already have everything needed to begin."}
             </p>
