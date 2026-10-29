@@ -80,19 +80,31 @@ const PHILOSOPHY = {
   steps: [
     {
       label: "STEP 1",
-      title: "Master",
-      body: "Build premium skills in the right sequence so you know what to learn, practice and create next."
+      badge: "MASTERY",
+      tabName: "Mastery",
+      title: "Learn the right techniques in the right sequence",
+      myth: "Most people believe more tutorials will eventually add up.",
+      body: "You'll see why random tutorials create confusion, and how structured learning accelerates progress — technique sequencing, premium skill development, a portfolio-building mindset and moving beyond random projects.",
+      image: "/images/secrets/secret-1-mastery.jpg",
     },
     {
       label: "STEP 2",
-      title: "Mindset",
-      body: "Build the confidence to create, share, receive feedback and believe your work deserves to be seen."
+      badge: "MINDSET",
+      tabName: "Mindset",
+      title: "Become confident enough to own your creativity",
+      myth: "Most people believe their work isn't good enough to be seen yet.",
+      body: "You'll learn how to move past fear of creating, comparison, the \"my work isn't good enough\" loop, fear of showing your work, and confusion about your artistic identity.",
+      image: "/images/secrets/secret-2-mindset.jpg",
     },
     {
       label: "STEP 3",
-      title: "Monetization",
-      body: "Learn how to connect your skills with pricing, branding, marketing and a business model."
-    }
+      badge: "MONETIZATION",
+      tabName: "Monetization",
+      title: "Turn your art into a real opportunity",
+      myth: "Most people believe business skills come much later.",
+      body: "You'll understand the foundations of product selection, pricing, branding, marketing, customer attraction, community support and a practical business roadmap.",
+      image: "/images/secrets/secret-3-monetization.jpg",
+    },
   ],
   closing: "Because skill without confidence stays hidden. Confidence without a business roadmap stays stuck. And business without mastery becomes difficult to sustain."
 };
@@ -511,7 +523,7 @@ export default function WebinarPage() {
             totalSeats: data.data.totalSeats ?? 500,
           });
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     const fetchNextWebinar = async () => {
@@ -521,17 +533,17 @@ export default function WebinarPage() {
         if (data.success && data.data) {
           setActiveWebinar(data.data);
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     fetchStats();
-    fetchNextWebinar();
+    // fetchNextWebinar();
     try {
       trackingService.trackViewContent({
         name: "Resin Art Masterclass Webinar",
         category: "Webinar",
       });
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   // Sticky bottom trigger
@@ -588,7 +600,7 @@ export default function WebinarPage() {
           service: "Resin Art Masterclass",
           date: activeWebinar?.scheduledAt,
         });
-      } catch (_) {}
+      } catch (_) { }
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(data.data || form));
@@ -599,7 +611,7 @@ export default function WebinarPage() {
       // Still fire lead even if local network edge case saved to fallback
       try {
         trackingService.trackLead({ source: "webinar_registration_fallback" });
-      } catch (_) {}
+      } catch (_) { }
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(form));
@@ -666,7 +678,7 @@ export default function WebinarPage() {
   }, [activeWebinar?.durationMinutes]);
 
   return (
-    <div className="landing-page relative min-h-screen bg-[#f7f2ec] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
+    <div className="landing-page relative min-h-screen bg-[#f7f6f0] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
       <SocialProofToaster />
       <ExitIntentModal onClaimSeat={scrollToRegister} />
 
@@ -709,11 +721,19 @@ export default function WebinarPage() {
         />
 
         {/* ─── 4. RECOGNISED FOR MARQUEE ─── */}
-        <section className="border-y border-[#eadfd4] bg-white py-10 sm:py-12">
+        <section
+          className="border-y border-[#eadfd4] py-10 sm:py-12"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
           <div className="nav-width">
             <div className="text-center">
-              <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c45a28]">Recognised for</p>
-              <ul className="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-stone-700">
+              <p className="mb-5 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">Recognised for</p>
+              <ul className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-base lg:text-sm font-semibold text-stone-700">
                 {["Hall of Fame Award 2022", "I Can Coach — International Best Seller", "Sylph Magazine", "54,000+ webinar attendees", "10+ years coaching"].map((item) => (
                   <li key={item} className="rounded-full border border-[#eadfd4] bg-[#fffaf6] px-4 py-2">{item}</li>
                 ))}
@@ -728,8 +748,8 @@ export default function WebinarPage() {
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {STAT_COUNTERS.map((stat, idx) => (
                 <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white px-4 py-6 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)]">
-                  <dt className="text-3xl font-semibold tracking-tight text-[#e36b32] sm:text-4xl">{stat.value}</dt>
-                  <dd className="mt-1 text-sm text-stone-500">{stat.label}</dd>
+                  <dt className="text-3xl sm:text-5xl lg:text-4xl font-black tracking-tight text-[#942008]">{stat.value}</dt>
+                  <dd className="mt-1 text-xs sm:text-base lg:text-sm text-stone-500">{stat.label}</dd>
                 </div>
               ))}
             </dl>
@@ -737,18 +757,27 @@ export default function WebinarPage() {
         </section>
 
         {/* ─── 6. THE INTERACTIVE GATE SECTION ─── */}
-        <section id="gate" className="relative z-10 bg-white py-16 sm:py-20">
+        <section
+          id="gate"
+          className="relative z-10 py-16 sm:py-20"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
           <div className="nav-width">
             <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#f3d3c0] bg-[linear-gradient(180deg,#fffaf6_0%,#fff_100%)] px-6 py-12 text-center shadow-[0_24px_50px_-32px_rgba(90,55,20,0.4)] sm:px-12">
-              <h2 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                Want to know what makes this Masterclass different?
+              <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                Want to know what makes this <span className="text-[#942008]">Masterclass different?</span>
               </h2>
-              <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-stone-500">
-                I've designed this session around the three things most aspiring resin artists need — mastery, mindset and monetization.
+              <p className="mx-auto mt-4 max-w-xl text-sm sm:text-xl lg:text-base leading-relaxed text-neutral-600">
+                I&apos;ve designed this session around the three things most aspiring resin artists need — mastery, mindset and monetization.
               </p>
               <button
                 onClick={() => setIsUnlocked(!isUnlocked)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 cursor-pointer mt-8"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 cursor-pointer mt-8"
               >
                 {isUnlocked ? "Hide what you'll learn" : "Show me what I'll learn"}
                 {isUnlocked ? <ChevronUp className="ml-1 size-4" /> : <ChevronDown className="ml-1 size-4" />}
@@ -760,7 +789,7 @@ export default function WebinarPage() {
         {/* ─── 7. UNLOCKED EXACT CURRICULUM SECTIONS (100% MATCHING REFERENCE SEQUENCE) ─── */}
         {isUnlocked && (
           <div id="gate-content">
-            
+
             {/* 1. SOUND FAMILIAR? (W -> e2) */}
             <SoundFamiliarSection
               data={SOUND_FAMILIAR}
@@ -778,35 +807,43 @@ export default function WebinarPage() {
             />
 
             {/* 5. THE SHIFT (L -> i2) */}
-            <section className="bg-white py-16 sm:py-20">
+            <section
+              className="py-16 sm:py-20"
+              style={{
+                backgroundColor: "#ffffff",
+                backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+                backgroundSize: "24px 24px",
+                backgroundAttachment: "fixed",
+              }}
+            >
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {THE_SHIFT.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {THE_SHIFT.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    Stop learning resin the <span className="text-[#942008]">hard way</span>
                   </h2>
-                  <p className="text-stone-500 text-base">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                     {THE_SHIFT.subheading}
                   </p>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full overflow-hidden rounded-3xl border border-[#eadfd4] text-left text-sm shadow-[0_18px_40px_-30px_rgba(90,55,20,0.45)]">
+                  <table className="w-full overflow-hidden rounded-3xl border border-[#eadfd4] text-left text-xs sm:text-base lg:text-sm shadow-[0_18px_40px_-30px_rgba(90,55,20,0.45)]">
                     <thead>
                       <tr className="border-b border-[#eadfd4] bg-[#fff6f0]">
-                        <th className="p-4 font-bold text-stone-500 uppercase text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
-                        <th className="p-4 font-bold text-stone-800 uppercase text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
+                        <th className="p-4 font-bold text-stone-500 uppercase text-xs sm:text-sm lg:text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
+                        <th className="p-4 font-bold text-stone-800 uppercase text-xs sm:text-sm lg:text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#eadfd4] bg-white">
                       {THE_SHIFT.pairs.map((pair, idx) => (
                         <tr key={idx}>
-                          <td className="p-4 text-stone-500">
+                          <td className="p-4 text-stone-500 text-xs sm:text-base lg:text-sm">
                             {pair.before}
                           </td>
-                          <td className="p-4 text-stone-800 font-medium">
+                          <td className="p-4 text-stone-800 font-medium text-xs sm:text-base lg:text-sm">
                             {pair.after}
                           </td>
                         </tr>
@@ -827,13 +864,13 @@ export default function WebinarPage() {
             <section className="bg-transparent py-16 sm:py-20">
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {PROOF.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {PROOF.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    You&apos;re learning from someone who has been in the <span className="text-[#942008]">arena</span>
                   </h2>
-                  <p className="text-stone-600 text-base leading-relaxed max-w-2xl mx-auto">
+                  <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-2xl mx-auto">
                     {PROOF.body}
                   </p>
                 </div>
@@ -841,8 +878,8 @@ export default function WebinarPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {PROOF.items.map((item, idx) => (
                     <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-5 text-center">
-                      <p className="text-2xl font-bold text-stone-950 mb-1">{item.value}</p>
-                      <p className="text-xs text-stone-500 font-medium">{item.label}</p>
+                      <p className="text-2xl sm:text-4xl lg:text-3xl font-black text-neutral-950 mb-1">{item.value}</p>
+                      <p className="text-xs sm:text-base lg:text-sm text-stone-500 font-medium">{item.label}</p>
                     </div>
                   ))}
                 </div>
@@ -850,16 +887,24 @@ export default function WebinarPage() {
             </section>
 
             {/* 9. FREE BONUS: CLARITY KIT (B -> u2) */}
-            <section className="bg-white py-16 sm:py-20">
+            <section
+              className="py-16 sm:py-20"
+              style={{
+                backgroundColor: "#ffffff",
+                backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+                backgroundSize: "24px 24px",
+                backgroundAttachment: "fixed",
+              }}
+            >
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {CLARITY_KIT.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {CLARITY_KIT.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    Register free & get the <span className="text-[#942008]">Resin Artist Clarity Kit</span>
                   </h2>
-                  <p className="text-stone-500 text-base">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                     {CLARITY_KIT.subheading}
                   </p>
                 </div>
@@ -868,8 +913,8 @@ export default function WebinarPage() {
                   {CLARITY_KIT.items.map((item, idx) => (
                     <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
                       <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
-                      <h3 className="mb-2 text-base font-bold text-stone-950">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">{item.body}</p>
+                      <h3 className="mb-2 text-base sm:text-xl lg:text-lg font-bold text-neutral-950">{item.title}</h3>
+                      <p className="text-xs sm:text-base lg:text-sm text-neutral-600 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -877,7 +922,7 @@ export default function WebinarPage() {
                 <div className="text-center">
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     {CLARITY_KIT.cta}
                     <ArrowRight size={14} />
@@ -890,11 +935,11 @@ export default function WebinarPage() {
             <section className="bg-transparent py-16 sm:py-20">
               <div className="nav-width">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {VALUE_STACK.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {VALUE_STACK.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    Everything you need to start seeing your <span className="text-[#942008]">resin journey differently</span>
                   </h2>
                 </div>
 
@@ -902,10 +947,10 @@ export default function WebinarPage() {
                   {VALUE_STACK.items.map((item, idx) => (
                     <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
-                        <h3 className="text-base font-bold text-stone-950">{item.title}</h3>
-                        <p className="text-xs sm:text-sm text-stone-500 mt-1">{item.body}</p>
+                        <h3 className="text-base sm:text-xl lg:text-lg font-bold text-neutral-950">{item.title}</h3>
+                        <p className="text-xs sm:text-base lg:text-sm text-neutral-600 mt-1">{item.body}</p>
                       </div>
-                      <span className="text-sm font-bold text-[#c45a28] shrink-0 bg-[#fff6f0] border border-[#eadfd4] px-3 py-1.5 rounded-lg text-center">
+                      <span className="text-xs sm:text-base lg:text-sm font-bold text-[#942008] shrink-0 bg-[#fff6f0] border border-[#eadfd4] px-3 py-1.5 rounded-lg text-center">
                         {item.value}
                       </span>
                     </div>
@@ -914,16 +959,16 @@ export default function WebinarPage() {
 
                 <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                   <div>
-                    <p className="text-xs text-stone-500 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
-                    <p className="text-lg font-bold text-stone-500 line-through">{VALUE_STACK.totalValue}</p>
+                    <p className="text-xs sm:text-sm lg:text-xs text-stone-500 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
+                    <p className="text-lg sm:text-2xl lg:text-xl font-bold text-stone-500 line-through">{VALUE_STACK.totalValue}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[#c45a28] uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
-                    <p className="text-2xl font-semibold text-emerald-600">{VALUE_STACK.priceValue}</p>
+                    <p className="text-xs sm:text-sm lg:text-xs text-[#942008] uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
+                    <p className="text-2xl sm:text-4xl lg:text-3xl font-black text-emerald-600">{VALUE_STACK.priceValue}</p>
                   </div>
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     Reserve my free seat
                     <ArrowRight size={14} />
@@ -939,13 +984,13 @@ export default function WebinarPage() {
             <section className="bg-transparent py-16 sm:py-20">
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28]">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {AGENDA.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
-                    {AGENDA.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    How the <span className="text-[#942008]">90 minutes run</span>
                   </h2>
-                  <p className="text-stone-500 text-base">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                     {AGENDA.subheading}
                   </p>
                 </div>
@@ -953,12 +998,12 @@ export default function WebinarPage() {
                 <div className="space-y-4 max-w-3xl mx-auto">
                   {AGENDA.items.map((item, idx) => (
                     <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <span className="text-stone-500 font-mono text-xs font-bold shrink-0">
+                      <span className="text-stone-500 font-mono text-xs sm:text-base lg:text-sm font-bold shrink-0">
                         {item.time}
                       </span>
                       <div>
-                        <h3 className="font-bold text-stone-950 text-sm">{item.title}</h3>
-                        <p className="text-xs text-stone-500 mt-0.5">{item.body}</p>
+                        <h3 className="font-bold text-neutral-950 text-sm sm:text-lg lg:text-base">{item.title}</h3>
+                        <p className="text-xs sm:text-base lg:text-sm text-neutral-600 mt-0.5">{item.body}</p>
                       </div>
                     </div>
                   ))}
@@ -978,34 +1023,42 @@ export default function WebinarPage() {
         )}
 
         {/* ─── 8. FINAL EMOTIONAL CTA ─── */}
-        <section className="relative z-10 bg-white py-16 text-center sm:py-24">
+        <section
+          className="relative z-10 py-16 text-center sm:py-24"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
           <div className="nav-width">
             <div className="mx-auto max-w-3xl rounded-[2rem] bg-[#2a211c] px-6 py-12 sm:px-12 sm:py-16">
-            <h2 className="mb-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Your art deserves more than a place on your phone
-            </h2>
-            <p className="mx-auto mb-8 max-w-2xl text-sm leading-relaxed text-stone-300 sm:text-base">
-              You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
-            </p>
+              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-white">
+                Your art deserves more than a <span className="text-[#ea580c]">place on your phone</span>
+              </h2>
+              <p className="mx-auto mb-8 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-stone-300">
+                You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
+              </p>
 
-            <div className="mb-6 flex justify-center">
-              <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
-            </div>
+              <div className="mb-6 flex justify-center">
+                <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
+              </div>
 
-            <button
-              onClick={scrollToRegister}
-              className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
-            >
-              Reserve my free seat
-              <ArrowRight className="ml-1.5 size-4" />
-            </button>
+              <button
+                onClick={scrollToRegister}
+                className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
+              >
+                Reserve my free seat
+                <ArrowRight className="ml-1.5 size-4" />
+              </button>
 
-            <p className="mt-4 text-sm font-medium text-[#c45a28]">
-              🔥 Live seats are limited. Register now before registration closes.
-            </p>
-            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-400">
-              Free registration • 90-minute Masterclass • Practical clarity • Action-focused
-            </p>
+              <p className="mt-4 text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c]">
+                🔥 Live seats are limited. Register now before registration closes.
+              </p>
+              <p className="mt-2 text-[11px] sm:text-xs uppercase tracking-[0.14em] text-stone-400">
+                Free registration • 90-minute Masterclass • Practical clarity • Action-focused
+              </p>
             </div>
           </div>
         </section>
@@ -1013,18 +1066,17 @@ export default function WebinarPage() {
 
       {/* ─── 9. STICKY BOTTOM REGISTRATION BAR ─── */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#f3d3c0] bg-[#fffaf6]/95 backdrop-blur-xl transition-transform duration-300 ${
-          showStickyBottom ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#f3d3c0] bg-[#fffaf6]/95 backdrop-blur-xl transition-transform duration-300 ${showStickyBottom ? "translate-y-0" : "translate-y-full"
+          }`}
       >
         <div className="nav-width flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="text-sm font-semibold text-stone-950">Resin Mastery Masterclass</span>
+            <span className="text-xs sm:text-base lg:text-sm font-semibold text-stone-950">Resin Mastery Masterclass</span>
             <WebinarCountdown compact={true} targetDateStr={activeWebinar?.scheduledAt} />
           </div>
           <button
             onClick={scrollToRegister}
-            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
           >
             Get my free seat
             <ArrowRight size={13} />

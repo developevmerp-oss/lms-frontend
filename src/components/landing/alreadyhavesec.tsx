@@ -203,13 +203,13 @@ export default function AlreadyHaveSec() {
         <div className="sticky top-0 h-screen w-full flex flex-col justify-between items-center py-6 sm:py-8 lg:py-10 px-4 overflow-hidden select-none">
           {/* Section Heading */}
           <div className="relative z-20 mx-auto max-w-3xl text-center pt-2 sm:pt-4">
-            <span className="already-kicker mb-2 inline-block text-xs font-black uppercase tracking-widest text-[#a06836]">
+            <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
               Zero Barrier To Start
-            </span>
-            <h2 className="already-heading text-2xl font-black tracking-tight text-[#1c1917] sm:text-3xl lg:text-4xl xl:text-5xl font-serif">
-              Your Journey Starts With What You Already Have.
+            </p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl">
+              Your Journey Starts With <span className="text-[#942008]">What You Already Have.</span>
             </h2>
-            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 max-w-md mx-auto hidden sm:block">
+            <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-neutral-600 hidden sm:block">
               {(isDesktop ? progress < 0.28 : progress < 0.12)
                 ? "Scroll down to reveal what lies ahead..."
                 : (isDesktop ? progress < 0.58 : progress < 0.38)
@@ -250,7 +250,7 @@ export default function AlreadyHaveSec() {
                         <span className="block">{card.titleLine1}</span>
                         <span className="block">{card.titleLine2}</span>
                       </h3>
-                      <p className="text-[#554a3e] text-[13px] sm:text-[14px] lg:text-[15px] font-medium mt-2 sm:mt-2.5 leading-snug px-1">
+                      <p className="text-[#554a3e] text-base sm:text-xl lg:text-base font-medium mt-2 sm:mt-2.5 leading-snug px-1">
                         {card.description}
                       </p>
                     </div>

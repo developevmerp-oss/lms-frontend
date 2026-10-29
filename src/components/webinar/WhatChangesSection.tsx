@@ -76,20 +76,20 @@ export default function WhatChangesSection({ data = DEFAULT_DATA }: WhatChangesS
   return (
     <section
       id="what-changes"
-      className="relative w-full bg-[#FAF7F4] py-14 sm:py-20 lg:py-24"
+      className="relative w-full bg-[#f7f6f0] py-14 sm:py-20 lg:py-24"
     >
       <div className="nav-width mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center rounded-full border border-[#E86A24]/30 bg-[#F4E9DF]/80 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B94F1B] shadow-xs">
+            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 font-serif text-2xl font-semibold leading-tight tracking-tight text-[#292522] sm:text-3xl md:text-4xl lg:text-5xl">
-            {heading}
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+            Imagine what changes when you put these <span className="text-[#942008]">three secrets together</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#77716C] sm:text-base">
+          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
             {subheading}
           </p>
         </div>
@@ -107,17 +107,17 @@ export default function WhatChangesSection({ data = DEFAULT_DATA }: WhatChangesS
                 {/* Content Block */}
                 <div>
                   {/* Icon Box: Rounded squircle container matching reference design */}
-                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#E86A24]/20 bg-[#FAF7F4] text-[#E86A24] transition-all duration-300 group-hover:scale-105 group-hover:border-[#E86A24]/40 group-hover:bg-[#F4E9DF]/80 group-hover:text-[#B94F1B] sm:h-14 sm:w-14">
+                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#942008]/20 bg-white text-[#942008] transition-all duration-300 group-hover:scale-105 group-hover:border-[#942008]/40 group-hover:text-[#942008] sm:h-14 sm:w-14">
                     <Icon className="size-5 stroke-[2.2] sm:size-6" />
                   </div>
 
                   {/* Card Title */}
-                  <h3 className="text-base font-bold tracking-tight text-[#292522] transition-colors duration-300 group-hover:text-[#B94F1B] sm:text-lg">
+                  <h3 className="text-base sm:text-xl lg:text-lg font-bold tracking-tight text-neutral-950 transition-colors duration-300 group-hover:text-[#942008]">
                     {item.title}
                   </h3>
 
                   {/* Card Body */}
-                  <p className="mt-2.5 text-xs leading-relaxed text-[#77716C] sm:text-sm">
+                  <p className="mt-2.5 text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600">
                     {item.body}
                   </p>
                 </div>
@@ -125,7 +125,7 @@ export default function WhatChangesSection({ data = DEFAULT_DATA }: WhatChangesS
                 {/* Bottom Side Progress Line: Smooth expanding animation only on hover */}
                 <div className="mt-6 pt-2">
                   <div className="h-[3.5px] w-full overflow-hidden rounded-full bg-transparent">
-                    <div className="h-full w-0 rounded-full bg-gradient-to-r from-[#E86A24] via-[#E86A24] to-[#B94F1B] transition-all duration-500 ease-out group-hover:w-full" />
+                    <div className="h-full w-0 rounded-full bg-gradient-to-r from-[#942008] via-[#ea580c] to-[#942008] transition-all duration-500 ease-out group-hover:w-full" />
                   </div>
                 </div>
               </div>

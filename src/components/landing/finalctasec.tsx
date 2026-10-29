@@ -17,7 +17,7 @@ export default function FinalCtaSec() {
         <div className="finale-scrim" aria-hidden="true" />
         <div className="nav-width page-rise relative z-10 py-16 sm:py-20 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="finale-title text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+            <h2 className="finale-title text-3xl font-black tracking-tight sm:text-5xl lg:text-5xl">
               Your Art Has More Potential Than You Think.
             </h2>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

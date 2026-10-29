@@ -43,7 +43,13 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
     <section
       ref={sectionRef}
       id="mentor"
-      className="relative w-full overflow-hidden bg-[#FFFFFF]! py-16 sm:py-20 lg:py-28"
+      className="relative w-full overflow-hidden py-16 sm:py-20 lg:py-28"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
     >
       {/* ─── TOP RIGHT GEODE RESIN CORNER ARTWORK ─── */}
       <div
@@ -109,32 +115,32 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
               className={`mb-3 transition-all duration-700 delay-100 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
             >
-              <span className="inline-flex items-center rounded-full bg-[#f0e9df] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600 shadow-2xs">
+              <span className="inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                 {section.eyebrow || "YOUR MENTOR"}
               </span>
             </div>
 
             {/* Heading: "Meet Vrajangna Patel" with Primary Orange highlight */}
             <h2
-              className={`mb-2 font-serif text-3xl font-bold tracking-tight text-[#292522] leading-tight transition-all duration-700 delay-150 ease-out sm:text-4xl lg:text-[44px] xl:text-[48px] ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              className={`mb-2 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950 leading-tight transition-all duration-700 delay-150 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
             >
-              Meet <span className="text-[#E86A24]">{section.name}</span>
+              Meet <span className="text-[#942008]">{section.name}</span>
             </h2>
 
             {/* Role / Subtitle */}
             <p
-              className={`mb-5 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-stone-600 transition-all duration-700 delay-200 ease-out sm:text-sm ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              className={`mb-5 flex flex-wrap items-center gap-1.5 text-xs sm:text-base lg:text-sm font-semibold text-neutral-600 transition-all duration-700 delay-200 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
             >
               <span>Resin Art Business Coach</span>
-              <span className="font-bold text-[#E86A24]">•</span>
+              <span className="font-bold text-[#942008]">•</span>
               <span>Founder, Ravishing Art Hub</span>
             </p>
 
             {/* Bio Paragraphs */}
             <div
-              className={`mb-6 space-y-3 text-xs leading-relaxed text-[#77716C] transition-all duration-700 delay-250 ease-out sm:text-[13.5px] lg:text-[14px] ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              className={`mb-6 space-y-3 text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600 transition-all duration-700 delay-250 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
             >
               {section.bio?.map((paragraph, idx) => (
@@ -150,7 +156,7 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
               <button
                 type="button"
                 onClick={onKnowMore}
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[#E86A24]/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#E86A24]/35 active:scale-95 sm:py-3 sm:text-sm cursor-pointer"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 py-2.5 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-[#E86A24]/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#E86A24]/35 active:scale-95 sm:py-3 cursor-pointer"
               >
                 <span>Know More</span>
                 <ArrowRight size={14} className="stroke-[2.2] transition-transform duration-300 group-hover:translate-x-1" />
@@ -169,8 +175,8 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
                   <Users className="size-4.5 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">10+ years</div>
-                  <div className="text-[11px] leading-tight text-[#77716C]">of coaching</div>
+                  <div className="text-xs sm:text-base lg:text-sm font-bold text-neutral-950">10+ years</div>
+                  <div className="text-[10px] sm:text-sm lg:text-xs leading-tight text-neutral-500">of coaching</div>
                 </div>
               </div>
 
@@ -183,8 +189,8 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
                   <MonitorPlay className="size-4.5 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">54,000+</div>
-                  <div className="text-[11px] leading-tight text-[#77716C]">webinar attendees</div>
+                  <div className="text-xs sm:text-base lg:text-sm font-bold text-neutral-950">54,000+</div>
+                  <div className="text-[10px] sm:text-sm lg:text-xs leading-tight text-neutral-500">webinar attendees</div>
                 </div>
               </div>
 
@@ -197,8 +203,8 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
                   <Trophy className="size-4.5 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">Hall of Fame Award</div>
-                  <div className="text-[10.5px] leading-tight text-[#77716C]">from Siddharth Rajsekar, 2022</div>
+                  <div className="text-xs sm:text-base lg:text-sm font-bold text-neutral-950">Hall of Fame Award</div>
+                  <div className="text-[10px] sm:text-sm lg:text-xs leading-tight text-neutral-500">from Siddharth Rajsekar, 2022</div>
                 </div>
               </div>
 
@@ -211,8 +217,8 @@ export default function WebinarMentor({ section, onKnowMore }: WebinarMentorProp
                   <BookOpen className="size-4.5 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#292522] sm:text-[13px]">Co-author</div>
-                  <div className="text-[10.5px] leading-tight text-[#77716C]">I Can Coach & Featured in Sylph Magazine</div>
+                  <div className="text-xs sm:text-base lg:text-sm font-bold text-neutral-950">Co-author</div>
+                  <div className="text-[10px] sm:text-sm lg:text-xs leading-tight text-neutral-500">I Can Coach & Featured in Sylph Magazine</div>
                 </div>
               </div>
 

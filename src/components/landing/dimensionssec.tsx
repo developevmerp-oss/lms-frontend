@@ -50,13 +50,13 @@ export default function DimensionsSec() {
     <section id="dimensions" className="dimensions-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
       <div className="nav-width page-rise">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="dimensions-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             Holistic Development
           </p>
-          <h2 className="dimensions-heading mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
-            Success Is More Than The Money You Make.
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+            Success Is More Than <span className="text-[#942008]">The Money You Make.</span>
           </h2>
-          <p className="dimensions-muted mt-4 text-sm leading-relaxed text-neutral-500 sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
             Your growth should be measured by the person you become along the way. We believe your Resin Art journey should help you grow across six important dimensions:
           </p>
         </div>
@@ -82,9 +82,9 @@ export default function DimensionsSec() {
             return (
               <article key={dim.title} className="flex h-full flex-col rounded-[1.6rem] border border-[#f1efec] bg-[#fbfbfb] p-5 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_36px_-22px_rgba(227,107,50,0.28)] sm:p-6">
                 <Icon size={40} strokeWidth={1.6} className="dimensions-line-icon mb-4" aria-hidden="true" />
-                <h3 className="dimensions-title text-base font-bold text-neutral-950 sm:text-lg">{dim.title}</h3>
-                <p className="dimensions-muted mt-2 flex-1 text-sm leading-relaxed text-neutral-500">{dim.desc}</p>
-                <p className="dimensions-tag mt-4 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                <h3 className="dimensions-title text-base font-bold text-neutral-950 sm:text-xl lg:text-lg">{dim.title}</h3>
+                <p className="dimensions-muted mt-2 flex-1 text-sm sm:text-lg lg:text-sm leading-relaxed text-neutral-500">{dim.desc}</p>
+                <p className="dimensions-tag mt-4 text-sm sm:text-base lg:text-sm font-semibold uppercase tracking-wider text-neutral-400">
                   {dim.outcomeTag}
                 </p>
               </article>

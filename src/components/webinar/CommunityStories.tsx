@@ -227,7 +227,13 @@ export default function CommunityStories({ section }: { section: CommunitySectio
   return (
     <section
       id="community"
-      className="relative w-full overflow-hidden bg-[#FFFFFF] py-14 sm:py-18 lg:py-22"
+      className="relative w-full overflow-hidden py-14 sm:py-18 lg:py-22"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
       aria-label={section.heading}
     >
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -248,18 +254,18 @@ export default function CommunityStories({ section }: { section: CommunitySectio
           />
 
           {/* Eyebrow */}
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#A69B8F] sm:text-xs">
+          <p className="mb-3 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             {section.eyebrow || "STUDENT STORIES"}
           </p>
 
           {/* Heading: Exactly 2 lines in bold BLACK color */}
-          <h2 className="font-serif text-3xl font-extrabold leading-[1.18] tracking-tight text-[#171c24] sm:text-4xl md:text-5xl lg:text-[46px]">
+          <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black leading-[1.15] tracking-tight text-neutral-950">
             {line1} <br />
-            <span>{line2}</span>
+            <span className="text-[#942008]">{line2}</span>
           </h2>
 
           {/* Subheading */}
-          <p className="mx-auto mt-3.5 max-w-2xl text-xs leading-relaxed text-[#77716C] sm:text-sm md:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
             {section.subheading}
           </p>
         </div>
@@ -323,7 +329,7 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                     </div>
 
                     <p
-                      className={`text-xs leading-relaxed text-[#3a342e] sm:text-[13px] ${expanded ? "block" : "line-clamp-5"
+                      className={`text-xs sm:text-base lg:text-sm leading-relaxed text-[#3a342e] ${expanded ? "block" : "line-clamp-5"
                         }`}
                     >
                       &ldquo;{item.quote}&rdquo;
@@ -333,10 +339,10 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                   {/* Card Foot */}
                   <div className="mt-4 flex items-end justify-between border-t border-stone-900/10 pt-3.5">
                     <div>
-                      <h4 className="text-sm font-bold text-[#171c24]">
+                      <h4 className="text-sm sm:text-lg lg:text-base font-bold text-neutral-900">
                         {item.name}
                       </h4>
-                      <p className="text-[11px] text-[#8a8178]">{item.role}</p>
+                      <p className="text-xs sm:text-base lg:text-xs text-neutral-500">{item.role}</p>
                     </div>
 
                     {/* <button
@@ -425,7 +431,7 @@ export default function CommunityStories({ section }: { section: CommunitySectio
 
                         {/* Quote Text (Snug natural spacing) */}
                         <p
-                          className={`text-xs leading-relaxed text-[#3a342e] sm:text-[13px] ${expanded ? "block" : "line-clamp-5"
+                          className={`text-xs sm:text-base lg:text-sm leading-relaxed text-[#3a342e] ${expanded ? "block" : "line-clamp-5"
                             }`}
                         >
                           &ldquo;{item.quote}&rdquo;
@@ -435,10 +441,10 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                       {/* Card Foot: Snug spacing without excessive void */}
                       <div className="mt-4 flex items-end justify-between border-t border-stone-900/10 pt-3.5 sm:mt-5 sm:pt-4">
                         <div>
-                          <h4 className="text-sm font-bold text-[#171c24] sm:text-[14.5px]">
+                          <h4 className="text-sm sm:text-lg lg:text-base font-bold text-neutral-900">
                             {item.name}
                           </h4>
-                          <p className="text-[11px] text-[#8a8178] sm:text-xs">{item.role}</p>
+                          <p className="text-xs sm:text-base lg:text-xs text-neutral-500">{item.role}</p>
                         </div>
 
                         {/* Circular Action Button with Plus Icon */}

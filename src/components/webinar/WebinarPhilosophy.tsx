@@ -4,8 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface PhilosophyStep {
-  label: string;
+  label?: string;
+  badge?: string;
+  tabName?: string;
   title: string;
+  myth?: string;
   body: string;
   image?: string;
 }
@@ -35,18 +38,30 @@ const DEFAULT_DATA: PhilosophyData = {
   steps: [
     {
       label: "STEP 1",
-      title: "Master",
-      body: "Build premium skills in the right sequence so you know what to learn, practice and create next.",
+      badge: "MASTERY",
+      tabName: "Mastery",
+      title: "Learn the right techniques in the right sequence",
+      myth: "Most people believe more tutorials will eventually add up.",
+      body: "You'll see why random tutorials create confusion, and how structured learning accelerates progress — technique sequencing, premium skill development, a portfolio-building mindset and moving beyond random projects.",
+      image: "/images/secrets/secret-1-mastery.jpg",
     },
     {
       label: "STEP 2",
-      title: "Mindset",
-      body: "Build the confidence to create, share, receive feedback and believe your work deserves to be seen.",
+      badge: "MINDSET",
+      tabName: "Mindset",
+      title: "Become confident enough to own your creativity",
+      myth: "Most people believe their work isn't good enough to be seen yet.",
+      body: "You'll learn how to move past fear of creating, comparison, the \"my work isn't good enough\" loop, fear of showing your work, and confusion about your artistic identity.",
+      image: "/images/secrets/secret-2-mindset.jpg",
     },
     {
       label: "STEP 3",
-      title: "Monetization",
-      body: "Learn how to connect your skills with pricing, branding, marketing and a business model.",
+      badge: "MONETIZATION",
+      tabName: "Monetization",
+      title: "Turn your art into a real opportunity",
+      myth: "Most people believe business skills come much later.",
+      body: "You'll understand the foundations of product selection, pricing, branding, marketing, customer attraction, community support and a practical business roadmap.",
+      image: "/images/secrets/secret-3-monetization.jpg",
     },
   ],
   closing:
@@ -88,7 +103,7 @@ export default function WebinarPhilosophy({
     <section
       ref={sectionRef}
       id="philosophy"
-      className="relative w-full overflow-hidden bg-[#24211F] py-16 sm:py-20 lg:py-28"
+      className="relative w-full overflow-hidden bg-[#24211F] pt-20 pb-16 sm:pt-28 sm:pb-20 lg:py-28"
     >
       {/* Dynamic Keyframe Animations for Corner Decor */}
       <style jsx>{`
@@ -130,12 +145,12 @@ export default function WebinarPhilosophy({
         }}
       />
 
-      {/* ─── TOP-LEFT DECORATIVE RESIN ART ─── */}
+      {/* ─── TOP-LEFT DECORATIVE RESIN ART (Scaled modestly on mobile so it doesn't overlap title) ─── */}
       <div className="animate-decor-left pointer-events-none absolute left-0 top-0 z-0 select-none">
         <img
           src="/images/philosophy/philosophy-decor-top-left.png"
           alt=""
-          className="h-auto w-[180px] object-contain opacity-90 transition-opacity duration-300 sm:w-[260px] md:w-[340px] lg:w-[420px] xl:w-[480px] 2xl:w-[530px]"
+          className="h-auto w-[110px] sm:w-[170px] md:w-[260px] lg:w-[420px] xl:w-[480px] 2xl:w-[530px] object-contain opacity-70 sm:opacity-85 lg:opacity-90 transition-opacity duration-300"
         />
       </div>
 
@@ -144,52 +159,113 @@ export default function WebinarPhilosophy({
         <img
           src="/images/philosophy/philosophy-decor-top-right.png"
           alt=""
-          className="h-auto w-[180px] object-contain opacity-90 transition-opacity duration-300 sm:w-[260px] md:w-[340px] lg:w-[420px] xl:w-[480px] 2xl:w-[530px]"
+          className="h-auto w-[110px] sm:w-[170px] md:w-[260px] lg:w-[420px] xl:w-[480px] 2xl:w-[530px] object-contain opacity-70 sm:opacity-85 lg:opacity-90 transition-opacity duration-300"
         />
       </div>
 
       {/* ─── MAIN CONTENT CONTAINER (Z-10 to stay safely above corner decor) ─── */}
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Top Header Line with Eyebrow matching Reference Design */}
+        {/* Top Eyebrow Divider */}
         <div
-          className={`mb-8 sm:mb-10 flex items-center gap-4 transition-all duration-700 ease-out ${
+          className={`mb-6 sm:mb-8 flex items-center gap-4 transition-all duration-700 ease-out ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
           }`}
         >
           {eyebrow && (
-            <span className="shrink-0 text-[11px] sm:text-xs font-bold uppercase tracking-[0.22em] text-[#E86A24]">
+            <span className="shrink-0 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]">
               {eyebrow}
             </span>
           )}
           <div className="h-[1px] flex-1 bg-white/15" />
         </div>
 
-        {/* ─── TOP ROW: Heading and Subheading placed on Right (matching reference) ─── */}
+        {/* ─── MOBILE & TABLET FLOW HEADING (< lg): Cleanly shows flow title and description below corner flower ─── */}
         <div
-          className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 mb-4 sm:mb-6 transition-all duration-700 ease-out ${
+          className={`block lg:hidden mb-8 sm:mb-10 transition-all duration-700 ease-out ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
           }`}
         >
-          <div className="hidden lg:block lg:col-span-5" />
-          <div className="lg:col-span-7">
-            <h2 className="mb-3 font-serif text-2xl font-normal leading-tight tracking-tight text-white sm:text-3xl md:text-4xl lg:text-[44px]">
-              {heading}
+          <h2 className="mb-3 text-3xl sm:text-5xl font-black leading-tight tracking-tight text-white">
+            Mastery → Mindset → <span className="text-[#ea580c]">Monetization</span>
+          </h2>
+          <p className="max-w-2xl text-sm sm:text-xl font-normal leading-relaxed text-[#F4E9DF]/80">
+            {subheading}
+          </p>
+        </div>
+
+        {/* ─── DESKTOP TOP ROW: Heading and Subheading placed on Right (matching reference desktop) ─── */}
+        <div
+          className={`hidden lg:grid grid-cols-12 gap-12 xl:gap-16 mb-6 transition-all duration-700 ease-out ${
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+          }`}
+        >
+          <div className="col-span-5" />
+          <div className="col-span-7">
+            <h2 className="mb-3 text-3xl sm:text-5xl lg:text-5xl font-black leading-tight tracking-tight text-white">
+              Mastery → Mindset → <span className="text-[#ea580c]">Monetization</span>
             </h2>
-            <p className="max-w-xl text-xs font-light leading-relaxed text-[#F4E9DF]/80 sm:text-sm md:text-base">
+            <p className="max-w-xl text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
               {subheading}
             </p>
           </div>
         </div>
 
-        {/* ─── 2-COLUMN SHOWCASE: Left Card matches the Exact Height of the 3 Points ─── */}
+        {/* ─── MOBILE & TABLET VIEW (< lg): DIRECTLY SHOW ALL 3 CARDS STACKED ─── */}
+        <div className="block lg:hidden space-y-6 sm:space-y-8">
+          {steps.map((step, idx) => {
+            const stepImg = step.image || DEFAULT_CARD_IMAGES[idx % DEFAULT_CARD_IMAGES.length];
+            return (
+              <div
+                key={idx}
+                className="rounded-[24px] sm:rounded-[30px] border border-white/10 bg-[#1C1917]/95 p-5 sm:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] backdrop-blur-md"
+              >
+                {/* Card Top: Step number & count */}
+                <div className="flex items-center justify-between pb-3 text-xs sm:text-base font-bold tracking-[0.18em] text-[#ea580c]">
+                  <span>{step.label || `STEP ${idx + 1}`}</span>
+                  <span className="text-white/40">0{idx + 1} / 03</span>
+                </div>
+
+                {/* Card Image */}
+                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-white/10 bg-black/40 my-1">
+                  <img
+                    src={stepImg}
+                    alt={step.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                </div>
+
+                {/* Card Content */}
+                <div className="pt-4">
+                  <span className="inline-block text-xs sm:text-base font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
+                    {step.badge || step.tabName}
+                  </span>
+                  <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white leading-snug">
+                    {step.title}
+                  </h3>
+                  {step.myth && (
+                    <p className="mb-2.5 text-xs sm:text-base font-semibold italic text-[#ea580c]/95 leading-relaxed">
+                      {step.myth}
+                    </p>
+                  )}
+                  <p className="text-xs sm:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
+                    {step.body}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ─── DESKTOP 2-COLUMN SHOWCASE (lg:grid): Left Big Card + Right Interactive Points (PERMANENTLY HEIGHT-LOCKED) ─── */}
         <div
-          className={`grid grid-cols-1 gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16 lg:items-stretch transition-all duration-700 ease-out ${
+          className={`hidden lg:grid grid-cols-12 gap-12 xl:gap-16 items-stretch transition-opacity duration-700 ease-out ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          {/* ──── LEFT COLUMN: THE BIG CARD (Same height as the 3 points) ──── */}
-          <div className="order-2 lg:order-1 lg:col-span-5 flex flex-col">
-            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#1C1917]/95 p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-md transition-all duration-700 sm:rounded-[32px]">
+          {/* Left Column: Big Interactive Card with strictly locked height */}
+          <div className="col-span-5 flex flex-col min-h-[560px] h-[560px]">
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[#1C1917]/95 p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-md">
               {/* Dynamic glass sweep sheen when card changes */}
               <AnimatePresence mode="wait">
                 <motion.div
@@ -201,58 +277,68 @@ export default function WebinarPhilosophy({
                 />
               </AnimatePresence>
 
-              {/* Step indicator header */}
-              <div className="mb-3.5 flex items-center justify-between px-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#E86A24]">
-                  {currentStep.label}
-                </span>
-                <span className="text-[11px] font-mono tracking-widest text-[#F4E9DF]/40">
-                  0{activeIndex + 1} / 0{steps.length}
-                </span>
+              {/* Top Header of Card */}
+              <div className="relative z-10 flex shrink-0 items-center justify-between pb-3 text-xs sm:text-base lg:text-xs font-bold tracking-[0.18em] text-[#ea580c]">
+                <span>{currentStep.label || `STEP ${activeIndex + 1}`}</span>
+                <span className="text-white/40">0{activeIndex + 1} / 03</span>
               </div>
 
-              {/* Large Card Image with smooth focus-reveal & dissolve animation */}
-              <div className="relative aspect-[4/3] sm:aspect-[16/11] lg:aspect-auto lg:flex-1 lg:min-h-[240px] w-full overflow-hidden rounded-[20px] bg-stone-900/60 sm:rounded-[24px]">
-                <AnimatePresence mode="popLayout">
-                  <motion.img
-                    key={activeIndex}
-                    src={currentImage}
-                    alt={currentStep.title}
-                    initial={{ opacity: 0, scale: 1.1, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, scale: 0.95, filter: "blur(4px)" }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                </AnimatePresence>
-                {/* Subtle dark gradient overlay at bottom of image */}
+              {/* Big Rounded Image with Fixed Aspect Ratio CSS Grid */}
+              <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 grid grid-cols-1 grid-rows-1">
+                {steps.map((step, idx) => {
+                  const isCurrent = idx === activeIndex;
+                  const stepImg = step.image || DEFAULT_CARD_IMAGES[idx % DEFAULT_CARD_IMAGES.length];
+                  return (
+                    <img
+                      key={idx}
+                      src={stepImg}
+                      alt={step.title}
+                      className={`col-start-1 row-start-1 h-full w-full object-cover transition-opacity duration-500 ease-out ${
+                        isCurrent ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                      }`}
+                    />
+                  );
+                })}
                 <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
               </div>
 
-              {/* Card Details: Smooth slide-up & fade transition on step change */}
-              <div className="relative pt-5 pb-1 min-h-[110px] sm:min-h-[120px] overflow-hidden">
-                <AnimatePresence mode="popLayout">
-                  <motion.div
-                    key={activeIndex}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -12 }}
-                    transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <h3 className="mb-2 font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                      {currentStep.title}
-                    </h3>
-                    <p className="text-xs font-normal leading-relaxed text-[#F4E9DF]/75 sm:text-sm">
-                      {currentStep.body}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
+              {/* Card Details: Height strictly locked across all steps using CSS Grid stack (0px shift) */}
+              <div className="relative pt-4 pb-1 grid grid-cols-1 grid-rows-1 min-h-[220px] h-[220px]">
+                {steps.map((step, idx) => {
+                  const isCurrent = idx === activeIndex;
+                  return (
+                    <div
+                      key={idx}
+                      className={`col-start-1 row-start-1 flex flex-col justify-start transition-all duration-500 ease-out ${
+                        isCurrent
+                          ? "opacity-100 translate-y-0 pointer-events-auto z-10"
+                          : "opacity-0 translate-y-2 pointer-events-none z-0 invisible"
+                      }`}
+                      aria-hidden={!isCurrent}
+                    >
+                      <span className="inline-block text-xs sm:text-base lg:text-xs font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
+                        {step.badge || step.tabName}
+                      </span>
+                      <h3 className="mb-2 text-lg sm:text-2xl lg:text-xl font-bold tracking-tight text-white leading-snug">
+                        {step.title}
+                      </h3>
+                      {step.myth && (
+                        <p className="mb-2 text-xs sm:text-base lg:text-sm font-semibold italic text-[#ea580c]/90 leading-relaxed">
+                          {step.myth}
+                        </p>
+                      )}
+                      <p className="text-xs sm:text-base lg:text-sm font-normal leading-relaxed text-[#F4E9DF]/80">
+                        {step.body}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* ──── RIGHT COLUMN: THE 3 POINTS (Equal height to Left Card) ──── */}
-          <div className="order-1 lg:order-2 lg:col-span-7 flex flex-col justify-between">
+          {/* Right Column: The 3 Interactive Points (Locked to exact 560px matching left card) */}
+          <div className="col-span-7 flex flex-col justify-between min-h-[560px] h-[560px]">
             <div className="flex h-full flex-col justify-between">
               {steps.map((step, idx) => {
                 const isActive = idx === activeIndex;
@@ -285,20 +371,20 @@ export default function WebinarPhilosophy({
 
                       {/* Title Text */}
                       <span
-                        className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        className={`text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                           isActive
                             ? "text-white"
                             : "text-white/20 group-hover:text-white/40"
                         }`}
                       >
-                        {step.title}
+                        {step.tabName || step.badge || step.title}
                       </span>
                     </div>
 
                     {/* Base Inactive Border Line */}
                     <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white/15" />
 
-                    {/* Active Highlight Line: Left-to-Right Progress on Enter, Right-to-Left Retraction on Exit */}
+                    {/* Active Highlight Line */}
                     <div
                       className="absolute bottom-0 left-0 right-0 h-[2px] bg-white pointer-events-none transition-transform duration-750 ease-[cubic-bezier(0.16,1,0.3,1)]"
                       style={{
@@ -316,7 +402,7 @@ export default function WebinarPhilosophy({
         {/* ─── BOTTOM CLOSING TEXT ─── */}
         {closing && (
           <p
-            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-xs font-light leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out sm:text-sm md:text-base ${
+            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
             }`}
           >

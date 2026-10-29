@@ -96,13 +96,13 @@ function PlanImageBanner({
   const showPlaceholder = !src || hasError;
 
   return (
-    <div className="relative w-full aspect-[16/11] bg-stone-100/90 overflow-hidden flex items-center justify-center border-b border-stone-200/60 group/banner">
+    <div className="relative w-full aspect-[16/10] bg-stone-100/90 rounded-2xl overflow-hidden flex items-center justify-center border border-stone-200/70 group/banner">
       {showPlaceholder ? (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200/80 text-stone-400 select-none p-4">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-sm border border-stone-200/80 flex items-center justify-center text-stone-400 transition-transform duration-300 group-hover/banner:scale-105">
-            <ImageIcon className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.75]" aria-hidden="true" />
+        <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100/90 text-stone-400 select-none p-4">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white shadow-xs border border-stone-200/80 flex items-center justify-center text-stone-400 transition-transform duration-300 group-hover/banner:scale-105">
+            <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" aria-hidden="true" />
           </div>
-          <span className="mt-2.5 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-stone-400">
+          <span className="mt-2 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-stone-400">
             {badgeTag || "Course Plan"}
           </span>
         </div>
@@ -110,13 +110,13 @@ function PlanImageBanner({
         <img
           src={src}
           alt={alt}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover/banner:scale-105"
           onError={() => setHasError(true)}
         />
       )}
 
       {isMainCertification && (
-        <div className="absolute top-3.5 right-3.5 z-10">
+        <div className="absolute top-2.5 right-2.5 z-10">
           <span className="journey-cert inline-flex items-center gap-1 bg-white/95 backdrop-blur-sm text-[#ea580c] text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm border border-orange-200/40">
             ★ MAIN CERTIFICATION
           </span>
@@ -211,13 +211,13 @@ export default function JourneySec({
     <section id="membership" className="journey-sec relative z-10 flex items-center bg-[#fcfbf9] py-16 sm:py-20 lg:py-24">
       <div className="w-full max-w-[96rem] mx-auto px-3.5 sm:px-6 lg:px-8 xl:px-10 page-rise">
         <div className="mb-8 max-w-3xl sm:mb-10 lg:mb-10">
-          <p className="journey-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             Level Progression
           </p>
-          <h2 className="journey-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-4xl lg:leading-tight text-neutral-900">
-            Choose Your Ravishing Journey
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+            Choose Your <span className="text-[#942008]">Ravishing Journey</span>
           </h2>
-          <p className="journey-muted mt-3 text-sm leading-relaxed sm:text-base text-neutral-600">
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
             Wherever you are today, there is a next step for you.
           </p>
         </div>
@@ -229,25 +229,25 @@ export default function JourneySec({
             [0, 1, 2, 3].map((n) => (
               <div
                 key={n}
-                className="journey-card flex h-[580px] flex-col justify-between rounded-[2rem] p-3.5 animate-pulse bg-white border border-stone-200/80 shadow-sm"
+                className="journey-card flex h-[580px] flex-col justify-between rounded-[26px] sm:rounded-[28px] p-4 sm:p-5 bg-white border border-stone-200/90 border-b-[3px] border-b-stone-300/80 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.08)] animate-pulse w-full"
               >
-                <div className="journey-panel flex flex-col rounded-[1.5rem] overflow-hidden bg-stone-100/70">
-                  <div className="w-full aspect-[16/11] bg-stone-200/80 flex items-center justify-center text-stone-300">
-                    <ImageIcon className="w-8 h-8 stroke-[1.5]" />
+                <div>
+                  <div className="w-full aspect-[16/10] bg-stone-100/90 rounded-2xl border border-stone-200/70 flex items-center justify-center text-stone-300">
+                    <ImageIcon className="w-6 h-6 stroke-[1.6]" />
                   </div>
-                  <div className="p-5 space-y-3">
-                    <div className="h-4 w-24 bg-stone-200 rounded" />
+                  <div className="pt-4 space-y-2.5">
+                    <div className="h-3.5 w-24 bg-stone-200 rounded" />
                     <div className="h-3 w-36 bg-stone-200 rounded" />
-                    <div className="h-7 w-3/4 bg-stone-200 rounded" />
-                    <div className="h-8 w-1/2 bg-stone-200 rounded" />
-                    <div className="h-10 w-full bg-stone-200 rounded" />
+                    <div className="h-6 w-3/4 bg-stone-200 rounded mt-2" />
+                    <div className="h-7 w-1/2 bg-stone-200 rounded" />
+                    <div className="h-9 w-full bg-stone-200 rounded mt-2" />
                   </div>
                 </div>
-                <div className="pt-5 px-3 space-y-2.5">
-                  <div className="h-4 w-28 bg-stone-200 rounded" />
-                  <div className="h-4 w-44 bg-stone-200 rounded" />
-                  <div className="h-4 w-40 bg-stone-200 rounded" />
-                  <div className="h-12 w-full bg-stone-200/80 rounded-xl mt-6" />
+                <div className="space-y-2.5 pt-4 border-t border-stone-100">
+                  <div className="h-3.5 w-28 bg-stone-200 rounded" />
+                  <div className="h-3.5 w-48 bg-stone-200 rounded" />
+                  <div className="h-3.5 w-40 bg-stone-200 rounded" />
+                  <div className="h-11 w-full bg-stone-200 rounded-xl mt-5" />
                 </div>
               </div>
             ))
@@ -361,11 +361,11 @@ export default function JourneySec({
               return (
                 <article
                   key={tier.id || tier.code || idx}
-                  className={`journey-card journey-wash-${idx % 4} flex h-full flex-col justify-between rounded-[2rem] p-3 sm:p-3.5 lg:p-4 bg-white border border-stone-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 w-full`}
+                  className="journey-card group relative flex h-full flex-col justify-between rounded-[26px] sm:rounded-[28px] p-4 sm:p-5 bg-white border border-stone-200/90 border-b-[3px] border-b-stone-300/80 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_22px_45px_-8px_rgba(0,0,0,0.13),0_8px_20px_rgba(0,0,0,0.05)] hover:-translate-y-1.5 transition-all duration-300 w-full"
                 >
-                  {/* Top Colored Hero Block */}
-                  <div className="journey-panel flex flex-col rounded-[1.5rem] overflow-hidden">
-                    {/* Image Banner: Shows plan image or image icon placeholder if plan has no image */}
+                  {/* Top Content: Inset Image Banner + Level Meta + Title + Price + Desc */}
+                  <div className="flex flex-col">
+                    {/* Inset Rounded Image Banner */}
                     <PlanImageBanner
                       src={thumbnailSrc}
                       alt={displayTitle}
@@ -373,21 +373,21 @@ export default function JourneySec({
                       badgeTag={badgeTag}
                     />
 
-                    {/* Content inside top hero panel */}
-                    <div className="p-5 sm:p-5.5 flex flex-col flex-1">
+                    {/* Meta Section */}
+                    <div className="pt-4 flex flex-col">
                       {/* Level Tag & Icon */}
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm select-none" aria-hidden="true">
+                        <span className="text-lg sm:text-xl lg:text-sm select-none" aria-hidden="true">
                           {icon}
                         </span>
-                        <p className={`text-[11px] font-black uppercase tracking-wider ${levelColorClass}`}>
+                        <p className={`text-sm sm:text-base lg:text-xs font-black uppercase tracking-wider ${levelColorClass}`}>
                           {badgeTag}
                         </p>
                       </div>
 
                       {/* Category • Validity */}
                       {(displayCategory || validityText) && (
-                        <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                        <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[0.9rem] lg:text-[0.6rem] font-bold text-neutral-400 uppercase tracking-wider">
                           {displayCategory && <span>{displayCategory}</span>}
                           {displayCategory && validityText && <span>•</span>}
                           {validityText && <span>{validityText}</span>}
@@ -395,20 +395,20 @@ export default function JourneySec({
                       )}
 
                       {/* Title */}
-                      <h3 className="journey-title mt-3 text-2xl sm:text-[1.65rem] font-bold text-neutral-900 tracking-tight leading-snug">
+                      <h3 className="journey-title mt-2.5 text-xl sm:text-[22px] font-bold text-neutral-900 tracking-tight leading-snug">
                         {displayTitle}
                       </h3>
 
                       {/* Price */}
                       {price && (
-                        <p className="journey-price mt-2 text-3xl sm:text-[2.1rem] font-black text-neutral-950 tracking-tight">
+                        <p className="journey-price mt-1.5 text-2xl sm:text-[28px] font-black text-neutral-950 tracking-tight">
                           {price}
                         </p>
                       )}
 
                       {/* Dynamic Campaign Offer if active */}
                       {tier.offerActive && (
-                        <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 text-[10px] font-bold">
+                        <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-600 text-xs sm:text-base lg:text-xs font-semibold self-start">
                           <span>🎁</span>
                           <span>{tier.offerTitle || "Special Offer"}</span>
                           {Boolean(tier.discountValue && tier.discountValue > 0) && (
@@ -421,14 +421,14 @@ export default function JourneySec({
 
                       {/* Description */}
                       {levelDesc && (
-                        <p className="journey-desc mt-2.5 text-[13px] leading-relaxed text-neutral-600">
+                        <p className="journey-desc mt-2 text-xs sm:text-[13px] leading-relaxed text-neutral-600">
                           {levelDesc}
                         </p>
                       )}
 
                       {/* EMI / Installment Badge */}
                       {hasEmi && (
-                        <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#eafaf1] px-3 py-2 text-[11px] sm:text-xs font-bold text-[#047857]">
+                        <div className="mt-2.5 inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 text-[11px] sm:text-xs font-semibold text-emerald-700 self-start">
                           <span className="text-sm select-none">💳</span>
                           <span>EMI / Installment Plans Available ({emiParts} parts)</span>
                         </div>
@@ -436,17 +436,17 @@ export default function JourneySec({
                     </div>
                   </div>
 
-                  {/* Bottom White Section: What's included + Features + CTA */}
-                  <div className="flex-1 flex flex-col justify-between pt-5 px-3 sm:px-4 pb-1">
+                  {/* Bottom Section: What's included + Features with theme color orange checkmark + CTA */}
+                  <div className="flex flex-col justify-between pt-5 mt-4 border-t border-stone-100 flex-1">
                     <div>
-                      <p className="text-sm font-bold text-neutral-900 mb-3">
+                      <p className="text-xs sm:text-[13px] font-bold text-neutral-900 mb-3 uppercase tracking-wider">
                         What&apos;s included
                       </p>
 
                       <ul className="space-y-2.5">
                         {visibleHighlights.map((feature, fIdx) => (
-                          <li key={fIdx} className="flex items-center gap-2.5 text-sm text-neutral-700 font-medium">
-                            <div className="w-4 h-4 rounded-full bg-[#16a34a] text-white flex items-center justify-center shrink-0 shadow-sm">
+                          <li key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-neutral-700 font-medium leading-snug">
+                            <div className="w-4 h-4 rounded-full bg-[#ea580c] text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
                               <svg className="w-2.5 h-2.5 stroke-white stroke-[3.5] fill-none" viewBox="0 0 24 24">
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
@@ -466,7 +466,7 @@ export default function JourneySec({
                     {/* CTA Button */}
                     <Link
                       href={buttonHref}
-                      className="journey-btn mt-6 w-full inline-flex items-center justify-center gap-2 bg-[#18181b] hover:bg-neutral-900 active:scale-[0.99] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-sm"
+                      className="journey-btn mt-6 w-full inline-flex items-center justify-center gap-2 bg-[#18181b] hover:bg-black active:scale-[0.99] text-white font-bold text-xs sm:text-sm py-3.5 px-4 rounded-xl sm:rounded-2xl transition-all shadow-sm hover:shadow-md"
                     >
                       <span>{buttonText}</span>
                       <ArrowRight size={16} aria-hidden="true" />

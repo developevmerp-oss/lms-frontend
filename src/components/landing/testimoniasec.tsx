@@ -158,21 +158,22 @@ export default function TestimoniaSec() {
     <section className="testimonia-sec relative z-10 bg-[#f7f6f0] py-16 text-neutral-950 sm:py-20 lg:py-24">
       <div className="nav-width">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="testimonia-kicker text-xs font-semibold uppercase tracking-widest">
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             Verified Track Record
           </p>
-          <h2 className="testimonia-heading mt-3 font-serif text-3xl font-medium leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-            54K+ Students Taught. 8K+ Orders Completed. 5★ Google Rating.
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+            54K+ Students Taught. 8K+ Orders Completed.
+            {/* <span className="text-[#942008]">5★ Google Rating.</span> */}
           </h2>
-          <p className="testimonia-muted mt-4 text-sm leading-relaxed sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-neutral-600 text-sm sm:text-xl lg:text-base">
             Thousands of learners have already trusted Ravishing Art to help them explore, learn and grow through Resin Art. From beginners taking their first step to creators building their own identity and income, every journey is different. But every journey begins with one decision: to start.
           </p>
           <p className="testimonia-score mt-5 font-serif text-4xl font-medium leading-none">5.0</p>
           <div className="mt-3 flex justify-center">
             <Stars count={5} size={16} />
           </div>
-          <p className="testimonia-strong mt-2 text-sm font-semibold">Ravishing Art App</p>
-          <p className="testimonia-muted mt-1 text-sm">Google Play Store · 100% Real Student Feedback</p>
+          <p className="testimonia-strong mt-2 text-sm sm:text-lg lg:text-sm font-semibold">Ravishing Art App</p>
+          <p className="testimonia-muted mt-1 text-sm sm:text-lg lg:text-sm">Google Play Store · 100% Real Student Feedback</p>
         </div>
 
         <ReviewBoard

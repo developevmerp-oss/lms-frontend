@@ -136,52 +136,45 @@ const ACCOLADES = [
 
 export default function MentorAboutSec() {
   const sectionRef = useRef<HTMLElement>(null);
-  const showcaseTrackRef = useRef<HTMLDivElement>(null);
-  const cardElementsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const activeCardIndexRef = useRef(0);
 
-  // ─── 4 ACCREDITATION & HONORS CARDS SPECIFIED BY USER (NO NUMBERS ON CARDS) ───
-  const DIAGONAL_CARDS = [
+
+  // ─── 4 AWARDS TIMELINE DATA (EXACT 4 CARDS AS PER USER SPECIFICATION) ───
+  const AWARDS_TIMELINE = [
     {
-      id: 1,
-      tabLabel: "Hall of Award",
-      badge: "HALL OF AWARD",
-      title: "Hall of Fame Felicitation 2022–23",
+      step: "01",
+      badge: "HALL OF FAME AWARD",
       tag: "Freedom Retreat",
+      title: "Hall of Fame Felicitation 2022–23",
       text: "Awarded national stage recognition by India's leading coach Siddharth Rajsekar at Freedom Retreat for establishing one of the country's most vibrant and student-centric creative academies.",
       image: "/images/mentor/hall-of-fame-award.jpg",
       icon: Trophy,
       highlight: "National Stage Felicitation",
     },
     {
-      id: 2,
-      tabLabel: "Diamond Club",
-      badge: "DIMOND CLUB FELICLITATION",
-      title: "Diamond Club Top Mentor Award",
+      step: "02",
+      badge: "DIAMOND CLUB FELICITATION",
       tag: "Elite Recognition",
+      title: "Diamond Club Top Mentor Award",
       text: "Felicitated with the Diamond status for impacting thousands of households by teaching high-margin resin craft, floral preservation, and order fulfillment systems.",
       image: "/images/mentor/diamond-award.jpg",
       icon: Gem,
       highlight: "Elite Mentor Status",
     },
     {
-      id: 3,
-      tabLabel: "Published Author",
+      step: "03",
       badge: "PUBLISHED AUTHOR",
-      title: 'Authored in "I Can Coach" Book',
       tag: "Published Work",
+      title: 'Authored in "I Can Coach" Book',
       text: "Featured alongside top educators nationwide, detailing her transformation from crafting at a small kitchen table to operating a premier art academy and mentoring 54,000+ creators.",
       image: "/images/mentor/author-feature.jpg",
       icon: BookOpen,
       highlight: "National Bestseller Feature",
     },
     {
-      id: 4,
-      tabLabel: "Live Coaching",
+      step: "04",
       badge: "LIVE INTERACTIVE COACHING",
-      title: "Weekly Live Sessions & Personal Feedback",
       tag: "Hands-on Support",
+      title: "Weekly Live Sessions & Personal Feedback",
       text: "Every student receives real-time guidance, artwork critique, formula troubleshooting, and client pricing blueprints directly in our interactive live workshops and community calls.",
       image: "/images/mentor/live-workshop.jpg",
       icon: Users,
@@ -189,152 +182,124 @@ export default function MentorAboutSec() {
     },
   ];
 
-  // ─── BUTTER-SMOOTH, ZERO-JITTER GPU SCROLL LOGIC ───
+  // ─── SMOOTH SCROLL PROGRESS AND EXACT POINT-TOUCH HIGHLIGHT TRACKING ───
+  const desktopTimelineRef = useRef<HTMLDivElement>(null);
+  const fillLineRef = useRef<HTMLDivElement>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeSteps, setActiveSteps] = useState([false, false, false, false]);
+  const [rowCenters, setRowCenters] = useState<number[]>([0, 0, 0, 0]);
+  const [trackTop, setTrackTop] = useState(0);
+  const [trackHeight, setTrackHeight] = useState(0);
+
+  // Measure row centers relative to desktopTimelineRef container
   useEffect(() => {
-    let ticking = false;
+    const measure = () => {
+      const container = desktopTimelineRef.current;
+      if (!container) return;
 
-    const updateShowcase = () => {
-      const track = showcaseTrackRef.current;
-      if (!track) return;
-
-      const rect = track.getBoundingClientRect();
-      const totalScrollable = track.offsetHeight - window.innerHeight;
-      if (totalScrollable <= 0) return;
-
-      const currentScroll = -rect.top;
-      const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-
-      const winW = window.innerWidth;
-      const winH = window.innerHeight;
-
-      // Responsive diagonal travel vector
-      let stepX = 620;
-      let stepY = 340;
-      const isMobile = winW < 640;
-      const isTablet = winW >= 640 && winW <= 1024;
-      const isMobileOrTablet = winW <= 1024;
-
-      if (isMobile) {
-        stepX = winW * 0.75;
-        stepY = winH * 0.32;
-      } else if (isTablet) {
-        stepX = winW * 0.72;
-        stepY = winH * 0.36;
-      } else {
-        stepX = Math.min(winW * 0.46, 660);
-        stepY = Math.min(winH * 0.38, 360);
-      }
-
-      const centers = [0.08, 0.36, 0.64, 0.92];
-      const delta = 0.28;
-
-      let nearestIdx = 0;
-      let minDiff = 999;
-
-      cardElementsRef.current.forEach((cardEl, i) => {
-        if (!cardEl) return;
-        const u = (progress - centers[i]) / delta;
-        const diff = Math.abs(progress - centers[i]);
-        if (diff < minDiff) {
-          minDiff = diff;
-          nearestIdx = i;
-        }
-
-        // Diagonal displacement:
-        // u < 0 -> bottom-left (x < 0, y > 0)
-        // u = 0 -> center (x = 0, y = 0)
-        // u > 0 -> top-right (x > 0, y < 0)
-        const x = u * stepX;
-        const y = -u * stepY;
-
-        // Smooth rotation:
-        // When card is around center: strictly 0deg (completely upright & unrotated).
-        // On mobile & tablet: smoothly un-rotates to 0deg at center, tilts gently as it enters from bottom-left / exits to top-right.
-        let rot = 0;
-        const centerFlatZone = 0.18;
-        const fullTiltZone = 0.75;
-        const maxTilt = isMobile ? 5.0 : isTablet ? 5.5 : 7.0;
-
-        if (Math.abs(u) > centerFlatZone) {
-          const t = Math.min(1, (Math.abs(u) - centerFlatZone) / (fullTiltZone - centerFlatZone));
-          const smoothT = t * t * (3 - 2 * t);
-          rot = Math.sign(u) * smoothT * maxTilt;
-        }
-
-        // Scale: Center focal card is 1.0
-        const scale = Math.max(isMobileOrTablet ? 0.88 : 0.85, Math.min(1.0, 1.0 - Math.abs(u) * 0.10));
-
-        // Opacity:
-        // On both mobile and tablet view: single card focused experience.
-        // Wide cubic S-curve easing ensures cards glide in and out smoothly without any sudden pop or abrupt cutoff.
-        let opacity = 1.0;
-        if (isMobileOrTablet) {
-          if (Math.abs(u) <= 0.18) {
-            opacity = 1.0;
-          } else if (Math.abs(u) <= 0.78) {
-            const t = (Math.abs(u) - 0.18) / (0.78 - 0.18);
-            const smoothFade = t * t * (3 - 2 * t);
-            opacity = Math.max(0, 1.0 - smoothFade);
-          } else {
-            opacity = 0;
-          }
+      const centers: number[] = [];
+      for (let i = 0; i < 4; i++) {
+        const row = rowRefs.current[i];
+        if (row) {
+          // offsetTop + offsetHeight / 2 is relative to desktopTimelineRef
+          const center = row.offsetTop + row.offsetHeight / 2;
+          centers.push(center);
         } else {
-          // Desktop widescreen multi-card experience
-          if (Math.abs(u) > 0.85) {
-            opacity = Math.max(0, 1.0 - (Math.abs(u) - 0.85) * 1.6);
-          }
+          centers.push(0);
         }
+      }
 
-        // Stacking order: active center card is always on top
-        const zIndex = Math.max(1, Math.round(30 - Math.abs(u) * 10));
+      if (centers.length === 4 && centers[0] > 0) {
+        // Line starts 70px above Step 01, flowing down into Step 01 (matching Orbit reference)
+        const top = Math.max(0, centers[0] - 70);
+        const end = centers[3];
+        setTrackTop(top);
+        setTrackHeight(Math.max(10, end - top));
+        setRowCenters(centers);
+      }
+    };
 
-        cardEl.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px), calc(-50% + ${y.toFixed(1)}px), 0px) scale(${scale.toFixed(3)}) rotate(${rot.toFixed(2)}deg)`;
-        cardEl.style.opacity = opacity.toFixed(3);
-        cardEl.style.zIndex = String(zIndex);
-        cardEl.style.visibility = opacity <= 0.005 ? "hidden" : "visible";
-        cardEl.style.pointerEvents = Math.abs(u) < (isMobileOrTablet ? 0.30 : 0.40) ? "auto" : "none";
+    measure();
+    window.addEventListener("resize", measure);
+
+    // ResizeObserver ensures accuracy as images load
+    let ro: ResizeObserver | null = null;
+    if (desktopTimelineRef.current && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => {
+        measure();
       });
+      ro.observe(desktopTimelineRef.current);
+    }
 
-      if (nearestIdx !== activeCardIndexRef.current) {
-        activeCardIndexRef.current = nearestIdx;
-        setActiveCardIndex(nearestIdx);
-      }
-    };
-
-    const onScrollOrResize = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          updateShowcase();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    // Initial position on mount
-    updateShowcase();
-
-    window.addEventListener("scroll", onScrollOrResize, { passive: true });
-    window.addEventListener("resize", onScrollOrResize, { passive: true });
+    const t1 = setTimeout(measure, 300);
+    const t2 = setTimeout(measure, 1000);
 
     return () => {
-      window.removeEventListener("scroll", onScrollOrResize);
-      window.removeEventListener("resize", onScrollOrResize);
+      window.removeEventListener("resize", measure);
+      if (ro) ro.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
     };
   }, []);
 
-  const scrollToCard = (index: number) => {
-    const track = showcaseTrackRef.current;
-    if (!track) return;
-    const centers = [0.08, 0.36, 0.64, 0.92];
-    const totalScrollable = track.offsetHeight - window.innerHeight;
-    const trackTop = track.getBoundingClientRect().top + window.scrollY;
-    const targetScroll = trackTop + centers[index] * totalScrollable;
-    window.scrollTo({
-      top: targetScroll,
-      behavior: "smooth",
-    });
-  };
+  // Butter-smooth 60fps/120fps direct-DOM scroll listener: line smoothly proceeds and point highlights exactly when touched
+  useEffect(() => {
+    let rafId: number | null = null;
+
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        const container = desktopTimelineRef.current;
+        if (!container || rowCenters.length < 4 || trackHeight <= 0) return;
+
+        const cRect = container.getBoundingClientRect();
+        const vh = window.innerHeight;
+        // Natural reading trigger line at 58% down viewport
+        const triggerY = vh * 0.58;
+        const currentContainerY = triggerY - cRect.top;
+
+        // Progress line fill distance from trackTop
+        const filled = Math.max(0, Math.min(trackHeight, currentContainerY - trackTop));
+
+        // Directly update the visual progress line for 0-latency smooth 60fps/120fps motion
+        if (fillLineRef.current) {
+          fillLineRef.current.style.height = `${filled}px`;
+        }
+
+        // Exact tip Y position of the advancing colored line
+        const fillTipY = trackTop + filled;
+
+        // Exact touch trigger: point i highlights right when the line physically touches its center
+        const nextActive = [false, false, false, false];
+        for (let i = 0; i < 4; i++) {
+          if (fillTipY >= rowCenters[i] - 2) {
+            nextActive[i] = true;
+          }
+        }
+
+        setActiveSteps((prev) => {
+          if (
+            prev[0] !== nextActive[0] ||
+            prev[1] !== nextActive[1] ||
+            prev[2] !== nextActive[2] ||
+            prev[3] !== nextActive[3]
+          ) {
+            return nextActive;
+          }
+          return prev;
+        });
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
+    };
+  }, [trackTop, trackHeight, rowCenters]);
 
   return (
     <section
@@ -345,6 +310,7 @@ export default function MentorAboutSec() {
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
         backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
       }}
     >
       {/* ─── TOP CLOUDY WAVE (MATCHING 2ND REFERENCE IMAGE) ─── */}
@@ -474,7 +440,7 @@ export default function MentorAboutSec() {
                     <CountUp target={6} suffix="+" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Years of Professional Experience
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -488,7 +454,7 @@ export default function MentorAboutSec() {
                     <CountUp target={54} suffix="K+" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Students Mentored Nationwide
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -502,7 +468,7 @@ export default function MentorAboutSec() {
                     <CountUp target={8} suffix="K+" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Art &amp; Craft Orders Delivered
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -516,7 +482,7 @@ export default function MentorAboutSec() {
                     <CountUp target={5.0} decimals={1} suffix=" ★" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Google Verified Rating
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -528,12 +494,12 @@ export default function MentorAboutSec() {
             <div className="flex flex-col pt-1">
               <blockquote>
                 <p
-                  className="text-lg sm:text-xl lg:text-2xl font-bold italic leading-snug text-stone-900 tracking-tight"
+                  className="text-lg sm:text-2xl lg:text-2xl font-bold italic leading-snug text-stone-900 tracking-tight"
                   style={{ fontFamily: '"Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif' }}
                 >
                   “Every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else.”
                 </p>
-                <cite className="mt-2.5 sm:mt-3 block text-xs sm:text-sm font-bold not-italic text-[#df5522] tracking-wide">
+                <cite className="mt-2.5 sm:mt-3 block text-sm sm:text-lg lg:text-base font-bold not-italic text-[#df5522] tracking-wide">
                   — Vrajangna Patel, Lead Mentor
                 </cite>
               </blockquote>
@@ -542,7 +508,7 @@ export default function MentorAboutSec() {
               <div className="border-b border-stone-300/80 my-4 sm:my-5" />
 
               {/* Mission Paragraph */}
-              <p className="text-xs sm:text-sm lg:text-base leading-relaxed text-stone-700 font-medium">
+              <p className="text-sm sm:text-lg lg:text-base leading-relaxed text-stone-700 font-medium">
                 My goal isn&apos;t just to teach you how to make Resin Art. My goal is to help you believe that your creativity can become something meaningful, valuable and truly yours — whether you want to start a side-income or build a recognized premium brand.
               </p>
 
@@ -550,10 +516,10 @@ export default function MentorAboutSec() {
               <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Box 1: Nationally Recognized Art Coach */}
                 <div className="relative overflow-hidden rounded-2xl bg-[#fff7f2] border border-[#f5ded0] p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2.5 sm:gap-3 shadow-[0_2px_8px_rgba(45,30,15,0.04)] min-h-[3.75rem] sm:min-h-[5.25rem] group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#fde5d6] text-[#c33d18] font-black text-xs sm:text-sm">
+                  <span className="flex h-7 w-7 sm:h-10 sm:w-10 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-full bg-[#fde5d6] text-[#c33d18] font-black text-xs sm:text-lg lg:text-sm">
                     01
                   </span>
-                  <span className="text-xs sm:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
+                  <span className="text-sm sm:text-lg lg:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
                     Nationally Recognized Art Coach
                   </span>
                   {/* Subtle Cutout Corner */}
@@ -562,10 +528,10 @@ export default function MentorAboutSec() {
 
                 {/* Box 2: Step-by-Step Business Frameworks */}
                 <div className="relative overflow-hidden rounded-2xl bg-[#faf7f2] border border-[#ebe2d7] p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2.5 sm:gap-3 shadow-[0_2px_8px_rgba(45,30,15,0.04)] min-h-[3.75rem] sm:min-h-[5.25rem] group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#eee5d8] text-[#78350f] font-black text-xs sm:text-sm">
+                  <span className="flex h-7 w-7 sm:h-10 sm:w-10 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-full bg-[#eee5d8] text-[#78350f] font-black text-xs sm:text-lg lg:text-sm">
                     02
                   </span>
-                  <span className="text-xs sm:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
+                  <span className="text-sm sm:text-lg lg:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
                     Step-by-Step Business Frameworks
                   </span>
                   {/* Subtle Cutout Corner */}
@@ -574,10 +540,10 @@ export default function MentorAboutSec() {
 
                 {/* Box 3: Hands-On Lifetime Community */}
                 <div className="relative overflow-hidden rounded-2xl bg-[#fff4f4] border border-[#f8dada] p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2.5 sm:gap-3 shadow-[0_2px_8px_rgba(45,30,15,0.04)] min-h-[3.75rem] sm:min-h-[5.25rem] group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#fcdcdc] text-[#942008] font-black text-xs sm:text-sm">
+                  <span className="flex h-7 w-7 sm:h-10 sm:w-10 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-full bg-[#fcdcdc] text-[#942008] font-black text-xs sm:text-lg lg:text-sm">
                     03
                   </span>
-                  <span className="text-xs sm:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
+                  <span className="text-sm sm:text-lg lg:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
                     Hands-On Lifetime Community
                   </span>
                   {/* Subtle Cutout Corner */}
@@ -589,149 +555,252 @@ export default function MentorAboutSec() {
         </div>
       </div>
 
-      {/* ─── STICKY DIAGONAL SCROLL SHOWCASE (DARK SECTION AS PER REFERENCE FRAMER IMAGES) ─── */}
+      {/* ─── MENTOR AWARDS & RECOGNITION TIMELINE (WHITE BG + NON-SCROLLING DOT PATTERN) ─── */}
       <div
-        ref={showcaseTrackRef}
-        className="relative w-full h-[360vh] mt-16 sm:mt-24"
+        id="milestones-timeline"
+        className="relative w-full pt-16 sm:pt-24 lg:pt-28 pb-20 sm:pb-32 text-neutral-950 select-none overflow-hidden"
         style={{
-          backgroundColor: "#0a0a0a",
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
         }}
       >
-        {/* Sticky Viewport */}
-        <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a0a0a] flex flex-col justify-between py-3 sm:py-8 select-none">
-          {/* Subtle Warm Amber Glow Behind Focal Area */}
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[42rem] h-[42rem] rounded-full pointer-events-none opacity-20 blur-3xl"
-            style={{
-              background: "radial-gradient(circle, #e36b32 0%, rgba(227,107,50,0) 70%)",
-            }}
-          />
+        <div className="container mx-auto px-5 sm:px-10 lg:px-10 2xl:px-0 relative z-10">
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
+            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+              National Honors &amp; Felicitations
+            </span>
+            <h3 className="mt-3 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950 leading-tight">
+              Milestones Built On <span className="text-[#942008]">Real Mentorship</span>
+            </h3>
+            <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed font-normal">
+              Step-by-step excellence recognized across national platforms, mentoring thousands of creators into independent artists.
+            </p>
+          </div>
 
-          {/* ========================================================================= */}
-          {/* ─── TITLE AND TAB OPTION (COMMENTED OUT AS PER USER INSTRUCTION) ─────── */}
-          {/* ========================================================================= */}
-          {/*
-          <div className="relative z-40 max-w-5xl mx-auto px-4 sm:px-6 w-full text-center">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-[#e36b32] text-xs font-black tracking-widest uppercase shadow-sm">
-              <Sparkles size={13} />
-              <span>National Honors &amp; Felicitations</span>
+          {/* ─── DESKTOP TIMELINE (md and above): WIDE, CLEAN ALTERNATING CARDS WITH CENTER PROGRESS LINE ─── */}
+          <div ref={desktopTimelineRef} className="hidden lg:block relative max-w-6xl mx-auto mt-12 sm:mt-16 lg:mt-20">
+            {/* Central Vertical Progress Track (Starts 70px above Step 01, ends at Step 04) */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-10"
+              style={{
+                top: trackTop > 0 ? `${trackTop}px` : "40px",
+                height: trackHeight > 0 ? `${trackHeight}px` : "calc(100% - 120px)",
+                width: "2px",
+              }}
+            >
+              {/* Base Inactive Gray Line (Crisp, clearly visible neutral line matching Orbit reference) */}
+              <div className="w-full h-full bg-neutral-300 rounded-full" />
+              {/* Active Theme Color Fill Line (Runs smoothly downwards as you scroll) */}
+              <div
+                ref={fillLineRef}
+                className="absolute top-0 left-0 w-full bg-gradient-to-b from-[#942008] to-[#ea580c] rounded-full will-change-[height] shadow-[0_0_10px_rgba(234,88,12,0.7)]"
+                style={{
+                  height: "0px",
+                }}
+              />
             </div>
 
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mt-2.5">
-              Milestones Built On Real Mentorship
-            </h3>
+            {/* 4 Alternating Card Rows with Generous Spacing and Zero Overlap */}
+            <div className="flex flex-col space-y-24 lg:space-y-32">
+              {AWARDS_TIMELINE.map((item, idx) => {
+                const isReached = activeSteps[idx];
+                const isEven = idx % 2 === 0; // Row 0 & 2: Content Left, Image Right | Row 1 & 3: Image Left, Content Right
+                const Icon = item.icon;
 
-            <div className="mt-3.5 sm:mt-4 flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap">
-              {DIAGONAL_CARDS.map((card, idx) => {
-                const isActive = activeCardIndex === idx;
-                const Icon = card.icon;
                 return (
-                  <button
-                    key={card.id}
-                    type="button"
-                    onClick={() => scrollToCard(idx)}
-                    className={`group inline-flex items-center gap-2 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer ${
-                      isActive
-                        ? "bg-[#171717] text-[#cbf530] border-2 border-stone-900 shadow-lg scale-105"
-                        : "bg-white/95 text-stone-700 border border-stone-300 hover:bg-stone-50 hover:text-stone-950 shadow-sm"
-                    }`}
+                  <div
+                    key={item.step}
+                    ref={(el) => {
+                      rowRefs.current[idx] = el;
+                    }}
+                    className="relative grid grid-cols-2 items-center min-h-[280px]"
                   >
-                    <Icon size={14} className={isActive ? "text-[#cbf530]" : "text-[#e36b32]"} />
-                    <span>{card.tabLabel}</span>
-                  </button>
+                    {/* ──── LEFT COLUMN ──── */}
+                    {isEven ? (
+                      /* Text Content on Left: Generous padding (pr-20 to pr-32) leaves pristine gap for rotated step number */
+                      <div className={`flex flex-col items-end text-right pr-20 md:pr-24 lg:pr-32 transition-all duration-500 ${isReached ? "opacity-100" : "opacity-50"
+                        }`}>
+                        <span className="inline-flex items-center gap-1.5 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008] mb-2.5">
+                          <Icon size={14} className="text-[#942008]" />
+                          {item.badge}
+                        </span>
+                        <h4 className="text-xl sm:text-3xl lg:text-2xl font-black text-neutral-950 leading-snug tracking-tight">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c] mt-1.5">{item.tag}</p>
+                        <p className="mt-3 text-xs sm:text-base lg:text-base leading-relaxed text-neutral-600 font-normal max-w-md">
+                          {item.text}
+                        </p>
+                        <div className="mt-4 inline-flex items-center gap-1.5 text-xs sm:text-base lg:text-sm font-semibold text-neutral-700">
+                          <Star size={14} className="fill-[#ea580c] text-[#ea580c]" />
+                          <span>{item.highlight}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Image on Left: Connects seamlessly to horizontal line on its right border */
+                      <div className={`flex justify-end pr-20 md:pr-24 lg:pr-32 transition-all duration-500 ${isReached ? "opacity-100 scale-100" : "opacity-60 scale-98"
+                        }`}>
+                        <div className="relative aspect-[16/11] w-full max-w-md lg:max-w-lg rounded-2xl sm:rounded-3xl overflow-hidden border border-[#eadfd4] bg-white shadow-[0_16px_36px_-12px_rgba(90,55,20,0.14)] group transition-all duration-300 hover:shadow-[0_22px_45px_-12px_rgba(234,88,12,0.2)]">
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ──── CENTER NODE & CONNECTOR BRANCH & STEP NUMBER ──── */}
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 flex items-center justify-center">
+                      {/* Horizontal Connector Line: Connects outer circle edge (18px) directly to image border */}
+                      <div
+                        className={`absolute top-1/2 -translate-y-1/2 h-[2px] transition-colors duration-300 ease-out ${isEven
+                          ? "left-[18px] w-[62px] md:w-[78px] lg:w-[110px]"
+                          : "right-[18px] w-[62px] md:w-[78px] lg:w-[110px]"
+                          } ${isReached ? "bg-[#ea580c]" : "bg-neutral-300"
+                          }`}
+                      />
+
+                      {/* Rotated Step Number: ALWAYS sits on text side in the generous whitespace between circle and text */}
+                      <span
+                        className={`absolute top-1/2 -translate-y-1/2 select-none font-black text-2xl sm:text-4xl lg:text-3xl tracking-wider transition-all duration-300 -rotate-90 ${isEven
+                          ? "right-9 sm:right-11"
+                          : "left-9 sm:left-11"
+                          } ${isReached
+                            ? "text-[#942008] scale-105"
+                            : "text-neutral-400 scale-95"
+                          }`}
+                      >
+                        {item.step}
+                      </span>
+
+                      {/* Outer Circle Ring (Transparent Orange Border & Fill when reached) */}
+                      <div
+                        className={`relative z-20 w-9 h-9 rounded-full border-2 transition-all duration-300 ease-out flex items-center justify-center ${isReached
+                          ? "border-[#ea580c] bg-[#ea580c]/20 shadow-[0_0_16px_rgba(234,88,12,0.45)] scale-110"
+                          : "border-neutral-300 bg-white shadow-none scale-100"
+                          }`}
+                      >
+                        {/* Inner Filled Point */}
+                        <div
+                          className={`w-4 h-4 rounded-full transition-all duration-300 ease-out ${isReached
+                            ? "bg-[#ea580c]"
+                            : "bg-neutral-300"
+                            }`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* ──── RIGHT COLUMN ──── */}
+                    {isEven ? (
+                      /* Image on Right: Connects seamlessly to horizontal line on its left border */
+                      <div className={`flex justify-start pl-20 md:pl-24 lg:pl-32 transition-all duration-500 ${isReached ? "opacity-100 scale-100" : "opacity-60 scale-98"
+                        }`}>
+                        <div className="relative aspect-[16/11] w-full max-w-md lg:max-w-lg rounded-2xl sm:rounded-3xl overflow-hidden border border-[#eadfd4] bg-white shadow-[0_16px_36px_-12px_rgba(90,55,20,0.14)] group transition-all duration-300 hover:shadow-[0_22px_45px_-12px_rgba(234,88,12,0.2)]">
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      /* Text Content on Right: Generous padding (pl-20 to pl-32) leaves pristine gap for rotated step number */
+                      <div className={`flex flex-col items-start text-left pl-20 md:pl-24 lg:pl-32 transition-all duration-500 ${isReached ? "opacity-100" : "opacity-50"
+                        }`}>
+                        <span className="inline-flex items-center gap-1.5 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008] mb-2.5">
+                          <Icon size={14} className="text-[#942008]" />
+                          {item.badge}
+                        </span>
+                        <h4 className="text-xl sm:text-3xl lg:text-2xl font-black text-neutral-950 leading-snug tracking-tight">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c] mt-1.5">{item.tag}</p>
+                        <p className="mt-3 text-xs sm:text-base lg:text-base leading-relaxed text-neutral-600 font-normal max-w-md">
+                          {item.text}
+                        </p>
+                        <div className="mt-4 inline-flex items-center gap-1.5 text-xs sm:text-base lg:text-sm font-semibold text-neutral-700">
+                          <Star size={14} className="fill-[#ea580c] text-[#ea580c]" />
+                          <span>{item.highlight}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
           </div>
-          */}
 
-          {/* Spacer to keep vertical balance when title/tabs are commented */}
-          <div className="h-2 sm:h-8" aria-hidden="true" />
+          {/* ─── MOBILE TIMELINE (< md): CLEAN STACKED CARDS WITH STEP BADGES (MATCHING REFERENCE MOBILE) ─── */}
+          <div className="lg:hidden flex flex-col space-y-8 sm:space-y-10 mt-10">
+            {AWARDS_TIMELINE.map((item, idx) => {
+              const isReached = activeSteps[idx];
+              const Icon = item.icon;
 
-          {/* Center Stage: Medium Sized Cards Traveling Diagonally from Bottom-Left to Top-Right */}
-          <div className="relative flex-1 w-full flex items-center justify-center overflow-visible">
-            {DIAGONAL_CARDS.map((card, idx) => {
-              const Icon = card.icon;
               return (
                 <div
-                  key={card.id}
-                  ref={(el) => {
-                    cardElementsRef.current[idx] = el;
-                  }}
-                  className="absolute top-1/2 left-1/2 w-[86vw] max-w-[20.5rem] xs:max-w-[21.5rem] sm:max-w-none sm:w-[24.5rem] md:w-[26.5rem] lg:w-[29.5rem] xl:w-[31rem] h-[28rem] xs:h-[29.5rem] sm:h-[33.5rem] md:h-[35rem] lg:h-[38rem] rounded-[1.5rem] sm:rounded-[2rem] bg-[#161412] border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.85)] sm:shadow-[0_25px_65px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col will-change-transform cursor-pointer transition-shadow duration-300 hover:border-[#e36b32]/50 hover:shadow-[0_30px_75px_rgba(227,107,50,0.25)]"
-                  style={{
-                    transform: "translate3d(-50%, -50%, 0px)",
-                  }}
-                  onClick={() => scrollToCard(idx)}
+                  key={item.step}
+                  className="rounded-2xl sm:rounded-3xl bg-white border border-[#eadfd4] p-4 sm:p-6 shadow-[0_16px_36px_-12px_rgba(90,55,20,0.12)] transition-all duration-300"
                 >
-                  {/* Photo Container */}
-                  <div className="relative h-[12.5rem] xs:h-[13.5rem] sm:h-[17rem] md:h-[18rem] lg:h-[20.5rem] w-full overflow-hidden bg-stone-900 shrink-0">
+                  {/* Top Image with Floating Step Badge */}
+                  <div className="relative aspect-[16/10] w-full rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-5 border border-[#eadfd4] bg-stone-50">
                     <img
-                      src={card.image}
-                      alt={card.title}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover object-top"
                     />
-                    {/* Dark Scrim Transition */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#161412] via-transparent to-black/35" />
 
-                    {/* Floating Tag Pill (No Number per User Instruction) */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 pointer-events-none">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-black/65 backdrop-blur-md px-2.5 py-1 sm:px-3.5 sm:py-1.5 border border-white/20 text-white/95 font-bold text-[0.7rem] sm:text-xs md:text-sm tracking-wide shadow-md">
-                        <Icon size={13} className="text-[#e36b32]" />
-                        {card.tag}
-                      </span>
-                    </div>
+                    {/* Floating Pill Badge (Matching Reference Mobile Screen) */}
+                    {/* <div className="absolute top-3 left-3 inline-flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 border border-[#eadfd4] text-xs sm:text-sm font-bold text-neutral-800 shadow-sm">
+                      <div
+                        className={`w-2.5 h-2.5 rounded-full border transition-all duration-300 ${
+                          isReached
+                            ? "bg-[#ea580c] border-[#ea580c] shadow-[0_0_8px_#ea580c]"
+                            : "bg-[#d1d5db] border-[#9ca3af]"
+                        }`}
+                      />
+                      <span>Step {item.step}</span>
+                    </div> */}
                   </div>
 
-                  {/* Card Body Container */}
-                  <div className="p-3.5 xs:p-4 sm:p-5 lg:p-6 flex flex-col justify-between flex-1 bg-[#161412]">
-                    <div>
-                      {/* Category Kicker */}
-                      <span className="text-[0.65rem] xs:text-[0.7rem] sm:text-xs md:text-sm font-black tracking-widest text-[#e36b32] uppercase block">
-                        {card.badge}
+                  {/* Text Details Below Image */}
+                  <div>
+                    <span className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008] block mb-1">
+                      {item.badge}
+                    </span>
+                    <h4 className="text-lg sm:text-2xl font-black text-neutral-950 leading-snug tracking-tight">
+                      {item.title}
+                    </h4>
+                    <p className="text-sm sm:text-lg font-semibold text-[#ea580c] mt-1">{item.tag}</p>
+                    <p className="mt-2.5 text-base sm:text-lg text-neutral-600 leading-relaxed font-normal">
+                      {item.text}
+                    </p>
+                    <div className="mt-3.5 pt-3 border-t border-stone-200 flex items-center justify-between text-[0.8rem] sm:text-base text-neutral-700 font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <Star size={13} className="fill-[#ea580c] text-[#ea580c]" />
+                        {item.highlight}
                       </span>
-
-                      {/* Main Title / Subtitle */}
-                      <h4 className="text-base xs:text-lg sm:text-xl lg:text-[1.4rem] font-black text-white leading-snug tracking-tight mt-1 sm:mt-1.5">
-                        {card.title}
-                      </h4>
-
-                      {/* Description Paragraph */}
-                      <p className="text-[0.75rem] xs:text-[0.8rem] sm:text-[0.85rem] lg:text-[0.9rem] text-stone-300 font-normal leading-relaxed mt-2 sm:mt-2.5">
-                        {card.text}
-                      </p>
-                    </div>
-
-                    {/* Footer Row */}
-                    <div className="pt-2.5 sm:pt-3 border-t border-white/10 flex items-center justify-between text-stone-400 text-[0.7rem] xs:text-[0.75rem] sm:text-xs md:text-sm">
-                      <span className="font-bold text-stone-200 flex items-center gap-1.5">
-                        <Star size={13} className="fill-[#e36b32] text-[#e36b32]" />
-                        {card.highlight}
-                      </span>
-                      {/* <span className="font-medium text-stone-400">
-                        {card.tag}
-                      </span> */}
+                      <span className="text-[0.8rem] sm:text-base text-neutral-500 font-medium">Verified Mentor</span>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
-          {/* Bottom Scroll Prompt Bar */}
-          <div className="relative z-40 text-center text-stone-500 text-xs sm:text-sm flex items-center justify-center gap-2 font-medium">
-            <span className="w-2 h-2 rounded-full bg-[#e36b32] animate-ping" />
-            <span>Scroll down to explore milestones</span>
-          </div>
         </div>
       </div>
 
-      {/* ─── BOTTOM CLOUDY WAVE TRANSITION ─── */}
+      {/* ─── BOTTOM CLOUDY WAVE TRANSITION (WHITE WITH FIXED DOT BACKGROUND) ─── */}
       <div
         className="mentor-cloud-wave-bottom absolute -bottom-[27px] sm:-bottom-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-20"
         style={{
-          backgroundColor: "#0a0a0a",
-          backgroundImage: "none",
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
           WebkitMaskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
           maskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
           WebkitMaskSize: "64px 32px",
@@ -740,7 +809,7 @@ export default function MentorAboutSec() {
           maskRepeat: "repeat-x",
           WebkitMaskPosition: "center top",
           maskPosition: "center top",
-          filter: "drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3))",
+          filter: "drop-shadow(0 3px 4px rgba(0, 0, 0, 0.04))",
         }}
         aria-hidden="true"
       />

@@ -113,12 +113,16 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
   return (
     <div
       ref={containerRef}
-      className="faq-sticky-container relative w-full bg-[#FFFFFF]"
+      className="faq-sticky-container relative w-full"
       style={{
         height: outerHeight ? `${outerHeight}px` : "220vh",
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
       }}
     >
-      <section className="sticky top-0 h-screen h-[100dvh] w-full overflow-hidden flex flex-col justify-start bg-[#FAF7F4] rounded-t-[32px] sm:rounded-t-[40px] lg:rounded-t-[48px] border-t border-[#F4E9DF]/80 shadow-[0_-12px_32px_rgba(41,37,34,0.04)]">
+      <section className="sticky top-0 h-screen h-[100dvh] w-full overflow-hidden flex flex-col justify-start bg-[#f7f6f0] rounded-t-[32px] sm:rounded-t-[40px] lg:rounded-t-[48px] border-t border-[#F4E9DF]/80 shadow-[0_-12px_32px_rgba(41,37,34,0.04)]">
         {/* DESKTOP FULL-HEIGHT LEFT ARTWORK: Full height from top to bottom of section */}
         <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[44%] xl:w-[46%] h-full overflow-hidden select-none pointer-events-none z-0">
           <img
@@ -136,7 +140,7 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
             className="w-full h-full object-cover object-top"
           />
           {/* Subtle blur overlay and soft gradient fade into the content below */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF7F4] via-[#FAF7F4]/85 to-transparent backdrop-blur-[2px]" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f7f6f0] via-[#f7f6f0]/85 to-transparent backdrop-blur-[2px]" />
         </div>
 
         {/* MAIN RESPONSIVE CONTAINER */}
@@ -150,23 +154,23 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
             <div className="shrink-0 mb-3 sm:mb-4 lg:mb-5">
               {/* Mobile FAQ Badge */}
               <div className="lg:hidden mb-1.5">
-                <span className="inline-block px-3 py-0.5 bg-[#F4E9DF] text-[#B94F1B] rounded-full text-[10px] sm:text-xs font-bold tracking-wider uppercase shadow-2xs">
+                <span className="inline-block text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                   FAQ
                 </span>
               </div>
 
               {/* Desktop Eyebrow */}
-              <p className="hidden lg:block text-xs font-semibold uppercase tracking-[0.22em] text-[#77716C] mb-2 sm:mb-2.5">
+              <p className="hidden lg:block text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008] mb-2 sm:mb-2.5">
                 HAVE QUESTIONS?
               </p>
 
               {/* Title with two-tone styling matching Reference Image 2 */}
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium tracking-tight text-[#292522] leading-[1.15]">
-                Frequently Asked <span className="text-[#B94F1B]">Questions</span>
+              <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950 leading-[1.15]">
+                Frequently Asked <span className="text-[#942008]">Questions</span>
               </h2>
 
               {/* Subtitle */}
-              <p className="text-xs sm:text-sm lg:text-[15px] font-normal text-[#77716C] leading-relaxed mt-1.5 max-w-xl">
+              <p className="text-sm sm:text-xl lg:text-base font-normal text-neutral-600 leading-relaxed mt-2 max-w-xl">
                 Everything you need to know about the masterclass, materials, access and support.
               </p>
             </div>
@@ -210,7 +214,7 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
                           }}
                           className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 text-left cursor-pointer group select-none"
                         >
-                          <span className="font-semibold text-[14px] sm:text-[15.5px] text-[#292522] group-hover:text-[#B94F1B] transition-colors leading-snug">
+                          <span className="font-bold text-xs sm:text-base lg:text-sm text-neutral-900 group-hover:text-[#942008] transition-colors leading-snug">
                             {faq.q}
                           </span>
                           <span
@@ -241,7 +245,7 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
                             expanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                           }`}
                         >
-                          <p className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-[13.5px] leading-relaxed text-[#77716C]">
+                          <p className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600">
                             {faq.a}
                           </p>
                         </div>

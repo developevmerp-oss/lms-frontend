@@ -70,7 +70,7 @@ export const WebinarCountdown = ({
         return;
       }
     }
-    fetchNextWebinar();
+    // fetchNextWebinar();
   }, [targetDateStr, fetchNextWebinar]);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export const WebinarCountdown = ({
         const seconds = Math.floor((difference / 1000) % 60);
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        fetchNextWebinar();
+        // fetchNextWebinar();
       }
     };
 

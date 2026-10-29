@@ -42,13 +42,13 @@ export default function MasterclassSec() {
       {/*
         Previous centered layout — kept, not deleted.
         <div className="mx-auto w-full max-w-3xl text-center">
-          <motion.p className="masterclass-kicker text-xs font-semibold uppercase tracking-[0.18em]">
+          <motion.p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             Free Training Invitation
           </motion.p>
-          <motion.h2 className="masterclass-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-            Not Sure Where To Start? <span className="masterclass-accent">Start Here.</span>
+          <motion.h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
+            Not Sure Where To Start? <span className="text-[#942008]">Start Here.</span>
           </motion.h2>
-          <motion.p className="masterclass-copy mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
+          <motion.p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
             Join my FREE Resin Mastery Masterclass and discover the three essential shifts that can help you move from simply learning Resin Art to confidently building something of your own.
           </motion.p>
           <motion.div className="masterclass-card mx-auto mt-8 max-w-2xl rounded-[28px] p-6 text-left sm:p-8">
@@ -84,22 +84,22 @@ export default function MasterclassSec() {
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5 }}
           >
-            <p className="masterclass-kicker flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em]">
-              <span className="masterclass-kicker-line" aria-hidden="true" />
+            <p className="flex items-center gap-3 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+              <span className="h-px w-6 bg-[#942008]" aria-hidden="true" />
               Free Training Invitation
             </p>
-            <h2 className="masterclass-heading mt-4 text-[2.15rem] font-black leading-[0.95] tracking-tight sm:text-5xl lg:text-[3.15rem]">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
               Not Sure Where
               <span className="mt-1 block">To Start?</span>
             </h2>
-            <p className={`${scriptFont.className} masterclass-script -mt-1 text-[2.8rem] leading-none sm:text-5xl lg:text-6xl`}>
+            <p className={`${scriptFont.className} masterclass-script -mt-1 text-[2.8rem] leading-none sm:text-5xl lg:text-6xl text-[#942008]`}>
               Start Here.
               <svg className="masterclass-script-arrow" viewBox="0 0 78 28" aria-hidden="true">
-                <path d="M4 16C24 16 46 8 66 11" />
-                <path d="M56 4L70 11L56 19" />
+                <path d="M4 16C24 16 46 8 66 11" stroke="#942008" />
+                <path d="M56 4L70 11L56 19" fill="#942008" />
               </svg>
             </p>
-            <p className="masterclass-copy mt-5 max-w-md text-sm leading-relaxed sm:text-base">
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
               Join my FREE Resin Mastery Masterclass and discover the three essential shifts that can help you move from simply learning Resin Art to confidently building something of your own.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-5">
