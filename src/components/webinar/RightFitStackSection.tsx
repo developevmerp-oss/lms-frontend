@@ -150,18 +150,19 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
           backgroundColor: "#ffffff",
           backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
           backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
         }}
       >
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28] shadow-xs">
+            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-3 text-2xl font-bold tracking-tight text-stone-950 sm:text-3xl">
-            {heading}
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+            This <span className="text-[#942008]">Masterclass is for you</span> if…
           </h2>
-          <p className="text-stone-600 text-sm leading-relaxed max-w-xl mx-auto">
+          <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-xl mx-auto">
             {subheading}
           </p>
         </div>
@@ -190,10 +191,10 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
                 </div>
 
                 {/* Title & Description */}
-                <h3 className="text-lg sm:text-xl font-bold tracking-tight text-stone-950 mb-2 pr-12">
+                <h3 className="text-base sm:text-xl lg:text-lg font-bold tracking-tight text-neutral-950 mb-2 pr-12">
                   {item.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                <p className="text-xs sm:text-base lg:text-sm text-neutral-600 leading-relaxed">
                   {item.body}
                 </p>
               </article>
@@ -203,21 +204,27 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
       </div>
 
       {/* ─── DESKTOP VIEW (lg+): Stack Card Scroll Effect like selfreflactionsec ─── */}
-      <div ref={pinRef} className="rightfit-pin hidden lg:block">
+      <div ref={pinRef} className="rightfit-pin hidden lg:block"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+        }}>
         <div className="rightfit-pin-sticky">
           <div className="nav-width w-full relative z-10 px-6 lg:px-8">
             
             {/* Header */}
             <div className="text-center max-w-3xl mx-auto mb-8 lg:mb-10">
               {eyebrow && (
-                <span className="mb-3 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28] shadow-xs">
+                <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                   {eyebrow}
                 </span>
               )}
-              <h2 className="mb-3 text-3xl font-bold tracking-tight text-stone-950 lg:text-4xl">
-                {heading}
+              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                This <span className="text-[#942008]">Masterclass is for you</span> if…
               </h2>
-              <p className="text-stone-600 text-sm lg:text-base max-w-2xl mx-auto leading-relaxed">
+              <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-2xl mx-auto">
                 {subheading}
               </p>
             </div>
@@ -264,10 +271,10 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
 
                           {/* ─── Only Title and Description ─── */}
                           <div className="col-span-6 flex flex-col justify-center pr-16 lg:pr-20">
-                            <h3 className="text-2xl lg:text-3xl font-bold tracking-tight text-stone-950 mb-3 sm:mb-4">
+                            <h3 className="text-xl sm:text-3xl lg:text-2xl font-bold tracking-tight text-neutral-950 mb-3 sm:mb-4">
                               {item.title}
                             </h3>
-                            <p className="text-base lg:text-lg text-stone-600 leading-relaxed">
+                            <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                               {item.body}
                             </p>
                           </div>

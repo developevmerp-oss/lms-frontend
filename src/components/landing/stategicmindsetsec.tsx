@@ -14,14 +14,14 @@ export default function StategicMindsetSec() {
     <section className="strategic-mindset relative z-10 bg-[#f7f6f0] py-16 text-neutral-950 sm:py-20 lg:pb-24">
       <div className="nav-width">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             The Strategic Mindset
           </p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl">
             Resin Art Is Not the Destination.
-            <span className="vehicle-accent mt-1 block">It's the Vehicle.</span>
+            <span className="mt-1 block text-[#942008]">It's the Vehicle.</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-500 sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
             Resin Art can become the vehicle through which you discover your creativity, build your confidence, create a unique identity and create financial opportunities for yourself.
           </p>
         </div>

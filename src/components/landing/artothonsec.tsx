@@ -56,18 +56,18 @@ export default function ArtOThonSec({ sprintImages }: { sprintImages: string[] }
       <div className="nav-width page-rise">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-50">
           <div>
-            <p className="artothon-kicker flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
-              <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-              — Action-First Learning
+            <p className="flex items-center gap-2 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#942008]" aria-hidden="true" />
+              Action-First Learning
             </p>
-            <h2 className="artothon-title mt-4 text-3xl font-black leading-[1.12] tracking-tight sm:text-4xl lg:text-5xl">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
               ART-O-THON: Don't Just Learn.
-              <span className="artothon-accent mt-1 block">Create.</span>
+              <span className="mt-1 block text-[#942008]">Create.</span>
             </h2>
-            <p className="artothon-copy mt-5 text-sm leading-relaxed sm:text-base">
+            <p className="mt-4 text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
               Learning becomes powerful when you put it into action. ART-O-THON is designed to turn learning into consistent creation through daily challenges, missions and milestone submissions.
             </p>
-            <p className="artothon-copy mt-3 text-sm leading-relaxed sm:text-base">
+            <p className="mt-3 text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
               Every creation becomes a step forward. Every completed challenge becomes proof of your progress. And every milestone gives you another reason to celebrate how far you've come.
             </p>
             <div className="mt-7 flex flex-col gap-5 sm:flex-row sm:items-center">

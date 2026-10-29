@@ -112,28 +112,24 @@ export default function RealTransformationsSec({
       />
 
       <div className="nav-width relative z-10 text-center">
-        <div className="flex items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: ACCENT }}>
-          <span className="h-px w-10 bg-[#f0b48a]" />
-          Real Transformations
-          <span className="h-px w-10 bg-[#f0b48a]" />
-        </div>
+        <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">Real Transformations</p>
 
         <h2
-          className="mx-auto mt-5 max-w-5xl text-[1.85rem] leading-[1.15] font-semibold tracking-tight text-stone-950 sm:text-[2.45rem] lg:text-[2.9rem] lg:whitespace-nowrap"
-          style={{ fontFamily: '"Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif' }}
+          className="mx-auto mt-3 max-w-5xl text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl"
+
         >
           From “I Can't” To{" "}
-          <span className="italic whitespace-nowrap" style={{ color: ACCENT }}>
+          <span className="text-[#942008]">
             “I Created This.”
           </span>
         </h2>
 
-        <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-stone-500 sm:text-base">
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
           Every student begins somewhere. Some begin with zero experience. Some begin with self-doubt. Some begin after years of putting their creativity aside. But with the right guidance, practice and community, they start creating things they once thought were impossible.
         </p>
 
-        <div className="mx-auto mt-6 inline-flex max-w-3xl items-center justify-center gap-2 rounded-full border border-[#f6d7c4] bg-[#fff4ec] px-4 py-2 text-center text-[13px] leading-snug sm:max-w-none sm:px-5 sm:text-sm" style={{ color: ACCENT }}>
-          <Sparkles size={14} className="shrink-0" />
+        <div className="mx-auto mt-6 inline-flex max-w-3xl items-center justify-center gap-2 rounded-full border border-[#942008]/20 bg-[#942008]/5 px-4 py-2 text-center text-xs font-medium leading-snug sm:max-w-none sm:px-5 sm:text-sm text-[#942008]">
+          <Sparkles size={14} className="shrink-0 text-[#942008]" />
           <span>The transformation isn't just in what their hands can create. It's in what they start believing about themselves.</span>
         </div>
       </div>

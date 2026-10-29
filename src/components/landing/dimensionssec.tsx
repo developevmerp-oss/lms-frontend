@@ -50,13 +50,13 @@ export default function DimensionsSec() {
     <section id="dimensions" className="dimensions-sec relative z-10 bg-white py-16 text-neutral-950 sm:py-20 lg:py-24">
       <div className="nav-width page-rise">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="dimensions-kicker text-xs font-semibold uppercase tracking-widest text-orange-500">
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             Holistic Development
           </p>
-          <h2 className="dimensions-heading mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
-            Success Is More Than The Money You Make.
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+            Success Is More Than <span className="text-[#942008]">The Money You Make.</span>
           </h2>
-          <p className="dimensions-muted mt-4 text-sm leading-relaxed text-neutral-500 sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
             Your growth should be measured by the person you become along the way. We believe your Resin Art journey should help you grow across six important dimensions:
           </p>
         </div>

@@ -153,7 +153,7 @@ export default function VisibleGrowthSec() {
   // ─── GEOMETRY FOR THE HALF-CIRCLE ROTATING ARC (ANCHORED TO SCREEN LEFT EDGE) ───
   // Center is off-screen to the left (-220px) so only the right crescent (half-circle) is visible on screen!
   // At angle 0, apex is at x = -220 + 420 = 200px from the left edge.
-  const cx = -350;
+  const cx = -295;
   const cy = 290;
   const radius = 420;
   const angleStepDeg = 24; // spacing between node centers in degrees
@@ -217,20 +217,20 @@ export default function VisibleGrowthSec() {
         >
           {/* ─── TOP: SECTION TITLE & SUBTITLE (PINNED IN STICKY STAGE) ─── */}
           <div className="pt-2 text-center px-4 max-w-4xl mx-auto relative z-10 shrink-0">
-            <div className="inline-flex items-center justify-center gap-3 text-[11px] font-bold uppercase tracking-[0.25em] text-[#df5522]">
-              <span className="h-px w-8 bg-[#df5522]/40" />
-              <Sparkles size={13} className="text-[#df5522]" />
-              Gamified Progress Tracking
-              <span className="h-px w-8 bg-[#df5522]/40" />
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
 
-            <h2 className="mt-2.5 font-serif text-3xl sm:text-4xl lg:text-[46px] font-medium tracking-tight text-stone-950">
+
+              Gamified Progress Tracking
+
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-5xl">
               Your Growth{" "}
-              <span className="italic font-normal text-[#df5522]">Should Be</span>{" "}
-              Visible.
+              <span className="text-[#942008]">Should Be Visible.</span>
+
             </h2>
 
-            <p className="mt-2 max-w-2xl mx-auto text-xs sm:text-sm leading-relaxed text-stone-600">
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
               Every creation, challenge, milestone and achievement should tell a story of how far you&apos;ve come.
               Instead of wondering whether you&apos;re progressing, you&apos;ll have tangible milestones that help you
               see, measure and celebrate your growth.
@@ -238,7 +238,7 @@ export default function VisibleGrowthSec() {
           </div>
 
           {/* ─── MAIN STAGE ROW: HALF CIRCLE (LEFT) + CONTENT + 3D IMAGE (WITH MORE GAP) ─── */}
-          <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-12 xl:px-16 flex-1 flex items-center justify-between min-h-[500px]">
+          <div className="relative w-full max-w-[1440px] mx-auto px-6 lg:px-18  flex-1 flex items-center justify-between min-h-[500px]">
             {/* ─── LEFT: HALF CIRCLE ROTATING ARC & NUMBERED NODES (ANCHORED TO LEFT) ─── */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[240px] h-[580px] pointer-events-none select-none z-20 overflow-visible">
               {/* Background Arc Curve Line (SVG) - Half Circle extending from screen left */}
@@ -414,6 +414,21 @@ export default function VisibleGrowthSec() {
       {/* ─── TABLET & MOBILE VIEW: CLEAN INTERACTIVE STEPPER (< LG) ────────────── */}
       {/* ========================================================================= */}
       <div className="lg:hidden px-4 pb-20 max-w-xl mx-auto relative z-10">
+        {/* Mobile Section Heading */}
+        <div className="pt-8 pb-6 text-center px-4 max-w-xl mx-auto">
+          <p className="text-xs sm:text-base font-semibold uppercase tracking-[0.18em] text-[#942008]">
+            Gamified Progress Tracking
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-5xl font-black tracking-tight text-neutral-950">
+            Your Growth <span className="text-[#942008]">Should Be Visible.</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-neutral-600 sm:text-xl">
+            Every creation, challenge, milestone and achievement should tell a story of how far you&apos;ve come.
+            Instead of wondering whether you&apos;re progressing, you&apos;ll have tangible milestones that help you
+            see, measure and celebrate your growth.
+          </p>
+        </div>
+
         {/* Step Tabs Row */}
         <div className="grid grid-cols-6 gap-1.5 mb-8 bg-stone-100/90 p-1.5 rounded-2xl">
           {STEPS.map((step, idx) => {
@@ -423,13 +438,13 @@ export default function VisibleGrowthSec() {
                 key={step.number}
                 type="button"
                 onClick={() => setActiveStep(idx)}
-                className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${isTabActive
+                className={`py-2 px-1 rounded-xl text-xs sm:text-lg font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${isTabActive
                   ? "bg-white text-[#df5522] shadow-sm font-black"
                   : "text-stone-600 hover:text-stone-900"
                   }`}
               >
                 <span>{step.number}</span>
-                <span className="text-[10px] truncate max-w-full font-medium">
+                <span className="text-xs sm:text-base truncate max-w-full font-medium">
                   {step.titlePrimary.replace("&", "").trim()}
                 </span>
               </button>
@@ -448,20 +463,20 @@ export default function VisibleGrowthSec() {
             />
           </div>
 
-          <span className="text-xs font-bold tracking-widest text-[#df5522] uppercase mb-2">
+          <span className="text-xs sm:text-base font-bold tracking-widest text-[#df5522] uppercase mb-2">
             {current.phase}
           </span>
 
-          <h3 className="font-serif text-3xl font-medium text-stone-950 mb-3">
+          <h3 className="font-serif text-3xl sm:text-4xl font-medium text-stone-950 mb-3">
             {current.titlePrimary}{" "}
-            <span className="text-[#df5522] italic">{current.titleAccent}</span>
+            {/* <span className="text-[#df5522] italic">{current.titleAccent}</span> */}
           </h3>
 
-          <p className="text-stone-600 text-sm leading-relaxed mb-5">
+          <p className="text-stone-600 text-sm sm:text-lg leading-relaxed mb-5">
             {current.description}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+          {/* <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
             {current.tags.map((tag, tIdx) => (
               <span
                 key={tIdx}
@@ -470,7 +485,7 @@ export default function VisibleGrowthSec() {
                 {tag}
               </span>
             ))}
-          </div>
+          </div> */}
 
           {/* Prev / Next controls */}
           <div className="flex items-center justify-between w-full pt-4 border-t border-stone-200">
@@ -478,18 +493,18 @@ export default function VisibleGrowthSec() {
               type="button"
               onClick={() => setActiveStep((prev) => Math.max(prev - 1, 0))}
               disabled={activeStep === 0}
-              className="inline-flex items-center gap-1 text-xs font-bold text-stone-700 disabled:opacity-30 hover:text-[#df5522]"
+              className="inline-flex items-center gap-1 text-xs sm:text-lg font-bold text-stone-700 disabled:opacity-30 hover:text-[#df5522]"
             >
               <ChevronLeft size={16} /> Prev
             </button>
-            <span className="text-xs font-semibold text-stone-500">
+            <span className="text-xs sm:text-lg font-semibold text-stone-500">
               {activeStep + 1} of {STEPS.length}
             </span>
             <button
               type="button"
               onClick={() => setActiveStep((prev) => Math.min(prev + 1, STEPS.length - 1))}
               disabled={activeStep === STEPS.length - 1}
-              className="inline-flex items-center gap-1 text-xs font-bold text-stone-700 disabled:opacity-30 hover:text-[#df5522]"
+              className="inline-flex items-center gap-1 text-xs sm:text-lg font-bold text-stone-700 disabled:opacity-30 hover:text-[#df5522]"
             >
               Next <ChevronRight size={16} />
             </button>

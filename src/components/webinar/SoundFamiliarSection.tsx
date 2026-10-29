@@ -108,6 +108,7 @@ export default function SoundFamiliarSection({
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
         backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
       }}
     >
       {/* ─── TOP CLOUDY WAVE ─── */}
@@ -155,15 +156,15 @@ export default function SoundFamiliarSection({
         {/* Previous Centered Header with Original Badge, Title & Description */}
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center rounded-full border border-[#E86A24]/30 bg-[#F4E9DF]/80 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B94F1B] shadow-xs">
+            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 font-serif text-2xl font-semibold leading-tight tracking-tight text-[#292522] sm:text-3xl md:text-4xl lg:text-5xl">
-            {heading}
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+            If any of this is true right now, this <span className="text-[#942008]">Masterclass is for you</span>
           </h2>
           {subheading && (
-            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#77716C] sm:text-base">
+            <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
               {subheading}
             </p>
           )}
@@ -200,7 +201,7 @@ export default function SoundFamiliarSection({
 
                 {/* Left Number */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-mono font-medium shrink-0 w-10 sm:w-16 transition-colors duration-400 ${
+                  className={`relative z-10 text-xs sm:text-base lg:text-sm font-mono font-medium shrink-0 w-10 sm:w-16 transition-colors duration-400 ${
                     isHovered ? "text-[#C8653B] font-semibold" : "text-stone-400"
                   }`}
                 >
@@ -210,7 +211,7 @@ export default function SoundFamiliarSection({
                 {/* Center / Title and Subtitle Content */}
                 <div className="relative z-10 flex flex-col flex-1 px-4 sm:px-8">
                   <span
-                    className={`text-base sm:text-lg md:text-xl font-medium tracking-tight transition-colors duration-400 leading-snug ${
+                    className={`text-base sm:text-xl lg:text-lg font-bold tracking-tight transition-colors duration-400 leading-snug ${
                       isHovered ? "text-[#C8653B]" : "text-stone-900"
                     }`}
                   >
@@ -218,7 +219,7 @@ export default function SoundFamiliarSection({
                   </span>
                   {subtitle && (
                     <span
-                      className={`text-xs sm:text-sm font-light mt-1 transition-colors duration-400 ${
+                      className={`text-xs sm:text-base lg:text-sm font-normal mt-1 transition-colors duration-400 ${
                         isHovered ? "text-stone-700" : "text-stone-500"
                       }`}
                     >
@@ -260,7 +261,7 @@ export default function SoundFamiliarSection({
         {/* ─── BOTTOM CLOSING TEXT ("turn") ─── */}
         {turn && (
           <div className="mt-12 sm:mt-16 text-center max-w-2xl mx-auto">
-            <p className="text-xs sm:text-sm md:text-base font-light leading-relaxed text-stone-600">
+            <p className="text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-stone-600">
               {turn}
             </p>
           </div>

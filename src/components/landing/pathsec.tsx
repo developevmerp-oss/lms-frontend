@@ -154,7 +154,7 @@ function PathCard({ item }: { item: (typeof STAGES)[number] }) {
           <span className="path-expand-dash" aria-hidden="true" />
         </div>
         <h3 className="path-expand-title">{item.title}</h3>
-        <p className="path-expand-text">{item.text}</p>
+        <p className="path-expand-text text-sm sm:text-lg lg:text-base">{item.text}</p>
         <div className="path-expand-foot">
           <p className="path-expand-more">
             More
@@ -162,7 +162,7 @@ function PathCard({ item }: { item: (typeof STAGES)[number] }) {
           </p>
           <div className="path-expand-mile">
             <div className="path-expand-mile-inner">
-              <p className="path-expand-mile-label">Milestone</p>
+              <p className="path-expand-mile-label text-xs sm:text-lg lg:text-xs">Milestone</p>
               <p className="path-expand-mile-value">{item.milestone}</p>
             </div>
           </div>
@@ -202,14 +202,14 @@ export default function PathSec() {
           viewport={{ once: true, amount: 0.05 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <p className="path-kicker text-xs font-semibold uppercase tracking-[0.18em]">
+          <p className="text-[#942008] text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em]">
             The Strategic Framework
           </p>
-          <h2 className="path-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-[2.6rem] lg:leading-tight">
+          <h2 className="path-heading mt-3 text-3xl font-black tracking-tight sm:text-5xl lg:leading-tight">
             You Don't Need Another Hobby.{" "}
-            <span className="path-accent sm:block">You Need a Path.</span>
+            <span className="sm:block text-[#942008]">You Need a Path.</span>
           </h2>
-          <p className="path-copy mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
+          <p className="path-copy mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-xl lg:text-base">
             A structured journey can help you turn scattered learning into meaningful progress.
           </p>
         </motion.div>

@@ -92,30 +92,30 @@ export default function CurriculumSec() {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <p className="curriculum-kicker text-xs font-semibold uppercase tracking-[0.18em]">
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
             Curriculum + Outcomes
           </p>
-          <h2 className="curriculum-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-            What You'll Learn + What You'll Create
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+            What You'll Learn + <span className="text-[#942008]">What You'll Create</span>
           </h2>
-          <p className="curriculum-copy mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
             This isn't just about watching lessons. You'll learn the techniques, practice them through real creations and gradually build a portfolio that demonstrates your growth.
           </p>
         </motion.div>
 
         <div className="curriculum-stage mt-10 grid items-center gap-8 sm:mt-12 lg:mt-16 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6">
           <div className="order-2 min-w-0 lg:order-1">
-            <p className="curriculum-index text-xs font-semibold tracking-[0.16em]">{item.index}</p>
+            <p className="curriculum-index text-xs sm:text-base lg:text-xs font-semibold tracking-[0.16em]">{item.index}</p>
             <div className="mt-3 flex items-start gap-3">
               <span className="curriculum-panel-icon mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
                 <ActiveIcon size={18} aria-hidden="true" />
               </span>
               <h3 className="curriculum-title text-2xl font-bold leading-snug sm:text-3xl">{item.title}</h3>
             </div>
-            <p className="curriculum-copy mt-3 text-sm leading-relaxed sm:text-base">{item.text}</p>
+            <p className="curriculum-copy mt-3 text-sm leading-relaxed sm:text-lg lg:text-base">{item.text}</p>
             <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
               {item.outcomes.map((outcome) => (
-                <li key={outcome} className="curriculum-outcome flex items-center gap-2.5 text-sm sm:text-[15px]">
+                <li key={outcome} className="curriculum-outcome flex items-center gap-2.5 text-sm sm:text-lg lg:text-sm">
                   <CircleCheck size={18} aria-hidden="true" className="curriculum-check shrink-0" />
                   <span>{outcome}</span>
                 </li>

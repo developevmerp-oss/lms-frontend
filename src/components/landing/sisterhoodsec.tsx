@@ -22,11 +22,11 @@ export default function SisterhoodSec() {
     >
       <div className="nav-width page-rise">
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
-          <span className="mb-2 block text-xs font-black uppercase tracking-widest text-orange-400">Sisterhood &amp; Support</span>
-          <h2 className="mb-4 text-3xl font-black text-black sm:text-4xl lg:text-5xl">
-            You Don't Have To Build Alone.
+          <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">Sisterhood &amp; Support</p>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+            You Don't Have To <span className="text-[#942008]">Build Alone.</span>
           </h2>
-          <p className="text-base leading-relaxed text-slate-400 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
             The journey becomes easier when you're surrounded by women who understand your dreams, your struggles and your ambition. Inside Ravishing Art Hub, you don't just learn from a coach. You learn, create, share, celebrate and grow together.
           </p>
         </div>

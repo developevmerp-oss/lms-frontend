@@ -118,8 +118,8 @@ export const WebinarCountdown = ({
         [String(timeLeft.seconds).padStart(2, '0'), 'Secs'],
       ].map(([value, label]) => (
         <div key={label} className="flex min-w-[58px] flex-col items-center rounded-2xl border border-[#f3d3c0] bg-white px-3 py-2 shadow-[0_10px_24px_-18px_rgba(90,55,20,0.45)]">
-          <span className="text-xl font-semibold leading-none text-stone-950 md:text-2xl">{value}</span>
-          <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500">{label}</span>
+          <span className="text-lg sm:text-2xl lg:text-xl font-bold leading-none text-stone-950">{value}</span>
+          <span className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-stone-500">{label}</span>
         </div>
       ))}
     </div>

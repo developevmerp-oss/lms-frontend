@@ -474,7 +474,7 @@ export default function MentorAboutSec() {
                     <CountUp target={6} suffix="+" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Years of Professional Experience
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -488,7 +488,7 @@ export default function MentorAboutSec() {
                     <CountUp target={54} suffix="K+" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Students Mentored Nationwide
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -502,7 +502,7 @@ export default function MentorAboutSec() {
                     <CountUp target={8} suffix="K+" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Art &amp; Craft Orders Delivered
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -516,7 +516,7 @@ export default function MentorAboutSec() {
                     <CountUp target={5.0} decimals={1} suffix=" ★" />
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-white/95 leading-snug mt-3">
+                <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
                   Google Verified Rating
                 </p>
                 {/* Krackerz Signature Cutout Corner */}
@@ -528,12 +528,12 @@ export default function MentorAboutSec() {
             <div className="flex flex-col pt-1">
               <blockquote>
                 <p
-                  className="text-lg sm:text-xl lg:text-2xl font-bold italic leading-snug text-stone-900 tracking-tight"
+                  className="text-lg sm:text-2xl lg:text-2xl font-bold italic leading-snug text-stone-900 tracking-tight"
                   style={{ fontFamily: '"Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif' }}
                 >
                   “Every woman deserves the opportunity to create an identity beyond the roles she plays for everyone else.”
                 </p>
-                <cite className="mt-2.5 sm:mt-3 block text-xs sm:text-sm font-bold not-italic text-[#df5522] tracking-wide">
+                <cite className="mt-2.5 sm:mt-3 block text-sm sm:text-lg lg:text-base font-bold not-italic text-[#df5522] tracking-wide">
                   — Vrajangna Patel, Lead Mentor
                 </cite>
               </blockquote>
@@ -542,7 +542,7 @@ export default function MentorAboutSec() {
               <div className="border-b border-stone-300/80 my-4 sm:my-5" />
 
               {/* Mission Paragraph */}
-              <p className="text-xs sm:text-sm lg:text-base leading-relaxed text-stone-700 font-medium">
+              <p className="text-sm sm:text-lg lg:text-base leading-relaxed text-stone-700 font-medium">
                 My goal isn&apos;t just to teach you how to make Resin Art. My goal is to help you believe that your creativity can become something meaningful, valuable and truly yours — whether you want to start a side-income or build a recognized premium brand.
               </p>
 
@@ -550,10 +550,10 @@ export default function MentorAboutSec() {
               <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Box 1: Nationally Recognized Art Coach */}
                 <div className="relative overflow-hidden rounded-2xl bg-[#fff7f2] border border-[#f5ded0] p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2.5 sm:gap-3 shadow-[0_2px_8px_rgba(45,30,15,0.04)] min-h-[3.75rem] sm:min-h-[5.25rem] group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#fde5d6] text-[#c33d18] font-black text-xs sm:text-sm">
+                  <span className="flex h-7 w-7 sm:h-10 sm:w-10 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-full bg-[#fde5d6] text-[#c33d18] font-black text-xs sm:text-lg lg:text-sm">
                     01
                   </span>
-                  <span className="text-xs sm:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
+                  <span className="text-sm sm:text-lg lg:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
                     Nationally Recognized Art Coach
                   </span>
                   {/* Subtle Cutout Corner */}
@@ -562,10 +562,10 @@ export default function MentorAboutSec() {
 
                 {/* Box 2: Step-by-Step Business Frameworks */}
                 <div className="relative overflow-hidden rounded-2xl bg-[#faf7f2] border border-[#ebe2d7] p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2.5 sm:gap-3 shadow-[0_2px_8px_rgba(45,30,15,0.04)] min-h-[3.75rem] sm:min-h-[5.25rem] group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#eee5d8] text-[#78350f] font-black text-xs sm:text-sm">
+                  <span className="flex h-7 w-7 sm:h-10 sm:w-10 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-full bg-[#eee5d8] text-[#78350f] font-black text-xs sm:text-lg lg:text-sm">
                     02
                   </span>
-                  <span className="text-xs sm:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
+                  <span className="text-sm sm:text-lg lg:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
                     Step-by-Step Business Frameworks
                   </span>
                   {/* Subtle Cutout Corner */}
@@ -574,10 +574,10 @@ export default function MentorAboutSec() {
 
                 {/* Box 3: Hands-On Lifetime Community */}
                 <div className="relative overflow-hidden rounded-2xl bg-[#fff4f4] border border-[#f8dada] p-3.5 sm:p-4 flex items-center sm:flex-col sm:items-center sm:justify-center sm:text-center gap-2.5 sm:gap-3 shadow-[0_2px_8px_rgba(45,30,15,0.04)] min-h-[3.75rem] sm:min-h-[5.25rem] group transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                  <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#fcdcdc] text-[#942008] font-black text-xs sm:text-sm">
+                  <span className="flex h-7 w-7 sm:h-10 sm:w-10 lg:h-8 lg:w-8 shrink-0 items-center justify-center rounded-full bg-[#fcdcdc] text-[#942008] font-black text-xs sm:text-lg lg:text-sm">
                     03
                   </span>
-                  <span className="text-xs sm:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
+                  <span className="text-sm sm:text-lg lg:text-[0.82rem] font-bold text-stone-800 leading-snug tracking-tight">
                     Hands-On Lifetime Community
                   </span>
                   {/* Subtle Cutout Corner */}

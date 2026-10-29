@@ -119,11 +119,11 @@ function segment(progress: number, start: number, end: number) {
 function SoundHeading({ headingRef }: { headingRef?: React.RefObject<HTMLDivElement | null> }) {
   return (
     <div ref={headingRef} className="mx-auto max-w-3xl text-center">
-      <p className="sound-kicker text-xs font-semibold uppercase tracking-[0.18em]">Self Reflection</p>
-      <h2 className="sound-heading mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-        Does This Sound Like <span className="sound-accent">You?</span>
+      <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">Self Reflection</p>
+      <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
+        Does This Sound Like <span className="text-[#942008]">You?</span>
       </h2>
-      <p className="sound-muted mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">
+      <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
         Recognize where you are right now so we can guide you to where you want to be.
       </p>
     </div>
@@ -278,7 +278,7 @@ export default function SoundLikeSec() {
                     {Number(item.stage)}
                   </span> */}
                   <span
-                    className={`sound-option-pill rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${item.stageClass}`}
+                    className={`sound-option-pill rounded-full px-3 py-1 text-xs sm:text-sm font-semibold uppercase tracking-[0.12em] ${item.stageClass}`}
                   >
                     Stage: {item.label}
                   </span>
@@ -286,10 +286,10 @@ export default function SoundLikeSec() {
                 <h3 className="sound-title mt-4 text-xl font-bold leading-snug sm:text-[1.65rem]">
                   {item.title}
                 </h3>
-                <p className="sound-muted mt-3 text-sm leading-relaxed sm:text-base">
+                <p className="sound-muted mt-3 text-sm leading-relaxed sm:text-lg">
                   {item.description}
                 </p>
-                <p className="sound-option-solution mt-5 inline-flex items-start gap-2 text-sm font-semibold leading-snug">
+                <p className="sound-option-solution mt-5 inline-flex items-start gap-2 text-sm sm:text-base font-semibold leading-snug">
                   <span className="sound-option-check mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px]">
                     ✓
                   </span>

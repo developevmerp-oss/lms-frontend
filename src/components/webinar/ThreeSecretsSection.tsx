@@ -103,7 +103,13 @@ export default function ThreeSecretsSection({
     <section
       ref={sectionRef}
       id="three-secrets"
-      className="relative w-full bg-[#FFFFFF] py-14 sm:py-20 lg:py-24"
+      className="relative w-full py-14 sm:py-20 lg:py-24"
+      style={{
+        backgroundColor: "#ffffff",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
     >
       <div className="nav-width mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -113,14 +119,14 @@ export default function ThreeSecretsSection({
           }`}
         >
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center rounded-full border border-[#E86A24]/30 bg-[#F4E9DF]/80 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B94F1B] shadow-xs">
+            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 font-serif text-2xl font-semibold leading-tight tracking-tight text-[#292522] sm:text-3xl md:text-4xl lg:text-5xl">
-            {heading}
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+            The three secrets we'll <span className="text-[#942008]">unpack together</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-xs leading-relaxed text-[#77716C] sm:text-sm md:text-base">
+          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
             {subheading}
           </p>
         </div>
@@ -136,7 +142,7 @@ export default function ThreeSecretsSection({
                 style={{
                   transitionDelay: isVisible ? `${idx * 160}ms` : "0ms",
                 }}
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#F4E9DF] bg-[#FAF7F4] p-4 shadow-[0_10px_30px_-15px_rgba(36,33,31,0.08)] transition-all duration-700 ease-out hover:-translate-y-2 hover:border-[#E86A24]/40 hover:shadow-[0_22px_45px_-12px_rgba(232,106,36,0.18)] sm:rounded-[28px] sm:p-5 lg:p-6 ${
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#eadfd4] bg-[#f7f6f0] p-4 shadow-[0_10px_30px_-15px_rgba(36,33,31,0.08)] transition-all duration-700 ease-out hover:-translate-y-2 hover:border-[#E86A24]/40 hover:shadow-[0_22px_45px_-12px_rgba(232,106,36,0.18)] sm:rounded-[28px] sm:p-5 lg:p-6 ${
                   isVisible
                     ? "translate-y-0 scale-100 opacity-100"
                     : "translate-y-12 scale-95 opacity-0"
@@ -155,25 +161,25 @@ export default function ThreeSecretsSection({
 
                   {/* Dark Pill Badge */}
                   <div className="mb-3.5">
-                    <span className="inline-flex items-center rounded-full bg-[#24211F] px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#FAF7F4] shadow-xs">
+                    <span className="inline-flex items-center rounded-full bg-[#24211F] px-3.5 py-1 text-xs sm:text-sm lg:text-xs font-bold uppercase tracking-wider text-[#FAF7F4] shadow-xs">
                       {secret.label}
                     </span>
                   </div>
 
                   {/* Card Title */}
-                  <h3 className="mb-3 font-serif text-lg font-bold leading-snug tracking-tight text-[#292522] transition-colors duration-300 group-hover:text-[#B94F1B] sm:text-xl">
+                  <h3 className="mb-3 text-base sm:text-xl lg:text-lg font-bold leading-snug tracking-tight text-neutral-950 transition-colors duration-300 group-hover:text-[#942008]">
                     {secret.title}
                   </h3>
 
                   {/* Myth Text (Subtle belief callout) */}
                   {secret.myth && (
-                    <p className="mb-3 text-xs italic leading-relaxed text-[#77716C]/85">
+                    <p className="mb-3 text-xs sm:text-base lg:text-sm italic leading-relaxed text-[#77716C]/85">
                       {secret.myth}
                     </p>
                   )}
 
                   {/* Truth / Main Body Text */}
-                  <p className="text-xs leading-relaxed text-[#77716C] sm:text-sm">
+                  <p className="text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600">
                     {secret.truth}
                   </p>
                 </div>
@@ -189,17 +195,17 @@ export default function ThreeSecretsSection({
           }`}
         >
           <div>
-            <h3 className="font-serif text-lg font-bold text-[#FFFFFF] sm:text-xl">
+            <h3 className="text-xl sm:text-3xl lg:text-2xl font-bold text-[#FFFFFF]">
               {bannerData.heading}
             </h3>
-            <p className="mt-1 text-xs text-[#F4E9DF]/80 sm:text-sm">
+            <p className="mt-1 text-xs sm:text-base lg:text-sm text-[#F4E9DF]/80">
               {bannerData.body}
             </p>
           </div>
 
           <button
             onClick={onScrollToRegister}
-            className="group inline-flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 text-sm font-semibold text-white shadow-lg shadow-[#E86A24]/25 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:shadow-[#E86A24]/40 active:scale-[0.98]"
+            className="group inline-flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-[#E86A24]/25 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:shadow-[#E86A24]/40 active:scale-[0.98]"
           >
             <span>{bannerData.cta}</span>
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />

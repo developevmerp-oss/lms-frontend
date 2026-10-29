@@ -157,7 +157,7 @@ export default function WebinarPhilosophy({
           }`}
         >
           {eyebrow && (
-            <span className="shrink-0 text-[11px] sm:text-xs font-bold uppercase tracking-[0.22em] text-[#E86A24]">
+            <span className="shrink-0 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]">
               {eyebrow}
             </span>
           )}
@@ -172,10 +172,10 @@ export default function WebinarPhilosophy({
         >
           <div className="hidden lg:block lg:col-span-5" />
           <div className="lg:col-span-7">
-            <h2 className="mb-3 font-serif text-2xl font-normal leading-tight tracking-tight text-white sm:text-3xl md:text-4xl lg:text-[44px]">
-              {heading}
+            <h2 className="mb-3 text-3xl sm:text-5xl lg:text-5xl font-black leading-tight tracking-tight text-white">
+              Mastery → Mindset → <span className="text-[#ea580c]">Monetization</span>
             </h2>
-            <p className="max-w-xl text-xs font-light leading-relaxed text-[#F4E9DF]/80 sm:text-sm md:text-base">
+            <p className="max-w-xl text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
               {subheading}
             </p>
           </div>
@@ -203,7 +203,7 @@ export default function WebinarPhilosophy({
 
               {/* Step indicator header */}
               <div className="mb-3.5 flex items-center justify-between px-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#E86A24]">
+                <span className="text-xs sm:text-base lg:text-xs font-extrabold uppercase tracking-[0.2em] text-[#ea580c]">
                   {currentStep.label}
                 </span>
                 <span className="text-[11px] font-mono tracking-widest text-[#F4E9DF]/40">
@@ -239,10 +239,10 @@ export default function WebinarPhilosophy({
                     exit={{ opacity: 0, y: -12 }}
                     transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <h3 className="mb-2 font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    <h3 className="mb-2 text-xl sm:text-3xl lg:text-2xl font-bold tracking-tight text-white">
                       {currentStep.title}
                     </h3>
-                    <p className="text-xs font-normal leading-relaxed text-[#F4E9DF]/75 sm:text-sm">
+                    <p className="text-xs sm:text-base lg:text-sm font-normal leading-relaxed text-[#F4E9DF]/75">
                       {currentStep.body}
                     </p>
                   </motion.div>
@@ -285,7 +285,7 @@ export default function WebinarPhilosophy({
 
                       {/* Title Text */}
                       <span
-                        className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        className={`text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                           isActive
                             ? "text-white"
                             : "text-white/20 group-hover:text-white/40"
@@ -316,7 +316,7 @@ export default function WebinarPhilosophy({
         {/* ─── BOTTOM CLOSING TEXT ─── */}
         {closing && (
           <p
-            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-xs font-light leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out sm:text-sm md:text-base ${
+            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
             }`}
           >

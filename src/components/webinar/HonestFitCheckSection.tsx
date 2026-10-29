@@ -150,6 +150,7 @@ export default function HonestFitCheckSection({
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
         backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
       }}
     >
       {/* ─── DYNAMIC SVG CLIP-PATHS FOR EXACT SMOOTH CIRCULAR SCALLOP BITES ─── */}
@@ -215,15 +216,15 @@ export default function HonestFitCheckSection({
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center rounded-full border border-[#f3d3c0] bg-[#fff6f0] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#c45a28] shadow-xs">
+            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 font-serif text-3xl font-medium tracking-tight text-stone-950 sm:text-4xl lg:text-[46px]">
-            {heading}
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+            Who should attend — and <span className="text-[#942008]">who should skip it</span>
           </h2>
           {subheading && (
-            <p className="text-stone-500 text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
               {subheading}
             </p>
           )}
@@ -260,7 +261,7 @@ export default function HonestFitCheckSection({
             >
               <div>
                 {/* Card Title matching reference design */}
-                <h3 className="font-serif text-2xl sm:text-3xl lg:text-[32px] font-bold text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
+                <h3 className="text-2xl sm:text-4xl lg:text-3xl font-black text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
                   <span>You SHOULD</span>
                   <span className="block mt-1">attend if...</span>
                 </h3>
@@ -274,7 +275,7 @@ export default function HonestFitCheckSection({
                         <Check className="w-3.5 h-3.5 text-[#C63616] stroke-[3]" />
                       </div>
                       {/* Item Text */}
-                      <span className="text-white text-sm sm:text-lg lg:text-lg font-normal leading-relaxed">
+                      <span className="text-white text-xs sm:text-base lg:text-sm font-medium leading-relaxed">
                         {item}
                       </span>
                     </li>
@@ -312,7 +313,7 @@ export default function HonestFitCheckSection({
             >
               <div>
                 {/* Card Title matching reference design */}
-                <h3 className="font-serif text-2xl sm:text-3xl lg:text-[32px] font-bold text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
+                <h3 className="text-2xl sm:text-4xl lg:text-3xl font-black text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
                   <span>This is NOT</span>
                   <span className="block mt-1">for you if...</span>
                 </h3>
@@ -326,7 +327,7 @@ export default function HonestFitCheckSection({
                         <X className="w-3.5 h-3.5 text-[#8B230E] stroke-[3]" />
                       </div>
                       {/* Item Text */}
-                      <span className="text-white text-sm sm:text-lg lg:text-lg font-normal leading-relaxed">
+                      <span className="text-white text-xs sm:text-base lg:text-sm font-medium leading-relaxed">
                         {item}
                       </span>
                     </li>
