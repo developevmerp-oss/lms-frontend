@@ -38,8 +38,8 @@ export default function SisterhoodSec() {
                 <img src={item.image} alt="" className="rounded-[28px]" />
               </div>
               <div className="pt-5">
-                <p className="text-xl font-bold text-black">{item.title}</p>
-                <p className="mt-1 text-base text-slate-400">{item.desc}</p>
+                <p className="text-xl sm:text-2xl lg:text-xl font-bold text-black">{item.title}</p>
+                <p className="mt-1 text-base sm:text-xl lg:text-base text-slate-400">{item.desc}</p>
               </div>
             </article>
           ))}

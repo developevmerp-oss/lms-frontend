@@ -80,19 +80,31 @@ const PHILOSOPHY = {
   steps: [
     {
       label: "STEP 1",
-      title: "Master",
-      body: "Build premium skills in the right sequence so you know what to learn, practice and create next."
+      badge: "MASTERY",
+      tabName: "Mastery",
+      title: "Learn the right techniques in the right sequence",
+      myth: "Most people believe more tutorials will eventually add up.",
+      body: "You'll see why random tutorials create confusion, and how structured learning accelerates progress — technique sequencing, premium skill development, a portfolio-building mindset and moving beyond random projects.",
+      image: "/images/secrets/secret-1-mastery.jpg",
     },
     {
       label: "STEP 2",
-      title: "Mindset",
-      body: "Build the confidence to create, share, receive feedback and believe your work deserves to be seen."
+      badge: "MINDSET",
+      tabName: "Mindset",
+      title: "Become confident enough to own your creativity",
+      myth: "Most people believe their work isn't good enough to be seen yet.",
+      body: "You'll learn how to move past fear of creating, comparison, the \"my work isn't good enough\" loop, fear of showing your work, and confusion about your artistic identity.",
+      image: "/images/secrets/secret-2-mindset.jpg",
     },
     {
       label: "STEP 3",
-      title: "Monetization",
-      body: "Learn how to connect your skills with pricing, branding, marketing and a business model."
-    }
+      badge: "MONETIZATION",
+      tabName: "Monetization",
+      title: "Turn your art into a real opportunity",
+      myth: "Most people believe business skills come much later.",
+      body: "You'll understand the foundations of product selection, pricing, branding, marketing, customer attraction, community support and a practical business roadmap.",
+      image: "/images/secrets/secret-3-monetization.jpg",
+    },
   ],
   closing: "Because skill without confidence stays hidden. Confidence without a business roadmap stays stuck. And business without mastery becomes difficult to sustain."
 };
@@ -511,7 +523,7 @@ export default function WebinarPage() {
             totalSeats: data.data.totalSeats ?? 500,
           });
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     const fetchNextWebinar = async () => {
@@ -521,17 +533,17 @@ export default function WebinarPage() {
         if (data.success && data.data) {
           setActiveWebinar(data.data);
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     fetchStats();
-    fetchNextWebinar();
+    // fetchNextWebinar();
     try {
       trackingService.trackViewContent({
         name: "Resin Art Masterclass Webinar",
         category: "Webinar",
       });
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   // Sticky bottom trigger
@@ -588,7 +600,7 @@ export default function WebinarPage() {
           service: "Resin Art Masterclass",
           date: activeWebinar?.scheduledAt,
         });
-      } catch (_) {}
+      } catch (_) { }
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(data.data || form));
@@ -599,7 +611,7 @@ export default function WebinarPage() {
       // Still fire lead even if local network edge case saved to fallback
       try {
         trackingService.trackLead({ source: "webinar_registration_fallback" });
-      } catch (_) {}
+      } catch (_) { }
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(form));
@@ -777,7 +789,7 @@ export default function WebinarPage() {
         {/* ─── 7. UNLOCKED EXACT CURRICULUM SECTIONS (100% MATCHING REFERENCE SEQUENCE) ─── */}
         {isUnlocked && (
           <div id="gate-content">
-            
+
             {/* 1. SOUND FAMILIAR? (W -> e2) */}
             <SoundFamiliarSection
               data={SOUND_FAMILIAR}
@@ -1022,31 +1034,31 @@ export default function WebinarPage() {
         >
           <div className="nav-width">
             <div className="mx-auto max-w-3xl rounded-[2rem] bg-[#2a211c] px-6 py-12 sm:px-12 sm:py-16">
-            <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-white">
-              Your art deserves more than a <span className="text-[#ea580c]">place on your phone</span>
-            </h2>
-            <p className="mx-auto mb-8 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-stone-300">
-              You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
-            </p>
+              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-white">
+                Your art deserves more than a <span className="text-[#ea580c]">place on your phone</span>
+              </h2>
+              <p className="mx-auto mb-8 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-stone-300">
+                You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
+              </p>
 
-            <div className="mb-6 flex justify-center">
-              <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
-            </div>
+              <div className="mb-6 flex justify-center">
+                <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
+              </div>
 
-            <button
-              onClick={scrollToRegister}
-              className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
-            >
-              Reserve my free seat
-              <ArrowRight className="ml-1.5 size-4" />
-            </button>
+              <button
+                onClick={scrollToRegister}
+                className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
+              >
+                Reserve my free seat
+                <ArrowRight className="ml-1.5 size-4" />
+              </button>
 
-            <p className="mt-4 text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c]">
-              🔥 Live seats are limited. Register now before registration closes.
-            </p>
-            <p className="mt-2 text-[11px] sm:text-xs uppercase tracking-[0.14em] text-stone-400">
-              Free registration • 90-minute Masterclass • Practical clarity • Action-focused
-            </p>
+              <p className="mt-4 text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c]">
+                🔥 Live seats are limited. Register now before registration closes.
+              </p>
+              <p className="mt-2 text-[11px] sm:text-xs uppercase tracking-[0.14em] text-stone-400">
+                Free registration • 90-minute Masterclass • Practical clarity • Action-focused
+              </p>
             </div>
           </div>
         </section>
@@ -1054,9 +1066,8 @@ export default function WebinarPage() {
 
       {/* ─── 9. STICKY BOTTOM REGISTRATION BAR ─── */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#f3d3c0] bg-[#fffaf6]/95 backdrop-blur-xl transition-transform duration-300 ${
-          showStickyBottom ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#f3d3c0] bg-[#fffaf6]/95 backdrop-blur-xl transition-transform duration-300 ${showStickyBottom ? "translate-y-0" : "translate-y-full"
+          }`}
       >
         <div className="nav-width flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">

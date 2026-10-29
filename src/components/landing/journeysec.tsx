@@ -377,17 +377,17 @@ export default function JourneySec({
                     <div className="pt-4 flex flex-col">
                       {/* Level Tag & Icon */}
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm select-none" aria-hidden="true">
+                        <span className="text-lg sm:text-xl lg:text-sm select-none" aria-hidden="true">
                           {icon}
                         </span>
-                        <p className={`text-[11px] font-black uppercase tracking-wider ${levelColorClass}`}>
+                        <p className={`text-sm sm:text-base lg:text-xs font-black uppercase tracking-wider ${levelColorClass}`}>
                           {badgeTag}
                         </p>
                       </div>
 
                       {/* Category • Validity */}
                       {(displayCategory || validityText) && (
-                        <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                        <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[0.9rem] lg:text-[0.6rem] font-bold text-neutral-400 uppercase tracking-wider">
                           {displayCategory && <span>{displayCategory}</span>}
                           {displayCategory && validityText && <span>•</span>}
                           {validityText && <span>{validityText}</span>}
@@ -408,7 +408,7 @@ export default function JourneySec({
 
                       {/* Dynamic Campaign Offer if active */}
                       {tier.offerActive && (
-                        <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-600 text-xs font-semibold self-start">
+                        <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-600 text-xs sm:text-base lg:text-xs font-semibold self-start">
                           <span>🎁</span>
                           <span>{tier.offerTitle || "Special Offer"}</span>
                           {Boolean(tier.discountValue && tier.discountValue > 0) && (

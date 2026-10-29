@@ -11,7 +11,7 @@ const PILLARS = [
     text: "Understand the fundamentals and advanced techniques required to create beautiful, professional-quality resin artwork—from chemistry and bubble-free mixing to ocean lacing and geode crystal inlays.",
     outcomes: ["Bubble-Free Chemistry", "Ocean Foam & Waves", "Geode Crystal Inlays"],
     icon: Brush,
-    image: "/images/student-art/real-art-10.jpg",
+    image: "/images/student-art/art-8.jpg",
   },
   {
     index: "02",
@@ -19,7 +19,7 @@ const PILLARS = [
     text: "Move beyond copying others and discover the colours, techniques, compositions and products that make your work instantly recognizable in the market.",
     outcomes: ["Color Psychology", "Distinct Compositions", "Signature Identity"],
     icon: Palette,
-    image: "/images/student-art/real-art-1.jpg",
+    image: "/images/student-art/art-13.jpg",
   },
   {
     index: "03",
@@ -27,7 +27,7 @@ const PILLARS = [
     text: "Create meaningful, commercial-grade projects that demonstrate your ability and give you something tangible to showcase to clients, interior designers, and collectors.",
     outcomes: ["Commercial Finishes", "Client Lookbooks", "High-End Packaging"],
     icon: Layers,
-    image: "/images/student-art/real-art-7.jpg",
+    image: "/images/student-art/art-4.jpg",
   },
   {
     index: "04",
@@ -35,7 +35,7 @@ const PILLARS = [
     text: "Understand how to turn your creations into products, orders, high-ticket custom commissions, workshop opportunities and sustainable monthly income.",
     outcomes: ["Commission Pricing", "Client Acquisition", "Repeat Order Flywheel"],
     icon: TrendingUp,
-    image: "/images/student-art/real-art-3.jpg",
+    image: "/images/student-art/art-19.jpg",
   },
 ];
 
@@ -104,23 +104,44 @@ export default function CurriculumSec() {
         </motion.div>
 
         <div className="curriculum-stage mt-10 grid items-center gap-8 sm:mt-12 lg:mt-16 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6">
-          <div className="order-2 min-w-0 lg:order-1">
-            <p className="curriculum-index text-xs sm:text-base lg:text-xs font-semibold tracking-[0.16em]">{item.index}</p>
-            <div className="mt-3 flex items-start gap-3">
-              <span className="curriculum-panel-icon mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
-                <ActiveIcon size={18} aria-hidden="true" />
-              </span>
-              <h3 className="curriculum-title text-2xl font-bold leading-snug sm:text-3xl">{item.title}</h3>
-            </div>
-            <p className="curriculum-copy mt-3 text-sm leading-relaxed sm:text-lg lg:text-base">{item.text}</p>
-            <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
-              {item.outcomes.map((outcome) => (
-                <li key={outcome} className="curriculum-outcome flex items-center gap-2.5 text-sm sm:text-lg lg:text-sm">
-                  <CircleCheck size={18} aria-hidden="true" className="curriculum-check shrink-0" />
-                  <span>{outcome}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="order-2 min-w-0 lg:order-1 grid grid-cols-1 grid-rows-1">
+            {PILLARS.map((pillar, index) => {
+              const isCurrent = index === active;
+              const PillarIcon = pillar.icon;
+              return (
+                <div
+                  key={pillar.title}
+                  className={`col-start-1 row-start-1 flex flex-col justify-center transition-all duration-500 ease-out ${isCurrent
+                      ? "opacity-100 translate-y-0 pointer-events-auto z-10"
+                      : "opacity-0 translate-y-1 pointer-events-none z-0 invisible"
+                    }`}
+                  aria-hidden={!isCurrent}
+                >
+                  <p className="curriculum-index text-xs sm:text-base lg:text-xs font-semibold tracking-[0.16em]">
+                    {pillar.index}
+                  </p>
+                  <div className="mt-3 flex items-start gap-3">
+                    <span className="curriculum-panel-icon mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+                      <PillarIcon size={18} aria-hidden="true" />
+                    </span>
+                    <h3 className="curriculum-title text-2xl font-bold leading-snug sm:text-3xl text-neutral-950">
+                      {pillar.title}
+                    </h3>
+                  </div>
+                  <p className="curriculum-copy mt-3 text-sm leading-relaxed sm:text-lg lg:text-base text-neutral-600">
+                    {pillar.text}
+                  </p>
+                  <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
+                    {pillar.outcomes.map((outcome) => (
+                      <li key={outcome} className="curriculum-outcome flex items-center gap-2.5 text-sm sm:text-lg lg:text-sm text-neutral-800">
+                        <CircleCheck size={18} aria-hidden="true" className="curriculum-check shrink-0 text-[#942008]" />
+                        <span>{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
 
           <div className="curriculum-cover order-1 lg:order-2" aria-hidden="false">

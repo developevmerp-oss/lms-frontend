@@ -190,11 +190,10 @@ function ChallengeAutoSlider({ cards }: { cards: ChallengeCardItem[] }) {
           return (
             <div
               key={`${item.step}-${index}`}
-              className={`shrink-0 w-[265px] sm:w-[310px] transition-transform duration-300 ${
-                isTop
+              className={`shrink-0 w-[265px] sm:w-[310px] transition-transform duration-300 ${isTop
                   ? "-translate-y-3 sm:-translate-y-4"
                   : "translate-y-3.5 sm:translate-y-5"
-              }`}
+                }`}
             >
               <article className={`rc-card group ${accent ? "rc-card--accent" : ""}`}>
                 <div className="rc-card__media">
