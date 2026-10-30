@@ -17,13 +17,23 @@ interface StudentNavProps {
 }
 
 export function getLevelCode(levelName?: string, _points: number = 0): "GENERAL" | "L0" | "L1" | "L2" | "L3" | "L3+" {
-  const normalized = (levelName || "").toUpperCase();
-  if (normalized.includes("GENERAL")) return "GENERAL";
+  const raw = (levelName || "").toUpperCase().trim();
+  if (!raw || raw.includes("GENERAL")) return "GENERAL";
+
+  // Normalize "LEVEL 3", "LEVEL-3", "LEVEL3" -> "L3"
+  const normalized = raw.replace(/LEVEL[\s\-_]*/g, "L");
+
   if (normalized === "L3+" || normalized.includes("L3+") || normalized.includes("MASTERS") || normalized.includes("PILES")) return "L3+";
   if (normalized === "L3" || normalized.includes("L3") || normalized.includes("DIAMOND") || normalized.includes("RENAISSANCE")) return "L3";
   if (normalized === "L2" || normalized.includes("L2") || normalized.includes("GOLD") || normalized.includes("MASTER MEMBERSHIP")) return "L2";
   if (normalized === "L1" || normalized.includes("L1") || normalized.includes("SILVER") || normalized.includes("EXPLORE")) return "L1";
   if (normalized === "L0" || normalized.includes("L0") || normalized.includes("FAST TRACK") || normalized.includes("FAST START")) return "L0";
+
+  if (raw === "3" || raw.includes("3")) return "L3";
+  if (raw === "2" || raw.includes("2")) return "L2";
+  if (raw === "1" || raw.includes("1")) return "L1";
+  if (raw === "0" || raw.includes("0")) return "L0";
+
   return "GENERAL";
 }
 
@@ -49,7 +59,14 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
 
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const effectiveLevel = user?.membershipLevel || user?.level || user?.rank || level;
+  const candidateLevels = [level, user?.membershipLevel, user?.level, user?.rank].filter(Boolean);
+  let effectiveLevel = candidateLevels[0] || "General";
+  for (const cand of candidateLevels) {
+    if (getLevelCode(cand, points) !== "GENERAL") {
+      effectiveLevel = cand;
+      break;
+    }
+  }
   const studentLevelCode = getLevelCode(effectiveLevel, points);
 
   const isGeneral = studentLevelCode === "GENERAL";

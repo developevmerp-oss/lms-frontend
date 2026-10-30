@@ -5,14 +5,19 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Trophy, Flame, Star, Crown } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { getLevelCode } from "@/components/layout/StudentNav";
 
 export default function AdminLeaderboard() {
   const { token, user, logout } = useAuth();
   const [students, setStudents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [levelTiers, setLevelTiers] = useState<any[]>([]);
+
   useEffect(() => {
     if (!token) return;
+    
+    // Fetch leaderboard students
     fetch(`${API_BASE_URL}/leaderboard`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -22,14 +27,75 @@ export default function AdminLeaderboard() {
         setIsLoading(false);
       })
       .catch(err => { console.error(err); setIsLoading(false); });
+
+    // Fetch dynamic level tiers from database
+    fetch(`${API_BASE_URL}/admin/levels`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setLevelTiers(data);
+        } else {
+          fetch(`${API_BASE_URL}/dashboard/levels`)
+            .then(r => r.json())
+            .then(pubData => { if (Array.isArray(pubData)) setLevelTiers(pubData); })
+            .catch(() => {});
+        }
+      })
+      .catch(() => {
+        fetch(`${API_BASE_URL}/dashboard/levels`)
+          .then(r => r.json())
+          .then(pubData => { if (Array.isArray(pubData)) setLevelTiers(pubData); })
+          .catch(() => {});
+      });
   }, [token]);
 
-  const getLevelName = (points: number) => {
-    if (points < 500) return { label: "Fast Start", color: "text-slate-400" };
-    if (points < 5000) return { label: "Silver", color: "text-slate-300" };
-    if (points < 10000) return { label: "Gold", color: "text-yellow-400" };
-    if (points < 50000) return { label: "Diamond", color: "text-blue-400" };
-    return { label: "Masters", color: "text-orange-400" };
+  const getStudentLevelBadge = (student: any) => {
+    const candidate = (student.membershipLevel || student.rank || "").trim();
+    const code = getLevelCode(candidate, student.points || 0);
+
+    // Try finding matching level tier dynamically from DB
+    const dbTier = levelTiers.find(
+      (t: any) =>
+        (t.code && t.code.toUpperCase() === code) ||
+        (t.name && candidate.toUpperCase().includes(t.name.toUpperCase())) ||
+        (t.code && candidate.toUpperCase().includes(t.code.toUpperCase()))
+    );
+
+    if (dbTier) {
+      const colorMap: Record<string, string> = {
+        purple: "text-purple-300 border-purple-500/40 bg-purple-500/10",
+        cyan: "text-cyan-300 border-cyan-500/40 bg-cyan-500/10",
+        yellow: "text-yellow-300 border-yellow-500/40 bg-yellow-500/10",
+        amber: "text-yellow-300 border-yellow-500/40 bg-yellow-500/10",
+        slate: "text-slate-200 border-slate-500/40 bg-slate-500/10",
+        emerald: "text-emerald-300 border-emerald-500/40 bg-emerald-500/10",
+        orange: "text-orange-300 border-orange-500/40 bg-orange-500/10",
+      };
+      const color = colorMap[dbTier.badgeColor] || "text-orange-300 border-orange-500/40 bg-orange-500/10";
+      return {
+        label: `${dbTier.name} (${dbTier.code})`,
+        color,
+      };
+    }
+
+    if (code === "L3+" || code.includes("L3+")) {
+      return { label: student.rank || "Masters Club (L3+)", color: "text-purple-300 border-purple-500/40 bg-purple-500/10" };
+    }
+    if (code === "L3") {
+      return { label: student.rank || "Diamond Club (L3)", color: "text-cyan-300 border-cyan-500/40 bg-cyan-500/10" };
+    }
+    if (code === "L2") {
+      return { label: student.rank || "Gold Member (L2)", color: "text-yellow-300 border-yellow-500/40 bg-yellow-500/10" };
+    }
+    if (code === "L1") {
+      return { label: student.rank || "Silver Member (L1)", color: "text-slate-200 border-slate-500/40 bg-slate-500/10" };
+    }
+    if (code === "L0") {
+      return { label: student.rank || "Fast Track (L0)", color: "text-orange-300 border-orange-500/40 bg-orange-500/10" };
+    }
+    return { label: candidate || "General Member", color: "text-slate-400 border-slate-700 bg-slate-800/40" };
   };
 
   return (
@@ -59,7 +125,7 @@ export default function AdminLeaderboard() {
           ) : (
             <div className="divide-y divide-slate-800">
               {students.map((student, index) => {
-                const levelInfo = getLevelName(student.points || 0);
+                const levelInfo = getStudentLevelBadge(student);
                 const isTop3 = index < 3;
                 return (
                   <div 
@@ -92,9 +158,11 @@ export default function AdminLeaderboard() {
                     </div>
 
                     {/* Level */}
-                    <div className={`col-span-2 text-center font-bold text-sm ${levelInfo.color}`}>
-                      <Star size={12} className="inline mr-1" />
-                      {levelInfo.label}
+                    <div className="col-span-2 text-center">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${levelInfo.color}`}>
+                        <Star size={12} />
+                        {levelInfo.label}
+                      </span>
                     </div>
 
                     {/* Streak */}

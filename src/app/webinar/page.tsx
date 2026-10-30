@@ -1094,7 +1094,7 @@ export default function WebinarPage() {
               </p>
 
               <div className="mb-6 flex justify-center">
-                <WebinarCountdown onWebinarLoaded={(wb) => setActiveWebinar(wb)} />
+                <WebinarCountdown targetDateStr={activeWebinar?.scheduledAt} onWebinarLoaded={setActiveWebinar} />
               </div>
 
               <button

@@ -5,8 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
 import { ClipboardList, CheckCircle2, Clock, Upload, X } from "lucide-react";
 import { motion } from "framer-motion";
-
 import { API_BASE_URL } from "@/config/api";
+import { getLevelCode } from "@/components/layout/StudentNav";
 
 export default function StudentAssignments() {
   const { user, token, logout } = useAuth();
@@ -25,7 +25,14 @@ export default function StudentAssignments() {
       });
       const statsData = await statsRes.json();
       if (statsData && !statsData.message) {
-        setStats({ points: statsData.points, notifications: statsData.notifications });
+        setStats({
+          points: statsData.points ?? 0,
+          notifications: statsData.notifications ?? [],
+          membershipLevel: statsData.membershipLevel,
+          rank: statsData.rank,
+          currentTier: statsData.currentTier,
+          ...statsData,
+        });
       }
 
       // Assignments
@@ -69,19 +76,44 @@ export default function StudentAssignments() {
     }
   };
 
-  const getLevelName = (points: number) => {
-    if (points < 500) return "Fast Start (L0)";
-    if (points < 5000) return "Silver Member (L1)";
-    if (points < 10000) return "Gold Member (L2)";
-    if (points < 50000) return "Diamond Club (L3)";
-    return "Masters Club (L3+)";
+  const candidateLevels = [
+    stats?.membershipLevel,
+    user?.membershipLevel,
+    stats?.currentTier?.code,
+    stats?.currentTier?.name,
+    user?.level,
+    user?.rank,
+    stats?.rank,
+  ].filter(Boolean);
+
+  let effectiveLevel = candidateLevels[0] || "";
+  for (const cand of candidateLevels) {
+    if (getLevelCode(cand, stats.points || 0) !== "GENERAL") {
+      effectiveLevel = cand;
+      break;
+    }
+  }
+
+  const studentLevelCode = getLevelCode(effectiveLevel, stats.points || 0);
+  const isGeneral = studentLevelCode === "GENERAL";
+
+  const getLevelName = () => {
+    if (isGeneral) return "General Member";
+    if (effectiveLevel) return effectiveLevel;
+    if (stats?.membershipLevel) return stats.membershipLevel;
+    if (user?.membershipLevel) return user.membershipLevel;
+    if (stats?.rank) return stats.rank;
+    if (stats?.currentTier?.name) {
+      return `${stats.currentTier.name} (${stats.currentTier.code})`;
+    }
+    return "Fast Track (L0)";
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <StudentNav 
-        user={user} 
-        level={getLevelName(stats.points)} 
+        user={user || stats} 
+        level={getLevelName()} 
         points={stats.points} 
         logout={logout} 
         notifications={stats.notifications}

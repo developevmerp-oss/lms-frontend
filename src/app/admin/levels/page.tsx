@@ -31,8 +31,11 @@ import {
   Check,
   EyeOff,
   X,
+  Upload,
+  Image as ImageIcon,
+  Link as LinkIcon,
 } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
 
 interface LevelTier {
@@ -58,6 +61,7 @@ interface LevelTier {
   installmentsEnabled?: boolean;
   totalInstallments?: number;
   installmentPlans?: any;
+  thumbnail?: string | null;
 }
 
 export interface InstallmentFrequencyItem {
@@ -171,6 +175,7 @@ export default function AdminLevels() {
     category: 'Single Validity',
     validityDays: 15,
     isPublished: true,
+    thumbnail: '',
     installmentsEnabled: false,
     totalInstallments: 3,
     installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
@@ -267,6 +272,7 @@ export default function AdminLevels() {
       category: 'Single Validity',
       validityDays: 15,
       isPublished: true,
+      thumbnail: '',
       installmentsEnabled: false,
       totalInstallments: 3,
       installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
@@ -288,6 +294,7 @@ export default function AdminLevels() {
       category: tier.category || 'Single Validity',
       validityDays: tier.validityDays !== undefined && tier.validityDays !== null ? tier.validityDays : 15,
       isPublished: tier.isPublished !== false,
+      thumbnail: tier.thumbnail || '',
       installmentsEnabled: !!tier.installmentsEnabled,
       totalInstallments: tier.totalInstallments ? Math.max(2, Math.min(24, tier.totalInstallments)) : 3,
       installmentFrequencies: normalizeFrequencies(tier.installmentPlans, tier.totalInstallments || 3),
@@ -317,6 +324,7 @@ export default function AdminLevels() {
         category: formData.category,
         validityDays: Number(formData.validityDays) || 0,
         isPublished: Boolean(formData.isPublished),
+        thumbnail: formData.thumbnail || null,
         installmentsEnabled: Boolean(formData.installmentsEnabled),
         totalInstallments: Math.max(2, Math.min(24, parseInt(String(formData.totalInstallments), 10) || 3)),
         installmentPlans: formData.installmentFrequencies.map((f) => ({
@@ -583,10 +591,28 @@ export default function AdminLevels() {
               return (
                 <div
                   key={tier.id}
-                  className={`rounded-3xl border ${isPub ? 'border-slate-800 bg-slate-900/90' : 'border-slate-800/60 bg-slate-950/60 opacity-80'} p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl`}
+                  className={`rounded-3xl border ${isPub ? 'border-slate-800 bg-slate-900/90' : 'border-slate-800/60 bg-slate-950/60 opacity-80'} flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl overflow-hidden`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-4">
+                  {/* Level Banner Image (Thumbnail) */}
+                  {tier.thumbnail && (
+                    <div className="relative w-full h-36 bg-slate-950 overflow-hidden border-b border-slate-800">
+                      <img
+                        src={getImageUrl(tier.thumbnail)}
+                        alt={tier.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                      <div className="absolute top-3 left-3">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-950/80 backdrop-blur text-orange-400 border border-orange-500/30">
+                          {tier.code}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2.5">
                         <span className="text-2xl">{tier.icon || '⭐'}</span>
                         <div>
@@ -768,7 +794,8 @@ export default function AdminLevels() {
                     </button>
                   </div>
                 </div>
-              );
+              </div>
+            );
             })}
           </div>
         )}
@@ -932,6 +959,90 @@ export default function AdminLevels() {
                         >
                           <X size={13} /> Disabled
                         </button>
+                      </div>
+                    </div>
+
+                    {/* Level Banner Image (Thumbnail) Studio */}
+                    <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4 text-orange-400" />
+                            <span className="text-xs font-bold text-white">Level Banner Image (Thumbnail)</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            Upload a 16:9 banner or poster for this level. Showcased on the student courses page and in the membership purchase modal.
+                          </p>
+                        </div>
+                        {formData.thumbnail && (
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, thumbnail: "" })}
+                            className="text-[11px] text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="url"
+                            value={formData.thumbnail}
+                            onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500 pr-8"
+                            placeholder="Paste banner image URL or upload below..."
+                          />
+                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-slate-600" />
+                        </div>
+
+                        <label className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                          <Upload size={12} />
+                          <span>Upload Banner</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const dataUrl = reader.result as string;
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  thumbnail: dataUrl,
+                                }));
+                              };
+                              reader.readAsDataURL(file);
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Live Preview Box */}
+                      <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center">
+                        {formData.thumbnail ? (
+                          <>
+                            <img
+                              src={getImageUrl(formData.thumbnail)}
+                              alt="Level Banner Preview"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
+                              <span className="text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur px-2 py-0.5 rounded border border-slate-700">
+                                16:9 Level Banner Preview
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-slate-600 gap-1.5 p-4 text-center">
+                            <ImageIcon size={28} className="text-slate-700" />
+                            <span className="text-xs font-semibold text-slate-500">No Level Banner Uploaded</span>
+                            <span className="text-[10px] text-slate-600">Upload a banner or paste a URL to display for this level</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
