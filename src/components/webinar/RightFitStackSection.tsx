@@ -1,6 +1,14 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Lightbulb,
+  Palette,
+  Home,
+  Briefcase,
+  TrendingUp,
+  Store,
+} from "lucide-react";
 
 export type RightFitItem = {
   title: string;
@@ -9,285 +17,268 @@ export type RightFitItem = {
 };
 
 export type RightFitData = {
-  eyebrow: string;
-  heading: string;
-  subheading: string;
+  eyebrow?: string;
+  heading?: string;
+  subheading?: string;
   items: RightFitItem[];
 };
 
-const DEFAULT_IMAGES = [
-  "/images/student-art/real-art-1.jpg",
-  "/images/student-art/real-art-2.jpg",
-  "/images/student-art/real-art-3.jpg",
-  "/images/student-art/real-art-7.jpg",
-  "/images/student-art/real-art-8.jpg",
-  "/images/student-art/real-art-17.jpg",
+interface RightFitStackSectionProps {
+  data?: RightFitData;
+}
+
+const CARD_ICONS = [
+  Lightbulb,    // 1. The Passionate Beginner
+  Palette,      // 2. The Aspiring Artist
+  Home,         // 3. The Homemaker Ready for Her Own Identity
+  Briefcase,    // 4. The Working Professional
+  TrendingUp,   // 5. The Existing Resin Artist
+  Store,        // 6. The Creative Entrepreneur
 ];
 
-function clamp01(value: number) {
-  return Math.min(Math.max(value, 0), 1);
-}
-
-function easeOutCubic(value: number) {
-  return 1 - (1 - value) ** 3;
-}
-
-function segment(progress: number, start: number, end: number) {
-  return easeOutCubic(clamp01((progress - start) / (end - start)));
-}
-
-interface RightFitStackSectionProps {
-  data: RightFitData;
-}
+const DEFAULT_ITEMS: RightFitItem[] = [
+  {
+    title: "The Passionate Beginner",
+    body: "You have always wanted to create beautiful resin art but need a structured path.",
+  },
+  {
+    title: "The Aspiring Artist",
+    body: "You want to move beyond hobby-level work and develop premium skills.",
+  },
+  {
+    title: "The Homemaker Ready for Her Own Identity",
+    body: "You want something that belongs to you — creatively and financially.",
+  },
+  {
+    title: "The Working Professional",
+    body: "You want to build a creative income stream alongside your existing work.",
+  },
+  {
+    title: "The Existing Resin Artist",
+    body: "You know the basics but want better skills, stronger positioning and more consistent opportunities.",
+  },
+  {
+    title: "The Creative Entrepreneur",
+    body: "You want to turn your creative expertise into a structured business.",
+  },
+];
 
 export default function RightFitStackSection({ data }: RightFitStackSectionProps) {
-  const { eyebrow, heading, subheading, items } = data;
-  const pinRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const items = data?.items && data.items.length > 0 ? data.items : DEFAULT_ITEMS;
+  const eyebrow = data?.eyebrow || "RIGHT FIT?";
+  const heading = data?.heading || "This Masterclass is for you if…";
+  const subheading =
+    data?.subheading ||
+    "Six women walk into this session. You'll recognise yourself in one of them.";
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const pin = pinRef.current;
-    if (!pin) return;
+    const el = sectionRef.current;
+    if (!el) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
 
-    let frame = 0;
-    const update = () => {
-      const travel = pin.offsetHeight - window.innerHeight;
-      if (travel <= 0) return;
-      const scrolled = Math.min(Math.max(-pin.getBoundingClientRect().top, 0), travel);
-      const progress = scrolled / travel;
-
-      const vh = window.innerHeight;
-      const stageRect = stageRef.current?.getBoundingClientRect();
-      const restingTop = stageRect ? stageRect.top : 220;
-      const enterDistance = Math.max(vh - restingTop + 80, 750);
-
-      const count = items.length;
-      if (count <= 1) return;
-
-      // 5 transitions for 6 cards (indices 1 to count - 1)
-      const slotDuration = 0.16;
-      const slotGap = 0.03;
-      const totalSlot = slotDuration + slotGap;
-
-      for (let i = 1; i < count; i++) {
-        const cardNode = cardRefs.current[i];
-        if (!cardNode) continue;
-
-        const start = 0.04 + (i - 1) * totalSlot;
-        const end = start + slotDuration;
-        const seg = segment(progress, start, end);
-        const shift = (1 - seg) * enterDistance;
-
-        cardNode.style.transform = `translate3d(0, ${shift.toFixed(2)}px, 0)`;
-      }
-    };
-
-    const onScroll = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [items.length]);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id="right-fit" className="relative w-full text-neutral-950">
-      {/* ─── TOP CLOUDY WAVE ─── */}
-      <div
-        className="absolute -top-[27px] sm:-top-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-20"
-        style={{
-          backgroundColor: "#ffffff",
-          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          WebkitMaskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
-          maskImage: "radial-gradient(circle at 50% 100%, #000 32px, transparent 32.5px)",
-          WebkitMaskSize: "64px 32px",
-          maskSize: "64px 32px",
-          WebkitMaskRepeat: "repeat-x",
-          maskRepeat: "repeat-x",
-          WebkitMaskPosition: "center bottom",
-          maskPosition: "center bottom",
-          filter: "drop-shadow(0 -3px 4px rgba(0, 0, 0, 0.03))",
-        }}
+    <section
+      ref={sectionRef}
+      id="right-fit"
+      className="relative w-full overflow-hidden text-neutral-950 py-16 sm:py-20 lg:py-28"
+      style={{
+        backgroundColor: "#732115",
+        backgroundImage: "linear-gradient(145deg, #782417 0%, #681d12 100%)",
+      }}
+    >
+      {/* ─── DELICATE GOLDEN FLOWING CONTOUR ACCENT (BOTTOM-RIGHT) ─── */}
+      <svg
+        className="absolute bottom-0 right-0 w-72 sm:w-[460px] h-72 sm:h-[460px] pointer-events-none opacity-30 select-none"
+        viewBox="0 0 400 400"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-      />
-
-      {/* ─── BOTTOM CLOUDY WAVE ─── */}
-      <div
-        className="absolute -bottom-[27px] sm:-bottom-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-20"
-        style={{
-          backgroundColor: "#ffffff",
-          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          WebkitMaskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
-          maskImage: "radial-gradient(circle at 50% 0%, #000 32px, transparent 32.5px)",
-          WebkitMaskSize: "64px 32px",
-          maskSize: "64px 32px",
-          WebkitMaskRepeat: "repeat-x",
-          maskRepeat: "repeat-x",
-          WebkitMaskPosition: "center top",
-          maskPosition: "center top",
-          filter: "drop-shadow(0 3px 4px rgba(0, 0, 0, 0.03))",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* ─── MOBILE VIEW (< lg): Responsive card list ─── */}
-      <div
-        className="nav-width relative z-[1] py-16 sm:py-20 lg:hidden px-4 sm:px-6"
-        style={{
-          backgroundColor: "#ffffff",
-          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          backgroundAttachment: "fixed",
-        }}
       >
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          {eyebrow && (
-            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
-              {eyebrow}
-            </span>
-          )}
-          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
-            This <span className="text-[#942008]">Masterclass is for you</span> if…
-          </h2>
-          <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-xl mx-auto">
-            {subheading}
-          </p>
-        </div>
+        <path
+          d="M 30 400 Q 230 350 340 160 Q 390 60 400 0"
+          stroke="#f2d2b6"
+          strokeWidth="1.2"
+          fill="none"
+        />
+        <path
+          d="M 90 400 Q 270 370 370 210 Q 395 130 400 60"
+          stroke="#f2d2b6"
+          strokeWidth="1.2"
+          fill="none"
+        />
+        <path
+          d="M 160 400 Q 310 380 400 270"
+          stroke="#f2d2b6"
+          strokeWidth="1.2"
+          fill="none"
+        />
+      </svg>
 
-        <div className="flex flex-col gap-6">
-          {items.map((item, idx) => {
-            const imageSrc = item.image || DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length];
-            return (
-              <article
-                key={idx}
-                className="relative rounded-2xl border border-[#eadfd4] bg-white p-5 sm:p-6 shadow-[0_16px_36px_-12px_rgba(90,55,20,0.12)] overflow-hidden"
-              >
-                {/* Number in Top Right Side */}
-                <span className="absolute top-4 right-5 font-serif text-4xl sm:text-5xl font-light text-[#c56a45]/30 select-none">
-                  {idx + 1}
-                </span>
-
-                {/* Pure Clean Image (No content inside) */}
-                <div className="relative mb-4 overflow-hidden rounded-xl border border-[#eadfd4]/90 bg-[#faf6f0] aspect-[16/10]">
-                  <img
-                    src={imageSrc}
-                    alt={item.title}
-                    className="h-full w-full object-cover object-center"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* Title & Description */}
-                <h3 className="text-base sm:text-xl lg:text-lg font-bold tracking-tight text-neutral-950 mb-2 pr-12">
-                  {item.title}
-                </h3>
-                <p className="text-xs sm:text-base lg:text-sm text-neutral-600 leading-relaxed">
-                  {item.body}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ─── DESKTOP VIEW (lg+): Stack Card Scroll Effect like selfreflactionsec ─── */}
-      <div ref={pinRef} className="rightfit-pin hidden lg:block"
+      {/* ─── SOFT CORNER BOTANICAL GLOW (TOP-RIGHT) ─── */}
+      <div
+        className="absolute -top-16 -right-16 w-80 sm:w-96 h-80 sm:h-96 pointer-events-none opacity-15 rounded-full blur-3xl select-none"
         style={{
-          backgroundColor: "#ffffff",
-          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          backgroundAttachment: "fixed",
-        }}>
-        <div className="rightfit-pin-sticky">
-          <div className="nav-width w-full relative z-10 px-6 lg:px-8">
-            
-            {/* Header */}
-            <div className="text-center max-w-3xl mx-auto mb-8 lg:mb-10">
-              {eyebrow && (
-                <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+          background: "radial-gradient(circle, #fde4ce 0%, transparent 70%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+
+          {/* ══════════ LEFT COLUMN: ARCH PHOTO SHOWCASE WITH FLOATING BADGES ══════════ */}
+          <div
+            className={`lg:col-span-5 flex justify-center transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+          >
+            <div className="relative w-full max-w-[360px] sm:max-w-[420px] lg:max-w-[440px]">
+
+              {/* Floating Badge 1: Torn Paper / Brush Sticker (Top-Left) */}
+              <div
+                className={`absolute -top-4 -left-3 sm:-top-5 sm:-left-5 z-20 -rotate-6 bg-[#fceddf] border border-[#f5d9c7] shadow-xl rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 max-w-[170px] sm:max-w-[190px] transition-all duration-700 delay-300 ease-out select-none ${isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0"
+                  }`}
+              >
+                <p className="font-serif italic font-bold text-xs sm:text-sm text-[#9c3623] leading-tight">
+                  Different People
+                </p>
+                <p className="font-serif italic font-bold text-xs sm:text-sm text-[#9c3623] leading-tight mt-0.5 flex items-center gap-1">
+                  Same Creative Dream <span className="text-sm">♡</span>
+                </p>
+              </div>
+
+              {/* Main Arched Photo Container */}
+              <div
+                className="relative w-full aspect-[4/5.3] overflow-hidden shadow-2xl border-2 border-[#963725]/60 bg-[#5c180e]"
+                style={{
+                  borderRadius: "14rem 14rem 2rem 2rem",
+                }}
+              >
+                <img
+                  src="/images/webinar/rightfit-artist.jpg"
+                  alt="Resin Artist at work"
+                  className="w-full h-full object-cover object-[center_30%]"
+                  loading="lazy"
+                />
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(115,33,21,0.02) 60%, rgba(100,25,15,0.45) 100%)",
+                  }}
+                />
+              </div>
+
+              {/* Floating Badge 2: Botanical Circle (Bottom-Right) */}
+              <div
+                className={`absolute -bottom-5 -right-3 sm:-bottom-7 sm:-right-6 z-20 w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-[#fceddf] shadow-2xl overflow-hidden flex items-center justify-end pr-3 sm:pr-4 transition-all duration-700 delay-400 ease-out select-none ${isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0"
+                  }`}
+              >
+                {/* Botanical circular disc image scaled to clip any black corners */}
+                <img
+                  src="/images/webinar/rightfit-badge.png"
+                  alt="Botanical branch"
+                  className="absolute inset-0 w-full h-full object-cover scale-110 pointer-events-none"
+                />
+                {/* Vertical text on the right side of the badge */}
+                <div className="relative z-10 flex flex-col text-[8px] sm:text-[10px] font-bold tracking-[0.2em] text-[#732115] uppercase leading-tight font-serif text-left">
+                  <span>Create</span>
+                  <span>Learn</span>
+                  <span>Grow</span>
+                  <span>Belong</span>
+                  <span className="text-xs sm:text-sm text-[#9c3623]">♡</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* ══════════ RIGHT COLUMN: HEADER & 6 CARDS IN 2 COLUMNS ══════════ */}
+          <div className="lg:col-span-7">
+
+            {/* Header Content */}
+            <div
+              className={`transition-all duration-700 delay-150 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                }`}
+            >
+              {/* Eyebrow with gold rule */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.22em] text-[#e8c8b4]">
                   {eyebrow}
                 </span>
-              )}
-              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
-                This <span className="text-[#942008]">Masterclass is for you</span> if…
+                <span className="h-[1px] w-14 sm:w-20 bg-[#e8c8b4]/60" aria-hidden="true" />
+              </div>
+
+              {/* Headline - Previous title rendered in the elegant serif styling */}
+              <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-serif text-white leading-[1.15] tracking-tight">
+                {heading.includes("Masterclass is for you") ? (
+                  <>
+                    This{" "}
+                    <span className="text-[#fcdbc3] italic font-normal inline-block">
+                      Masterclass is for you
+                    </span>{" "}
+                    if…
+                  </>
+                ) : (
+                  heading
+                )}
               </h2>
-              <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-2xl mx-auto">
+
+              {/* Subheadline - Previous description */}
+              <p className="mt-3 text-sm sm:text-base lg:text-base text-[#f5ded0]/90 leading-relaxed max-w-2xl font-normal">
                 {subheading}
               </p>
             </div>
 
-            {/* Stack Stage */}
-            <div ref={stageRef} className="relative mx-auto max-w-5xl">
-              <div className="rightfit-stack-cards-wrap">
-                {items.map((item, idx) => {
-                  const imageSrc = item.image || DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length];
-                  const isStacked = idx > 0;
+            {/* 6 Cards Grid (2 cols on tablet/desktop, 1 col on mobile) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mt-7 sm:mt-9">
+              {items.slice(0, 6).map((item, idx) => {
+                const IconComponent = CARD_ICONS[idx % CARD_ICONS.length];
+                const delayMs = 200 + idx * 75;
 
-                  return (
-                    <article
-                      key={idx}
-                      ref={(node) => {
-                        cardRefs.current[idx] = node;
-                      }}
-                      className={`rightfit-stack-card${isStacked ? " is-stacked" : ""}`}
-                      style={{
-                        zIndex: idx + 1,
-                      }}
-                    >
-                      <div className="relative w-full rounded-[2.25rem] border border-[#eadfd4] bg-white p-7 lg:p-9  overflow-hidden">
-                        
-                        {/* ─── Number in Top Right Side ─── */}
-                        <div className="absolute top-6 right-8 lg:top-8 lg:right-10 pointer-events-none select-none z-10">
-                          <span className="font-serif text-5xl lg:text-6xl font-light text-[#c56a45]/35 tracking-tight leading-none">
-                            {idx + 1}
-                          </span>
-                        </div>
+                return (
+                  <div
+                    key={idx}
+                    style={{ transitionDelay: `${delayMs}ms` }}
+                    className={`rounded-2xl border border-[#eddcd0] bg-white p-4 sm:p-5 shadow-[0_8px_20px_-6px_rgba(40,10,5,0.18)] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-start gap-3.5 sm:gap-4 group ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+                      }`}
+                  >
+                    {/* Soft peach circular icon */}
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#fce8de] group-hover:bg-[#fbdcd0] flex items-center justify-center shrink-0 text-[#a33520] transition-colors shadow-sm">
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.8} />
+                    </div>
 
-                        <div className="grid grid-cols-12 gap-8 lg:gap-12 items-center">
-                          {/* ─── Pure Clean Image (No content inside) ─── */}
-                          <div className="col-span-6">
-                            <div className="relative overflow-hidden rounded-2xl border border-[#eadfd4]/90 bg-[#faf6f0] aspect-[16/11]">
-                              <img
-                                src={imageSrc}
-                                alt={item.title}
-                                className="h-full w-full object-cover object-center"
-                                loading="lazy"
-                              />
-                            </div>
-                          </div>
-
-                          {/* ─── Only Title and Description ─── */}
-                          <div className="col-span-6 flex flex-col justify-center pr-16 lg:pr-20">
-                            <h3 className="text-xl sm:text-3xl lg:text-2xl font-bold tracking-tight text-neutral-950 mb-3 sm:mb-4">
-                              {item.title}
-                            </h3>
-                            <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
-                              {item.body}
-                            </p>
-                          </div>
-                        </div>
-
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+                    {/* Card Title & Description */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-serif font-bold text-neutral-900 text-sm sm:text-base leading-snug">
+                        {item.title}
+                      </h3>
+                      <p className="text-neutral-600 text-xs sm:text-[13px] leading-relaxed mt-1 font-normal">
+                        {item.body}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
           </div>
+
         </div>
       </div>
     </section>

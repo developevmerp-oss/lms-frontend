@@ -53,7 +53,9 @@ const STAT_COUNTERS = [
   { value: "10+ Years", label: "Experience in coaching" },
   { value: "54,000+", label: "Webinar attendees" },
   { value: "2022", label: "Hall of Fame Award" },
-  { value: "90 min", label: "Live masterclass" }
+  { value: "90 min", label: "Live masterclass" },
+  { value: "International Best Seller", label: "Featured as part of I Can Coach" },
+  { value: "Featured", label: "Sylph Magazine and other art publications" },
 ];
 
 // SECTION 1: SOUND FAMILIAR? (W -> e2)
@@ -253,7 +255,7 @@ const CLARITY_KIT = {
       body: "A one-page visual roadmap showing the major stages of your resin journey."
     },
     {
-      title: "90-Day Goal Planner",
+      title: "60-Day Goal Planner",
       body: "Turn your creative intention into a focused 90-day action plan."
     },
     {
@@ -293,7 +295,7 @@ const VALUE_STACK = {
     },
     {
       title: "Roadmap, planner, product list & worksheets",
-      value: "Included",
+      value: "Free bonus",
       body: "Success Roadmap, 90-Day Planner, Top 25 Products That Sell, Readiness Checklist, Identity Worksheet and Artist Archetypes."
     }
   ],
@@ -678,13 +680,18 @@ export default function WebinarPage() {
   }, [activeWebinar?.durationMinutes]);
 
   return (
-    <div className="landing-page relative min-h-screen bg-[#f7f6f0] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
+    <div className="landing-page relative min-h-screen bg-[#ffffff] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
       <SocialProofToaster />
       <ExitIntentModal onClaimSeat={scrollToRegister} />
 
       {/* ─── 1. TOP ANNOUNCEMENT BANNER ─── */}
       {showBanner && (
-        <div className="relative z-50 border-b border-[#f3d7c4] bg-[#fff6f0]">
+        <div className="relative z-50 border-b border-[#f3d7c4]"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundAttachment: "fixed",
+          }}>
           <div className="nav-width flex items-center justify-center gap-2 py-2.5 text-center text-xs font-medium text-stone-800 sm:text-sm">
             <span className="flex items-center gap-1.5">
               <Flame size={16} className="text-orange-500" />
@@ -721,7 +728,7 @@ export default function WebinarPage() {
         />
 
         {/* ─── 4. RECOGNISED FOR MARQUEE ─── */}
-        <section
+        {/* <section
           className="border-y border-[#eadfd4] py-10 sm:py-12"
           style={{
             backgroundColor: "#ffffff",
@@ -740,11 +747,51 @@ export default function WebinarPage() {
               </ul>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        {/* ─── 5. FOUR BIG STAT COUNTERS ─── */}
-        <section className="bg-transparent py-12 sm:py-16">
-          <div className="nav-width">
+        {/* ─── TOP GAP ABOVE MARQUEE WITH WHITE DOT STYLE ─── */}
+        <div
+          className="w-full py-8 sm:py-12 border-b border-[#eadfd4]/60"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+          aria-hidden="true"
+        />
+
+        {/* ─── 5. BIG STAT COUNTERS MARQUEE (CONTINUOUS SCROLLING RIGHT TO LEFT) ─── */}
+        <section className="relative w-full overflow-hidden bg-[#f7f6f0] py-12 sm:py-16 select-none border-b border-[#eadfd4]/70">
+          {/* Subtle gradient fades on left and right for seamless edge transitions */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[#f7f6f0] to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#f7f6f0] to-transparent z-10" />
+
+          {/* Marquee Track: duplicated list seamlessly moving right-to-left */}
+          <div
+            className="flex gap-4 sm:gap-6 w-max hover:[animation-play-state:paused]"
+            style={{
+              animation: "marquee-left 28s linear infinite",
+            }}
+          >
+            {[...STAT_COUNTERS, ...STAT_COUNTERS].map((stat, idx) => (
+              <div
+                key={idx}
+                className="w-[260px] sm:w-[300px] shrink-0 rounded-3xl border border-[#eadfd4] bg-white px-6 py-6 sm:py-7 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)] hover:shadow-[0_20px_40px_-20px_rgba(148,32,8,0.25)] transition-all duration-300 flex flex-col justify-center min-h-[140px]"
+              >
+                <dt className="text-2xl sm:text-3xl lg:text-3xl font-black tracking-tight text-[#942008] leading-tight flex items-center justify-center min-h-[3.25rem]">
+                  {stat.value}
+                </dt>
+                <dd className="mt-1.5 text-xs sm:text-base lg:text-sm text-stone-500 leading-snug">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </div>
+
+          {/*
+          Previous Static Grid UI kept commented as requested:
+          <div className="nav-width hidden">
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {STAT_COUNTERS.map((stat, idx) => (
                 <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white px-4 py-6 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)]">
@@ -754,6 +801,7 @@ export default function WebinarPage() {
               ))}
             </dl>
           </div>
+          */}
         </section>
 
         {/* ─── 6. THE INTERACTIVE GATE SECTION ─── */}
@@ -800,11 +848,13 @@ export default function WebinarPage() {
             <WebinarPhilosophy data={PHILOSOPHY} />
 
             {/* 3 & 4. ON THE MASTERCLASS: THE THREE SECRETS & LIVE SEATS BANNER */}
+            {/*
             <ThreeSecretsSection
               data={THREE_SECRETS}
               bannerData={LIVE_SEATS_BANNER}
               onScrollToRegister={scrollToRegister}
             />
+            */}
 
             {/* 5. THE SHIFT (L -> i2) */}
             <section
@@ -861,7 +911,7 @@ export default function WebinarPage() {
             <RightFitStackSection data={RIGHT_FIT} />
 
             {/* 8. PROOF (te -> r2) */}
-            <section className="bg-transparent py-16 sm:py-20">
+            {/* <section className="bg-transparent py-16 sm:py-20">
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-12">
                   <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
@@ -884,7 +934,7 @@ export default function WebinarPage() {
                   ))}
                 </div>
               </div>
-            </section>
+            </section> */}
 
             {/* 9. FREE BONUS: CLARITY KIT (B -> u2) */}
             <section
@@ -1012,7 +1062,9 @@ export default function WebinarPage() {
             </section>
 
             {/* 13. YOUR MENTOR (A -> h2) */}
+            {/*
             <WebinarMentor section={MENTOR_SECTION} onKnowMore={scrollToRegister} />
+            */}
 
             {/* 14. COMMUNITY / TESTIMONIALS (ae -> d2) */}
             <CommunityStories section={COMMUNITY_SECTION} />

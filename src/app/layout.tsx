@@ -11,8 +11,13 @@ const nunito = Nunito_Sans({ subsets: ["latin"], variable: "--font-landing" });
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-script" });
 
 export const metadata: Metadata = {
-  title: "Art Concept LMS",
+  title: "Ravishing Art Hub | Masterclass & LMS",
   description: "Learn and master digital and traditional art.",
+  icons: {
+    icon: "/new_favicon.png",
+    shortcut: "/new_favicon.png",
+    apple: "/new_favicon.png",
+  },
 };
 
 export default function RootLayout({

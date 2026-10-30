@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Check, X } from "lucide-react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+// Simple clean animation without scroll-drag or empty placeholder slots
 
 export interface HonestFitCheckData {
   eyebrow?: string;
@@ -117,24 +117,22 @@ export default function HonestFitCheckSection({
     };
   }, []);
 
-  // ─── SCROLL-LINKED CARDS COMING DOWN FROM TOP OF SECTION ───
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "center 48%"],
-  });
+  // ─── SIMPLE SMOOTH ENTRANCE ANIMATION ON VIEW ───
+  const [isVisible, setIsVisible] = useState(false);
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 85,
-    damping: 22,
-    restDelta: 0.001,
-  });
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.15 }
+    );
 
-  // Cards come from high up at the top of the section with tilt
-  const yLeft = useTransform(smoothProgress, [0, 1], [isMobile ? -130 : -250, 0]);
-  const rotateLeft = useTransform(smoothProgress, [0, 1], [isMobile ? -5 : -8, 0]);
-
-  const yRight = useTransform(smoothProgress, [0, 1], [isMobile ? -130 : -250, 0]);
-  const rotateRight = useTransform(smoothProgress, [0, 1], [isMobile ? 5 : 8, 0]);
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Synchronized uniform size so both cards have the exact same height and width
   const sharedWidth = Math.max(leftSize.w, rightSize.w);
@@ -230,34 +228,21 @@ export default function HonestFitCheckSection({
           )}
         </div>
 
-        {/* ─── 2-CARD SHOWCASE: EQUAL HEIGHT & WIDTH, GLIDING FROM TOP OF SECTION ─── */}
+        {/* ─── 2-CARD SHOWCASE: SIMPLE SMOOTH ENTRANCE ANIMATION ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 xl:gap-14 items-stretch">
           
-          {/* ──── LEFT CARD WRAPPER WITH PLACEHOLDER SLOT ──── */}
+          {/* ──── LEFT CARD (You SHOULD attend if...) ──── */}
           <div className="relative flex flex-col h-full">
-            {/* Background Placeholder Slot with exact same shape & height */}
             <div
-              style={{
-                clipPath: sharedWidth ? "url(#scallop-clip-left)" : undefined,
-                WebkitClipPath: sharedWidth ? "url(#scallop-clip-left)" : undefined,
-                minHeight: isMobile ? 440 : 510,
-              }}
-              className="absolute inset-0 h-full w-full bg-[#EDE6DC]/75 border border-[#E0D7CB]/60 pointer-events-none"
-              aria-hidden="true"
-            />
-
-            {/* Scroll-animated Card: Left Card (You SHOULD attend if...) */}
-            <motion.div
               ref={leftRef}
               style={{
-                y: yLeft,
-                rotate: rotateLeft,
                 clipPath: sharedWidth ? "url(#scallop-clip-left)" : undefined,
                 WebkitClipPath: sharedWidth ? "url(#scallop-clip-left)" : undefined,
-                transformOrigin: "center center",
                 minHeight: isMobile ? 440 : 510,
               }}
-              className="relative z-10 flex-1 flex flex-col justify-between h-full bg-[#C63616] py-8 sm:py-9 lg:py-10 px-7 sm:px-9 lg:px-11 transition-shadow duration-300 shadow-[0_24px_50px_-15px_rgba(198,54,22,0.35)] hover:brightness-105"
+              className={`relative z-10 flex-1 flex flex-col justify-between h-full bg-[#C63616] py-8 sm:py-9 lg:py-10 px-7 sm:px-9 lg:px-11 shadow-[0_24px_50px_-15px_rgba(198,54,22,0.35)] hover:shadow-[0_30px_60px_-15px_rgba(198,54,22,0.48)] hover:-translate-y-1.5 transition-all duration-700 ease-out ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
             >
               <div>
                 {/* Card Title matching reference design */}
@@ -282,34 +267,21 @@ export default function HonestFitCheckSection({
                   ))}
                 </ul>
               </div>
-            </motion.div>
+            </div>
           </div>
 
-          {/* ──── RIGHT CARD WRAPPER WITH PLACEHOLDER SLOT ──── */}
+          {/* ──── RIGHT CARD (This is NOT for you if...) ──── */}
           <div className="relative flex flex-col h-full">
-            {/* Background Placeholder Slot with exact same shape & height */}
             <div
-              style={{
-                clipPath: sharedWidth ? "url(#scallop-clip-right)" : undefined,
-                WebkitClipPath: sharedWidth ? "url(#scallop-clip-right)" : undefined,
-                minHeight: isMobile ? 440 : 510,
-              }}
-              className="absolute inset-0 h-full w-full bg-[#EDE6DC]/75 border border-[#E0D7CB]/60 pointer-events-none"
-              aria-hidden="true"
-            />
-
-            {/* Scroll-animated Card: Right Card (This is NOT for you if...) */}
-            <motion.div
               ref={rightRef}
               style={{
-                y: yRight,
-                rotate: rotateRight,
                 clipPath: sharedWidth ? "url(#scallop-clip-right)" : undefined,
                 WebkitClipPath: sharedWidth ? "url(#scallop-clip-right)" : undefined,
-                transformOrigin: "center center",
                 minHeight: isMobile ? 440 : 510,
               }}
-              className="relative z-10 flex-1 flex flex-col justify-between h-full bg-[#8B230E] py-8 sm:py-9 lg:py-10 px-7 sm:px-9 lg:px-11 transition-shadow duration-300 shadow-[0_24px_50px_-15px_rgba(139,35,14,0.35)] hover:brightness-105"
+              className={`relative z-10 flex-1 flex flex-col justify-between h-full bg-[#8B230E] py-8 sm:py-9 lg:py-10 px-7 sm:px-9 lg:px-11 shadow-[0_24px_50px_-15px_rgba(139,35,14,0.35)] hover:shadow-[0_30px_60px_-15px_rgba(139,35,14,0.48)] hover:-translate-y-1.5 transition-all duration-700 delay-150 ease-out ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
             >
               <div>
                 {/* Card Title matching reference design */}
@@ -334,7 +306,7 @@ export default function HonestFitCheckSection({
                   ))}
                 </ul>
               </div>
-            </motion.div>
+            </div>
           </div>
 
         </div>
