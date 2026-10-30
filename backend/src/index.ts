@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { sequelize } from './config/database';
+import './models';
 import routes from './routes';
 import { startKeepAlive } from './config/keepAlive';
 
@@ -52,9 +53,47 @@ app.use(
   })
 );
 
-// ── Health endpoint (must be before auth middleware) ──
-app.get('/api/health', (_req, res) => {
-  res.status(200).json({ status: 'ok', message: 'LMS Backend is running', ts: Date.now() });
+// ── Health endpoint with DB diagnostics ──
+app.get('/api/health', async (_req, res) => {
+  try {
+    const [result]: any = await sequelize.query('SELECT current_database(), current_user, current_schema(), inet_server_addr()');
+    const [allPgTables]: any = await sequelize.query("SELECT schemaname, tablename, tableowner FROM pg_tables WHERE schemaname NOT IN ('pg_catalog', 'information_schema')");
+    const [searchPath]: any = await sequelize.query('SHOW search_path');
+    
+    let usersCount: any = null;
+    let userTestError: any = null;
+    try {
+      const [uRes]: any = await sequelize.query('SELECT count(*) FROM "Users"');
+      usersCount = uRes?.[0]?.count;
+    } catch (e: any) {
+      userTestError = e?.message;
+    }
+
+    res.status(200).json({
+      status: 'ok',
+      message: 'LMS Backend is running',
+      db: {
+        connected: true,
+        host: (sequelize.config as any)?.host,
+        database: result?.[0]?.current_database,
+        user: result?.[0]?.current_user,
+        currentSchema: result?.[0]?.current_schema,
+        searchPath: searchPath?.[0]?.search_path,
+        serverAddr: result?.[0]?.inet_server_addr,
+        pgTables: allPgTables,
+        usersCount,
+        userTestError,
+      },
+      ts: Date.now(),
+    });
+  } catch (err: any) {
+    res.status(200).json({
+      status: 'error',
+      message: 'LMS Backend running but DB error',
+      dbError: err.message,
+      ts: Date.now(),
+    });
+  }
 });
 
 app.use('/api', routes);
@@ -72,6 +111,13 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
+
+    // Ensure search_path is set to public so tables in public are always resolved
+    try {
+      await sequelize.query('SET search_path TO public;');
+      await sequelize.query('ALTER ROLE neondb_owner SET search_path TO public;');
+      await sequelize.query('ALTER DATABASE neondb SET search_path TO public;');
+    } catch (_) {}
 
     // Auto-create any missing tables in the database
     await sequelize.sync();

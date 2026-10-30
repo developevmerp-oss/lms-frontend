@@ -7,6 +7,7 @@ import { Trophy, Flame, Crown, Medal, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { API_BASE_URL } from "@/config/api";
+import { getLevelCode } from "@/components/layout/StudentNav";
 
 export default function StudentLeaderboard() {
   const { user, token, logout } = useAuth();
@@ -23,7 +24,14 @@ export default function StudentLeaderboard() {
       .then(res => res.json())
       .then(data => {
         if (data && !data.message) {
-          setStats({ points: data.points, notifications: data.notifications });
+          setStats({
+            points: data.points ?? 0,
+            notifications: data.notifications ?? [],
+            membershipLevel: data.membershipLevel,
+            rank: data.rank,
+            currentTier: data.currentTier,
+            ...data,
+          });
         }
       })
       .catch(err => console.error("Error fetching stats", err));
@@ -39,12 +47,37 @@ export default function StudentLeaderboard() {
       .catch(err => console.error(err));
   }, [token]);
 
-  const getLevelName = (points: number) => {
-    if (points < 500) return "Fast Start (L0)";
-    if (points < 5000) return "Silver Member (L1)";
-    if (points < 10000) return "Gold Member (L2)";
-    if (points < 50000) return "Diamond Club (L3)";
-    return "Masters Club (L3+)";
+  const candidateLevels = [
+    stats?.membershipLevel,
+    user?.membershipLevel,
+    stats?.currentTier?.code,
+    stats?.currentTier?.name,
+    user?.level,
+    user?.rank,
+    stats?.rank,
+  ].filter(Boolean);
+
+  let effectiveLevel = candidateLevels[0] || "";
+  for (const cand of candidateLevels) {
+    if (getLevelCode(cand, stats.points || 0) !== "GENERAL") {
+      effectiveLevel = cand;
+      break;
+    }
+  }
+
+  const studentLevelCode = getLevelCode(effectiveLevel, stats.points || 0);
+  const isGeneral = studentLevelCode === "GENERAL";
+
+  const getLevelName = () => {
+    if (isGeneral) return "General Member";
+    if (effectiveLevel) return effectiveLevel;
+    if (stats?.membershipLevel) return stats.membershipLevel;
+    if (user?.membershipLevel) return user.membershipLevel;
+    if (stats?.rank) return stats.rank;
+    if (stats?.currentTier?.name) {
+      return `${stats.currentTier.name} (${stats.currentTier.code})`;
+    }
+    return "Fast Track (L0)";
   };
 
   const top3 = students.slice(0, 3);
@@ -53,8 +86,8 @@ export default function StudentLeaderboard() {
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <StudentNav 
-        user={user} 
-        level={getLevelName(stats.points)} 
+        user={user || stats} 
+        level={getLevelName()} 
         points={stats.points} 
         logout={logout} 
         notifications={stats.notifications}

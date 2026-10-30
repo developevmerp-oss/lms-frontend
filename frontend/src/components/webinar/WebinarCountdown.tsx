@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { API_BASE_URL } from '@/config/api';
 import { Clock } from 'lucide-react';
 
@@ -23,6 +23,13 @@ export const WebinarCountdown = ({
     seconds: 0,
   });
 
+  const onWebinarLoadedRef = useRef(onWebinarLoaded);
+  useEffect(() => {
+    onWebinarLoadedRef.current = onWebinarLoaded;
+  }, [onWebinarLoaded]);
+
+  const isFetchingRef = useRef(false);
+
   const getFallbackDate = () => {
     const now = new Date();
     const istOffsetMs = 5.5 * 60 * 60 * 1000;
@@ -36,13 +43,15 @@ export const WebinarCountdown = ({
   };
 
   const fetchNextWebinar = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
       const res = await fetch(`${API_BASE_URL}/webinar/next`);
       const data = await res.json();
       if (data.success && data.data?.scheduledAt) {
-        if (onWebinarLoaded) onWebinarLoaded(data.data);
+        if (onWebinarLoadedRef.current) onWebinarLoadedRef.current(data.data);
         const time = new Date(data.data.scheduledAt).getTime();
-        if (time > Date.now()) {
+        if (!isNaN(time) && time > Date.now()) {
           setTargetTimestamp(time);
           return;
         }
@@ -50,8 +59,8 @@ export const WebinarCountdown = ({
       // Fallback
       const fallback = getFallbackDate();
       setTargetTimestamp(fallback);
-      if (onWebinarLoaded) {
-        onWebinarLoaded({
+      if (onWebinarLoadedRef.current) {
+        onWebinarLoadedRef.current({
           scheduledAt: new Date(fallback).toISOString(),
           title: 'Resin Mastery Masterclass — Live with Vrajangna Patel',
         });
@@ -59,13 +68,15 @@ export const WebinarCountdown = ({
     } catch (_) {
       const fallback = getFallbackDate();
       setTargetTimestamp(fallback);
+    } finally {
+      isFetchingRef.current = false;
     }
-  }, [onWebinarLoaded]);
+  }, []);
 
   useEffect(() => {
     if (targetDateStr) {
       const parsed = new Date(targetDateStr).getTime();
-      if (parsed > Date.now()) {
+      if (!isNaN(parsed) && parsed > Date.now()) {
         setTargetTimestamp(parsed);
         return;
       }
@@ -77,7 +88,7 @@ export const WebinarCountdown = ({
     if (!targetTimestamp) return;
 
     const calculate = () => {
-      const now = new Date().getTime();
+      const now = Date.now();
       const difference = targetTimestamp - now;
 
       if (difference > 0) {
@@ -87,7 +98,7 @@ export const WebinarCountdown = ({
         const seconds = Math.floor((difference / 1000) % 60);
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        // fetchNextWebinar();
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
 
@@ -95,7 +106,7 @@ export const WebinarCountdown = ({
     const interval = setInterval(calculate, 1000);
 
     return () => clearInterval(interval);
-  }, [targetTimestamp, fetchNextWebinar]);
+  }, [targetTimestamp]);
 
   if (compact) {
     return (
