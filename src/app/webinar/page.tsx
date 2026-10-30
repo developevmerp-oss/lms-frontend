@@ -2,32 +2,37 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { BrandLogo } from "@/components/ui/BrandLogo";
+import SiteFooter from "@/components/layout/SiteFooter";
+import SiteNavbar from "@/components/layout/SiteNavbar";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
+import WebinarHero from "@/components/webinar/WebinarHero";
+import CommunityStories from "@/components/webinar/CommunityStories";
+import WebinarFaqs from "@/components/webinar/WebinarFaqs";
+import WebinarMentor from "@/components/webinar/WebinarMentor";
 import { SocialProofToaster } from "@/components/webinar/SocialProofToaster";
 import { ExitIntentModal } from "@/components/webinar/ExitIntentModal";
+import SoundFamiliarSection from "@/components/webinar/SoundFamiliarSection";
+import WhatChangesSection from "@/components/webinar/WhatChangesSection";
+import WebinarPhilosophy from "@/components/webinar/WebinarPhilosophy";
+import ThreeSecretsSection from "@/components/webinar/ThreeSecretsSection";
+import RightFitStackSection from "@/components/webinar/RightFitStackSection";
+import HonestFitCheckSection from "@/components/webinar/HonestFitCheckSection";
 import { API_BASE_URL } from "@/config/api";
 import { trackingService } from "@/services/trackingService";
 import Link from "next/link";
 import {
-  Sparkles,
   ArrowRight,
   CheckCircle2,
   Lock,
   Unlock,
   Award,
   BookOpen,
-  Users,
   Flame,
   Star,
   Layers,
   HeartHandshake,
   TrendingUp,
-  ShieldCheck,
   HelpCircle,
-  Clock,
-  Video,
-  Gift,
   Check,
   ChevronDown,
   ChevronUp,
@@ -37,9 +42,7 @@ import {
   DollarSign,
   Crown,
   Briefcase,
-  Globe,
   Brush,
-  Quote,
   Sun,
   Moon
 } from "lucide-react";
@@ -50,7 +53,9 @@ const STAT_COUNTERS = [
   { value: "10+ Years", label: "Experience in coaching" },
   { value: "54,000+", label: "Webinar attendees" },
   { value: "2022", label: "Hall of Fame Award" },
-  { value: "90 min", label: "Live masterclass" }
+  { value: "90 min", label: "Live masterclass" },
+  { value: "International Best Seller", label: "Featured as part of I Can Coach" },
+  { value: "Featured", label: "Sylph Magazine and other art publications" },
 ];
 
 // SECTION 1: SOUND FAMILIAR? (W -> e2)
@@ -77,19 +82,31 @@ const PHILOSOPHY = {
   steps: [
     {
       label: "STEP 1",
-      title: "Master",
-      body: "Build premium skills in the right sequence so you know what to learn, practice and create next."
+      badge: "MASTERY",
+      tabName: "Mastery",
+      title: "Learn the right techniques in the right sequence",
+      myth: "Most people believe more tutorials will eventually add up.",
+      body: "You'll see why random tutorials create confusion, and how structured learning accelerates progress — technique sequencing, premium skill development, a portfolio-building mindset and moving beyond random projects.",
+      image: "/images/secrets/secret-1-mastery.jpg",
     },
     {
       label: "STEP 2",
-      title: "Mindset",
-      body: "Build the confidence to create, share, receive feedback and believe your work deserves to be seen."
+      badge: "MINDSET",
+      tabName: "Mindset",
+      title: "Become confident enough to own your creativity",
+      myth: "Most people believe their work isn't good enough to be seen yet.",
+      body: "You'll learn how to move past fear of creating, comparison, the \"my work isn't good enough\" loop, fear of showing your work, and confusion about your artistic identity.",
+      image: "/images/secrets/secret-2-mindset.jpg",
     },
     {
       label: "STEP 3",
-      title: "Monetization",
-      body: "Learn how to connect your skills with pricing, branding, marketing and a business model."
-    }
+      badge: "MONETIZATION",
+      tabName: "Monetization",
+      title: "Turn your art into a real opportunity",
+      myth: "Most people believe business skills come much later.",
+      body: "You'll understand the foundations of product selection, pricing, branding, marketing, customer attraction, community support and a practical business roadmap.",
+      image: "/images/secrets/secret-3-monetization.jpg",
+    },
   ],
   closing: "Because skill without confidence stays hidden. Confidence without a business roadmap stays stuck. And business without mastery becomes difficult to sustain."
 };
@@ -238,7 +255,7 @@ const CLARITY_KIT = {
       body: "A one-page visual roadmap showing the major stages of your resin journey."
     },
     {
-      title: "90-Day Goal Planner",
+      title: "60-Day Goal Planner",
       body: "Turn your creative intention into a focused 90-day action plan."
     },
     {
@@ -278,7 +295,7 @@ const VALUE_STACK = {
     },
     {
       title: "Roadmap, planner, product list & worksheets",
-      value: "Included",
+      value: "Free bonus",
       body: "Success Roadmap, 90-Day Planner, Top 25 Products That Sell, Readiness Checklist, Identity Worksheet and Artist Archetypes."
     }
   ],
@@ -493,7 +510,6 @@ export default function WebinarPage() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [showStickyBottom, setShowStickyBottom] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Fetch dynamic scarcity stats and next webinar from database
   useEffect(() => {
@@ -509,7 +525,7 @@ export default function WebinarPage() {
             totalSeats: data.data.totalSeats ?? 500,
           });
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     const fetchNextWebinar = async () => {
@@ -519,17 +535,17 @@ export default function WebinarPage() {
         if (data.success && data.data) {
           setActiveWebinar(data.data);
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     fetchStats();
-    fetchNextWebinar();
+    // fetchNextWebinar();
     try {
       trackingService.trackViewContent({
         name: "Resin Art Masterclass Webinar",
         category: "Webinar",
       });
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   // Sticky bottom trigger
@@ -586,7 +602,7 @@ export default function WebinarPage() {
           service: "Resin Art Masterclass",
           date: activeWebinar?.scheduledAt,
         });
-      } catch (_) {}
+      } catch (_) { }
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(data.data || form));
@@ -597,7 +613,7 @@ export default function WebinarPage() {
       // Still fire lead even if local network edge case saved to fallback
       try {
         trackingService.trackLead({ source: "webinar_registration_fallback" });
-      } catch (_) {}
+      } catch (_) { }
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("webinar_lead", JSON.stringify(form));
@@ -619,9 +635,7 @@ export default function WebinarPage() {
     setIsUnlocked(true);
     setTimeout(() => {
       const el = document.getElementById("sound-familiar");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -666,16 +680,21 @@ export default function WebinarPage() {
   }, [activeWebinar?.durationMinutes]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-orange-500 selection:text-white relative font-sans">
+    <div className="landing-page relative min-h-screen bg-[#ffffff] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
       <SocialProofToaster />
       <ExitIntentModal onClaimSeat={scrollToRegister} />
 
       {/* ─── 1. TOP ANNOUNCEMENT BANNER ─── */}
       {showBanner && (
-        <div className="relative bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 text-slate-950 font-bold z-50 transition-all">
-          <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-10 py-2.5 text-center text-xs sm:text-sm text-white">
+        <div className="relative z-50 border-b border-[#f3d7c4]"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundAttachment: "fixed",
+          }}>
+          <div className="nav-width flex items-center justify-center gap-2 py-2.5 text-center text-xs font-medium text-stone-800 sm:text-sm">
             <span className="flex items-center gap-1.5">
-              <Flame size={16} className="text-amber-200 animate-pulse" />
+              <Flame size={16} className="text-orange-500" />
               <strong>🔥 LIVE MASTERCLASS — LIMITED SEATS.</strong> Registration closes when live-seat capacity is reached.
             </span>
           </div>
@@ -683,323 +702,133 @@ export default function WebinarPage() {
             type="button"
             onClick={() => setShowBanner(false)}
             aria-label="Dismiss announcement"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-opacity cursor-pointer"
+            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-stone-400 transition hover:text-stone-800"
           >
             <X size={18} />
           </button>
         </div>
       )}
 
-      {/* ─── 2. HEADER NAVBAR ─── */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl transition-all">
-        <div className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5">
-          <div className="flex items-center gap-3">
-            <BrandLogo href="/" size="sm" />
-            <div className="hidden sm:block">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">
-                Resin Art • Identity • Financial Freedom
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={scrollToRegister}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black shadow-lg shadow-orange-500/20 h-9 rounded-xl px-5 text-xs sm:text-sm transition-all hover:scale-105 cursor-pointer"
-            >
-              Reserve my free seat
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavbar />
 
       <main>
-        {/* ─── 3. HERO SECTION WITH REGISTRATION FORM ─── */}
-        <section className="relative overflow-hidden pt-12 pb-20 sm:py-24">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-orange-600/10 via-amber-600/5 to-transparent blur-3xl"></div>
-
-          <div className="relative mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 items-start">
-            
-            {/* Left Column: Exact Headline, Details & CTAs */}
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-6">
-                <Sparkles size={13} className="animate-pulse" /> Free live masterclass
-              </span>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight text-white mb-6">
-                From Resin Art Passion to a{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">
-                  ₹3 Lakh/Month Business
-                </span>{" "}
-                — Without Random Tutorials, Self-Doubt or Guesswork.
-              </h1>
-
-              <p className="max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg mb-6">
-                Join the Resin Mastery Masterclass and discover the 3 secrets to mastering premium resin skills, creating a signature portfolio and turning your art into a business with a clear roadmap.
-              </p>
-
-              <blockquote className="max-w-xl border-l-3 border-orange-500 pl-4 py-1 text-sm italic leading-relaxed text-slate-400 sm:text-base mb-8">
-                "You don't need more random tutorials. You need the right skills, the confidence to own your creativity, and a roadmap that shows you how to turn what you love into something people will pay for."
-              </blockquote>
-
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <button
-                  onClick={scrollToRegister}
-                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black shadow-xl shadow-orange-500/30 h-12 rounded-xl px-8 text-sm transition-all hover:scale-105 cursor-pointer"
-                >
-                  Yes! I want my free seat
-                  <ArrowRight className="ml-1 size-4" />
-                </button>
-                <button
-                  onClick={handleUnlockAndScroll}
-                  className="inline-flex items-center justify-center gap-2 border border-slate-700 bg-slate-900/90 text-white shadow-sm hover:bg-slate-800 hover:border-orange-500/50 h-12 rounded-xl px-8 text-sm transition-all cursor-pointer font-bold"
-                >
-                  Show me what I'll learn
-                  <ChevronDown className="ml-1 size-4" />
-                </button>
-              </div>
-
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-8">
-                100% Free • Live Masterclass • Limited Seats
-              </p>
-
-              {/* Host Preview */}
-              <div className="flex items-center gap-4 mb-8 pt-6 border-t border-slate-800/80">
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-500/60 shadow-lg shadow-orange-500/20 shrink-0">
-                  <img
-                    src="/images/mentor/vrajangna-portrait.jpg"
-                    alt="Vrajangna Patel"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">Vrajangna Patel</p>
-                  <p className="text-xs text-orange-400 font-semibold">54,000+ webinar attendees</p>
-                </div>
-              </div>
-
-              {/* 4-Item Event Grid */}
-              <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-4 mb-8 shadow-xl">
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Date</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{displayDateStr}</dd>
-                </div>
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Time</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{displayTimeStr}</dd>
-                </div>
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Language</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">Hindi + English</dd>
-                </div>
-                <div className="bg-slate-900/90 p-4">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Duration</dt>
-                  <dd className="mt-1 text-sm font-bold text-white">{displayDurationStr}</dd>
-                </div>
-              </dl>
-
-              {/* Countdown */}
-              <div className="mb-6">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
-                  Live Masterclass Starts In:
-                </p>
-                <WebinarCountdown targetDateStr={activeWebinar?.scheduledAt} onWebinarLoaded={setActiveWebinar} />
-              </div>
-
-              <p className="max-w-xl text-base font-bold text-orange-400">
-                Don't just learn resin. Learn how to make your resin skills matter in the market.
-              </p>
-            </div>
-
-            {/* Right Column: Exact Registration Card */}
-            <div id="register" className="scroll-mt-24">
-              <div className="rounded-3xl border-2 border-orange-500/40 bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-2xl shadow-black/80">
-                <h2 className="text-2xl font-black text-white">Reserve your free seat</h2>
-                <p className="mt-1 mb-6 text-xs sm:text-sm text-slate-400">
-                  Where should we send your Masterclass details?
-                </p>
-
-                {/* Seats Left Bar */}
-                <div className="mb-6">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 shadow-inner">
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="inline-flex items-center gap-1.5 font-bold text-orange-400">
-                        <Users size={16} className="text-orange-400" />
-                        {stats.seatsRemaining} live seats left
-                      </span>
-                      <span className="text-emerald-400 font-bold">{stats.percentFull}% full</span>
-                    </div>
-                    <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-slate-900" role="progressbar">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-1000"
-                        style={{ width: `${stats.percentFull}%` }}
-                      ></div>
-                    </div>
-                    <p className="mt-2 text-[11px] text-slate-400 font-medium">
-                      Once the room is full, registration closes for this date.
-                    </p>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center">
-                    {error}
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-name">
-                      Full name
-                    </label>
-                    <input
-                      className="flex h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all"
-                      id="lead-name"
-                      placeholder="Jane Doe"
-                      autoComplete="name"
-                      required
-                      value={form.name}
-                      onChange={e => update("name", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-email">
-                      Email address
-                    </label>
-                    <input
-                      type="email"
-                      className="flex h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all"
-                      id="lead-email"
-                      placeholder="jane@example.com"
-                      autoComplete="email"
-                      required
-                      value={form.email}
-                      onChange={e => update("email", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-phone">
-                      WhatsApp number
-                    </label>
-                    <input
-                      type="tel"
-                      className="flex h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all"
-                      id="lead-phone"
-                      placeholder="+91 98765 43210"
-                      autoComplete="tel"
-                      value={form.phone}
-                      onChange={e => update("phone", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300" htmlFor="lead-message">
-                      Your biggest challenge right now <span className="text-slate-500 lowercase font-normal">(optional)</span>
-                    </label>
-                    <textarea
-                      className="flex min-h-[70px] w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/40 transition-all resize-none"
-                      id="lead-message"
-                      placeholder="e.g. I don't know which resin techniques to learn first, or how to price my work."
-                      rows={3}
-                      value={form.challenge}
-                      onChange={e => update("challenge", e.target.value)}
-                    ></textarea>
-                  </div>
-
-                  <label className="flex items-start gap-2.5 text-xs leading-relaxed text-slate-400 cursor-pointer pt-1">
-                    <input
-                      type="checkbox"
-                      checked={form.consent}
-                      onChange={e => update("consent", e.target.checked)}
-                      className="mt-0.5 size-4 shrink-0 rounded border-slate-800 bg-slate-950 text-orange-500 focus:ring-0 cursor-pointer"
-                    />
-                    <span>
-                      I agree to receive webinar reminders, resources and relevant updates from Ravishing Art Hub Learning Academy LLP via email and WhatsApp.
-                    </span>
-                  </label>
-
-                  <button
-                    className="inline-flex items-center justify-center gap-2 text-sm font-black transition-all bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 hover:opacity-95 text-slate-950 shadow-xl shadow-orange-500/30 h-11 rounded-xl px-8 w-full cursor-pointer hover:scale-[1.02] disabled:opacity-60"
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading ? "Securing Your Seat..." : "Yes! I want my free seat"}
-                  </button>
-
-                  <p className="text-center text-xs text-slate-400 pt-1">
-                    Your confirmation and Zoom joining link are emailed the moment you register — check your inbox.
-                  </p>
-
-                  <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 pt-1 text-xs text-slate-400 font-semibold">
-                    <li className="flex items-center gap-1">✓ 100% free to attend</li>
-                    <li className="flex items-center gap-1">✓ Live 90-minute session</li>
-                    <li className="flex items-center gap-1">✓ Clarity Kit included</li>
-                  </ul>
-                </form>
-
-                <div className="mt-6 flex gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
-                  <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-400" />
-                  <div>
-                    <p className="text-xs font-bold text-white">No credit card required</p>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-slate-400">
-                      Registration is completely free. Your details are used only for webinar communications and relevant updates — never sold.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
+        <WebinarHero
+          displayDateStr={displayDateStr}
+          displayTimeStr={displayTimeStr}
+          displayDurationStr={displayDurationStr}
+          stats={stats}
+          error={error}
+          loading={loading}
+          form={form}
+          onUpdate={update}
+          onSubmit={handleSubmit}
+          onScrollToRegister={scrollToRegister}
+          onUnlockAndScroll={handleUnlockAndScroll}
+          onWebinarLoaded={(wb) => setActiveWebinar(wb)}
+        />
 
         {/* ─── 4. RECOGNISED FOR MARQUEE ─── */}
-        <section className="bg-slate-900/40 border-y border-slate-800/80 py-12 px-5">
-          <div className="mx-auto max-w-6xl">
+        {/* <section
+          className="border-y border-[#eadfd4] py-10 sm:py-12"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
+          <div className="nav-width">
             <div className="text-center">
-              <p className="text-xs uppercase tracking-widest text-slate-400 font-black mb-4">Recognised for</p>
-              <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm md:text-base font-bold text-slate-300">
-                <li className="flex items-center gap-2">Hall of Fame Award 2022</li>
-                <li className="flex items-center gap-2">I Can Coach — International Best Seller</li>
-                <li className="flex items-center gap-2">Sylph Magazine</li>
-                <li className="flex items-center gap-2">54,000+ webinar attendees</li>
-                <li className="flex items-center gap-2">10+ years coaching</li>
+              <p className="mb-5 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">Recognised for</p>
+              <ul className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-base lg:text-sm font-semibold text-stone-700">
+                {["Hall of Fame Award 2022", "I Can Coach — International Best Seller", "Sylph Magazine", "54,000+ webinar attendees", "10+ years coaching"].map((item) => (
+                  <li key={item} className="rounded-full border border-[#eadfd4] bg-[#fffaf6] px-4 py-2">{item}</li>
+                ))}
               </ul>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        {/* ─── 5. FOUR BIG STAT COUNTERS ─── */}
-        <section className="py-16 px-5 border-b border-slate-800/80 bg-slate-950">
-          <div className="mx-auto max-w-6xl">
-            <dl className="grid grid-cols-2 gap-8 sm:grid-cols-4 text-center">
+        {/* ─── TOP GAP ABOVE MARQUEE WITH WHITE DOT STYLE ─── */}
+        <div
+          className="w-full py-8 sm:py-12 border-b border-[#eadfd4]/60"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+          aria-hidden="true"
+        />
+
+        {/* ─── 5. BIG STAT COUNTERS MARQUEE (CONTINUOUS SCROLLING RIGHT TO LEFT) ─── */}
+        <section className="relative w-full overflow-hidden bg-[#f7f6f0] py-12 sm:py-16 select-none border-b border-[#eadfd4]/70">
+          {/* Subtle gradient fades on left and right for seamless edge transitions */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[#f7f6f0] to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#f7f6f0] to-transparent z-10" />
+
+          {/* Marquee Track: duplicated list seamlessly moving right-to-left */}
+          <div
+            className="flex gap-4 sm:gap-6 w-max hover:[animation-play-state:paused]"
+            style={{
+              animation: "marquee-left 28s linear infinite",
+            }}
+          >
+            {[...STAT_COUNTERS, ...STAT_COUNTERS].map((stat, idx) => (
+              <div
+                key={idx}
+                className="w-[260px] sm:w-[300px] shrink-0 rounded-3xl border border-[#eadfd4] bg-white px-6 py-6 sm:py-7 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)] hover:shadow-[0_20px_40px_-20px_rgba(148,32,8,0.25)] transition-all duration-300 flex flex-col justify-center min-h-[140px]"
+              >
+                <dt className="text-2xl sm:text-3xl lg:text-3xl font-black tracking-tight text-[#942008] leading-tight flex items-center justify-center min-h-[3.25rem]">
+                  {stat.value}
+                </dt>
+                <dd className="mt-1.5 text-xs sm:text-base lg:text-sm text-stone-500 leading-snug">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </div>
+
+          {/*
+          Previous Static Grid UI kept commented as requested:
+          <div className="nav-width hidden">
+            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {STAT_COUNTERS.map((stat, idx) => (
-                <div key={idx} className="p-4">
-                  <dt className="text-3xl sm:text-4xl font-bold text-white">{stat.value}</dt>
-                  <dd className="mt-1 text-sm text-slate-400">{stat.label}</dd>
+                <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white px-4 py-6 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)]">
+                  <dt className="text-3xl sm:text-5xl lg:text-4xl font-black tracking-tight text-[#942008]">{stat.value}</dt>
+                  <dd className="mt-1 text-xs sm:text-base lg:text-sm text-stone-500">{stat.label}</dd>
                 </div>
               ))}
             </dl>
           </div>
+          */}
         </section>
 
         {/* ─── 6. THE INTERACTIVE GATE SECTION ─── */}
-        <section id="gate" className="bg-slate-900/40 border-b border-slate-800/80 py-20 px-5 relative z-10">
-          <div className="mx-auto max-w-6xl">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold sm:text-4xl text-white">
-                Want to know what makes this Masterclass different?
+        <section
+          id="gate"
+          className="relative z-10 py-16 sm:py-20"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
+          <div className="nav-width">
+            <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#f3d3c0] bg-[linear-gradient(180deg,#fffaf6_0%,#fff_100%)] px-6 py-12 text-center shadow-[0_24px_50px_-32px_rgba(90,55,20,0.4)] sm:px-12">
+              <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                Want to know what makes this <span className="text-[#942008]">Masterclass different?</span>
               </h2>
-              <p className="mt-3 text-slate-400 text-base leading-relaxed">
-                I've designed this session around the three things most aspiring resin artists need — mastery, mindset and monetization.
+              <p className="mx-auto mt-4 max-w-xl text-sm sm:text-xl lg:text-base leading-relaxed text-neutral-600">
+                I&apos;ve designed this session around the three things most aspiring resin artists need — mastery, mindset and monetization.
               </p>
               <button
                 onClick={() => setIsUnlocked(!isUnlocked)}
-                className="inline-flex items-center justify-center gap-2 text-sm font-medium transition-all bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 shadow-xl shadow-orange-500/20 h-10 rounded-md px-8 mt-8 cursor-pointer hover:scale-105"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 cursor-pointer mt-8"
               >
                 {isUnlocked ? "Hide what you'll learn" : "Show me what I'll learn"}
-                {isUnlocked ? <ChevronUp className="ml-1.5 size-4" /> : <ChevronDown className="ml-1.5 size-4" />}
+                {isUnlocked ? <ChevronUp className="ml-1 size-4" /> : <ChevronDown className="ml-1 size-4" />}
               </button>
             </div>
           </div>
@@ -1007,158 +836,64 @@ export default function WebinarPage() {
 
         {/* ─── 7. UNLOCKED EXACT CURRICULUM SECTIONS (100% MATCHING REFERENCE SEQUENCE) ─── */}
         {isUnlocked && (
-          <div id="gate-content" className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-0">
-            
+          <div id="gate-content">
+
             {/* 1. SOUND FAMILIAR? (W -> e2) */}
-            <section id="sound-familiar" className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
-                <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {SOUND_FAMILIAR.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
-                    {SOUND_FAMILIAR.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base leading-relaxed">
-                    {SOUND_FAMILIAR.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  {SOUND_FAMILIAR.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center gap-3">
-                      <span className="text-slate-400 text-sm font-bold">✕</span>
-                      <p className="text-sm text-slate-300">{item}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="text-center max-w-3xl mx-auto pt-4">
-                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-                    {SOUND_FAMILIAR.turn}
-                  </p>
-                </div>
-              </div>
-            </section>
+            <SoundFamiliarSection
+              data={SOUND_FAMILIAR}
+              onScrollToRegister={scrollToRegister}
+            />
 
             {/* 2. MY PHILOSOPHY (H -> n2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {PHILOSOPHY.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {PHILOSOPHY.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {PHILOSOPHY.subheading}
-                  </p>
-                </div>
+            <WebinarPhilosophy data={PHILOSOPHY} />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                  {PHILOSOPHY.steps.map((step, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-3">
-                        {step.label}
-                      </span>
-                      <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                      <p className="text-sm text-slate-400 leading-relaxed">{step.body}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="text-center text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
-                  {PHILOSOPHY.closing}
-                </p>
-              </div>
-            </section>
-
-            {/* 3. ON THE MASTERCLASS: THE THREE SECRETS (q -> t2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {THREE_SECRETS.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {THREE_SECRETS.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {THREE_SECRETS.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                  {THREE_SECRETS.items.map((secret, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
-                      <div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">
-                          {secret.label}
-                        </span>
-                        <h3 className="text-lg font-bold text-white mb-4 leading-snug">
-                          {secret.title}
-                        </h3>
-                        
-                        <p className="text-xs text-slate-400 italic mb-4 leading-relaxed">
-                          {secret.myth}
-                        </p>
-
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                          {secret.truth}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* 4. LIVE SEATS ARE LIMITED BANNER (ve -> o2) */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{LIVE_SEATS_BANNER.heading}</h3>
-                    <p className="text-sm text-slate-400 mt-1">{LIVE_SEATS_BANNER.body}</p>
-                  </div>
-                  <button
-                    onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-slate-950 border border-slate-700 hover:border-orange-500 text-white font-medium text-xs sm:text-sm h-10 rounded-lg px-6 transition-all hover:scale-105 cursor-pointer shrink-0"
-                  >
-                    {LIVE_SEATS_BANNER.cta}
-                    <ArrowRight size={14} />
-                  </button>
-                </div>
-              </div>
-            </section>
+            {/* 3 & 4. ON THE MASTERCLASS: THE THREE SECRETS & LIVE SEATS BANNER */}
+            {/*
+            <ThreeSecretsSection
+              data={THREE_SECRETS}
+              bannerData={LIVE_SEATS_BANNER}
+              onScrollToRegister={scrollToRegister}
+            />
+            */}
 
             {/* 5. THE SHIFT (L -> i2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
+            <section
+              className="py-16 sm:py-20"
+              style={{
+                backgroundColor: "#ffffff",
+                backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+                backgroundSize: "24px 24px",
+                backgroundAttachment: "fixed",
+              }}
+            >
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {THE_SHIFT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {THE_SHIFT.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    Stop learning resin the <span className="text-[#942008]">hard way</span>
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                     {THE_SHIFT.subheading}
                   </p>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse rounded-2xl overflow-hidden border border-slate-800">
+                  <table className="w-full overflow-hidden rounded-3xl border border-[#eadfd4] text-left text-xs sm:text-base lg:text-sm shadow-[0_18px_40px_-30px_rgba(90,55,20,0.45)]">
                     <thead>
-                      <tr className="border-b border-slate-800 bg-slate-900">
-                        <th className="p-4 font-bold text-slate-400 uppercase text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
-                        <th className="p-4 font-bold text-slate-200 uppercase text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
+                      <tr className="border-b border-[#eadfd4] bg-[#fff6f0]">
+                        <th className="p-4 font-bold text-stone-500 uppercase text-xs sm:text-sm lg:text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
+                        <th className="p-4 font-bold text-stone-800 uppercase text-xs sm:text-sm lg:text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/80 bg-slate-900/60">
+                    <tbody className="divide-y divide-[#eadfd4] bg-white">
                       {THE_SHIFT.pairs.map((pair, idx) => (
                         <tr key={idx}>
-                          <td className="p-4 text-slate-400">
+                          <td className="p-4 text-stone-500 text-xs sm:text-base lg:text-sm">
                             {pair.before}
                           </td>
-                          <td className="p-4 text-slate-200 font-medium">
+                          <td className="p-4 text-stone-800 font-medium text-xs sm:text-base lg:text-sm">
                             {pair.after}
                           </td>
                         </tr>
@@ -1170,103 +905,66 @@ export default function WebinarPage() {
             </section>
 
             {/* 6. WHAT CHANGES (X -> l2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {WHAT_CHANGES.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {WHAT_CHANGES.heading}
-                  </h2>
-                  <p className="text-slate-400 text-sm sm:text-base">
-                    {WHAT_CHANGES.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {WHAT_CHANGES.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <WhatChangesSection data={WHAT_CHANGES} />
 
             {/* 7. RIGHT FIT? (ee -> s2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {RIGHT_FIT.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {RIGHT_FIT.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {RIGHT_FIT.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {RIGHT_FIT.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <RightFitStackSection data={RIGHT_FIT} />
 
             {/* 8. PROOF (te -> r2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
+            {/* <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {PROOF.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {PROOF.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    You&apos;re learning from someone who has been in the <span className="text-[#942008]">arena</span>
                   </h2>
-                  <p className="text-slate-300 text-base leading-relaxed max-w-2xl mx-auto">
+                  <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-2xl mx-auto">
                     {PROOF.body}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {PROOF.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center">
-                      <p className="text-2xl font-bold text-white mb-1">{item.value}</p>
-                      <p className="text-xs text-slate-400 font-medium">{item.label}</p>
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-5 text-center">
+                      <p className="text-2xl sm:text-4xl lg:text-3xl font-black text-neutral-950 mb-1">{item.value}</p>
+                      <p className="text-xs sm:text-base lg:text-sm text-stone-500 font-medium">{item.label}</p>
                     </div>
                   ))}
                 </div>
               </div>
-            </section>
+            </section> */}
 
             {/* 9. FREE BONUS: CLARITY KIT (B -> u2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-6xl">
+            <section
+              className="py-16 sm:py-20"
+              style={{
+                backgroundColor: "#ffffff",
+                backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+                backgroundSize: "24px 24px",
+                backgroundAttachment: "fixed",
+              }}
+            >
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {CLARITY_KIT.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {CLARITY_KIT.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    Register free & get the <span className="text-[#942008]">Resin Artist Clarity Kit</span>
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                     {CLARITY_KIT.subheading}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                   {CLARITY_KIT.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                      <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{item.body}</p>
+                    <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
+                      <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
+                      <h3 className="mb-2 text-base sm:text-xl lg:text-lg font-bold text-neutral-950">{item.title}</h3>
+                      <p className="text-xs sm:text-base lg:text-sm text-neutral-600 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -1274,7 +972,7 @@ export default function WebinarPage() {
                 <div className="text-center">
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     {CLARITY_KIT.cta}
                     <ArrowRight size={14} />
@@ -1284,43 +982,43 @@ export default function WebinarPage() {
             </section>
 
             {/* 10. VALUE STACK (Ks -> E) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-4xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {VALUE_STACK.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {VALUE_STACK.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    Everything you need to start seeing your <span className="text-[#942008]">resin journey differently</span>
                   </h2>
                 </div>
 
                 <div className="space-y-4 mb-8">
                   {VALUE_STACK.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
-                        <h3 className="text-base font-bold text-white">{item.title}</h3>
-                        <p className="text-xs sm:text-sm text-slate-400 mt-1">{item.body}</p>
+                        <h3 className="text-base sm:text-xl lg:text-lg font-bold text-neutral-950">{item.title}</h3>
+                        <p className="text-xs sm:text-base lg:text-sm text-neutral-600 mt-1">{item.body}</p>
                       </div>
-                      <span className="text-sm font-bold text-orange-400 shrink-0 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-center">
+                      <span className="text-xs sm:text-base lg:text-sm font-bold text-[#942008] shrink-0 bg-[#fff6f0] border border-[#eadfd4] px-3 py-1.5 rounded-lg text-center">
                         {item.value}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                   <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
-                    <p className="text-lg font-bold text-slate-400 line-through">{VALUE_STACK.totalValue}</p>
+                    <p className="text-xs sm:text-sm lg:text-xs text-stone-500 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
+                    <p className="text-lg sm:text-2xl lg:text-xl font-bold text-stone-500 line-through">{VALUE_STACK.totalValue}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-orange-400 uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
-                    <p className="text-2xl font-black text-emerald-400">{VALUE_STACK.priceValue}</p>
+                    <p className="text-xs sm:text-sm lg:text-xs text-[#942008] uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
+                    <p className="text-2xl sm:text-4xl lg:text-3xl font-black text-emerald-600">{VALUE_STACK.priceValue}</p>
                   </div>
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold h-10 rounded-md px-6 text-sm hover:scale-105 transition-transform cursor-pointer"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     Reserve my free seat
                     <ArrowRight size={14} />
@@ -1330,76 +1028,32 @@ export default function WebinarPage() {
             </section>
 
             {/* 11. HONEST FIT CHECK (D -> a2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {HONEST_FIT_CHECK.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {HONEST_FIT_CHECK.heading}
-                  </h2>
-                  <p className="text-slate-400 text-sm sm:text-base">
-                    {HONEST_FIT_CHECK.subheading}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7">
-                    <h3 className="text-base font-bold text-white mb-4">
-                      {HONEST_FIT_CHECK.forHeading}
-                    </h3>
-                    <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
-                      {HONEST_FIT_CHECK.forItems.map((it, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5">
-                          <Check size={16} className="text-emerald-400 mt-0.5 shrink-0" />
-                          <span>{it}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7">
-                    <h3 className="text-base font-bold text-white mb-4">
-                      {HONEST_FIT_CHECK.notForHeading}
-                    </h3>
-                    <ul className="space-y-3 text-xs sm:text-sm text-slate-300">
-                      {HONEST_FIT_CHECK.notForItems.map((it, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5">
-                          <X size={16} className="text-red-400 mt-0.5 shrink-0" />
-                          <span>{it}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <HonestFitCheckSection data={HONEST_FIT_CHECK} />
 
             {/* 12. AGENDA (se -> c2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-5xl">
+            <section className="bg-transparent py-16 sm:py-20">
+              <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
+                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {AGENDA.eyebrow}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {AGENDA.heading}
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                    How the <span className="text-[#942008]">90 minutes run</span>
                   </h2>
-                  <p className="text-slate-400 text-base">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
                     {AGENDA.subheading}
                   </p>
                 </div>
 
                 <div className="space-y-4 max-w-3xl mx-auto">
                   {AGENDA.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <span className="text-slate-400 font-mono text-xs font-bold shrink-0">
+                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      <span className="text-stone-500 font-mono text-xs sm:text-base lg:text-sm font-bold shrink-0">
                         {item.time}
                       </span>
                       <div>
-                        <h3 className="font-bold text-white text-sm">{item.title}</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">{item.body}</p>
+                        <h3 className="font-bold text-neutral-950 text-sm sm:text-lg lg:text-base">{item.title}</h3>
+                        <p className="text-xs sm:text-base lg:text-sm text-neutral-600 mt-0.5">{item.body}</p>
                       </div>
                     </div>
                   ))}
@@ -1408,164 +1062,73 @@ export default function WebinarPage() {
             </section>
 
             {/* 13. YOUR MENTOR (A -> h2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-5xl">
-                <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-sm">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                    <div className="lg:col-span-4 text-center">
-                      <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden border border-slate-800 mb-4">
-                        <img
-                          src="/images/mentor/vrajangna-portrait.jpg"
-                          alt="Vrajangna Patel"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <h3 className="text-lg font-bold text-white">{MENTOR_SECTION.name}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{MENTOR_SECTION.role}</p>
-                    </div>
-
-                    <div className="lg:col-span-8 space-y-4">
-                      <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300">
-                        {MENTOR_SECTION.eyebrow}
-                      </span>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white">Meet {MENTOR_SECTION.name}</h2>
-                      <p className="text-xs text-slate-400">{MENTOR_SECTION.role}</p>
-                      {MENTOR_SECTION.bio.map((p, idx) => (
-                        <p key={idx} className="text-sm text-slate-300 leading-relaxed">{p}</p>
-                      ))}
-                      <blockquote className="border-l-2 border-slate-700 pl-3 text-sm italic text-slate-300">
-                        "{MENTOR_SECTION.quote}"
-                      </blockquote>
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {MENTOR_SECTION.credentials.map((c, idx) => (
-                          <span key={idx} className="bg-slate-950 border border-slate-800 text-slate-300 text-xs px-3 py-1 rounded-full">
-                            ✓ {c}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
+            {/*
+            <WebinarMentor section={MENTOR_SECTION} onKnowMore={scrollToRegister} />
+            */}
 
             {/* 14. COMMUNITY / TESTIMONIALS (ae -> d2) */}
-            <section className="py-20 px-5 border-b border-slate-800/80 bg-slate-950">
-              <div className="mx-auto max-w-6xl">
-                <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    {COMMUNITY_SECTION.eyebrow}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                    {COMMUNITY_SECTION.heading}
-                  </h2>
-                  <p className="text-slate-400 text-base">
-                    {COMMUNITY_SECTION.subheading}
-                  </p>
-                </div>
+            <CommunityStories section={COMMUNITY_SECTION} />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {COMMUNITY_SECTION.items.map((item, idx) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
-                      <div>
-                        <Quote size={20} className="text-orange-400 mb-3" />
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic mb-4">
-                          "{item.quote}"
-                        </p>
-                      </div>
-                      <div className="border-t border-slate-800 pt-3">
-                        <p className="text-sm font-bold text-white">{item.name}</p>
-                        <p className="text-xs text-slate-400">{item.role}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* 15. FREQUENTLY ASKED QUESTIONS (Ne -> f2) */}
-            <section className="py-20 px-5 bg-slate-900/40 border-b border-slate-800/80">
-              <div className="mx-auto max-w-4xl">
-                <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-slate-300 mb-4">
-                    QUESTIONS
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-white">Frequently asked</h2>
-                </div>
-
-                <div className="space-y-3">
-                  {EXACT_FAQS.map((faq, idx) => (
-                    <div
-                      key={idx}
-                      className="border border-slate-800 rounded-xl bg-slate-900 overflow-hidden transition-all"
-                    >
-                      <button
-                        onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                        className="w-full p-4 text-left font-medium text-white text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer hover:text-orange-400 transition-colors"
-                      >
-                        <span>{faq.q}</span>
-                        {openFaq === idx ? <ChevronUp size={18} className="text-orange-400 shrink-0" /> : <ChevronDown size={18} className="text-slate-400 shrink-0" />}
-                      </button>
-                      {openFaq === idx && (
-                        <div className="px-4 pb-4 text-xs sm:text-sm text-slate-400 leading-relaxed border-t border-slate-800/60 pt-3">
-                          {faq.a}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <WebinarFaqs faqs={EXACT_FAQS} />
 
           </div>
         )}
 
         {/* ─── 8. FINAL EMOTIONAL CTA ─── */}
-        <section className="py-20 sm:py-24 px-5 bg-slate-950 border-b border-slate-800/80 text-center relative z-10">
-          <div className="mx-auto max-w-2xl">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Your art deserves more than a place on your phone
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
-              You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
-            </p>
+        <section
+          className="relative z-10 py-16 text-center sm:py-24"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
+          <div className="nav-width">
+            <div className="mx-auto max-w-3xl rounded-[2rem] bg-[#2a211c] px-6 py-12 sm:px-12 sm:py-16">
+              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-white">
+                Your art deserves more than a <span className="text-[#ea580c]">place on your phone</span>
+              </h2>
+              <p className="mx-auto mb-8 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-stone-300">
+                You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
+              </p>
 
-            <div className="mb-6">
-              <WebinarCountdown targetDateStr={activeWebinar?.scheduledAt} onWebinarLoaded={setActiveWebinar} />
+              <div className="mb-6 flex justify-center">
+                <WebinarCountdown targetDateStr={activeWebinar?.scheduledAt} onWebinarLoaded={setActiveWebinar} />
+              </div>
+
+              <button
+                onClick={scrollToRegister}
+                className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
+              >
+                Reserve my free seat
+                <ArrowRight className="ml-1.5 size-4" />
+              </button>
+
+              <p className="mt-4 text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c]">
+                🔥 Live seats are limited. Register now before registration closes.
+              </p>
+              <p className="mt-2 text-[11px] sm:text-xs uppercase tracking-[0.14em] text-stone-400">
+                Free registration • 90-minute Masterclass • Practical clarity • Action-focused
+              </p>
             </div>
-
-            <button
-              onClick={scrollToRegister}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black shadow-xl shadow-orange-500/30 h-11 rounded-xl px-10 text-sm transition-all hover:scale-105 cursor-pointer mt-4"
-            >
-              Reserve my free seat
-              <ArrowRight className="ml-1.5 size-4" />
-            </button>
-
-            <p className="mt-4 text-sm font-medium text-orange-400">
-              🔥 Live seats are limited. Register now before registration closes.
-            </p>
-            <p className="mt-2 text-xs uppercase tracking-widest text-slate-500">
-              Free registration • 90-minute Masterclass • Practical clarity • Action-focused
-            </p>
           </div>
         </section>
       </main>
 
       {/* ─── 9. STICKY BOTTOM REGISTRATION BAR ─── */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl transition-transform duration-300 ${
-          showStickyBottom ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={`fixed inset-x-0 bottom-0 z-50 border-t border-[#f3d3c0] bg-[#fffaf6]/95 backdrop-blur-xl transition-transform duration-300 ${showStickyBottom ? "translate-y-0" : "translate-y-full"
+          }`}
       >
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+        <div className="nav-width flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="text-sm font-semibold text-white">Resin Mastery Masterclass</span>
+            <span className="text-xs sm:text-base lg:text-sm font-semibold text-stone-950">Resin Mastery Masterclass</span>
             <WebinarCountdown compact={true} targetDateStr={activeWebinar?.scheduledAt} />
           </div>
           <button
             onClick={scrollToRegister}
-            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold shadow-md h-8 rounded-md px-4 text-xs transition-all cursor-pointer hover:scale-105"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
           >
             Get my free seat
             <ArrowRight size={13} />
@@ -1573,27 +1136,7 @@ export default function WebinarPage() {
         </div>
       </div>
 
-      {/* ─── 10. FOOTER ─── */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-10 px-5 text-slate-400">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between pb-8">
-          <div>
-            <BrandLogo href="/" size="sm" />
-            <p className="mt-2 max-w-sm text-xs text-slate-400">
-              Resin Art • Identity • Financial Freedom
-            </p>
-          </div>
-          <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-400">
-            <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-            <li><Link href="/terms" className="hover:text-white transition-colors">Terms &amp; Conditions</Link></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-          </ul>
-        </div>
-        <div className="border-t border-slate-800/80 pt-4">
-          <p className="mx-auto max-w-6xl text-xs text-slate-400">
-            © 2026 Ravishing Art Hub. All Rights Reserved. Income figures mentioned are business goals, not guaranteed outcomes.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

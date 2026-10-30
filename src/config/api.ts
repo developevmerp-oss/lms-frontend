@@ -20,6 +20,11 @@ export const getImageUrl = (url?: string): string => {
   }
   if (!clean.startsWith('/')) clean = '/' + clean;
 
+  // If already pointing to frontend public /images, /icons, /fonts, or /svg
+  if (clean.startsWith('/images/') || clean.startsWith('/icons/') || clean.startsWith('/fonts/') || clean.startsWith('/svg/')) {
+    return clean;
+  }
+
   if (isLocalhost) {
     return `http://localhost:5000${clean}`;
   }
@@ -34,6 +39,11 @@ export const getFileUrl = (url?: string): string => {
     return clean;
   }
   if (!clean.startsWith('/')) clean = '/' + clean;
+
+  
+  if (clean.startsWith('/images/') || clean.startsWith('/icons/') || clean.startsWith('/fonts/') || clean.startsWith('/svg/')) {
+    return clean;
+  }
 
   if (isLocalhost) {
     return `http://localhost:5000${clean}`;

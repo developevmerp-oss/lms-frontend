@@ -25,18 +25,10 @@ export const BrandLogo = ({
 
   const content = (
     <div className={`inline-flex items-center select-none group cursor-pointer ${className}`}>
-      {/* Dark Theme Logo */}
       <img
-        src="/logo-dark.png"
+        src="/logo-transparent.png"
         alt="Ravishing Art"
-        className={`brand-logo-dark ${heightClass} w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300`}
-      />
-
-      {/* Light Theme Logo */}
-      <img
-        src="/logo-light.png"
-        alt="Ravishing Art"
-        className={`brand-logo-light ${heightClass} w-auto object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300`}
+        className={`${heightClass} w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300`}
       />
     </div>
   );

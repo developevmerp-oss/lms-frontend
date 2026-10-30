@@ -72,7 +72,7 @@ export default function HeroVideoPlayer() {
 
   return (
     <div
-      className="relative max-w-5xl mx-auto mb-16 rounded-3xl overflow-hidden border-2 border-orange-500/40 shadow-2xl shadow-orange-500/20 bg-slate-950 aspect-video group"
+      className="relative mx-auto aspect-video max-w-5xl overflow-hidden rounded-[28px] border border-stone-200/80 bg-stone-950 shadow-[0_24px_60px_-32px_rgba(28,25,23,0.45)] group"
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >

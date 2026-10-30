@@ -23,7 +23,7 @@ export default function RootLayout({
         <AuthProvider>
           <MetaPixelProvider />
           {children}
-          <ThemeSelector />
+          {/* <ThemeSelector /> */}
         </AuthProvider>
       </body>
     </html>

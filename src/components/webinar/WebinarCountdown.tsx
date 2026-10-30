@@ -81,7 +81,7 @@ export const WebinarCountdown = ({
         return;
       }
     }
-    fetchNextWebinar();
+    // fetchNextWebinar();
   }, [targetDateStr, fetchNextWebinar]);
 
   useEffect(() => {
@@ -110,8 +110,8 @@ export const WebinarCountdown = ({
 
   if (compact) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold tabular-nums text-slate-300">
-        <Clock className="size-3.5 text-orange-400" />
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold tabular-nums text-stone-700 sm:text-sm">
+        <Clock className="size-3.5 text-[#c45a28]" />
         {timeLeft.days > 0 && `${timeLeft.days}d `}
         {String(timeLeft.hours).padStart(2, '0')}:
         {String(timeLeft.minutes).padStart(2, '0')}:
@@ -121,34 +121,18 @@ export const WebinarCountdown = ({
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 md:gap-3">
-      <div className="flex flex-col items-center bg-slate-900/90 border border-orange-500/30 rounded-xl px-3 py-2 min-w-[58px] shadow-md">
-        <span className="text-xl md:text-2xl font-black text-orange-400 leading-none">
-          {String(timeLeft.days).padStart(2, '0')}
-        </span>
-        <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">Days</span>
-      </div>
-      <span className="text-orange-400 font-bold text-lg -mt-3">:</span>
-      <div className="flex flex-col items-center bg-slate-900/90 border border-orange-500/30 rounded-xl px-3 py-2 min-w-[58px] shadow-md">
-        <span className="text-xl md:text-2xl font-black text-orange-400 leading-none">
-          {String(timeLeft.hours).padStart(2, '0')}
-        </span>
-        <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">Hours</span>
-      </div>
-      <span className="text-orange-400 font-bold text-lg -mt-3">:</span>
-      <div className="flex flex-col items-center bg-slate-900/90 border border-orange-500/30 rounded-xl px-3 py-2 min-w-[58px] shadow-md">
-        <span className="text-xl md:text-2xl font-black text-orange-400 leading-none">
-          {String(timeLeft.minutes).padStart(2, '0')}
-        </span>
-        <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">Mins</span>
-      </div>
-      <span className="text-orange-400 font-bold text-lg -mt-3">:</span>
-      <div className="flex flex-col items-center bg-slate-900/90 border border-orange-500/30 rounded-xl px-3 py-2 min-w-[58px] shadow-md">
-        <span className="text-xl md:text-2xl font-black text-orange-400 leading-none animate-pulse">
-          {String(timeLeft.seconds).padStart(2, '0')}
-        </span>
-        <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">Secs</span>
-      </div>
+    <div className="flex items-center gap-2 md:gap-3">
+      {[
+        [String(timeLeft.days).padStart(2, '0'), 'Days'],
+        [String(timeLeft.hours).padStart(2, '0'), 'Hours'],
+        [String(timeLeft.minutes).padStart(2, '0'), 'Mins'],
+        [String(timeLeft.seconds).padStart(2, '0'), 'Secs'],
+      ].map(([value, label]) => (
+        <div key={label} className="flex min-w-[58px] flex-col items-center rounded-2xl border border-[#f3d3c0] bg-white px-3 py-2 shadow-[0_10px_24px_-18px_rgba(90,55,20,0.45)]">
+          <span className="text-lg sm:text-2xl lg:text-xl font-bold leading-none text-stone-950">{value}</span>
+          <span className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-stone-500">{label}</span>
+        </div>
+      ))}
     </div>
   );
 };

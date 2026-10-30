@@ -49,7 +49,7 @@ async function runFullMigration() {
     console.log('✅ Connected to New Database');
 
     // Disable foreign key triggers temporarily during insert for smooth bulk import
-    await newClient.query('SET session_replication_role = replica;').catch(() => {});
+    await newClient.query('SET session_replication_role = replica;').catch(() => { });
 
     for (const tableName of TABLES_TO_MIGRATE) {
       try {
@@ -113,7 +113,7 @@ async function runFullMigration() {
     }
 
     // Re-enable foreign key triggers
-    await newClient.query('SET session_replication_role = DEFAULT;').catch(() => {});
+    await newClient.query('SET session_replication_role = DEFAULT;').catch(() => { });
 
     console.log('\n🎉 ========================================================');
     console.log('🎉 FULL DATA MIGRATION COMPLETED SUCCESSFULLY!');

@@ -75,11 +75,11 @@ export const ExitIntentModal = ({ onClaimSeat }: ExitIntentModalProps) => {
           <X size={18} />
         </button>
 
-        <h3 className="text-xl font-bold text-slate-950 pr-6">
+        <h3 className="text-lg sm:text-2xl lg:text-xl font-bold text-slate-950 pr-6">
           Leaving without your free seat?
         </h3>
 
-        <p className="mt-3 text-sm leading-relaxed text-slate-600">
+        <p className="mt-3 text-xs sm:text-base lg:text-sm leading-relaxed text-slate-600">
           The Masterclass is free, seats are limited, and every registrant gets the Resin Artist Clarity Kit. It takes about twenty seconds.
         </p>
 
@@ -87,14 +87,14 @@ export const ExitIntentModal = ({ onClaimSeat }: ExitIntentModalProps) => {
           <button
             type="button"
             onClick={handleReserve}
-            className="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-950 text-white font-semibold text-sm h-10 px-5 rounded-lg transition-all cursor-pointer shadow-sm hover:scale-[1.02]"
+            className="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-950 text-white font-semibold text-xs sm:text-base lg:text-sm h-10 px-5 rounded-lg transition-all cursor-pointer shadow-sm hover:scale-[1.02]"
           >
             Reserve my free seat
           </button>
           <button
             type="button"
             onClick={handleClose}
-            className="inline-flex items-center justify-center border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-sm h-10 px-5 rounded-lg transition-all cursor-pointer"
+            className="inline-flex items-center justify-center border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs sm:text-base lg:text-sm h-10 px-5 rounded-lg transition-all cursor-pointer"
           >
             No thanks
           </button>
