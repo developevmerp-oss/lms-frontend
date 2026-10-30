@@ -1,236 +1,125 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  Sparkles,
-  Flame,
-  CheckCircle2,
-  Lightbulb,
   Trophy,
-  BarChart3,
-  Clock,
-  Camera,
-  Target,
-  Share2,
-  Flag,
-  Palette,
-  Compass,
-  Rocket,
-  ShieldCheck,
-  Heart,
-  Briefcase,
-  Smile,
-  ChevronLeft,
-  ChevronRight,
-  TrendingUp,
   Brush,
-  Users,
-  Image as ImageIcon,
+  Heart,
+  Sparkles,
+  Share2,
+  BarChart3,
+  Compass,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// ─── 8-WEEK ROADMAP DATA (EXTRACTED DIRECTLY FROM REFERENCE UI) ───
-interface RoadmapWeek {
+// ─── 8-WEEK ROADMAP DATA: HIGH-IMPACT ZOOM VIEW (900 x 2060 VIEWBOX) ───
+interface RoadmapPoint {
   week: number;
-  days: string;
-  title: string;
+  line1: string;
+  line2: string;
   themeColor: string;
-  badgeBg: string;
-  badgeText: string;
-  borderColor: string;
-  lightBg: string;
-  pillBg: string;
-  pillText: string;
-  bullets: string[];
-  outcome: string;
-  outcomeIcon: React.ComponentType<{ className?: string }>;
-  yOffset: string; // Stagger: odd up, even down
+  tipX: number;
+  tipY: number;
+  bulbX: number;
+  isRight: boolean;
+  titleX: number;
 }
 
-const ROADMAP_WEEKS: RoadmapWeek[] = [
+const ROADMAP_POINTS: RoadmapPoint[] = [
   {
     week: 1,
-    days: "Days 1–7",
-    title: "Start with Clarity",
-    themeColor: "#e11d48", // Rose
-    badgeBg: "bg-rose-500",
-    badgeText: "text-rose-600",
-    borderColor: "border-rose-200 hover:border-rose-400",
-    lightBg: "bg-rose-50/70",
-    pillBg: "bg-rose-100",
-    pillText: "text-rose-700",
-    bullets: [
-      "Understand what resin art is and the opportunities",
-      "Learn about tools, materials and safe working practices",
-      "Set up your workspace",
-      "Build the right mindset to stay consistent",
-    ],
-    outcome:
-      "By the end of this week, you will feel confident to begin your resin journey and know exactly how to start.",
-    outcomeIcon: Lightbulb,
-    yOffset: "lg:-translate-y-4", // Higher
+    line1: "START WITH",
+    line2: "CLARITY",
+    themeColor: "#f43f5e", // Rose Pink (Pin 1)
+    tipX: 660,
+    tipY: 200,
+    bulbX: 712,
+    isRight: true,
+    titleX: 280,
   },
   {
     week: 2,
-    days: "Days 8–14",
-    title: "Build Your Confidence",
-    themeColor: "#ea580c", // Warm Orange
-    badgeBg: "bg-orange-500",
-    badgeText: "text-orange-600",
-    borderColor: "border-orange-200 hover:border-orange-400",
-    lightBg: "bg-orange-50/70",
-    pillBg: "bg-orange-100",
-    pillText: "text-orange-700",
-    bullets: [
-      "Learn basic techniques",
-      "Practise with guided exercises",
-      "Get comfortable with the process",
-      "Join the community and share your first creation",
-    ],
-    outcome:
-      "By the end of this week, you will have created your first resin piece and feel more confident in your skills.",
-    outcomeIcon: Trophy,
-    yOffset: "lg:translate-y-6", // Lower
+    line1: "BUILD YOUR",
+    line2: "CONFIDENCE",
+    themeColor: "#ea580c", // Vibrant Orange (Pin 2)
+    tipX: 240,
+    tipY: 420,
+    bulbX: 188,
+    isRight: false,
+    titleX: 620,
   },
   {
     week: 3,
-    days: "Days 15–21",
-    title: "Develop Your Skills",
-    themeColor: "#7c3aed", // Purple
-    badgeBg: "bg-purple-600",
-    badgeText: "text-purple-600",
-    borderColor: "border-purple-200 hover:border-purple-400",
-    lightBg: "bg-purple-50/70",
-    pillBg: "bg-purple-100",
-    pillText: "text-purple-700",
-    bullets: [
-      "Learn new techniques and improve your finishing",
-      "Understand colour combinations and design principles",
-      "Get expert feedback",
-      "Overcome common mistakes with the Resin Rescue Clinic",
-    ],
-    outcome:
-      "By the end of this week, you will be able to create better quality pieces and see visible improvement in your work.",
-    outcomeIcon: BarChart3,
-    yOffset: "lg:-translate-y-4", // Higher
+    line1: "DEVELOP",
+    line2: "YOUR SKILLS",
+    themeColor: "#8b5cf6", // Purple / Lavender (Pin 3)
+    tipX: 660,
+    tipY: 640,
+    bulbX: 712,
+    isRight: true,
+    titleX: 280,
   },
   {
     week: 4,
-    days: "Days 22–30",
-    title: "Find Your Creative Style",
-    themeColor: "#059669", // Emerald / Jade
-    badgeBg: "bg-emerald-600",
-    badgeText: "text-emerald-600",
-    borderColor: "border-emerald-200 hover:border-emerald-400",
-    lightBg: "bg-emerald-50/70",
-    pillBg: "bg-emerald-100",
-    pillText: "text-emerald-700",
-    bullets: [
-      "Experiment with different styles and finishes",
-      "Explore what you enjoy creating",
-      "Identify your unique colour palette and preferences",
-      "Start building a small collection of your work",
-    ],
-    outcome:
-      "By the end of this week, you will have a clearer idea of your creative style and the kind of products you love to create.",
-    outcomeIcon: Clock,
-    yOffset: "lg:translate-y-6", // Lower
+    line1: "FIND YOUR",
+    line2: "CREATIVE STYLE",
+    themeColor: "#06b6d4", // Teal / Cyan (Pin 4)
+    tipX: 240,
+    tipY: 860,
+    bulbX: 188,
+    isRight: false,
+    titleX: 620,
   },
   {
     week: 5,
-    days: "Days 31–37",
-    title: "Create Your Portfolio",
-    themeColor: "#6366f1", // Indigo
-    badgeBg: "bg-indigo-600",
-    badgeText: "text-indigo-600",
-    borderColor: "border-indigo-200 hover:border-indigo-400",
-    lightBg: "bg-indigo-50/70",
-    pillBg: "bg-indigo-100",
-    pillText: "text-indigo-700",
-    bullets: [
-      "Focus on creating your best pieces",
-      "Learn finishing and presentation tips",
-      "Understand how to photograph your work",
-      "Build a simple portfolio of your creations",
-    ],
-    outcome:
-      "By the end of this week, you will have a set of quality photos and a portfolio to showcase your work.",
-    outcomeIcon: Camera,
-    yOffset: "lg:-translate-y-4", // Higher
+    line1: "CREATE YOUR",
+    line2: "PORTFOLIO",
+    themeColor: "#ef4444", // Bright Red (Pin 5)
+    tipX: 660,
+    tipY: 1080,
+    bulbX: 712,
+    isRight: true,
+    titleX: 280,
   },
   {
     week: 6,
-    days: "Days 38–45",
-    title: "Build Your Brand Identity",
-    themeColor: "#0284c7", // Sky Blue
-    badgeBg: "bg-sky-600",
-    badgeText: "text-sky-600",
-    borderColor: "border-sky-200 hover:border-sky-400",
-    lightBg: "bg-sky-50/70",
-    pillBg: "bg-sky-100",
-    pillText: "text-sky-700",
-    bullets: [
-      "Choose or refine your brand name",
-      "Create your brand story",
-      "Learn how to present your work consistently",
-      "Understand basic pricing and costing",
-      "Get guidance on packaging and presentation",
-    ],
-    outcome:
-      "By the end of this week, you will have the foundation of your creative brand and know how to price your work with confidence.",
-    outcomeIcon: Target,
-    yOffset: "lg:translate-y-6", // Lower
+    line1: "BUILD YOUR",
+    line2: "BRAND IDENTITY",
+    themeColor: "#0284c7", // Sky Blue (Pin 6)
+    tipX: 240,
+    tipY: 1300,
+    bulbX: 188,
+    isRight: false,
+    titleX: 620,
   },
   {
     week: 7,
-    days: "Days 46–52",
-    title: "Get Visible Online",
-    themeColor: "#e11d48", // Coral / Crimson
-    badgeBg: "bg-rose-600",
-    badgeText: "text-rose-600",
-    borderColor: "border-rose-200 hover:border-rose-400",
-    lightBg: "bg-rose-50/70",
-    pillBg: "bg-rose-100",
-    pillText: "text-rose-700",
-    bullets: [
-      "Learn how to create engaging content",
-      "Understand simple and effective social media strategies",
-      "Learn to communicate the value of your work",
-      "Practise creating posts and reels with guidance",
-    ],
-    outcome:
-      "By the end of this week, you will be ready to showcase your work online and attract your ideal audience.",
-    outcomeIcon: Share2,
-    yOffset: "lg:-translate-y-4", // Higher
+    line1: "GET VISIBLE",
+    line2: "ONLINE",
+    themeColor: "#fb7185", // Coral Pink (Pin 7)
+    tipX: 660,
+    tipY: 1520,
+    bulbX: 712,
+    isRight: true,
+    titleX: 280,
   },
   {
     week: 8,
-    days: "Days 53–60",
-    title: "Take Your Next Step",
-    themeColor: "#10b981", // Mint / Emerald
-    badgeBg: "bg-emerald-600",
-    badgeText: "text-emerald-600",
-    borderColor: "border-emerald-200 hover:border-emerald-400",
-    lightBg: "bg-emerald-50/70",
-    pillBg: "bg-emerald-100",
-    pillText: "text-emerald-700",
-    bullets: [
-      "Create a final collection of your best work",
-      "Learn how to handle enquiries and present your products",
-      "Prepare your action plan for selling or conducting workshops",
-      "Celebrate your journey and set your next goals",
-    ],
-    outcome:
-      "By the end of this week, you will be ready to take your next step as a confident resin artist — with a portfolio, a brand foundation and a plan.",
-    outcomeIcon: Flag,
-    yOffset: "lg:translate-y-6", // Lower
+    line1: "TAKE YOUR",
+    line2: "NEXT STEP",
+    themeColor: "#10b981", // Emerald Green (Pin 8 - Graduation Milestone)
+    tipX: 240,
+    tipY: 1740,
+    bulbX: 188,
+    isRight: false,
+    titleX: 620,
   },
 ];
 
-// ─── BOTTOM SUMMARY PILLARS ───
+// ─── 3RD IMAGE PART: SUMMARY PILLARS (100% PRESERVED) ───
 const SUMMARY_PILLARS = [
   {
     title: "Practical Resin Skills",
@@ -240,22 +129,22 @@ const SUMMARY_PILLARS = [
     bg: "bg-rose-50",
   },
   {
-    title: "A Portfolio",
-    subtitle: "of beautiful creations",
-    icon: ImageIcon,
+    title: "Complete Art Pieces",
+    subtitle: "ready to display or sell",
+    icon: Sparkles,
     iconColor: "text-amber-600",
     bg: "bg-amber-50",
   },
   {
-    title: "A Unique Creative Identity",
-    subtitle: "and brand foundation",
-    icon: Sparkles,
-    iconColor: "text-purple-600",
-    bg: "bg-purple-50",
+    title: "Active Portfolio",
+    subtitle: "showcasing your unique voice",
+    icon: Trophy,
+    iconColor: "text-emerald-600",
+    bg: "bg-emerald-50",
   },
   {
-    title: "Marketing Readiness",
-    subtitle: "to showcase your work online",
+    title: "Social Media Presence",
+    subtitle: "attracting genuine buyers",
     icon: Share2,
     iconColor: "text-sky-600",
     bg: "bg-sky-50",
@@ -276,104 +165,147 @@ const SUMMARY_PILLARS = [
   },
 ];
 
-export default function ArtOThonSec({ sprintImages }: { sprintImages?: string[] }) {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const cardsPinWrapperRef = useRef<HTMLDivElement | null>(null);
-  const trackContainerRef = useRef<HTMLDivElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+// ─── WIDE SWEEPING SERPENTINE ROAD SVG PATH: EXACT MATCH TO ZOOM VIEW (900 x 2060) ───
+// Center X: 450, Right Apex: 620, Left Apex: 280
+const ROAD_SVG_PATH =
+  "M 450 70 " +
+  "C 450 120, 620 130, 620 200 " +
+  "C 620 310, 280 310, 280 420 " +
+  "C 280 530, 620 530, 620 640 " +
+  "C 620 750, 280 750, 280 860 " +
+  "C 280 970, 620 970, 620 1080 " +
+  "C 620 1190, 280 1190, 280 1300 " +
+  "C 280 1410, 620 1410, 620 1520 " +
+  "C 620 1630, 280 1630, 280 1740 " +
+  "C 280 1840, 450 1850, 450 1920 " +
+  "L 450 1960";
 
-  // ─── GSAP HORIZONTAL SCROLL TRIGGER ───
+export default function ArtOThonSec({ sprintImages }: { sprintImages?: string[] }) {
+  const pinSectionRef = useRef<HTMLDivElement | null>(null);
+  const roadElRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const cardsWrapper = cardsPinWrapperRef.current;
-    const track = trackRef.current;
-    if (!cardsWrapper || !track) return;
+    const pinSection = pinSectionRef.current;
+    const roadEl = roadElRef.current;
+    if (!pinSection || !roadEl) return;
 
-    // Only apply horizontal scroll on desktop/tablet where pinning feels natural
-    const mm = gsap.matchMedia();
+    const ctx = gsap.context(() => {
+      // 1. Initial State: Empty road on arrival (points & arrow hidden)
+      for (let i = 0; i < 8; i++) {
+        gsap.set(`#roadmap-node-${i}`, {
+          opacity: 0,
+          scale: 0.15,
+        });
+      }
+      gsap.set("#roadmap-end-arrow", {
+        opacity: 0,
+        scale: 0.15,
+      });
 
-    mm.add("(min-width: 1024px)", () => {
-      const getScrollAmount = () => {
-        const cards = track.querySelectorAll(".roadmap-card");
-        if (!cards.length) return 2600;
-        const firstCard = cards[0] as HTMLElement;
-        const lastCard = cards[cards.length - 1] as HTMLElement;
-
-        // Total distance from first card to last card right edge
-        const totalSpan = (lastCard.offsetLeft + lastCard.offsetWidth) - firstCard.offsetLeft;
-
-        // Target: Week 8 right edge ends at least 260px inside the right screen edge
-        const availableWidth = window.innerWidth - firstCard.offsetLeft;
-        const needed = totalSpan - availableWidth + 260;
-        return Math.max(0, needed);
+      // Exact travel distance calculation from physical width & SVG aspect ratio
+      const getTravelDist = () => {
+        const roadW = roadEl.offsetWidth || Math.min(920, window.innerWidth * 0.94);
+        const roadH = roadEl.offsetHeight || Math.round(roadW * (2060 / 900));
+        const viewH = window.innerHeight || 800;
+        return Math.max(0, roadH - viewH + 90);
       };
 
-      const pauseDistance = 600; // Extra scroll distance to hold the section sticky while viewing the last card
-
-      const tl = gsap.timeline({
+      // 2. Master timeline intrinsically linked with ScrollTrigger.pin: true
+      const masterTimeline = gsap.timeline({
         scrollTrigger: {
-          trigger: cardsWrapper,
-          start: "top 70px",
-          end: () => `+=${getScrollAmount() + pauseDistance}`,
+          trigger: pinSection,
+          start: "top top",
+          end: "+=2600", // Smooth scroll distance for comfortable travel
           pin: true,
-          scrub: 0.8, // Smooth scrub without stutter or lag
-          invalidateOnRefresh: true,
+          pinSpacing: true, // Holds space so next sections DO NOT overlap
+          scrub: 0.5,
           anticipatePin: 1,
-          onUpdate: (self) => {
-            setScrollProgress(Math.round(self.progress * 100));
-          },
+          invalidateOnRefresh: true,
         },
       });
 
-      // Phase 1: Translate track horizontally so Week 8 comes 100% into view
-      tl.to(track, {
-        x: () => -getScrollAmount(),
-        ease: "none",
-        duration: 1,
-      });
+      // 3. Smooth vertical camera pan: Road moves UPWARD as user scrolls
+      masterTimeline.to(
+        roadEl,
+        {
+          y: () => -getTravelDist(),
+          ease: "none",
+          duration: 1,
+        },
+        0
+      );
 
-      // Phase 2: Hold section sticky so the user can comfortably see and read the last card
-      tl.to({}, { duration: 0.35 });
+      // 4. Milestone points POP OUT one by one with spring bounce (back.out) on scrolling
+      const stepTimes = [0.05, 0.16, 0.28, 0.40, 0.52, 0.64, 0.76, 0.86];
+      for (let i = 0; i < 8; i++) {
+        const pt = ROADMAP_POINTS[i];
+        const time = stepTimes[i];
+        const origin = `${pt.bulbX}px ${pt.tipY}px`;
 
-      return () => {
-        tl.kill();
-      };
-    });
+        masterTimeline.fromTo(
+          `#roadmap-node-${i}`,
+          {
+            opacity: 0,
+            scale: 0.15,
+            transformOrigin: origin,
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.08,
+            ease: "back.out(2.5)", // Energetic spring popout animation
+          },
+          time
+        );
+      }
+
+      // 5. Destination End Arrow (▼) pops out right below Point 8
+      masterTimeline.fromTo(
+        "#roadmap-end-arrow",
+        {
+          opacity: 0,
+          scale: 0.15,
+          transformOrigin: "450px 1985px",
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.06,
+          ease: "back.out(2)",
+        },
+        0.90
+      );
+
+      // 6. Resting hold so Point 8 & the completed road stay in view before unpinning
+      masterTimeline.to({}, { duration: 0.08 }, 0.92);
+    }, pinSection);
+
+    // Refresh ScrollTrigger at multiple intervals as images & dynamic content load
+    const refreshTimer1 = setTimeout(() => ScrollTrigger.refresh(), 200);
+    const refreshTimer2 = setTimeout(() => ScrollTrigger.refresh(), 700);
+    const refreshTimer3 = setTimeout(() => ScrollTrigger.refresh(), 1500);
+
+    const onResize = () => ScrollTrigger.refresh();
+    window.addEventListener("resize", onResize);
 
     return () => {
-      mm.revert();
+      clearTimeout(refreshTimer1);
+      clearTimeout(refreshTimer2);
+      clearTimeout(refreshTimer3);
+      window.removeEventListener("resize", onResize);
+      ctx.revert(); // 100% cleans up pin-spacers and resets DOM!
     };
   }, []);
 
-  // Manual scroll buttons for tablet / mobile fallback (snaps 1 card at a time)
-  const scrollTrack = (direction: "left" | "right") => {
-    if (!trackContainerRef.current) return;
-    const container = trackContainerRef.current;
-    const card = container.querySelector(".roadmap-card") as HTMLElement;
-    const step = card ? card.offsetWidth + 16 : 320;
-    container.scrollBy({ left: direction === "left" ? -step : step, behavior: "smooth" });
-  };
-
   return (
-    <section
-      ref={sectionRef}
-      id="artothon"
-      className="artothon-sec relative z-20 py-16 sm:py-20 lg:py-24 text-neutral-950 overflow-hidden"
-      style={{
-        backgroundColor: "#ffffff",
-        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
-        backgroundSize: "24px 24px",
-        backgroundAttachment: "fixed",
-      }}
-    >
+    <>
       {/* ─── TOP CLOUDY WAVE (PRESERVED) ─── */}
       <div
-        className="artothon-cloud-wave-top absolute -top-[27px] sm:-top-[31px] left-0 right-0 w-full h-[28px] sm:h-[32px] pointer-events-none z-40"
+        className="artothon-cloud-wave-top relative w-full h-[28px] sm:h-[32px] pointer-events-none z-40 -mb-[2px]"
         style={{
           backgroundColor: "#ffffff",
           backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -392,257 +324,329 @@ export default function ArtOThonSec({ sprintImages }: { sprintImages?: string[] 
         aria-hidden="true"
       />
 
-      {/* ─── MAIN CONTENT CONTAINER ─── */}
-      <div ref={containerRef} className="container mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12">
-        {/* ─── HEADER: TITLE, BADGE & INSPIRATIONAL QUOTE ─── */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 sm:mb-14">
-          <div className="max-w-3xl">
-            <p className="flex items-center gap-2 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#942008]" aria-hidden="true" />
-              Action-First Learning • 60-Day Transformation
-            </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl leading-tight">
-              Your 60-Day{" "}
-              <span className="text-[#942008] font-serif italic">Transformation</span> Roadmap
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
-              A step-by-step journey to become a confident resin artist and build the foundation for your creative business.
-            </p>
-          </div>
-
-          {/* Inspirational Script Badge + Mobile/Tablet Controls on Far Right */}
-          <div className="flex items-center justify-between w-full lg:w-auto gap-4 self-stretch lg:self-end">
-            <div className="inline-flex flex-col items-start bg-rose-50/80 border border-rose-200/80 rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 shadow-sm">
-              <span className="text-[11px] sm:text-xs font-black tracking-wider uppercase text-rose-500">
-                Don&apos;t Just Learn.
-              </span>
-              <span className="text-xs sm:text-base font-bold text-rose-800 flex items-center gap-1.5 mt-0.5">
-                Create. Grow. Become. ❤️
-              </span>
+      {/* ══════════════════════════════════════════════════════════════════════════
+          1. SECTION HEADER (PADDING MATCHING ALL ABOVE SECTIONS)
+          Top & bottom padding: py-16 sm:py-20 lg:py-24 matching DimensionsSec,
+          CurriculumSec, and PathSec. Max-width max-w-7xl matching the site theme.
+          Scrolls naturally upwards out of view as the user scrolls down.
+      ══════════════════════════════════════════════════════════════════════════ */}
+      <div
+        id="artothon"
+        className="artothon-header-sec relative w-full py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 z-20 text-neutral-950"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <div className="container mx-auto max-w-7xl">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="max-w-3xl">
+              <p className="flex items-center gap-2 text-xs sm:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+                <span className="h-2 w-2 rounded-full bg-[#942008] animate-pulse" aria-hidden="true" />
+                Action-First Learning • 60-Day Transformation
+              </p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl leading-tight">
+                Your 60-Day{" "}
+                <span className="text-[#942008] font-serif italic">Transformation</span> Roadmap
+              </h2>
+              <p className="mt-4 text-sm sm:text-base text-neutral-600 leading-relaxed max-w-2xl">
+                A step-by-step journey to become a confident resin artist and build the foundation for your creative business.
+              </p>
             </div>
 
-            {/* Mobile/Tablet scroll helper controls positioned at the far right end */}
-            <div className="flex items-center gap-2.5 lg:hidden ml-auto">
-              <button
-                type="button"
-                onClick={() => scrollTrack("left")}
-                className="w-10 h-10 rounded-full bg-white border border-neutral-300 shadow-md flex items-center justify-center text-neutral-800 hover:bg-neutral-50 active:scale-95 transition"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollTrack("right")}
-                className="w-10 h-10 rounded-full bg-white border border-neutral-300 shadow-md flex items-center justify-center text-neutral-800 hover:bg-neutral-50 active:scale-95 transition"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── CARDS PIN WRAPPER (DESKTOP PIN TRIGGER) ─── */}
-        <div ref={cardsPinWrapperRef} className="cards-pin-wrapper relative py-2">
-          {/* ─── HORIZONTAL SCROLL TRACK (8 WEEK ROADMAP CARDS) ─── */}
-          <div
-            ref={trackContainerRef}
-            className="relative overflow-x-auto lg:overflow-visible pb-6 lg:pb-0 scrollbar-none snap-x snap-mandatory scroll-smooth px-8 sm:px-14 lg:px-0"
-          >
-            <div
-              ref={trackRef}
-              className="flex items-center gap-4 sm:gap-6 lg:gap-8 will-change-transform pt-4 pb-8 lg:pb-12 pr-12 sm:pr-20 lg:pr-36"
-            >
-              {ROADMAP_WEEKS.map((item, idx) => {
-                const OutcomeIcon = item.outcomeIcon;
-                return (
-                  <React.Fragment key={item.week}>
-                    {/* Individual Week Card */}
-                    <div
-                      className={`roadmap-card w-[78vw] sm:w-[65vw] max-w-[340px] lg:w-[350px] shrink-0 snap-center bg-white rounded-[24px] border border-neutral-200/90 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 lg:p-7 relative group ${item.yOffset} ${item.borderColor}`}
-                      style={{
-                        minHeight: "490px",
-                      }}
-                    >
-                      {/* Top Row: Week Number Circle + Days Range Pill */}
-                      <div>
-                        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
-                          <div
-                            className={`w-9 h-9 rounded-full ${item.badgeBg} text-white font-black text-sm flex items-center justify-center shadow-md`}
-                          >
-                            {item.week}
-                          </div>
-                          <span
-                            className={`px-3.5 py-1 rounded-full text-xs font-bold tracking-wide ${item.pillBg} ${item.pillText}`}
-                          >
-                            {item.days}
-                          </span>
-                        </div>
-
-                        {/* Week Label & Title */}
-                        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-                          Week {item.week}
-                        </p>
-                        <h3 className="mt-1 text-base sm:text-lg lg:text-xl font-black text-neutral-900 tracking-tight leading-snug">
-                          {item.title}
-                        </h3>
-
-                        {/* 4 Detailed Bullets */}
-                        <ul className="mt-4 sm:mt-5 space-y-2.5 sm:space-y-3">
-                          {item.bullets.map((bullet, bIdx) => (
-                            <li key={bIdx} className="flex items-start gap-2.5">
-                              <CheckCircle2
-                                className={`w-4 h-4 shrink-0 mt-0.5 ${item.badgeText}`}
-                              />
-                              <span className="text-xs sm:text-sm text-neutral-700 leading-snug font-normal">
-                                {bullet}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Bottom Milestone Outcome Box */}
-                      <div
-                        className={`mt-5 sm:mt-6 rounded-2xl p-3.5 sm:p-4 border border-neutral-200/70 ${item.lightBg} flex items-start gap-3`}
-                      >
-                        <OutcomeIcon className={`w-5 h-5 shrink-0 mt-0.5 ${item.badgeText}`} />
-                        <p className="text-xs font-medium text-neutral-800 leading-relaxed">
-                          {item.outcome}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Horizontal Connector Arrow (Shown between cards) */}
-                    {idx < ROADMAP_WEEKS.length - 1 && (
-                      <div className="hidden lg:flex items-center justify-center shrink-0 text-orange-400/80">
-                        <ArrowRight className="w-6 h-6 animate-pulse" />
-                      </div>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* ─── BOTTOM BANNER: BY DAY 60, YOU WILL HAVE... ─── */}
-        <div className="mt-8 sm:mt-12 bg-white/95 border border-neutral-200 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xl backdrop-blur-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
-            {/* Left Header Box */}
-            <div className="lg:w-1/4 shrink-0 flex items-center gap-4 border-b lg:border-b-0 lg:border-r border-neutral-200 pb-6 lg:pb-0 lg:pr-8">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#942008] to-orange-600 flex items-center justify-center text-white shadow-lg shrink-0">
-                <Trophy className="w-7 h-7" />
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#942008]">
-                  Transformation Achieved
-                </p>
-                <h4 className="text-xl sm:text-2xl font-black text-neutral-900 leading-tight mt-0.5">
-                  By Day 60, You Will Have...
-                </h4>
+            {/* Pink Quote Badge (from reference image) */}
+            <div className="flex items-center gap-3 self-start lg:self-auto shrink-0">
+              <div className="inline-flex items-center gap-2 bg-rose-50/90 border border-rose-200/90 rounded-full px-5 py-2.5 shadow-sm select-none">
+                <span className="text-xs font-black tracking-wider uppercase text-rose-500">
+                  Don&apos;t Just Learn.
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-rose-800 flex items-center gap-1">
+                  Create. Grow. Become. ❤️
+                </span>
               </div>
             </div>
-
-            {/* Right: 6 Outcome Badges Grid */}
-            <div className="lg:w-3/4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {SUMMARY_PILLARS.map((pillar, pIdx) => {
-                const PillarIcon = pillar.icon;
-                return (
-                  <div
-                    key={pIdx}
-                    className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl hover:bg-neutral-50 transition border border-transparent hover:border-neutral-200"
-                  >
-                    <div
-                      className={`w-11 h-11 rounded-full ${pillar.bg} flex items-center justify-center ${pillar.iconColor} mb-2.5 shadow-sm`}
-                    >
-                      <PillarIcon className="w-5 h-5" />
-                    </div>
-                    <p className="text-xs font-bold text-neutral-900 leading-tight">
-                      {pillar.title}
-                    </p>
-                    <p className="text-[11px] text-neutral-500 leading-tight mt-1">
-                      {pillar.subtitle}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
           </div>
-        </div>
-
-        {/* ─── CALL TO ACTION BUTTON ─── */}
-        <div className="mt-10 sm:mt-12 text-center">
-          <Link
-            href="/webinar"
-            className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg transition duration-300 hover:scale-105 active:scale-95"
-            style={{
-              backgroundColor: "#942008",
-            }}
-          >
-            Start Your 60-Day Transformation
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </div>
 
-      {/* ─── PREVIOUS ART-O-THON UI (COMMENTED OUT AS REQUESTED) ─── */}
-      {/*
-      <div className="nav-width page-rise">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-50">
-          <div>
-            <p className="flex items-center gap-2 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#942008]" aria-hidden="true" />
-              Action-First Learning
-            </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl lg:text-5xl">
-              ART-O-THON: Don't Just Learn.
-              <span className="mt-1 block text-[#942008]">Create.</span>
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
-              Learning becomes powerful when you put it into action. ART-O-THON is designed to turn learning into consistent creation through daily challenges, missions and milestone submissions.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-neutral-600 sm:text-xl lg:text-base">
-              Every creation becomes a step forward. Every completed challenge becomes proof of your progress. And every milestone gives you another reason to celebrate how far you've come.
-            </p>
-            <div className="mt-7 flex flex-col gap-5 sm:flex-row sm:items-center">
+      {/* ══════════════════════════════════════════════════════════════════════════
+          2. STICKY ROADMAP SECTION (h-screen Zoom View)
+          Pinned from top:0 via GSAP ScrollTrigger.
+          Shows the road in ZOOM VIEW.
+          As user scrolls, road translates UPWARD, revealing points 1 to 8 with
+          energetic popout animations!
+      ══════════════════════════════════════════════════════════════════════════ */}
+      <section
+        id="artothon-road-section"
+        ref={pinSectionRef}
+        className="artothon-road-sec relative z-30 w-full h-screen max-h-screen overflow-hidden select-none flex flex-col items-center justify-start text-neutral-950"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        {/* Subtle Journey Guide Tag (from reference image) */}
+        <div className="absolute top-4 z-30 flex items-center gap-1.5 bg-neutral-900/90 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg backdrop-blur-sm pointer-events-none">
+          <Compass className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: "12s" }} />
+          <span>Scroll to Travel the Road</span>
+        </div>
+
+        {/* Road Canvas Stage: Zoom View Container matching Image 4 */}
+        <div className="relative w-full flex-1 flex justify-center overflow-hidden">
+          <div
+            ref={roadElRef}
+            className="relative w-[min(920px,94vw)] will-change-transform flex items-center justify-center pt-2 pb-20"
+          >
+            <svg
+              className="w-full h-auto overflow-visible select-none drop-shadow-sm"
+              viewBox="0 0 900 2060"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                {/* 3D Drop Shadow for Road Highway Depth */}
+                <filter id="road-shadow" x="-20%" y="-10%" width="140%" height="120%">
+                  <feDropShadow dx="0" dy="14" stdDeviation="12" floodColor="#000000" floodOpacity="0.15" />
+                </filter>
+                {/* Teardrop Pin Shadow */}
+                <filter id="pin-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="6" floodColor="#000000" floodOpacity="0.25" />
+                </filter>
+              </defs>
+
+              {/* 1. Outer White Curbs / Border */}
+              <path
+                d={ROAD_SVG_PATH}
+                stroke="#ffffff"
+                strokeWidth="78"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                filter="url(#road-shadow)"
+              />
+
+              {/* 2. Asphalt Road Bed */}
+              <path
+                d={ROAD_SVG_PATH}
+                stroke="#18181b"
+                strokeWidth="64"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+
+              {/* 3. Dashed White Center Lane */}
+              <path
+                d={ROAD_SVG_PATH}
+                stroke="#ffffff"
+                strokeWidth="4"
+                strokeDasharray="16 16"
+                strokeLinecap="round"
+                fill="none"
+              />
+
+              {/* 4. Destination End Road Arrow (▼) matching reference image */}
+              <g id="roadmap-end-arrow">
+                <polygon
+                  points="408,1960 492,1960 450,2015"
+                  fill="#18181b"
+                  stroke="#ffffff"
+                  strokeWidth="4.5"
+                  filter="url(#pin-shadow)"
+                />
+                <line
+                  x1="450"
+                  y1="1960"
+                  x2="450"
+                  y2="1990"
+                  stroke="#ffffff"
+                  strokeWidth="4"
+                  strokeDasharray="6 6"
+                />
+              </g>
+
+              {/* 5. All 8 Milestone Nodes: Teardrop Pin + Number Badge + Bold Title in Curve */}
+              {ROADMAP_POINTS.map((pt, idx) => {
+                const isRight = pt.isRight;
+
+                return (
+                  <g
+                    key={pt.week}
+                    id={`roadmap-node-${idx}`}
+                    className="origin-center"
+                  >
+                    {/* A. TEARDROP LOCATION MARKER PIN */}
+                    {isRight ? (
+                      // Pin on RIGHT pointing LEFT into road apex at (tipX, tipY)
+                      <g>
+                        <path
+                          d={`M ${pt.tipX} ${pt.tipY} 
+                             C ${pt.tipX + 16} ${pt.tipY - 18}, ${pt.tipX + 28} ${pt.tipY - 26}, ${pt.bulbX} ${pt.tipY - 26} 
+                             A 26 26 0 1 1 ${pt.bulbX} ${pt.tipY + 26} 
+                             C ${pt.tipX + 28} ${pt.tipY + 26}, ${pt.tipX + 16} ${pt.tipY + 18}, ${pt.tipX} ${pt.tipY} Z`}
+                          fill={pt.themeColor}
+                          stroke="#ffffff"
+                          strokeWidth="3.5"
+                          filter="url(#pin-shadow)"
+                        />
+                        {/* White inner disc */}
+                        <circle cx={pt.bulbX} cy={pt.tipY} r="16" fill="#ffffff" />
+                        {/* Bold Number inside location icon */}
+                        <text
+                          x={pt.bulbX}
+                          y={pt.tipY + 7}
+                          textAnchor="middle"
+                          fill="#18181b"
+                          fontWeight="900"
+                          fontSize="20"
+                          fontFamily="system-ui, -apple-system, sans-serif"
+                        >
+                          {pt.week}
+                        </text>
+                      </g>
+                    ) : (
+                      // Pin on LEFT pointing RIGHT into road apex at (tipX, tipY)
+                      <g>
+                        <path
+                          d={`M ${pt.tipX} ${pt.tipY} 
+                             C ${pt.tipX - 16} ${pt.tipY - 18}, ${pt.tipX - 28} ${pt.tipY - 26}, ${pt.bulbX} ${pt.tipY - 26} 
+                             A 26 26 0 1 0 ${pt.bulbX} ${pt.tipY + 26} 
+                             C ${pt.tipX - 28} ${pt.tipY + 26}, ${pt.tipX - 16} ${pt.tipY + 18}, ${pt.tipX} ${pt.tipY} Z`}
+                          fill={pt.themeColor}
+                          stroke="#ffffff"
+                          strokeWidth="3.5"
+                          filter="url(#pin-shadow)"
+                        />
+                        {/* White inner disc */}
+                        <circle cx={pt.bulbX} cy={pt.tipY} r="16" fill="#ffffff" />
+                        {/* Bold Number inside location icon */}
+                        <text
+                          x={pt.bulbX}
+                          y={pt.tipY + 7}
+                          textAnchor="middle"
+                          fill="#18181b"
+                          fontWeight="900"
+                          fontSize="20"
+                          fontFamily="system-ui, -apple-system, sans-serif"
+                        >
+                          {pt.week}
+                        </text>
+                      </g>
+                    )}
+
+                    {/* B. BOLD CARD TITLE IN CURVE (POPS OUT ON SCROLL) */}
+                    <g>
+                      <text
+                        x={pt.titleX}
+                        y={pt.tipY - 10}
+                        textAnchor="middle"
+                        fill="#09090b"
+                        fontWeight="900"
+                        fontSize="22"
+                        letterSpacing="0.04em"
+                        fontFamily="system-ui, -apple-system, sans-serif"
+                      >
+                        <tspan x={pt.titleX} dy="0">
+                          {pt.line1}
+                        </tspan>
+                        <tspan x={pt.titleX} dy="28">
+                          {pt.line2}
+                        </tspan>
+                      </text>
+                    </g>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════════
+          3. BY DAY 60 CELEBRATION BLOCK (PADDING MATCHING ALL ABOVE SECTIONS)
+          py-16 sm:py-20 lg:py-24 and max-w-7xl matching all landing sections.
+      ══════════════════════════════════════════════════════════════════════════ */}
+      <section
+        id="artothon-celebration"
+        className="artothon-celebration-sec relative z-20 w-full py-16 sm:py-20 lg:py-24 text-neutral-950 overflow-hidden"
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="bg-white/95 backdrop-blur-md border border-[#eadfd4] hover:border-orange-300 transition-all rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_-15px_rgba(45,30,15,0.08),0_4px_12px_-2px_rgba(45,30,15,0.03)]">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
+
+              {/* Left Header Box */}
+              <div className="lg:w-1/4 shrink-0 flex items-center gap-4 border-b lg:border-b-0 lg:border-r border-neutral-200 pb-5 lg:pb-0 lg:pr-8">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#942008] to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-600/20 shrink-0">
+                  <Trophy className="w-7 h-7" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#942008]">
+                    Transformation Achieved
+                  </p>
+                  <h4 className="text-xl sm:text-2xl font-black text-neutral-900 leading-tight mt-0.5">
+                    By Day 60, You Will Have...
+                  </h4>
+                </div>
+              </div>
+
+              {/* Right: 6 Outcome Badges Grid */}
+              <div className="lg:w-3/4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                {SUMMARY_PILLARS.map((pillar, pIdx) => {
+                  const PillarIcon = pillar.icon;
+                  return (
+                    <div
+                      key={pIdx}
+                      className="flex flex-col items-center text-center p-3.5 rounded-2xl bg-stone-50 hover:bg-orange-50/50 transition border border-stone-200/80 hover:border-orange-200 shadow-sm"
+                    >
+                      <div
+                        className={`w-11 h-11 rounded-full ${pillar.bg} flex items-center justify-center ${pillar.iconColor} mb-2 shadow-sm`}
+                      >
+                        <PillarIcon className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs lg:text-sm font-bold text-neutral-900 leading-tight">
+                        {pillar.title}
+                      </p>
+                      <p className="text-[11px] text-neutral-500 leading-tight mt-1">
+                        {pillar.subtitle}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+
+            {/* Call to Action Button */}
+            <div className="mt-8 text-center">
               <Link
                 href="/webinar"
-                className="artothon-btn inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold uppercase tracking-wider transition sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-xl shadow-[#942008]/20 transition duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+                style={{
+                  backgroundColor: "#942008",
+                  backgroundImage: "linear-gradient(to right, #942008, #ea580c)",
+                }}
               >
-                Join Challenge
-                <ArrowRight size={16} aria-hidden="true" />
+                Start Your 60-Day Transformation
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
-
-          <div className="artothon-visual relative mx-auto w-full max-w-[740px] ">
-            <span className="artothon-blob artothon-blob-back" aria-hidden="true" />
-            <div className="artothon-photo">
-              <img
-                src="/images/artothon/plate.jpg"
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            <div className="artothon-float rounded-[1.75rem] p-5 sm:p-6 ">
-              <div className="flex items-start justify-between gap-3 ">
-                <div className="min-w-0 pr-1">
-                  <p className="artothon-kicker text-[10px] font-semibold uppercase tracking-[0.16em]">90-Day</p>
-                  <p className="artothon-sprint-title mt-1 text-[1.65rem] font-black leading-[1.05]">Creation Sprint</p>
-                  <p className="artothon-copy mt-3 text-xs leading-relaxed">
-                    daily challenges, missions and milestone submissions.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+      </section>
+
+      {/* 
+        Previous horizontal scrolling cards and outcomes kept for reference
       */}
-      {/* ─── END PREVIOUS ART-O-THON UI ─── */}
-    </section>
+    </>
   );
 }

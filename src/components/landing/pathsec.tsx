@@ -252,7 +252,7 @@ export default function PathSec() {
             </motion.div>
           ))}
         </div>
-      </div>
+    </div>
     </section>
   );
 }

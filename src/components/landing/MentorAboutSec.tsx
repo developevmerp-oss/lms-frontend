@@ -63,10 +63,12 @@ const AWARDS = [
     title: "Published Author",
     subtitle: 'Authored in "I Can Coach" Book',
   },
+  /*
   {
     title: "Live Interactive Coaching",
     subtitle: "Weekly Live Sessions & Personal Feedback",
   },
+  */
 ];
 
 // ─── RECOGNITION BRANDS ───
@@ -122,6 +124,7 @@ const ACCOLADES = [
     text: "Featured alongside top educators nationwide, detailing her transformation from crafting at a small kitchen table to operating a premier art academy and mentoring 54,000+ creators.",
     position: "object-center",
   },
+  /*
   {
     image: "/images/mentor/live-workshop.jpg",
     alt: "Vrajangna Patel Live Workshop Mentorship",
@@ -132,6 +135,7 @@ const ACCOLADES = [
     text: "Every student receives real-time guidance, artwork critique, formula troubleshooting, and client pricing blueprints directly in our interactive live workshops and community calls.",
     position: "object-top",
   },
+  */
 ];
 
 export default function MentorAboutSec() {
@@ -170,6 +174,7 @@ export default function MentorAboutSec() {
       icon: BookOpen,
       highlight: "National Bestseller Feature",
     },
+    /*
     {
       step: "04",
       badge: "LIVE INTERACTIVE COACHING",
@@ -180,25 +185,29 @@ export default function MentorAboutSec() {
       icon: Users,
       highlight: "Real-time Live Workshops",
     },
+    */
   ];
 
   // ─── SMOOTH SCROLL PROGRESS AND EXACT POINT-TOUCH HIGHLIGHT TRACKING ───
   const desktopTimelineRef = useRef<HTMLDivElement>(null);
   const fillLineRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [activeSteps, setActiveSteps] = useState([false, false, false, false]);
-  const [rowCenters, setRowCenters] = useState<number[]>([0, 0, 0, 0]);
+  const totalAwards = AWARDS_TIMELINE.length;
+  const [activeSteps, setActiveSteps] = useState<boolean[]>(() =>
+    new Array(totalAwards).fill(false)
+  );
+  const [rowCenters, setRowCenters] = useState<number[]>([]);
   const [trackTop, setTrackTop] = useState(0);
   const [trackHeight, setTrackHeight] = useState(0);
 
-  // Measure row centers relative to desktopTimelineRef container
+  // Measure row centers dynamically for ANY number of cards (2, 3, 10, or 100)
   useEffect(() => {
     const measure = () => {
       const container = desktopTimelineRef.current;
-      if (!container) return;
+      if (!container || totalAwards === 0) return;
 
       const centers: number[] = [];
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < totalAwards; i++) {
         const row = rowRefs.current[i];
         if (row) {
           // offsetTop + offsetHeight / 2 is relative to desktopTimelineRef
@@ -209,10 +218,10 @@ export default function MentorAboutSec() {
         }
       }
 
-      if (centers.length === 4 && centers[0] > 0) {
-        // Line starts 70px above Step 01, flowing down into Step 01 (matching Orbit reference)
+      if (centers.length === totalAwards && centers[0] > 0) {
+        // Line starts 70px above Step 01, flowing down into the last step
         const top = Math.max(0, centers[0] - 70);
-        const end = centers[3];
+        const end = centers[totalAwards - 1];
         setTrackTop(top);
         setTrackHeight(Math.max(10, end - top));
         setRowCenters(centers);
@@ -240,9 +249,9 @@ export default function MentorAboutSec() {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, []);
+  }, [totalAwards]);
 
-  // Butter-smooth 60fps/120fps direct-DOM scroll listener: line smoothly proceeds and point highlights exactly when touched
+  // Butter-smooth 60fps/120fps direct-DOM scroll listener: works dynamically whether there are 2, 3, 10, or 100 cards
   useEffect(() => {
     let rafId: number | null = null;
 
@@ -251,7 +260,7 @@ export default function MentorAboutSec() {
       rafId = window.requestAnimationFrame(() => {
         rafId = null;
         const container = desktopTimelineRef.current;
-        if (!container || rowCenters.length < 4 || trackHeight <= 0) return;
+        if (!container || rowCenters.length < totalAwards || trackHeight <= 0) return;
 
         const cRect = container.getBoundingClientRect();
         const vh = window.innerHeight;
@@ -271,23 +280,23 @@ export default function MentorAboutSec() {
         const fillTipY = trackTop + filled;
 
         // Exact touch trigger: point i highlights right when the line physically touches its center
-        const nextActive = [false, false, false, false];
-        for (let i = 0; i < 4; i++) {
+        const nextActive = new Array(totalAwards).fill(false);
+        for (let i = 0; i < totalAwards; i++) {
           if (fillTipY >= rowCenters[i] - 2) {
             nextActive[i] = true;
           }
         }
 
         setActiveSteps((prev) => {
-          if (
-            prev[0] !== nextActive[0] ||
-            prev[1] !== nextActive[1] ||
-            prev[2] !== nextActive[2] ||
-            prev[3] !== nextActive[3]
-          ) {
-            return nextActive;
+          let hasChanged = false;
+          if (prev.length !== nextActive.length) return nextActive;
+          for (let i = 0; i < totalAwards; i++) {
+            if (prev[i] !== nextActive[i]) {
+              hasChanged = true;
+              break;
+            }
           }
-          return prev;
+          return hasChanged ? nextActive : prev;
         });
       });
     };
@@ -299,7 +308,7 @@ export default function MentorAboutSec() {
       window.removeEventListener("scroll", handleScroll);
       if (rafId !== null) window.cancelAnimationFrame(rafId);
     };
-  }, [trackTop, trackHeight, rowCenters]);
+  }, [trackTop, trackHeight, rowCenters, totalAwards]);
 
   return (
     <section

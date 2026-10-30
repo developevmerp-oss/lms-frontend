@@ -529,9 +529,23 @@ export default function LandingHero2() {
           <div className="lh2-stage">
             <div className="lh2-copy">
               <h1 className="lh2-title">
-                <span className="line">Turn Your Resin Art Passion</span>
-                <span className="line line-2">Into Skill, Identity</span>
-                <span className="line">&amp; Financial Freedom</span>
+                <span className="line">
+                  Turn Your Resin Art{" "}
+                  <span className="text-[#ea580c] font-black inline-block" style={{ color: "#ea580c" }}>
+                    Passion
+                  </span>
+                </span>
+                <span className="line line-2">Into Skill,
+                  <span className="text-[#ea580c] font-black inline-block" style={{ color: "#ea580c" }}>
+                    Identity
+                  </span>
+                </span>
+                <span className="line">
+                  &amp;{" "}
+                  <span className="text-[#ea580c] font-black inline-block text-[1.06em] tracking-tight" style={{ color: "#ea580c" }}>
+                    Financial Freedom
+                  </span>
+                </span>
               </h1>
 
               {/* <p className="lh2-lead">

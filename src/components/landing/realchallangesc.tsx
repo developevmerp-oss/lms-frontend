@@ -191,8 +191,8 @@ function ChallengeAutoSlider({ cards }: { cards: ChallengeCardItem[] }) {
             <div
               key={`${item.step}-${index}`}
               className={`shrink-0 w-[265px] sm:w-[310px] transition-transform duration-300 ${isTop
-                  ? "-translate-y-3 sm:-translate-y-4"
-                  : "translate-y-3.5 sm:translate-y-5"
+                ? "-translate-y-3 sm:-translate-y-4"
+                : "translate-y-3.5 sm:translate-y-5"
                 }`}
             >
               <article className={`rc-card group ${accent ? "rc-card--accent" : ""}`}>
@@ -366,7 +366,7 @@ export default function RealChallangeSec() {
               />
             </motion.p>
 
-            <motion.h2 variants={headline} className="rc-title relative mx-auto mt-5 inline-block">
+            <motion.h2 variants={headline} className="rc-title text-3xl sm:text-5xl lg:text-5xl relative mx-auto mt-5 inline-block">
               <motion.span className="rc-star" variants={stamp} aria-hidden="true">
                 <motion.svg
                   viewBox="0 0 24 24"
@@ -415,7 +415,7 @@ export default function RealChallangeSec() {
             </motion.h2>
 
             <motion.p
-              className="rc-lead mx-auto mt-5 max-w-xl"
+              className="rc-lead text-sm sm:text-xl lg:text-base mx-auto mt-5 max-w-xl"
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.6, ease: EASE_OUT } } }}
             >
               You may know how to create beautiful resin pieces, but knowing the craft is only one part of the journey.

@@ -5222,11 +5222,11 @@ section#real-transformations,
   display: inline-flex;
   align-items: center;
   gap: 16px;
-  font-size: 13px;
+  /* font-size: 13px; */
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #3a332d;
+  color: #942008;
 }
 
 .rc-eyebrow__line {
@@ -5239,7 +5239,7 @@ section#real-transformations,
 
 .landing-page .rc-title {
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(2.15rem, 5.2vw, 4.6rem);
+  /* font-size: clamp(2.15rem, 5.2vw, 4.6rem); */
   font-weight: 600;
   line-height: 1.02;
   letter-spacing: -0.035em;
@@ -5256,7 +5256,7 @@ section#real-transformations,
   position: relative;
   display: inline-block;
   font-style: italic;
-  color: var(--rc-orange);
+  color: #942008;
 }
 
 .rc-underline {
@@ -5266,7 +5266,7 @@ section#real-transformations,
   width: 104%;
   height: 0.28em;
   overflow: visible;
-  stroke: var(--rc-orange);
+  stroke: #942008;
   stroke-width: 3;
   stroke-linecap: round;
 }
@@ -5303,7 +5303,7 @@ section#real-transformations,
 }
 
 .rc-lead {
-  font-size: clamp(15px, 1.25vw, 18px);
+  /* font-size: clamp(15px, 1.25vw, 18px); */
   line-height: 1.55;
   color: var(--rc-muted);
 }

@@ -165,49 +165,31 @@ export default function WebinarPhilosophy({
 
       {/* ─── MAIN CONTENT CONTAINER (Z-10 to stay safely above corner decor) ─── */}
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Top Eyebrow Divider */}
+        {/* ─── CENTERED EYEBROW BADGE ─── */}
         <div
-          className={`mb-6 sm:mb-8 flex items-center gap-4 transition-all duration-700 ease-out ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-          }`}
+          className={`mb-6 sm:mb-8 flex items-center justify-center gap-4 transition-all duration-700 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            }`}
         >
+          <div className="h-[1px] w-12 sm:w-16 bg-white/20" />
           {eyebrow && (
-            <span className="shrink-0 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]">
+            <span className="shrink-0 text-sm sm:text-lg lg:text-sm font-semibold uppercase tracking-[0.2em] text-white">
               {eyebrow}
             </span>
           )}
-          <div className="h-[1px] flex-1 bg-white/15" />
+          <div className="h-[1px] w-12 sm:w-16 bg-white/20" />
         </div>
 
-        {/* ─── MOBILE & TABLET FLOW HEADING (< lg): Cleanly shows flow title and description below corner flower ─── */}
+        {/* ─── CENTERED HEADING & SUBHEADING (ALL SCREEN SIZES) ─── */}
         <div
-          className={`block lg:hidden mb-8 sm:mb-10 transition-all duration-700 ease-out ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-          }`}
+          className={`mx-auto text-center mb-10 sm:mb-14 transition-all duration-700 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            }`}
         >
-          <h2 className="mb-3 text-3xl sm:text-5xl font-black leading-tight tracking-tight text-white">
-            Mastery → Mindset → <span className="text-[#ea580c]">Monetization</span>
+          <h2 className="mb-3 text-3xl sm:text-5xl lg:text-5xl font-black leading-tight tracking-tight text-white">
+            Mastery → Mindset →Monetization
           </h2>
-          <p className="max-w-2xl text-sm sm:text-xl font-normal leading-relaxed text-[#F4E9DF]/80">
+          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
             {subheading}
           </p>
-        </div>
-
-        {/* ─── DESKTOP TOP ROW: Heading and Subheading placed on Right (matching reference desktop) ─── */}
-        <div
-          className={`hidden lg:grid grid-cols-12 gap-12 xl:gap-16 mb-6 transition-all duration-700 ease-out ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-          }`}
-        >
-          <div className="col-span-5" />
-          <div className="col-span-7">
-            <h2 className="mb-3 text-3xl sm:text-5xl lg:text-5xl font-black leading-tight tracking-tight text-white">
-              Mastery → Mindset → <span className="text-[#ea580c]">Monetization</span>
-            </h2>
-            <p className="max-w-xl text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
-              {subheading}
-            </p>
-          </div>
         </div>
 
         {/* ─── MOBILE & TABLET VIEW (< lg): DIRECTLY SHOW ALL 3 CARDS STACKED ─── */}
@@ -259,9 +241,8 @@ export default function WebinarPhilosophy({
 
         {/* ─── DESKTOP 2-COLUMN SHOWCASE (lg:grid): Left Big Card + Right Interactive Points (PERMANENTLY HEIGHT-LOCKED) ─── */}
         <div
-          className={`hidden lg:grid grid-cols-12 gap-12 xl:gap-16 items-stretch transition-opacity duration-700 ease-out ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
+          className={`hidden lg:grid grid-cols-12 gap-12 xl:gap-16 items-stretch transition-opacity duration-700 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+            }`}
         >
           {/* Left Column: Big Interactive Card with strictly locked height */}
           <div className="col-span-5 flex flex-col min-h-[560px] h-[560px]">
@@ -293,9 +274,8 @@ export default function WebinarPhilosophy({
                       key={idx}
                       src={stepImg}
                       alt={step.title}
-                      className={`col-start-1 row-start-1 h-full w-full object-cover transition-opacity duration-500 ease-out ${
-                        isCurrent ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-                      }`}
+                      className={`col-start-1 row-start-1 h-full w-full object-cover transition-opacity duration-500 ease-out ${isCurrent ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                        }`}
                     />
                   );
                 })}
@@ -309,11 +289,10 @@ export default function WebinarPhilosophy({
                   return (
                     <div
                       key={idx}
-                      className={`col-start-1 row-start-1 flex flex-col justify-start transition-all duration-500 ease-out ${
-                        isCurrent
-                          ? "opacity-100 translate-y-0 pointer-events-auto z-10"
-                          : "opacity-0 translate-y-2 pointer-events-none z-0 invisible"
-                      }`}
+                      className={`col-start-1 row-start-1 flex flex-col justify-start transition-all duration-500 ease-out ${isCurrent
+                        ? "opacity-100 translate-y-0 pointer-events-auto z-10"
+                        : "opacity-0 translate-y-2 pointer-events-none z-0 invisible"
+                        }`}
                       aria-hidden={!isCurrent}
                     >
                       <span className="inline-block text-xs sm:text-base lg:text-xs font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
@@ -354,11 +333,10 @@ export default function WebinarPhilosophy({
                     <div className="flex items-center">
                       {/* 4-Point Star Sparkle Icon with smooth luxurious easing */}
                       <div
-                        className={`shrink-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                          isActive
-                            ? "w-6 sm:w-8 md:w-9 opacity-100 scale-100 rotate-0 mr-2.5 sm:mr-3.5"
-                            : "w-0 opacity-0 scale-0 -rotate-90 mr-0 overflow-hidden"
-                        }`}
+                        className={`shrink-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
+                          ? "w-6 sm:w-8 md:w-9 opacity-100 scale-100 rotate-0 mr-2.5 sm:mr-3.5"
+                          : "w-0 opacity-0 scale-0 -rotate-90 mr-0 overflow-hidden"
+                          }`}
                       >
                         <svg
                           viewBox="0 0 24 24"
@@ -371,11 +349,10 @@ export default function WebinarPhilosophy({
 
                       {/* Title Text */}
                       <span
-                        className={`text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                          isActive
-                            ? "text-white"
-                            : "text-white/20 group-hover:text-white/40"
-                        }`}
+                        className={`text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
+                          ? "text-white"
+                          : "text-white/20 group-hover:text-white/40"
+                          }`}
                       >
                         {step.tabName || step.badge || step.title}
                       </span>
@@ -402,9 +379,8 @@ export default function WebinarPhilosophy({
         {/* ─── BOTTOM CLOSING TEXT ─── */}
         {closing && (
           <p
-            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out ${
-              isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-            }`}
+            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              }`}
           >
             {closing}
           </p>

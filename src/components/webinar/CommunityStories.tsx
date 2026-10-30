@@ -17,28 +17,44 @@ export type CommunitySectionData = {
 
 const LOOKS = [
   {
-    bg: "#FFF8ED",
-    mark: "#C4A574",
-    plus: "#C4A26A",
+    bg: "#FFF5EA",
+    mark: "#C03C17",
+    plus: "#C03C17",
     tape: "#D8C5A8",
+    textColor: "#292524",
+    nameColor: "#1c1917",
+    roleColor: "#78716c",
+    dividerColor: "rgba(0,0,0,0.08)",
   },
   {
-    bg: "#FFF0F1",
-    mark: "#E7A3AB",
-    plus: "#E08B96",
-    tape: "#F0C8CE",
+    bg: "#B83A17",
+    mark: "#FFFFFF",
+    plus: "#8B230E",
+    tape: "#7D230B",
+    textColor: "#FFFFFF",
+    nameColor: "#FFFFFF",
+    roleColor: "#FED7AA",
+    dividerColor: "rgba(255,255,255,0.25)",
   },
   {
-    bg: "#EDF8EE",
-    mark: "#7EAE86",
-    plus: "#6A9B72",
-    tape: "#CDE3D1",
+    bg: "#FFF5EA",
+    mark: "#C03C17",
+    plus: "#C03C17",
+    tape: "#D8C5A8",
+    textColor: "#292524",
+    nameColor: "#1c1917",
+    roleColor: "#78716c",
+    dividerColor: "rgba(0,0,0,0.08)",
   },
   {
-    bg: "#F2EEFF",
-    mark: "#A894E0",
-    plus: "#7E68C4",
-    tape: "#D6CEEE",
+    bg: "#701405",
+    mark: "#FFFFFF",
+    plus: "#4A0B02",
+    tape: "#4A0B02",
+    textColor: "#FFFFFF",
+    nameColor: "#FFFFFF",
+    roleColor: "#FECACA",
+    dividerColor: "rgba(255,255,255,0.25)",
   },
 ];
 
@@ -329,7 +345,8 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                     </div>
 
                     <p
-                      className={`text-xs sm:text-base lg:text-sm leading-relaxed text-[#3a342e] ${expanded ? "block" : "line-clamp-5"
+                      style={{ color: look.textColor }}
+                      className={`text-xs sm:text-base lg:text-sm leading-relaxed ${expanded ? "block" : "line-clamp-5"
                         }`}
                     >
                       &ldquo;{item.quote}&rdquo;
@@ -337,12 +354,23 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                   </div>
 
                   {/* Card Foot */}
-                  <div className="mt-4 flex items-end justify-between border-t border-stone-900/10 pt-3.5">
+                  <div
+                    style={{ borderColor: look.dividerColor }}
+                    className="mt-4 flex items-end justify-between border-t pt-3.5"
+                  >
                     <div>
-                      <h4 className="text-sm sm:text-lg lg:text-base font-bold text-neutral-900">
+                      <h4
+                        style={{ color: look.nameColor }}
+                        className="text-sm sm:text-lg lg:text-base font-bold"
+                      >
                         {item.name}
                       </h4>
-                      <p className="text-xs sm:text-base lg:text-xs text-neutral-500">{item.role}</p>
+                      <p
+                        style={{ color: look.roleColor }}
+                        className="text-xs sm:text-base lg:text-xs"
+                      >
+                        {item.role}
+                      </p>
                     </div>
 
                     {/* <button
@@ -431,7 +459,8 @@ export default function CommunityStories({ section }: { section: CommunitySectio
 
                         {/* Quote Text (Snug natural spacing) */}
                         <p
-                          className={`text-xs sm:text-base lg:text-sm leading-relaxed text-[#3a342e] ${expanded ? "block" : "line-clamp-5"
+                          style={{ color: look.textColor }}
+                          className={`text-xs sm:text-base lg:text-sm leading-relaxed ${expanded ? "block" : "line-clamp-5"
                             }`}
                         >
                           &ldquo;{item.quote}&rdquo;
@@ -439,12 +468,23 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                       </div>
 
                       {/* Card Foot: Snug spacing without excessive void */}
-                      <div className="mt-4 flex items-end justify-between border-t border-stone-900/10 pt-3.5 sm:mt-5 sm:pt-4">
+                      <div
+                        style={{ borderColor: look.dividerColor }}
+                        className="mt-4 flex items-end justify-between border-t pt-3.5 sm:mt-5 sm:pt-4"
+                      >
                         <div>
-                          <h4 className="text-sm sm:text-lg lg:text-base font-bold text-neutral-900">
+                          <h4
+                            style={{ color: look.nameColor }}
+                            className="text-sm sm:text-lg lg:text-base font-bold"
+                          >
                             {item.name}
                           </h4>
-                          <p className="text-xs sm:text-base lg:text-xs text-neutral-500">{item.role}</p>
+                          <p
+                            style={{ color: look.roleColor }}
+                            className="text-xs sm:text-base lg:text-xs"
+                          >
+                            {item.role}
+                          </p>
                         </div>
 
                         {/* Circular Action Button with Plus Icon */}
