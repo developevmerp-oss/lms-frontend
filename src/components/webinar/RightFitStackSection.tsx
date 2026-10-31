@@ -154,10 +154,10 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
                 className={`absolute -top-4 -left-3 sm:-top-5 sm:-left-5 z-20 -rotate-6 bg-[#fceddf] border border-[#f5d9c7] shadow-xl rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 max-w-[170px] sm:max-w-[190px] transition-all duration-700 delay-300 ease-out select-none ${isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0"
                   }`}
               >
-                <p className="font-serif italic font-bold text-xs sm:text-sm text-[#9c3623] leading-tight">
+                <p className="font-serif italic font-bold text-sm sm:text-base md:text-base lg:text-base text-[#9c3623] leading-tight">
                   Different People
                 </p>
-                <p className="font-serif italic font-bold text-xs sm:text-sm text-[#9c3623] leading-tight mt-0.5 flex items-center gap-1">
+                <p className="font-serif italic font-bold text-sm sm:text-base md:text-base lg:text-base text-[#9c3623] leading-tight mt-0.5 flex items-center gap-1">
                   Same Creative Dream <span className="text-sm">♡</span>
                 </p>
               </div>
@@ -196,7 +196,7 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
                   className="absolute inset-0 w-full h-full object-cover scale-110 pointer-events-none"
                 />
                 {/* Vertical text on the right side of the badge */}
-                <div className="relative z-10 flex flex-col text-[8px] sm:text-[10px] font-bold tracking-[0.2em] text-[#732115] uppercase leading-tight font-serif text-left">
+                <div className="relative z-10 flex flex-col text-[10px] sm:text-xs md:text-xs lg:text-xs font-bold tracking-[0.2em] text-[#732115] uppercase leading-tight font-serif text-left">
                   <span>Create</span>
                   <span>Learn</span>
                   <span>Grow</span>
@@ -218,14 +218,14 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
             >
               {/* Eyebrow with gold rule */}
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.22em] text-[#e8c8b4]">
+                <span className="text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.22em] text-[#e8c8b4]">
                   {eyebrow}
                 </span>
                 <span className="h-[1px] w-14 sm:w-20 bg-[#e8c8b4]/60" aria-hidden="true" />
               </div>
 
               {/* Headline - Previous title rendered in the elegant serif styling */}
-              <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-serif text-white leading-[1.15] tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-serif text-white leading-[1.15] tracking-tight">
                 {heading.includes("Masterclass is for you") ? (
                   <>
                     This{" "}
@@ -240,7 +240,7 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
               </h2>
 
               {/* Subheadline - Previous description */}
-              <p className="mt-3 text-sm sm:text-base lg:text-base text-[#f5ded0]/90 leading-relaxed max-w-2xl font-normal">
+              <p className="mt-3 text-base sm:text-xl lg:text-lg text-[#f5ded0]/90 leading-relaxed max-w-2xl font-normal">
                 {subheading}
               </p>
             </div>
@@ -265,10 +265,10 @@ export default function RightFitStackSection({ data }: RightFitStackSectionProps
 
                     {/* Card Title & Description */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-serif font-bold text-neutral-900 text-sm sm:text-base leading-snug">
+                      <h3 className="font-serif font-bold text-neutral-900 text-base sm:text-xl lg:text-lg leading-snug">
                         {item.title}
                       </h3>
-                      <p className="text-neutral-600 text-xs sm:text-[13px] leading-relaxed mt-1 font-normal">
+                      <p className="text-neutral-600 text-base sm:text-lg lg:text-sm leading-relaxed mt-1 font-normal">
                         {item.body}
                       </p>
                     </div>

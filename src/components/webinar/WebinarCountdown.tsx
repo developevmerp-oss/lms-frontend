@@ -110,8 +110,8 @@ export const WebinarCountdown = ({
 
   if (compact) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold tabular-nums text-stone-700 sm:text-sm">
-        <Clock className="size-3.5 text-[#c45a28]" />
+      <span className="inline-flex items-center gap-1.5 text-xs sm:text-base md:text-base lg:text-base font-semibold tabular-nums text-stone-700">
+        <Clock className="size-3.5 sm:size-4 text-[#c45a28]" />
         {timeLeft.days > 0 && `${timeLeft.days}d `}
         {String(timeLeft.hours).padStart(2, '0')}:
         {String(timeLeft.minutes).padStart(2, '0')}:
@@ -121,16 +121,16 @@ export const WebinarCountdown = ({
   }
 
   return (
-    <div className="flex items-center gap-2 md:gap-3">
+    <div className="flex items-center gap-2 sm:gap-3 md:gap-3">
       {[
         [String(timeLeft.days).padStart(2, '0'), 'Days'],
         [String(timeLeft.hours).padStart(2, '0'), 'Hours'],
         [String(timeLeft.minutes).padStart(2, '0'), 'Mins'],
         [String(timeLeft.seconds).padStart(2, '0'), 'Secs'],
       ].map(([value, label]) => (
-        <div key={label} className="flex min-w-[58px] flex-col items-center rounded-2xl border border-[#f3d3c0] bg-white px-3 py-2 shadow-[0_10px_24px_-18px_rgba(90,55,20,0.45)]">
-          <span className="text-lg sm:text-2xl lg:text-xl font-bold leading-none text-stone-950">{value}</span>
-          <span className="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-stone-500">{label}</span>
+        <div key={label} className="flex min-w-[58px] sm:min-w-[68px] md:min-w-[72px] lg:min-w-[76px] flex-col items-center rounded-2xl border border-[#f3d3c0] bg-white px-3 py-2 sm:px-4 sm:py-2.5 shadow-[0_10px_24px_-18px_rgba(90,55,20,0.45)]">
+          <span className="text-lg sm:text-2xl md:text-2xl lg:text-2xl font-bold leading-none text-stone-950">{value}</span>
+          <span className="mt-1 text-xs sm:text-xs md:text-xs lg:text-xs font-semibold uppercase tracking-wider text-stone-500">{label}</span>
         </div>
       ))}
     </div>

@@ -13,6 +13,7 @@ import FinalCtaSec from "@/components/landing/finalctasec";
 import JourneySec from "@/components/landing/journeysec";
 import MasterclassSec from "@/components/landing/masterclasssec";
 import PathSec from "@/components/landing/pathsec";
+import WindingRoadSec from "@/components/landing/WindingRoadSec";
 import RealChallangeSec from "@/components/landing/realchallangesc";
 import SisterhoodSec from "@/components/landing/sisterhoodsec";
 import SoundLikeSec from "@/components/landing/soundlikesec";
@@ -517,7 +518,7 @@ export default function HomePage() {
         <DimensionsSec />
 
         {/* ─── SECTION 12: ART-O-THON ─── */}
-        {/* <ArtOThonSec sprintImages={ARTWORKS_ROW_1.map((art) => art.image)} /> */}
+        <ArtOThonSec sprintImages={ARTWORKS_ROW_1.map((art) => art.image)} />
 
         {/* ─── SECTION 13: COMMUNITY ─── */}
         <SisterhoodSec />

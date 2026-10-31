@@ -1,6 +1,16 @@
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import Link from "next/link";
 
+const SECTION_LINKS = [
+  { href: "/#problem", label: "The Journey" },
+  { href: "/#mentor", label: "Meet Mentor" },
+  { href: "/#path", label: "The Path" },
+  { href: "/#curriculum", label: "What You'll Learn" },
+  { href: "/#dimensions", label: "6 Dimensions" },
+  { href: "/#community", label: "Community" },
+  { href: "/#membership", label: "Memberships" },
+];
+
 const InstagramIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg
     viewBox="0 0 24 24"
@@ -35,59 +45,84 @@ const YoutubeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 
 export default function SiteFooter() {
   return (
-    <footer className="site-footer relative z-10 bg-white">
-      <div className="container mx-auto px-5 py-12 sm:px-10 lg:px-10 lg:py-16 2xl:px-0">
-        <div className="flex flex-col items-start justify-between gap-8 border-b border-neutral-200 pb-10 md:flex-row md:items-center">
-          <div className="max-w-xl space-y-3">
-            <BrandLogo size="md" />
-            <h3 className="site-footer-title text-xl font-bold">Create. Connect. Grow. Become Ravishing.</h3>
-            <p className="site-footer-copy text-sm leading-relaxed">
-              Ravishing Art Hub is a community for ambitious women who want to transform their creativity into skill, identity, impact and financial freedom. Your creativity deserves a place in your life. And your journey starts here.
-            </p>
-          </div>
-
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-            <Link href="/webinar" className="site-footer-btn inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-bold">
-              Join Free Masterclass
-            </Link>
-            <Link href="/login" className="site-footer-btn-ghost inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-3 text-sm font-bold">
-              Student Portal
-            </Link>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-start justify-between gap-4 pt-6 text-sm sm:flex-row sm:items-center">
-          <p className="site-footer-copy">© {new Date().getFullYear()} Ravishing Art Hub. All Rights Reserved. Mastered with Passion.</p>
-          
-          <div className="flex flex-wrap items-center gap-6">
-            {/* Social Links */}
-            <div className="flex items-center gap-2.5">
-              <a
-                href="https://www.instagram.com/vrajangna.resinbusinesscoach?obrf=MWx1eG8xNmxvaG94eA=="
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="w-9 h-9 rounded-full bg-neutral-100 hover:bg-orange-50 border border-neutral-200/80 hover:border-orange-300 flex items-center justify-center text-neutral-600 hover:text-orange-600 transition-all duration-200 shadow-sm"
+    <footer className="finale-sec site-footer relative z-10">
+      <div className="finale-shell">
+        <div className="finale-scrim" aria-hidden="true" />
+        <div className="nav-width page-rise relative z-10 py-16 sm:py-20 lg:py-24">
+          <div className="mx-auto max-w-3xl text-center">
+            {/* Centered Brand Logo (Without background, with luminous visibility) */}
+            <div className="mb-6 flex justify-center">
+              <Link
+                href="/"
+                className="inline-flex items-center select-none transition-transform duration-300 hover:scale-105"
               >
-                <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://youtube.com/@ravishing_art?si=D1K_NuB7YGOkA7FL"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="w-9 h-9 rounded-full bg-neutral-100 hover:bg-orange-50 border border-neutral-200/80 hover:border-orange-300 flex items-center justify-center text-neutral-600 hover:text-orange-600 transition-all duration-200 shadow-sm"
-              >
-                <YoutubeIcon className="w-4 h-4" />
-              </a>
+                <img
+                  src="/logo-transparent.png"
+                  alt="Ravishing Art"
+                  className="h-12 sm:h-14 md:h-16 w-auto object-contain drop-shadow-[0_0_24px_rgba(255,255,255,0.45)] drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] filter brightness-110 contrast-105"
+                />
+              </Link>
             </div>
 
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
-              <Link href="/privacy" className="site-footer-link">Privacy Policy</Link>
-              <Link href="/terms" className="site-footer-link">Terms of Service</Link>
-              <Link href="/contact" className="site-footer-link">Contact Support</Link>
+            <h2 className="finale-title text-3xl font-black tracking-tight sm:text-5xl lg:text-5xl">
+              Your Art Has More Potential Than You Think.
+            </h2>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link href="/webinar" className="finale-btn inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold">
+                Join Free Masterclass
+              </Link>
+              <Link href="/login" className="finale-btn-ghost inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold">
+                Student Portal
+              </Link>
             </div>
           </div>
+
+          <div className="finale-rule mt-14 sm:mt-16" />
+
+          <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              {/* Social Media Links */}
+              <div className="flex items-center gap-2.5">
+                <a
+                  href="https://www.instagram.com/vrajangna.resinbusinesscoach?obrf=MWx1eG8xNmxvaG94eA=="
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-gradient-to-tr hover:from-amber-500 hover:via-pink-500 hover:to-purple-500 border border-white/20 hover:border-transparent flex items-center justify-center text-white/90 hover:text-white transition-all duration-300 shadow-sm hover:scale-110"
+                >
+                  <InstagramIcon className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://youtube.com/@ravishing_art?si=D1K_NuB7YGOkA7FL"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#FF0000] border border-white/20 hover:border-[#FF0000] flex items-center justify-center text-white/90 hover:text-white transition-all duration-300 shadow-sm hover:scale-110"
+                >
+                  <YoutubeIcon className="w-4 h-4" />
+                </a>
+              </div>
+
+              <Link href="/privacy" className="finale-link text-sm">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="finale-link text-sm">
+                Terms of Service
+              </Link>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 sm:justify-end lg:flex-nowrap">
+              {SECTION_LINKS.map((link) => (
+                <a key={link.href} href={link.href} className="finale-link text-sm">
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="finale-rule mt-6" />
+          <p className="finale-copy mt-6 text-center text-sm">
+            © 2026 Ravishing Art Hub. All Rights Reserved. Mastered with Passion.
+          </p>
         </div>
       </div>
     </footer>

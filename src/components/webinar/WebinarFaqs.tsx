@@ -154,23 +154,23 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
             <div className="shrink-0 mb-3 sm:mb-4 lg:mb-5">
               {/* Mobile FAQ Badge */}
               <div className="lg:hidden mb-1.5">
-                <span className="inline-block text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+                <span className="inline-block text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
                   FAQ
                 </span>
               </div>
 
               {/* Desktop Eyebrow */}
-              <p className="hidden lg:block text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008] mb-2 sm:mb-2.5">
+              <p className="hidden lg:block text-xs sm:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008] mb-2 sm:mb-2.5">
                 HAVE QUESTIONS?
               </p>
 
               {/* Title with two-tone styling matching Reference Image 2 */}
-              <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950 leading-[1.15]">
+              <h2 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950 leading-[1.15]">
                 Frequently Asked <span className="text-[#942008]">Questions</span>
               </h2>
 
               {/* Subtitle */}
-              <p className="text-sm sm:text-xl lg:text-base font-normal text-neutral-600 leading-relaxed mt-2 max-w-xl">
+              <p className="text-sm sm:text-xl lg:text-lg font-normal text-neutral-600 leading-relaxed mt-2 max-w-xl">
                 Everything you need to know about the masterclass, materials, access and support.
               </p>
             </div>
@@ -196,11 +196,10 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
                     return (
                       <article
                         key={faq.q}
-                        className={`transition-all duration-300 rounded-2xl border ${
-                          expanded
-                            ? "bg-[#FFF6F2] border-[#E86A24]/35 shadow-[0_8px_24px_-8px_rgba(232,106,36,0.12)]"
-                            : "bg-white border-[#F4E9DF]/80 shadow-[0_4px_16px_-6px_rgba(41,37,34,0.06)] hover:border-[#E86A24]/30 hover:shadow-md"
-                        }`}
+                        className={`transition-all duration-300 rounded-2xl border ${expanded
+                          ? "bg-[#FFF6F2] border-[#E86A24]/35 shadow-[0_8px_24px_-8px_rgba(232,106,36,0.12)]"
+                          : "bg-white border-[#F4E9DF]/80 shadow-[0_4px_16px_-6px_rgba(41,37,34,0.06)] hover:border-[#E86A24]/30 hover:shadow-md"
+                          }`}
                       >
                         <button
                           type="button"
@@ -214,15 +213,14 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
                           }}
                           className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 text-left cursor-pointer group select-none"
                         >
-                          <span className="font-bold text-xs sm:text-base lg:text-sm text-neutral-900 group-hover:text-[#942008] transition-colors leading-snug">
+                          <span className="font-bold text-sm sm:text-xl lg:text-base text-neutral-900 group-hover:text-[#942008] transition-colors leading-snug">
                             {faq.q}
                           </span>
                           <span
-                            className={`inline-flex w-7 h-7 sm:w-8 sm:h-8 rounded-full items-center justify-center shrink-0 transition-all duration-300 ${
-                              expanded
-                                ? "bg-[#F0DDD1] text-[#B94F1B] rotate-180"
-                                : "bg-[#F5F2EE] text-[#77716C] group-hover:bg-[#F4E9DF] group-hover:text-[#B94F1B]"
-                            }`}
+                            className={`inline-flex w-7 h-7 sm:w-8 sm:h-8 rounded-full items-center justify-center shrink-0 transition-all duration-300 ${expanded
+                              ? "bg-[#F0DDD1] text-[#B94F1B] rotate-180"
+                              : "bg-[#F5F2EE] text-[#77716C] group-hover:bg-[#F4E9DF] group-hover:text-[#B94F1B]"
+                              }`}
                             aria-hidden="true"
                           >
                             <svg
@@ -233,19 +231,17 @@ export default function WebinarFaqs({ faqs }: { faqs: WebinarFaq[] }) {
                               <path
                                 d="M8 3.5v9"
                                 strokeLinecap="round"
-                                className={`transition-all duration-300 origin-center ${
-                                  expanded ? "scale-y-0 opacity-0" : "scale-y-100 opacity-100"
-                                }`}
+                                className={`transition-all duration-300 origin-center ${expanded ? "scale-y-0 opacity-0" : "scale-y-100 opacity-100"
+                                  }}`}
                               />
                             </svg>
                           </span>
                         </button>
                         <div
-                          className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
-                            expanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                          }`}
+                          className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${expanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                            }`}
                         >
-                          <p className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600">
+                          <p className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 text-sm sm:text-lg lg:text-base leading-relaxed text-neutral-600">
                             {faq.a}
                           </p>
                         </div>

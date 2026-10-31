@@ -82,14 +82,14 @@ export default function WhatChangesSection({ data = DEFAULT_DATA }: WhatChangesS
         {/* Section Header */}
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+            <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
             Imagine what changes when you put these <span className="text-[#942008]">three secrets together</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
             {subheading}
           </p>
         </div>
@@ -112,12 +112,12 @@ export default function WhatChangesSection({ data = DEFAULT_DATA }: WhatChangesS
                   </div>
 
                   {/* Card Title */}
-                  <h3 className="text-base sm:text-xl lg:text-lg font-bold tracking-tight text-neutral-950 transition-colors duration-300 group-hover:text-[#942008]">
+                  <h3 className="text-lg sm:text-2xl md:text-2xl lg:text-xl font-bold tracking-tight text-neutral-950 transition-colors duration-300 group-hover:text-[#942008]">
                     {item.title}
                   </h3>
 
                   {/* Card Body */}
-                  <p className="mt-2.5 text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600">
+                  <p className="mt-2.5 text-base sm:text-xl lg:text-base leading-relaxed text-neutral-600">
                     {item.body}
                   </p>
                 </div>
