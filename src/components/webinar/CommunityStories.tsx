@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, type TouchEvent } from "react";
+import React from "react";
 
 export type CommunityStory = {
   quote: string;
@@ -196,44 +196,8 @@ function QuoteGlyph({ className = "" }: { className?: string }) {
   );
 }
 
-function visibleCount(width: number) {
-  if (width < 768) return 1;
-  if (width < 1024) return 2;
-  if (width < 1280) return 3;
-  return 4;
-}
-
 export default function CommunityStories({ section }: { section: CommunitySectionData }) {
   const items = section.items;
-  const [perView, setPerView] = useState(4);
-  const [index, setIndex] = useState(0);
-  const [open, setOpen] = useState<number | null>(null);
-
-  const maxIndex = Math.max(0, items.length - perView);
-
-  useEffect(() => {
-    const apply = () => {
-      const next = visibleCount(window.innerWidth);
-      setPerView(next);
-      setIndex((current) => Math.min(current, Math.max(0, items.length - next)));
-    };
-    apply();
-    window.addEventListener("resize", apply);
-    return () => window.removeEventListener("resize", apply);
-  }, [items.length]);
-
-  const go = (direction: number) => {
-    setIndex((current) => Math.min(maxIndex, Math.max(0, current + direction)));
-  };
-
-  const onTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
-    const start = Number(event.currentTarget.dataset.x || 0);
-    const startY = Number(event.currentTarget.dataset.y || 0);
-    const dx = event.changedTouches[0].clientX - start;
-    const dy = event.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
-    go(dx < 0 ? 1 : -1);
-  };
 
   // Split heading into 2 clean lines in bold black color
   const headingWords = section.heading.split(" ");
@@ -243,7 +207,7 @@ export default function CommunityStories({ section }: { section: CommunitySectio
   return (
     <section
       id="community"
-      className="relative w-full overflow-hidden py-14 sm:py-18 lg:py-22"
+      className="relative w-full overflow-hidden py-14 sm:py-18 lg:py-24"
       style={{
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -254,7 +218,7 @@ export default function CommunityStories({ section }: { section: CommunitySectio
     >
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* ─── HEADER AREA WITH DOODLES (NO ARROW BUTTONS) ─── */}
+        {/* ─── HEADER AREA WITH DOODLES ─── */}
         <div className="relative mx-auto mb-10 max-w-4xl text-center sm:mb-14">
 
           {/* Doodle 1: 3-line burst on top-left of heading */}
@@ -270,23 +234,23 @@ export default function CommunityStories({ section }: { section: CommunitySectio
           />
 
           {/* Eyebrow */}
-          <p className="mb-3 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+          <p className="mb-3 text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
             {section.eyebrow || "STUDENT STORIES"}
           </p>
 
           {/* Heading: Exactly 2 lines in bold BLACK color */}
-          <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black leading-[1.15] tracking-tight text-neutral-950">
+          <h2 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-black leading-[1.15] tracking-tight text-neutral-950">
             {line1} <br />
             <span className="text-[#942008]">{line2}</span>
           </h2>
 
           {/* Subheading */}
-          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+          <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
             {section.subheading}
           </p>
         </div>
 
-        {/* ─── STAGE AREA WITH CARDS AND DOODLES ─── */}
+        {/* ─── STAGE AREA: FULLY VISIBLE 4 CARDS (STACKED ON MOBILE, 2X2 GRID ON TABLET, 4 COLUMNS ON DESKTOP) ─── */}
         <div className="relative">
 
           {/* Doodle 3: 3-line burst to the left of Card 1 */}
@@ -295,7 +259,7 @@ export default function CommunityStories({ section }: { section: CommunitySectio
             style={{ transform: "rotate(-50deg)" }}
           />
 
-          {/* Doodle 4: Hand-drawn Solo Heart between Card 1 and Card 2 */}
+          {/* Doodle 4: Hand-drawn Solo Heart between cards */}
           <SoloHeart
             className="pointer-events-none absolute top-32 z-20 hidden size-6 text-[#292522]/70 md:block lg:left-[24%]"
             style={{ transform: "rotate(-15deg)" }}
@@ -312,26 +276,24 @@ export default function CommunityStories({ section }: { section: CommunitySectio
             className="pointer-events-none absolute -right-3 bottom-14 hidden size-7 text-[#292522]/75 sm:block sm:size-8"
           />
 
-          {/* ─── MOBILE VIEW: ALL TESTIMONIAL CARDS SHOWN ONE BY ONE ─── */}
-          <div className="flex flex-col gap-10 md:hidden max-w-sm sm:max-w-md mx-auto pt-2 pb-6 px-1">
+          {/* Responsive Grid: 1 col on mobile, 2 cols on tablet (showing all 4 cards!), 4 cols on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 sm:gap-6 lg:gap-5 max-w-sm sm:max-w-none mx-auto pt-2 pb-6 px-1">
             {items.map((item, idx) => {
               const look = LOOKS[idx % LOOKS.length];
-              const expanded = open === idx;
-              // Gentle alternated tilt for playful authentic sticky-note feel
-              const mobTilt = idx % 2 === 0 ? -1.2 : 1.2;
+              const tilt = TILTS[idx % TILTS.length];
 
               return (
                 <article
-                  key={`mob-${item.name}-${idx}`}
-                  className="group relative flex flex-col justify-between rounded-[20px] p-5 sm:p-6 shadow-[0_10px_25px_-8px_rgba(60,40,20,0.1)] transition-all duration-300 hover:rotate-0 hover:scale-[1.01]"
+                  key={`${item.name}-${idx}`}
+                  className="group relative flex flex-col justify-between rounded-[22px] p-6 sm:p-6 lg:p-6 shadow-[0_10px_25px_-8px_rgba(60,40,20,0.1)] transition-all duration-300 hover:rotate-0 hover:scale-[1.02] hover:shadow-[0_18px_36px_-10px_rgba(60,40,20,0.15)] min-h-[220px]"
                   style={{
                     backgroundColor: look.bg,
-                    transform: `rotate(${mobTilt}deg)`,
+                    transform: `rotate(${tilt}deg)`,
                   }}
                 >
                   {/* Crisp Authentic Washi Tape */}
                   <span
-                    className="pointer-events-none absolute -top-2.5 left-1/2 h-3.5 w-14 -translate-x-1/2 -rotate-6 rounded-[1px] shadow-[0_1px_2px_rgba(0,0,0,0.12)] border-t border-b border-black/5"
+                    className="pointer-events-none absolute -top-2.5 left-1/2 h-3.5 w-14 -translate-x-1/2 -rotate-6 rounded-[1px] shadow-[0_1px_2px_rgba(0,0,0,0.12)] border-t border-b border-black/5 sm:-top-3 sm:h-4 sm:w-16"
                     style={{
                       backgroundColor: look.tape,
                     }}
@@ -340,14 +302,15 @@ export default function CommunityStories({ section }: { section: CommunitySectio
 
                   {/* Card Content Top */}
                   <div>
+                    {/* Stylized Double Quote Glyph */}
                     <div style={{ color: look.mark }} className="mb-2.5">
                       <QuoteGlyph className="h-5 w-7" />
                     </div>
 
+                    {/* Quote Text */}
                     <p
                       style={{ color: look.textColor }}
-                      className={`text-xs sm:text-base lg:text-sm leading-relaxed ${expanded ? "block" : "line-clamp-5"
-                        }`}
+                      className="text-sm sm:text-lg lg:text-base leading-relaxed"
                     >
                       &ldquo;{item.quote}&rdquo;
                     </p>
@@ -356,170 +319,28 @@ export default function CommunityStories({ section }: { section: CommunitySectio
                   {/* Card Foot */}
                   <div
                     style={{ borderColor: look.dividerColor }}
-                    className="mt-4 flex items-end justify-between border-t pt-3.5"
+                    className="mt-4 flex items-end justify-between border-t pt-3.5 sm:mt-5 sm:pt-4"
                   >
                     <div>
                       <h4
                         style={{ color: look.nameColor }}
-                        className="text-sm sm:text-lg lg:text-base font-bold"
+                        className="text-base sm:text-xl lg:text-lg font-bold"
                       >
                         {item.name}
                       </h4>
                       <p
                         style={{ color: look.roleColor }}
-                        className="text-xs sm:text-base lg:text-xs"
+                        className="text-xs sm:text-lg lg:text-sm"
                       >
                         {item.role}
                       </p>
                     </div>
-
-                    {/* <button
-                      type="button"
-                      aria-expanded={expanded}
-                      aria-label={
-                        expanded
-                          ? `Collapse review from ${item.name}`
-                          : `Expand review from ${item.name}`
-                      }
-                      onClick={() => setOpen(expanded ? null : idx)}
-                      style={{ backgroundColor: look.plus }}
-                      className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white shadow-xs transition-transform duration-300 ${
-                        expanded ? "rotate-45" : "hover:scale-110"
-                      }`}
-                    >
-                      <svg
-                        viewBox="0 0 16 16"
-                        className="size-3"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      >
-                        <path d="M8 3.2v9.6M3.2 8h9.6" />
-                      </svg>
-                    </button> */}
                   </div>
                 </article>
               );
             })}
           </div>
 
-          {/* ─── DESKTOP & TABLET VIEW: 4-COLUMN CAROUSEL / GRID ─── */}
-          <div
-            className="hidden md:block w-full overflow-hidden pb-6 pt-3"
-            data-x="0"
-            data-y="0"
-            onTouchStart={(event) => {
-              event.currentTarget.dataset.x = String(event.touches[0].clientX);
-              event.currentTarget.dataset.y = String(event.touches[0].clientY);
-            }}
-            onTouchEnd={onTouchEnd}
-          >
-            <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{
-                width: `${(items.length / perView) * 100}%`,
-                transform: `translate3d(-${index * (100 / items.length)}%, 0, 0)`,
-              }}
-            >
-              {items.map((item, idx) => {
-                const look = LOOKS[idx % LOOKS.length];
-                const expanded = open === idx;
-                const tilt = TILTS[idx % TILTS.length];
-
-                return (
-                  <div
-                    key={`${item.name}-${idx}`}
-                    className="px-2.5 sm:px-3"
-                    style={{ width: `${100 / items.length}%` }}
-                  >
-                    {/* Compact Sticky Note Review Card with natural height (no excessive gap) */}
-                    <article
-                      className="group relative flex flex-col justify-between rounded-[20px] p-5 sm:p-6 shadow-[0_10px_25px_-8px_rgba(60,40,20,0.1)] transition-all duration-300 hover:rotate-0 hover:scale-[1.02] hover:shadow-[0_18px_36px_-10px_rgba(60,40,20,0.15)]"
-                      style={{
-                        backgroundColor: look.bg,
-                        transform: `rotate(${tilt}deg)`,
-                      }}
-                    >
-                      {/* Crisp Authentic Washi Tape (Exact like 1st Reference Image, unblurred) */}
-                      <span
-                        className="pointer-events-none absolute -top-2.5 left-1/2 h-3.5 w-14 -translate-x-1/2 -rotate-6 rounded-[1px] shadow-[0_1px_2px_rgba(0,0,0,0.12)] border-t border-b border-black/5 sm:-top-3 sm:h-4 sm:w-16"
-                        style={{
-                          backgroundColor: look.tape,
-                        }}
-                        aria-hidden="true"
-                      />
-
-                      {/* Card Content Top */}
-                      <div>
-                        {/* Stylized Double Quote Glyph */}
-                        <div style={{ color: look.mark }} className="mb-2.5">
-                          <QuoteGlyph className="h-5 w-7" />
-                        </div>
-
-                        {/* Quote Text (Snug natural spacing) */}
-                        <p
-                          style={{ color: look.textColor }}
-                          className={`text-xs sm:text-base lg:text-sm leading-relaxed ${expanded ? "block" : "line-clamp-5"
-                            }`}
-                        >
-                          &ldquo;{item.quote}&rdquo;
-                        </p>
-                      </div>
-
-                      {/* Card Foot: Snug spacing without excessive void */}
-                      <div
-                        style={{ borderColor: look.dividerColor }}
-                        className="mt-4 flex items-end justify-between border-t pt-3.5 sm:mt-5 sm:pt-4"
-                      >
-                        <div>
-                          <h4
-                            style={{ color: look.nameColor }}
-                            className="text-sm sm:text-lg lg:text-base font-bold"
-                          >
-                            {item.name}
-                          </h4>
-                          <p
-                            style={{ color: look.roleColor }}
-                            className="text-xs sm:text-base lg:text-xs"
-                          >
-                            {item.role}
-                          </p>
-                        </div>
-
-                        {/* Circular Action Button with Plus Icon */}
-                        {/* <button
-                          type="button"
-                          aria-expanded={expanded}
-                          aria-label={
-                            expanded
-                              ? `Collapse review from ${item.name}`
-                              : `Expand review from ${item.name}`
-                          }
-                          onClick={() => setOpen(expanded ? null : idx)}
-                          style={{ backgroundColor: look.plus }}
-                          className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-white shadow-xs transition-transform duration-300 sm:h-8 sm:w-8 ${
-                            expanded ? "rotate-45" : "hover:scale-110"
-                          }`}
-                        >
-                          <svg
-                            viewBox="0 0 16 16"
-                            className="size-3 sm:size-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          >
-                            <path d="M8 3.2v9.6M3.2 8h9.6" />
-                          </svg>
-                        </button> */}
-                      </div>
-                    </article>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
     </section>

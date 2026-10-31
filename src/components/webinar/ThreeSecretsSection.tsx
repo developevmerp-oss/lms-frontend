@@ -119,14 +119,14 @@ export default function ThreeSecretsSection({
           }`}
         >
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+            <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
             The three secrets we'll <span className="text-[#942008]">unpack together</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
             {subheading}
           </p>
         </div>
@@ -161,25 +161,25 @@ export default function ThreeSecretsSection({
 
                   {/* Dark Pill Badge */}
                   <div className="mb-3.5">
-                    <span className="inline-flex items-center rounded-full bg-[#24211F] px-3.5 py-1 text-xs sm:text-sm lg:text-xs font-bold uppercase tracking-wider text-[#FAF7F4] shadow-xs">
+                    <span className="inline-flex items-center rounded-full bg-[#24211F] px-3.5 py-1 text-xs sm:text-sm md:text-sm lg:text-sm font-bold uppercase tracking-wider text-[#FAF7F4] shadow-xs">
                       {secret.label}
                     </span>
                   </div>
 
                   {/* Card Title */}
-                  <h3 className="mb-3 text-base sm:text-xl lg:text-lg font-bold leading-snug tracking-tight text-neutral-950 transition-colors duration-300 group-hover:text-[#942008]">
+                  <h3 className="mb-3 text-lg sm:text-2xl md:text-2xl lg:text-xl font-bold leading-snug tracking-tight text-neutral-950 transition-colors duration-300 group-hover:text-[#942008]">
                     {secret.title}
                   </h3>
 
                   {/* Myth Text (Subtle belief callout) */}
                   {secret.myth && (
-                    <p className="mb-3 text-xs sm:text-base lg:text-sm italic leading-relaxed text-[#77716C]/85">
+                    <p className="mb-3 text-sm sm:text-base md:text-base lg:text-base italic leading-relaxed text-[#77716C]/85">
                       {secret.myth}
                     </p>
                   )}
 
                   {/* Truth / Main Body Text */}
-                  <p className="text-xs sm:text-base lg:text-sm leading-relaxed text-neutral-600">
+                  <p className="text-sm sm:text-base md:text-base lg:text-base leading-relaxed text-neutral-600">
                     {secret.truth}
                   </p>
                 </div>
@@ -195,17 +195,17 @@ export default function ThreeSecretsSection({
           }`}
         >
           <div>
-            <h3 className="text-xl sm:text-3xl lg:text-2xl font-bold text-[#FFFFFF]">
+            <h3 className="text-xl sm:text-3xl md:text-3xl lg:text-3xl font-bold text-[#FFFFFF]">
               {bannerData.heading}
             </h3>
-            <p className="mt-1 text-xs sm:text-base lg:text-sm text-[#F4E9DF]/80">
+            <p className="mt-1 text-sm sm:text-base md:text-base lg:text-base text-[#F4E9DF]/80">
               {bannerData.body}
             </p>
           </div>
 
           <button
             onClick={onScrollToRegister}
-            className="group inline-flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-[#E86A24]/25 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:shadow-[#E86A24]/40 active:scale-[0.98]"
+            className="group inline-flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E86A24] to-[#B94F1B] px-7 text-sm sm:text-base md:text-base lg:text-base font-semibold text-white shadow-lg shadow-[#E86A24]/25 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:shadow-[#E86A24]/40 active:scale-[0.98]"
           >
             <span>{bannerData.cta}</span>
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />

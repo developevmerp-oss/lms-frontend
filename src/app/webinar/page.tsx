@@ -497,7 +497,6 @@ export default function WebinarPage() {
     seatsRemaining: 88,
     totalSeats: 500,
   });
-
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -682,7 +681,6 @@ export default function WebinarPage() {
   return (
     <div className="landing-page relative min-h-screen bg-[#ffffff] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
       <SocialProofToaster />
-      <ExitIntentModal onClaimSeat={scrollToRegister} />
 
       {/* ─── 1. TOP ANNOUNCEMENT BANNER ─── */}
       {showBanner && (
@@ -692,7 +690,7 @@ export default function WebinarPage() {
             backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
             backgroundAttachment: "fixed",
           }}>
-          <div className="nav-width flex items-center justify-center gap-2 py-2.5 text-center text-xs font-medium text-stone-800 sm:text-sm">
+          <div className="nav-width flex items-center justify-center gap-2 py-2.5 text-center text-sm sm:text-base md:text-base lg:text-base font-medium text-stone-800">
             <span className="flex items-center gap-1.5">
               <Flame size={16} className="text-orange-500" />
               <strong>🔥 LIVE MASTERCLASS — LIMITED SEATS.</strong> Registration closes when live-seat capacity is reached.
@@ -727,28 +725,6 @@ export default function WebinarPage() {
           onWebinarLoaded={(wb) => setActiveWebinar(wb)}
         />
 
-        {/* ─── 4. RECOGNISED FOR MARQUEE ─── */}
-        {/* <section
-          className="border-y border-[#eadfd4] py-10 sm:py-12"
-          style={{
-            backgroundColor: "#ffffff",
-            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
-            backgroundSize: "24px 24px",
-            backgroundAttachment: "fixed",
-          }}
-        >
-          <div className="nav-width">
-            <div className="text-center">
-              <p className="mb-5 text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">Recognised for</p>
-              <ul className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-base lg:text-sm font-semibold text-stone-700">
-                {["Hall of Fame Award 2022", "I Can Coach — International Best Seller", "Sylph Magazine", "54,000+ webinar attendees", "10+ years coaching"].map((item) => (
-                  <li key={item} className="rounded-full border border-[#eadfd4] bg-[#fffaf6] px-4 py-2">{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section> */}
-
         {/* ─── TOP GAP ABOVE MARQUEE WITH WHITE DOT STYLE ─── */}
         <div
           className="w-full py-8 sm:py-12 border-b border-[#eadfd4]/60"
@@ -779,29 +755,15 @@ export default function WebinarPage() {
                 key={idx}
                 className="w-[260px] sm:w-[300px] shrink-0 rounded-3xl border border-[#eadfd4] bg-white px-6 py-6 sm:py-7 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)] hover:shadow-[0_20px_40px_-20px_rgba(148,32,8,0.25)] transition-all duration-300 flex flex-col justify-center min-h-[140px]"
               >
-                <dt className="text-2xl sm:text-3xl lg:text-3xl font-black tracking-tight text-[#942008] leading-tight flex items-center justify-center min-h-[3.25rem]">
+                <dt className="text-2xl sm:text-3xl md:text-3xl lg:text-3xl font-black tracking-tight text-[#942008] leading-tight flex items-center justify-center min-h-[3.25rem]">
                   {stat.value}
                 </dt>
-                <dd className="mt-1.5 text-xs sm:text-base lg:text-sm text-stone-500 leading-snug">
+                <dd className="mt-1.5 text-base sm:text-xl lg:text-base text-stone-500 leading-snug">
                   {stat.label}
                 </dd>
               </div>
             ))}
           </div>
-
-          {/*
-          Previous Static Grid UI kept commented as requested:
-          <div className="nav-width hidden">
-            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-              {STAT_COUNTERS.map((stat, idx) => (
-                <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white px-4 py-6 text-center shadow-[0_16px_36px_-28px_rgba(90,55,20,0.45)]">
-                  <dt className="text-3xl sm:text-5xl lg:text-4xl font-black tracking-tight text-[#942008]">{stat.value}</dt>
-                  <dd className="mt-1 text-xs sm:text-base lg:text-sm text-stone-500">{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          */}
         </section>
 
         {/* ─── 6. THE INTERACTIVE GATE SECTION ─── */}
@@ -817,15 +779,15 @@ export default function WebinarPage() {
         >
           <div className="nav-width">
             <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#f3d3c0] bg-[linear-gradient(180deg,#fffaf6_0%,#fff_100%)] px-6 py-12 text-center shadow-[0_24px_50px_-32px_rgba(90,55,20,0.4)] sm:px-12">
-              <h2 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+              <h2 className="text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
                 Want to know what makes this <span className="text-[#942008]">Masterclass different?</span>
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-sm sm:text-xl lg:text-base leading-relaxed text-neutral-600">
+              <p className="mx-auto mt-4 max-w-xl text-sm sm:text-xl lg:text-lg leading-relaxed text-neutral-600">
                 I&apos;ve designed this session around the three things most aspiring resin artists need — mastery, mindset and monetization.
               </p>
               <button
                 onClick={() => setIsUnlocked(!isUnlocked)}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 cursor-pointer mt-8"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3 text-sm sm:text-base md:text-base lg:text-base font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600 cursor-pointer mt-8"
               >
                 {isUnlocked ? "Hide what you'll learn" : "Show me what I'll learn"}
                 {isUnlocked ? <ChevronUp className="ml-1 size-4" /> : <ChevronDown className="ml-1 size-4" />}
@@ -868,32 +830,32 @@ export default function WebinarPage() {
             >
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+                  <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {THE_SHIFT.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
                     Stop learning resin the <span className="text-[#942008]">hard way</span>
                   </h2>
-                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
                     {THE_SHIFT.subheading}
                   </p>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full overflow-hidden rounded-3xl border border-[#eadfd4] text-left text-xs sm:text-base lg:text-sm shadow-[0_18px_40px_-30px_rgba(90,55,20,0.45)]">
+                  <table className="w-full overflow-hidden rounded-3xl border border-[#eadfd4] text-left text-sm sm:text-base md:text-base lg:text-base shadow-[0_18px_40px_-30px_rgba(90,55,20,0.45)]">
                     <thead>
                       <tr className="border-b border-[#eadfd4] bg-[#fff6f0]">
-                        <th className="p-4 font-bold text-stone-500 uppercase text-xs sm:text-sm lg:text-xs tracking-wider">{THE_SHIFT.beforeHeading}</th>
-                        <th className="p-4 font-bold text-stone-800 uppercase text-xs sm:text-sm lg:text-xs tracking-wider">{THE_SHIFT.afterHeading}</th>
+                        <th className="p-4 font-bold text-stone-500 uppercase text-xs sm:text-base md:text-base lg:text-sm tracking-wider">{THE_SHIFT.beforeHeading}</th>
+                        <th className="p-4 font-bold text-stone-800 uppercase text-xs sm:text-base md:text-base lg:text-sm tracking-wider">{THE_SHIFT.afterHeading}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#eadfd4] bg-white">
                       {THE_SHIFT.pairs.map((pair, idx) => (
                         <tr key={idx}>
-                          <td className="p-4 text-stone-500 text-xs sm:text-base lg:text-sm">
+                          <td className="p-4 text-stone-500 text-sm sm:text-xl lg:text-base">
                             {pair.before}
                           </td>
-                          <td className="p-4 text-stone-800 font-medium text-xs sm:text-base lg:text-sm">
+                          <td className="p-4 text-stone-800 font-medium text-sm sm:text-xl lg:text-base">
                             {pair.after}
                           </td>
                         </tr>
@@ -910,32 +872,6 @@ export default function WebinarPage() {
             {/* 7. RIGHT FIT? (ee -> s2) */}
             <RightFitStackSection data={RIGHT_FIT} />
 
-            {/* 8. PROOF (te -> r2) */}
-            {/* <section className="bg-transparent py-16 sm:py-20">
-              <div className="nav-width">
-                <div className="text-center max-w-3xl mx-auto mb-12">
-                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
-                    {PROOF.eyebrow}
-                  </span>
-                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
-                    You&apos;re learning from someone who has been in the <span className="text-[#942008]">arena</span>
-                  </h2>
-                  <p className="text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-                    {PROOF.body}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {PROOF.items.map((item, idx) => (
-                    <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-5 text-center">
-                      <p className="text-2xl sm:text-4xl lg:text-3xl font-black text-neutral-950 mb-1">{item.value}</p>
-                      <p className="text-xs sm:text-base lg:text-sm text-stone-500 font-medium">{item.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section> */}
-
             {/* 9. FREE BONUS: CLARITY KIT (B -> u2) */}
             <section
               className="py-16 sm:py-20"
@@ -948,13 +884,13 @@ export default function WebinarPage() {
             >
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+                  <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {CLARITY_KIT.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
                     Register free & get the <span className="text-[#942008]">Resin Artist Clarity Kit</span>
                   </h2>
-                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
                     {CLARITY_KIT.subheading}
                   </p>
                 </div>
@@ -963,8 +899,8 @@ export default function WebinarPage() {
                   {CLARITY_KIT.items.map((item, idx) => (
                     <div key={idx} className="rounded-3xl border border-[#eadfd4] bg-white p-6 shadow-[0_18px_40px_-30px_rgba(90,55,20,0.5)]">
                       <span className="mb-3 block h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
-                      <h3 className="mb-2 text-base sm:text-xl lg:text-lg font-bold text-neutral-950">{item.title}</h3>
-                      <p className="text-xs sm:text-base lg:text-sm text-neutral-600 leading-relaxed">{item.body}</p>
+                      <h3 className="mb-2 text-xl sm:text-2xl lg:text-xl font-bold text-neutral-950">{item.title}</h3>
+                      <p className="text-base sm:text-lg lg:text-base text-neutral-600 leading-relaxed">{item.body}</p>
                     </div>
                   ))}
                 </div>
@@ -972,7 +908,7 @@ export default function WebinarPage() {
                 <div className="text-center">
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-sm sm:text-base md:text-base lg:text-base font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     {CLARITY_KIT.cta}
                     <ArrowRight size={14} />
@@ -985,10 +921,10 @@ export default function WebinarPage() {
             <section className="bg-transparent py-16 sm:py-20">
               <div className="nav-width">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+                  <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {VALUE_STACK.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
                     Everything you need to start seeing your <span className="text-[#942008]">resin journey differently</span>
                   </h2>
                 </div>
@@ -997,28 +933,28 @@ export default function WebinarPage() {
                   {VALUE_STACK.items.map((item, idx) => (
                     <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
-                        <h3 className="text-base sm:text-xl lg:text-lg font-bold text-neutral-950">{item.title}</h3>
-                        <p className="text-xs sm:text-base lg:text-sm text-neutral-600 mt-1">{item.body}</p>
+                        <h3 className="text-lg sm:text-2xl md:text-2xl lg:text-xl font-bold text-neutral-950">{item.title}</h3>
+                        <p className="text-base sm:text-xl lg:text-base text-neutral-600 mt-1">{item.body}</p>
                       </div>
-                      <span className="text-xs sm:text-base lg:text-sm font-bold text-[#942008] shrink-0 bg-[#fff6f0] border border-[#eadfd4] px-3 py-1.5 rounded-lg text-center">
+                      <span className="text-sm sm:text-lg lg:text-base font-bold text-[#942008] shrink-0 bg-[#fff6f0] border border-[#eadfd4] px-3 py-1.5 rounded-lg text-center">
                         {item.value}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                <div className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-2xl p-6 flex flex-col lg:flex-row items-center justify-between gap-4 text-center sm:text-left">
                   <div>
-                    <p className="text-xs sm:text-sm lg:text-xs text-stone-500 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
-                    <p className="text-lg sm:text-2xl lg:text-xl font-bold text-stone-500 line-through">{VALUE_STACK.totalValue}</p>
+                    <p className="text-xs sm:text-base md:text-base lg:text-sm text-stone-500 uppercase tracking-widest">{VALUE_STACK.totalLabel}</p>
+                    <p className="text-lg sm:text-2xl lg:text-2xl font-bold text-stone-500 line-through">{VALUE_STACK.totalValue}</p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm lg:text-xs text-[#942008] uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
+                    <p className="text-xs sm:text-base md:text-base lg:text-sm text-[#942008] uppercase tracking-widest font-bold">{VALUE_STACK.priceLabel}</p>
                     <p className="text-2xl sm:text-4xl lg:text-3xl font-black text-emerald-600">{VALUE_STACK.priceValue}</p>
                   </div>
                   <button
                     onClick={scrollToRegister}
-                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
+                    className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 text-base sm:text-[1.3rem] lg:text-base font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
                   >
                     Reserve my free seat
                     <ArrowRight size={14} />
@@ -1034,13 +970,13 @@ export default function WebinarPage() {
             <section className="bg-transparent py-16 sm:py-20">
               <div className="nav-width">
                 <div className="text-center max-w-3xl mx-auto mb-14">
-                  <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+                  <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
                     {AGENDA.eyebrow}
                   </span>
-                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+                  <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
                     How the <span className="text-[#942008]">90 minutes run</span>
                   </h2>
-                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+                  <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
                     {AGENDA.subheading}
                   </p>
                 </div>
@@ -1048,12 +984,12 @@ export default function WebinarPage() {
                 <div className="space-y-4 max-w-3xl mx-auto">
                   {AGENDA.items.map((item, idx) => (
                     <div key={idx} className="border border-[#eadfd4] bg-white shadow-[0_16px_40px_-30px_rgba(90,55,20,0.45)] rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <span className="text-stone-500 font-mono text-xs sm:text-base lg:text-sm font-bold shrink-0">
+                      <span className="text-stone-500 font-mono text-base sm:text-lg lg:text-base font-bold shrink-0">
                         {item.time}
                       </span>
                       <div>
-                        <h3 className="font-bold text-neutral-950 text-sm sm:text-lg lg:text-base">{item.title}</h3>
-                        <p className="text-xs sm:text-base lg:text-sm text-neutral-600 mt-0.5">{item.body}</p>
+                        <h3 className="font-bold text-neutral-950 text-lg sm:text-xl lg:text-lg">{item.title}</h3>
+                        <p className="text-base sm:text-lg lg:text-base text-neutral-600 mt-0.5">{item.body}</p>
                       </div>
                     </div>
                   ))}
@@ -1086,10 +1022,10 @@ export default function WebinarPage() {
         >
           <div className="nav-width">
             <div className="mx-auto max-w-3xl rounded-[2rem] bg-[#2a211c] px-6 py-12 sm:px-12 sm:py-16">
-              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-white">
+              <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-white">
                 Your art deserves more than a <span className="text-[#ea580c]">place on your phone</span>
               </h2>
-              <p className="mx-auto mb-8 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-stone-300">
+              <p className="mx-auto mb-8 max-w-2xl text-sm sm:text-xl lg:text-lg leading-relaxed text-stone-300">
                 You already have the spark. Now you need the skills, confidence and roadmap to give that spark a direction. Join the Resin Mastery Masterclass and discover how Mastery + Mindset + Monetization can change the way you see your resin journey.
               </p>
 
@@ -1099,16 +1035,16 @@ export default function WebinarPage() {
 
               <button
                 onClick={scrollToRegister}
-                className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
+                className="mt-4 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-8 text-sm sm:text-base md:text-base lg:text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-600 hover:to-amber-600"
               >
                 Reserve my free seat
                 <ArrowRight className="ml-1.5 size-4" />
               </button>
 
-              <p className="mt-4 text-xs sm:text-base lg:text-sm font-semibold text-[#ea580c]">
+              <p className="mt-4 text-sm sm:text-base md:text-base lg:text-base font-semibold text-[#ea580c]">
                 🔥 Live seats are limited. Register now before registration closes.
               </p>
-              <p className="mt-2 text-[11px] sm:text-xs uppercase tracking-[0.14em] text-stone-400">
+              <p className="mt-2 text-xs sm:text-sm md:text-sm lg:text-xs uppercase tracking-[0.14em] text-stone-400">
                 Free registration • 90-minute Masterclass • Practical clarity • Action-focused
               </p>
             </div>
@@ -1123,12 +1059,12 @@ export default function WebinarPage() {
       >
         <div className="nav-width flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="text-xs sm:text-base lg:text-sm font-semibold text-stone-950">Resin Mastery Masterclass</span>
+            <span className="text-sm sm:text-base md:text-base lg:text-base font-semibold text-stone-950">Resin Mastery Masterclass</span>
             <WebinarCountdown compact={true} targetDateStr={activeWebinar?.scheduledAt} />
           </div>
           <button
             onClick={scrollToRegister}
-            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 text-xs sm:text-base lg:text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 text-sm sm:text-base md:text-base lg:text-base font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:from-orange-600 hover:to-amber-600"
           >
             Get my free seat
             <ArrowRight size={13} />
@@ -1137,6 +1073,7 @@ export default function WebinarPage() {
       </div>
 
       <SiteFooter />
+      <ExitIntentModal onClaimSeat={scrollToRegister} />
     </div>
   );
 }
