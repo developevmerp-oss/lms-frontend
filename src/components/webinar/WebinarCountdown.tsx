@@ -81,7 +81,7 @@ export const WebinarCountdown = ({
         return;
       }
     }
-    // fetchNextWebinar();
+    fetchNextWebinar();
   }, [targetDateStr, fetchNextWebinar]);
 
   useEffect(() => {

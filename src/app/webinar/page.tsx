@@ -539,7 +539,7 @@ export default function WebinarPage() {
     };
 
     fetchStats();
-    // fetchNextWebinar();
+    fetchNextWebinar();
     try {
       trackingService.trackViewContent({
         name: "Resin Art Masterclass Webinar",
