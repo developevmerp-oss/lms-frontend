@@ -103,7 +103,7 @@ export default function SoundFamiliarSection({
   return (
     <section
       id="sound-familiar"
-      className="relative w-full py-20 sm:py-28 lg:py-32 overflow-hidden text-neutral-950"
+      className="relative w-full py-16 sm:py-24 md:py-28 lg:py-32 overflow-hidden text-neutral-950"
       style={{
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -152,25 +152,25 @@ export default function SoundFamiliarSection({
       />
 
       {/* ─── FULL-WIDTH CONTENT CONTAINER ─── */}
-      <div className="mx-auto container px-5 sm:px-10 lg:px-10 2xl:px-0 relative z-10">
-        {/* Previous Centered Header with Original Badge, Title & Description */}
-        <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
+      <div className="mx-auto container px-4 sm:px-8 lg:px-10 2xl:px-0 relative z-10">
+        {/* Centered Header */}
+        <div className="mx-auto mb-10 sm:mb-14 md:mb-16 max-w-3xl text-center">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+            <span className="mb-3 sm:mb-4 inline-flex items-center text-xs sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+          <h2 className="mb-4 text-3xl sm:text-5xl md:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
             If any of this is true right now, this <span className="text-[#942008]">Masterclass is for you</span>
           </h2>
           {subheading && (
-            <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+            <p className="mx-auto max-w-2xl text-sm sm:text-xl  lg:text-lg text-neutral-600 leading-relaxed">
               {subheading}
             </p>
           )}
         </div>
 
-        {/* ─── FULL-WIDTH LIST OF POINTS WITH LIQUID FILL HOVER ─── */}
+        {/* ─── FULL-WIDTH LIST OF POINTS ─── */}
         <div className="flex flex-col border-t border-stone-200/90">
           {items.map((item, idx) => {
             const { title, subtitle } = parseItem(item);
@@ -184,9 +184,9 @@ export default function SoundFamiliarSection({
                 onMouseLeave={() => setHoveredIdx(null)}
                 onTouchStart={() => setHoveredIdx(idx)}
                 onClick={handleRedirect}
-                className="group relative flex items-center justify-between py-6 sm:py-7 lg:py-8 px-4 sm:px-6 cursor-pointer select-none border-b border-stone-200/90 transition-all duration-300"
+                className="group relative flex items-center justify-between py-5 sm:py-7 md:py-7 lg:py-8 px-3 sm:px-6 cursor-pointer select-none border-b border-stone-200/90 transition-all duration-300"
               >
-                {/* ──── LIQUID FILL BACKGROUND: Bottom-to-Top in Light Orange Shade ──── */}
+                {/* ──── LIQUID FILL BACKGROUND ──── */}
                 <div
                   className="absolute inset-x-2 inset-y-1.5 z-0 pointer-events-none rounded-xl sm:rounded-2xl overflow-hidden"
                 >
@@ -201,34 +201,31 @@ export default function SoundFamiliarSection({
 
                 {/* Left Number */}
                 <span
-                  className={`relative z-10 text-xs sm:text-base lg:text-sm font-mono font-medium shrink-0 w-10 sm:w-16 transition-colors duration-400 ${
-                    isHovered ? "text-[#C8653B] font-semibold" : "text-stone-400"
-                  }`}
+                  className={`relative z-10 text-sm sm:text-lg lg:text-base font-mono font-medium shrink-0 w-8 sm:w-16 transition-colors duration-400 ${isHovered ? "text-[#C8653B] font-semibold" : "text-stone-400"
+                    }`}
                 >
                   {formattedNumber}
                 </span>
 
                 {/* Center / Title and Subtitle Content */}
-                <div className="relative z-10 flex flex-col flex-1 px-4 sm:px-8">
+                <div className="relative z-10 flex flex-col flex-1 px-3 sm:px-8">
                   <span
-                    className={`text-base sm:text-xl lg:text-lg font-bold tracking-tight transition-colors duration-400 leading-snug ${
-                      isHovered ? "text-[#C8653B]" : "text-stone-900"
-                    }`}
+                    className={`text-lg sm:text-2xl  lg:text-xl font-bold tracking-tight transition-colors duration-400 leading-snug ${isHovered ? "text-[#C8653B]" : "text-stone-900"
+                      }`}
                   >
                     {title}
                   </span>
                   {subtitle && (
                     <span
-                      className={`text-xs sm:text-base lg:text-sm font-normal mt-1 transition-colors duration-400 ${
-                        isHovered ? "text-stone-700" : "text-stone-500"
-                      }`}
+                      className={`text-base sm:text-xl lg:text-base font-normal mt-1 transition-colors duration-400 ${isHovered ? "text-stone-700" : "text-stone-500"
+                        }`}
                     >
                       {subtitle}
                     </span>
                   )}
                 </div>
 
-                {/* Far Right Arrow: Clicking redirects to webinar register form */}
+                {/* Far Right Arrow */}
                 <div
                   role="button"
                   tabIndex={0}
@@ -246,11 +243,10 @@ export default function SoundFamiliarSection({
                   title="Register for Masterclass"
                 >
                   <ArrowRight
-                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      isHovered
+                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isHovered
                         ? "text-[#C8653B] translate-x-2"
                         : "text-stone-400"
-                    }`}
+                      }`}
                   />
                 </div>
               </div>
@@ -260,8 +256,8 @@ export default function SoundFamiliarSection({
 
         {/* ─── BOTTOM CLOSING TEXT ("turn") ─── */}
         {turn && (
-          <div className="mt-12 sm:mt-16 text-center max-w-2xl mx-auto">
-            <p className="text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-stone-600">
+          <div className="mt-10 sm:mt-16 text-center max-w-2xl mx-auto">
+            <p className="text-base sm:text-xl md:text-xl lg:text-lg font-normal leading-relaxed text-stone-600">
               {turn}
             </p>
           </div>

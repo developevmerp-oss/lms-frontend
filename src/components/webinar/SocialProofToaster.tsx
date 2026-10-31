@@ -65,11 +65,11 @@ export const SocialProofToaster = () => {
       <div className="mt-0.5 size-4 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
         <Check size={10} />
       </div>
-      <div className="text-xs sm:text-sm leading-relaxed">
+      <div className="text-sm sm:text-base md:text-base lg:text-base leading-relaxed">
         <p className="font-semibold text-slate-900">
           {current.name} from {current.location || 'India'}
         </p>
-        <p className="text-slate-500 text-[10px] sm:text-xs">
+        <p className="text-slate-500 text-xs sm:text-sm md:text-sm lg:text-sm">
           Registered {current.when}
         </p>
       </div>

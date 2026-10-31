@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Check, X } from "lucide-react";
-// Simple clean animation without scroll-drag or empty placeholder slots
 
 export interface HonestFitCheckData {
   eyebrow?: string;
@@ -214,15 +213,15 @@ export default function HonestFitCheckSection({
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
           {eyebrow && (
-            <span className="mb-4 inline-flex items-center text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+            <span className="mb-4 inline-flex items-center text-sm sm:text-base md:text-base lg:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
               {eyebrow}
             </span>
           )}
-          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-neutral-950">
+          <h2 className="mb-4 text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight text-neutral-950">
             Who should attend — and <span className="text-[#942008]">who should skip it</span>
           </h2>
           {subheading && (
-            <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base text-neutral-600 leading-relaxed">
+            <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg text-neutral-600 leading-relaxed">
               {subheading}
             </p>
           )}
@@ -246,7 +245,7 @@ export default function HonestFitCheckSection({
             >
               <div>
                 {/* Card Title matching reference design */}
-                <h3 className="text-2xl sm:text-4xl lg:text-3xl font-black text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
                   <span>You SHOULD</span>
                   <span className="block mt-1">attend if...</span>
                 </h3>
@@ -260,7 +259,7 @@ export default function HonestFitCheckSection({
                         <Check className="w-3.5 h-3.5 text-[#C63616] stroke-[3]" />
                       </div>
                       {/* Item Text */}
-                      <span className="text-white text-xs sm:text-base lg:text-sm font-medium leading-relaxed">
+                      <span className="text-white text-base sm:text-xl lg:text-base font-medium leading-relaxed">
                         {item}
                       </span>
                     </li>
@@ -285,7 +284,7 @@ export default function HonestFitCheckSection({
             >
               <div>
                 {/* Card Title matching reference design */}
-                <h3 className="text-2xl sm:text-4xl lg:text-3xl font-black text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-6 sm:mb-8 pr-20 sm:pr-24">
                   <span>This is NOT</span>
                   <span className="block mt-1">for you if...</span>
                 </h3>
@@ -299,7 +298,7 @@ export default function HonestFitCheckSection({
                         <X className="w-3.5 h-3.5 text-[#8B230E] stroke-[3]" />
                       </div>
                       {/* Item Text */}
-                      <span className="text-white text-xs sm:text-base lg:text-sm font-medium leading-relaxed">
+                      <span className="text-white text-base sm:text-xl lg:text-base font-medium leading-relaxed">
                         {item}
                       </span>
                     </li>

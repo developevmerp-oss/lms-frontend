@@ -172,7 +172,7 @@ export default function WebinarPhilosophy({
         >
           <div className="h-[1px] w-12 sm:w-16 bg-white/20" />
           {eyebrow && (
-            <span className="shrink-0 text-sm sm:text-lg lg:text-sm font-semibold uppercase tracking-[0.2em] text-white">
+            <span className="shrink-0 text-sm sm:text-lg md:text-lg lg:text-sm font-semibold uppercase tracking-[0.2em] text-white">
               {eyebrow}
             </span>
           )}
@@ -184,10 +184,10 @@ export default function WebinarPhilosophy({
           className={`mx-auto text-center mb-10 sm:mb-14 transition-all duration-700 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
             }`}
         >
-          <h2 className="mb-3 text-3xl sm:text-5xl lg:text-5xl font-black leading-tight tracking-tight text-white">
-            Mastery → Mindset →Monetization
+          <h2 className="mb-3 text-3xl sm:text-5xl lg:text-[3.25rem] font-black leading-tight tracking-tight text-white">
+            Mastery → Mindset → Monetization
           </h2>
-          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
+          <p className="mx-auto max-w-2xl text-sm sm:text-xl lg:text-lg font-normal leading-relaxed text-[#F4E9DF]/80">
             {subheading}
           </p>
         </div>
@@ -202,7 +202,7 @@ export default function WebinarPhilosophy({
                 className="rounded-[24px] sm:rounded-[30px] border border-white/10 bg-[#1C1917]/95 p-5 sm:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] backdrop-blur-md"
               >
                 {/* Card Top: Step number & count */}
-                <div className="flex items-center justify-between pb-3 text-xs sm:text-base font-bold tracking-[0.18em] text-[#ea580c]">
+                <div className="flex items-center justify-between pb-3 text-sm sm:text-base md:text-base font-bold tracking-[0.18em] text-[#ea580c]">
                   <span>{step.label || `STEP ${idx + 1}`}</span>
                   <span className="text-white/40">0{idx + 1} / 03</span>
                 </div>
@@ -219,18 +219,18 @@ export default function WebinarPhilosophy({
 
                 {/* Card Content */}
                 <div className="pt-4">
-                  <span className="inline-block text-xs sm:text-base font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
+                  <span className="inline-block text-sm sm:text-base md:text-base font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
                     {step.badge || step.tabName}
                   </span>
-                  <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white leading-snug">
+                  <h3 className="mb-2 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white leading-snug">
                     {step.title}
                   </h3>
                   {step.myth && (
-                    <p className="mb-2.5 text-xs sm:text-base font-semibold italic text-[#ea580c]/95 leading-relaxed">
+                    <p className="mb-2.5 text-sm sm:text-xl lg:text-lg font-semibold italic text-[#ea580c]/95 leading-relaxed">
                       {step.myth}
                     </p>
                   )}
-                  <p className="text-xs sm:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
+                  <p className="text-sm sm:text-lg lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
                     {step.body}
                   </p>
                 </div>
@@ -239,14 +239,14 @@ export default function WebinarPhilosophy({
           })}
         </div>
 
-        {/* ─── DESKTOP 2-COLUMN SHOWCASE (lg:grid): Left Big Card + Right Interactive Points (PERMANENTLY HEIGHT-LOCKED) ─── */}
+        {/* ─── DESKTOP 2-COLUMN SHOWCASE (lg:grid): Left Big Card + Right Interactive Points (EXPANDED TO SHOW ALL CONTENT) ─── */}
         <div
           className={`hidden lg:grid grid-cols-12 gap-12 xl:gap-16 items-stretch transition-opacity duration-700 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
             }`}
         >
-          {/* Left Column: Big Interactive Card with strictly locked height */}
-          <div className="col-span-5 flex flex-col min-h-[560px] h-[560px]">
-            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[#1C1917]/95 p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-md">
+          {/* Left Column: Big Interactive Card sized to show 100% of the content without cutting */}
+          <div className="col-span-5 flex flex-col min-h-[660px] lg:h-[680px] xl:min-h-[700px] xl:h-[700px]">
+            <div className="group relative flex h-full flex-col justify-start overflow-hidden rounded-[32px] border border-white/10 bg-[#1C1917]/95 p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-md">
               {/* Dynamic glass sweep sheen when card changes */}
               <AnimatePresence mode="wait">
                 <motion.div
@@ -259,13 +259,13 @@ export default function WebinarPhilosophy({
               </AnimatePresence>
 
               {/* Top Header of Card */}
-              <div className="relative z-10 flex shrink-0 items-center justify-between pb-3 text-xs sm:text-base lg:text-xs font-bold tracking-[0.18em] text-[#ea580c]">
+              <div className="relative z-10 flex shrink-0 items-center justify-between pb-3 text-sm sm:text-base lg:text-sm font-bold tracking-[0.18em] text-[#ea580c]">
                 <span>{currentStep.label || `STEP ${activeIndex + 1}`}</span>
                 <span className="text-white/40">0{activeIndex + 1} / 03</span>
               </div>
 
-              {/* Big Rounded Image with Fixed Aspect Ratio CSS Grid */}
-              <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 grid grid-cols-1 grid-rows-1">
+              {/* Big Rounded Image with 16:9 Aspect Ratio */}
+              <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 grid grid-cols-1 grid-rows-1">
                 {steps.map((step, idx) => {
                   const isCurrent = idx === activeIndex;
                   const stepImg = step.image || DEFAULT_CARD_IMAGES[idx % DEFAULT_CARD_IMAGES.length];
@@ -282,8 +282,8 @@ export default function WebinarPhilosophy({
                 <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
               </div>
 
-              {/* Card Details: Height strictly locked across all steps using CSS Grid stack (0px shift) */}
-              <div className="relative pt-4 pb-1 grid grid-cols-1 grid-rows-1 min-h-[220px] h-[220px]">
+              {/* Card Details: Generous flex-1 height allowing full content visibility without clipping */}
+              <div className="relative pt-4 pb-1 grid grid-cols-1 grid-rows-1 flex-1 min-h-[340px]">
                 {steps.map((step, idx) => {
                   const isCurrent = idx === activeIndex;
                   return (
@@ -295,18 +295,18 @@ export default function WebinarPhilosophy({
                         }`}
                       aria-hidden={!isCurrent}
                     >
-                      <span className="inline-block text-xs sm:text-base lg:text-xs font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
+                      <span className="inline-block text-sm sm:text-base lg:text-sm font-bold uppercase tracking-[0.16em] text-[#ea580c] mb-1">
                         {step.badge || step.tabName}
                       </span>
-                      <h3 className="mb-2 text-lg sm:text-2xl lg:text-xl font-bold tracking-tight text-white leading-snug">
+                      <h3 className="mb-2 text-xl sm:text-2xl lg:text-2xl font-bold tracking-tight text-white leading-snug">
                         {step.title}
                       </h3>
                       {step.myth && (
-                        <p className="mb-2 text-xs sm:text-base lg:text-sm font-semibold italic text-[#ea580c]/90 leading-relaxed">
+                        <p className="mb-2 text-sm sm:text-base lg:text-base font-semibold italic text-[#ea580c]/90 leading-relaxed">
                           {step.myth}
                         </p>
                       )}
-                      <p className="text-xs sm:text-base lg:text-sm font-normal leading-relaxed text-[#F4E9DF]/80">
+                      <p className="text-sm sm:text-base lg:text-base font-normal leading-relaxed text-[#F4E9DF]/80">
                         {step.body}
                       </p>
                     </div>
@@ -316,8 +316,8 @@ export default function WebinarPhilosophy({
             </div>
           </div>
 
-          {/* Right Column: The 3 Interactive Points (Locked to exact 560px matching left card) */}
-          <div className="col-span-7 flex flex-col justify-between min-h-[560px] h-[560px]">
+          {/* Right Column: The 3 Interactive Points (Locked to matching left card) */}
+          <div className="col-span-7 flex flex-col justify-between min-h-[660px] lg:h-[680px] xl:min-h-[700px] xl:h-[700px]">
             <div className="flex h-full flex-col justify-between">
               {steps.map((step, idx) => {
                 const isActive = idx === activeIndex;
@@ -349,7 +349,7 @@ export default function WebinarPhilosophy({
 
                       {/* Title Text */}
                       <span
-                        className={`text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
+                        className={`text-3xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
                           ? "text-white"
                           : "text-white/20 group-hover:text-white/40"
                           }`}
@@ -379,7 +379,7 @@ export default function WebinarPhilosophy({
         {/* ─── BOTTOM CLOSING TEXT ─── */}
         {closing && (
           <p
-            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-sm sm:text-xl lg:text-base font-normal leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            className={`mx-auto mt-12 sm:mt-16 max-w-2xl text-center text-sm sm:text-xl lg:text-lg font-normal leading-relaxed text-[#F4E9DF]/75 transition-all duration-700 delay-300 ease-out ${isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
           >
             {closing}
