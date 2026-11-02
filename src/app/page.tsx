@@ -335,7 +335,7 @@ export default function HomePage() {
                 </h2>
 
                 <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                  I'm Vrajangna Patel, founder of Ravishing Art Hub and a dedicated Resin Art Business Coach. Over the past 6+ years, I've transformed my passion for resin craft into an award-winning creative enterprise — and guided over <strong className="text-white font-bold">54,000+ creators</strong> across India and abroad.
+                  I'm Vrajangna Patel, founder of Ravishing Art Hub and a dedicated Resin Art Business Coach. Over the past 10+ years, I've transformed my passion for resin craft into an award-winning creative enterprise — and guided over <strong className="text-white font-bold">54,000+ creators</strong> across India and abroad.
                 </p>
 
                 <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
@@ -346,7 +346,7 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div className="mentor-check-item flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
                     <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
-                    <span>6+ Years Professional Experience</span>
+                    <span>10+ Years Professional Experience</span>
                   </div>
                   <div className="mentor-check-item flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
                     <CheckCircle2 size={16} className="text-orange-400 flex-shrink-0" />
