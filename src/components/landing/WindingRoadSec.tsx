@@ -420,10 +420,7 @@ export default function WindingRoadSec() {
   const lastProgressRef = useRef<number>(0);
   const stepBobRef = useRef<number>(0);
 
-  // Drag interaction state
-  const isDraggingRef = useRef<boolean>(false);
-  const dragStartYRef = useRef<number>(0);
-  const dragStartProgressRef = useRef<number>(0);
+
 
   // ─────────────────────────────────────────────────────────
   // Spline Path Definition (8 S-Curves calibrated for smooth 60-day roadmap)
@@ -1151,14 +1148,19 @@ export default function WindingRoadSec() {
     const container = containerRef.current;
 
     const ctx = gsap.context(() => {
+      ScrollTrigger.config({ ignoreMobileResize: true });
+
       ScrollTrigger.create({
         id: "road-scroll-trigger",
         trigger: container,
         start: "top top",
-        end: "+=4200",
+        end: () => (window.innerWidth < 768 ? "+=3200" : "+=4200"),
         pin: true,
+        pinSpacing: true,
         scrub: 0.65,
         anticipatePin: 1,
+        fastScrollEnd: true,
+        preventOverlaps: true,
         onUpdate: (self) => {
           const p = self.progress;
           progressProxy.current.value = p;
@@ -1203,6 +1205,13 @@ export default function WindingRoadSec() {
           checkCelebration(p, closestIdx);
         },
       });
+      const refreshTimer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 500);
+
+      return () => {
+        clearTimeout(refreshTimer);
+      };
     }, container);
 
     return () => ctx.revert();
@@ -1318,43 +1327,7 @@ export default function WindingRoadSec() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeMilestoneIndex, stepRoadScroll, jumpToMilestone, isFullscreen]);
 
-  // ─────────────────────────────────────────────────────────
-  // 9. Interactive Touch & Mouse Drag Scrubbing on Canvas
-  // ─────────────────────────────────────────────────────────
-  const handlePointerDown = (e: React.PointerEvent) => {
-    isDraggingRef.current = true;
-    dragStartYRef.current = e.clientY;
-    dragStartProgressRef.current = progressProxy.current.value;
-    roadAudio.init();
-  };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    const deltaY = dragStartYRef.current - e.clientY;
-    const progressChange = deltaY / 1500;
-    const newProgress = THREE.MathUtils.clamp(dragStartProgressRef.current + progressChange, 0, 1);
-    progressProxy.current.value = newProgress;
-    setScrollProgress(newProgress);
-
-    let closestIdx = 0;
-    let minDiff = 999;
-    ROAD_MILESTONES.forEach((ms, idx) => {
-      const diff = Math.abs(newProgress - ms.t);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIdx = idx;
-      }
-    });
-    if (newProgress >= 0.88) {
-      closestIdx = 7;
-    }
-    setActiveMilestoneIndex(closestIdx);
-    checkCelebration(newProgress, closestIdx);
-  };
-
-  const handlePointerUp = () => {
-    isDraggingRef.current = false;
-  };
 
   const activeMilestone = ROAD_MILESTONES[activeMilestoneIndex];
   const isAtRoadEnd = scrollProgress >= 0.96;
@@ -1377,7 +1350,7 @@ export default function WindingRoadSec() {
     <section
       id="artothon-3d-road"
       ref={containerRef}
-      className={`relative w-full overflow-hidden bg-[#040711] text-white select-none ${isFullscreen ? "fixed inset-0 z-50 h-screen" : "h-screen"
+      className={`relative w-full overflow-hidden bg-[#040711] text-white select-none ${isFullscreen ? "fixed inset-0 z-50 h-screen h-[100dvh]" : "h-screen h-[100dvh]"
         }`}
     >
       {/* ─── Top Completion Progress Bar ─── */}
@@ -1388,14 +1361,10 @@ export default function WindingRoadSec() {
         />
       </div>
 
-      {/* ─── 3D WebGL Canvas Layer (Supports Mouse Drag & Touch Scrub) ─── */}
+      {/* ─── 3D WebGL Canvas Layer (Background renders smoothly, touch/scroll passes naturally to page) ─── */}
       <div
         ref={canvasContainerRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        className="absolute inset-0 z-0 h-full w-full cursor-grab active:cursor-grabbing touch-none"
+        className="pointer-events-none absolute inset-0 z-0 h-full w-full"
       />
 
       {/* ─── Minimal Ambient Dotted Vignette Overlay ─── */}
@@ -1458,7 +1427,7 @@ export default function WindingRoadSec() {
       </div>
 
       {/* ─── Floating Up / Down Stepper Buttons (Right Edge) ─── */}
-      <div className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-auto flex flex-col gap-2">
+      {/* <div className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-auto flex flex-col gap-2">
         <button
           onClick={() => stepRoadScroll(-1)}
           aria-label="Travel Backward Up Road"
@@ -1475,7 +1444,7 @@ export default function WindingRoadSec() {
         >
           <ChevronDown size={18} />
         </button>
-      </div>
+      </div> */}
 
       {/* ─── Active Typographic Milestone Card (NUMBER AND TITLE ONLY - Hidden at Road End) ─── */}
       <AnimatePresence>
@@ -1492,7 +1461,7 @@ export default function WindingRoadSec() {
                 transform: `scale(${0.92 + milestoneProximity * 0.08})`,
                 transition: "opacity 0.25s ease-out, transform 0.25s ease-out",
               }}
-              className="pointer-events-auto w-full max-w-lg bg-slate-950/92 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black/90 transition-all duration-300 relative overflow-hidden"
+              className="pointer-events-none w-full max-w-lg bg-slate-950/92 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black/90 transition-all duration-300 relative overflow-hidden"
             >
               {/* 1. Dynamic Border Flare when Milestone Changes */}
               <motion.div
@@ -1576,7 +1545,7 @@ export default function WindingRoadSec() {
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             className="absolute inset-0 z-30 pointer-events-none flex flex-col items-center justify-center text-center px-4 py-8"
           >
-            <div className="pointer-events-auto flex flex-col items-center max-w-3xl">
+            <div className="pointer-events-none flex flex-col items-center max-w-3xl">
               {/* 1. 3D Graduation Trophy Illustration (Direct Floating Image - No Card Box) */}
               <motion.div
                 initial={{ scale: 0, rotate: -15, y: 20 }}
@@ -1608,7 +1577,7 @@ export default function WindingRoadSec() {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300 text-[11px] sm:text-xs font-black uppercase tracking-widest shadow-md backdrop-blur-md">
                   <span className="text-base animate-bounce">🎉</span>
-                  <PartyPopper size={14} className="text-orange-400 animate-bounce" />
+                  {/* <PartyPopper size={14} className="text-orange-400 animate-bounce" /> */}
                   <span>After this 60-Day Course,</span>
                 </div>
                 <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
@@ -1651,7 +1620,7 @@ export default function WindingRoadSec() {
                 className="mt-6 sm:mt-7 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs sm:text-sm shadow-2xl shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-amber-300"
               >
                 <span className="text-base">🎉</span>
-                <PartyPopper size={16} className="text-slate-950" />
+                {/* <PartyPopper size={16} className="text-slate-950" /> */}
                 <span>Blast Poppers Again</span>
                 <span className="text-base">🎉</span>
               </motion.button>
@@ -1671,9 +1640,9 @@ export default function WindingRoadSec() {
         )}
 
         {/* Milestone Switcher Pills */}
-        <div className="pointer-events-auto flex items-center gap-1 sm:gap-2 bg-slate-950/90 backdrop-blur-xl border border-slate-800/90 p-1 sm:p-2 rounded-2xl shadow-2xl max-w-full overflow-x-auto no-scrollbar">
-          {/* Previous Turn Button */}
-          <button
+        {/* <div className="pointer-events-auto flex items-center gap-1 sm:gap-2 bg-slate-950/90 backdrop-blur-xl border border-slate-800/90 p-1 sm:p-2 rounded-2xl shadow-2xl max-w-full overflow-x-auto no-scrollbar"> */}
+        {/* Previous Turn Button */}
+        {/* <button
             onClick={() => {
               if (activeMilestoneIndex > 0) jumpToMilestone(activeMilestoneIndex - 1);
             }}
@@ -1682,10 +1651,10 @@ export default function WindingRoadSec() {
             className="p-1 sm:p-1.5 rounded-xl text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-800 transition"
           >
             <ChevronLeft size={16} />
-          </button>
+          </button> */}
 
-          {/* 8 Milestone Jump Buttons */}
-          {ROAD_MILESTONES.map((ms, index) => {
+        {/* 8 Milestone Jump Buttons */}
+        {/* {ROAD_MILESTONES.map((ms, index) => {
             const isActive = index === activeMilestoneIndex;
             return (
               <button
@@ -1705,10 +1674,10 @@ export default function WindingRoadSec() {
                 )}
               </button>
             );
-          })}
+          })} */}
 
-          {/* Next Turn Button */}
-          <button
+        {/* Next Turn Button */}
+        {/* <button
             onClick={() => {
               if (activeMilestoneIndex < ROAD_MILESTONES.length - 1)
                 jumpToMilestone(activeMilestoneIndex + 1);
@@ -1718,8 +1687,8 @@ export default function WindingRoadSec() {
             className="p-1 sm:p-1.5 rounded-xl text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none hover:bg-slate-800 transition"
           >
             <ChevronRight size={16} />
-          </button>
-        </div>
+          </button> */}
+        {/* </div> */}
       </div>
     </section>
   );

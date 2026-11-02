@@ -150,39 +150,12 @@ function ChallengeCard({
 
 // Continuous Auto-sliding carousel for Mobile and Tablet (< 1024px)
 function ChallengeAutoSlider({ cards }: { cards: ChallengeCardItem[] }) {
-  const [isPaused, setIsPaused] = useState(false);
-  const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
-
   // Repeat cards 3 times for a seamless, continuous infinite loop
   const infiniteCards = [...cards, ...cards, ...cards];
 
-  const handleInteractionStart = () => {
-    setIsPaused(true);
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-  };
-
-  const handleInteractionEnd = () => {
-    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    resumeTimerRef.current = setTimeout(() => {
-      setIsPaused(false);
-    }, 1800);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    };
-  }, []);
-
   return (
-    <div
-      className="rc-slider-wrap relative w-full overflow-hidden mt-6 sm:mt-8 pt-6 sm:pt-8 pb-20 sm:pb-24"
-      onMouseEnter={handleInteractionStart}
-      onMouseLeave={handleInteractionEnd}
-      onTouchStart={handleInteractionStart}
-      onTouchEnd={handleInteractionEnd}
-    >
-      <div className={`rc-marquee-track flex gap-4 sm:gap-6 ${isPaused ? "is-paused" : ""}`}>
+    <div className="rc-slider-wrap relative w-full overflow-hidden mt-6 sm:mt-8 pt-6 sm:pt-8 pb-20 sm:pb-24">
+      <div className="rc-marquee-track flex gap-4 sm:gap-6">
         {infiniteCards.map((item, index) => {
           const accent = index % 2 === 1;
           const isTop = index % 2 === 0;
