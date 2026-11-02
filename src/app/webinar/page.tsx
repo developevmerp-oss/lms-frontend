@@ -679,12 +679,12 @@ export default function WebinarPage() {
   }, [activeWebinar?.durationMinutes]);
 
   return (
-    <div className="landing-page relative min-h-screen bg-[#ffffff] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
+    <div className="landing-page webinar-page relative min-h-screen bg-[#ffffff] pb-20 text-stone-900 selection:bg-orange-500 selection:text-white">
       <SocialProofToaster />
 
-      {/* ─── 1. TOP ANNOUNCEMENT BANNER ─── */}
+      {/* ─── 1. TOP ANNOUNCEMENT BANNER (DESKTOP ONLY: BEFORE NAVBAR) ─── */}
       {showBanner && (
-        <div className="relative z-50 border-b border-[#f3d7c4]"
+        <div className="hidden lg:block relative z-50 border-b border-[#f3d7c4]"
           style={{
             backgroundColor: "#ffffff",
             backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -708,6 +708,39 @@ export default function WebinarPage() {
       )}
 
       <SiteNavbar />
+
+      {/* ─── 1. ANNOUNCEMENT BANNER (MOBILE & TABLET ONLY: AFTER NAVBAR WITH PROPER GAP) ─── */}
+      {showBanner && (
+        <div
+          className="block lg:hidden relative z-40 w-full border-t border-b border-[#f3d7c4]"
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+            backgroundSize: "24px 24px",
+            backgroundAttachment: "fixed",
+          }}
+        >
+          <div className="relative mx-auto max-w-7xl px-3 sm:px-6 py-2 sm:py-2.5 pr-11 sm:pr-14 flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-0.5 sm:gap-2 leading-snug">
+              <span className="inline-flex items-center gap-1.5 font-bold text-stone-900 text-xs sm:text-sm tracking-tight">
+                <Flame size={14} className="text-orange-500 fill-orange-500 shrink-0" />
+                <span>LIVE MASTERCLASS — LIMITED SEATS.</span>
+              </span>
+              <span className="text-stone-600 text-[11px] sm:text-xs font-medium">
+                Registration closes when live-seat capacity is reached.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowBanner(false)}
+              aria-label="Dismiss announcement"
+              className="absolute right-2 sm:right-3.5 top-1/2 -translate-y-1/2 p-2 rounded-full text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition cursor-pointer flex items-center justify-center"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <main>
         <WebinarHero
