@@ -81,7 +81,7 @@ const ENDORSEMENTS = [
 ];
 
 const FEATURES = [
-  { icon: Briefcase, label: "6+ Years Professional Experience" },
+  { icon: Briefcase, label: "10+ Years Professional Experience" },
   { icon: Trophy, label: "Nationally Recognized Art Coach" },
   { icon: Users, label: "Step-by-Step Business Frameworks" },
   { icon: Gem, label: "Hands-On Lifetime Community" },
@@ -442,11 +442,11 @@ export default function MentorAboutSec() {
           <div className="lg:col-span-7 flex flex-col gap-7 lg:pt-12 lg:self-end">
             {/* ─── 4 STAT CARDS WITH COUNT-UP ANIMATION ─── */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-3.5">
-              {/* Card 1: 6+ Years */}
+              {/* Card 1: 10+ Years */}
               <div className="relative overflow-hidden rounded-2xl bg-[#c33d18] text-white p-4 sm:p-5 flex flex-col justify-between shadow-md min-h-[9rem] sm:min-h-[10rem] group transition-transform duration-300 hover:-translate-y-1">
                 <div>
                   <div className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight leading-none">
-                    <CountUp target={6} suffix="+" />
+                    <CountUp target={10} suffix="+" />
                   </div>
                 </div>
                 <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
