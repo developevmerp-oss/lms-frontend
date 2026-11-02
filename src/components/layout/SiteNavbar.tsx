@@ -11,9 +11,10 @@ const LINKS = [
   { href: "/#mentor", label: "Meet Mentor" },
   { href: "/#path", label: "The Path" },
   { href: "/#curriculum", label: "What You'll Learn" },
-  { href: "/#dimensions", label: "6 Dimensions" },
+  // { href: "/#dimensions", label: "6 Dimensions" },
+  { href: "/#artothon", label: "Art-O-Thon" },
   { href: "/#community", label: "Community" },
-  { href: "/#membership", label: "Memberships" }
+  { href: "/#membership", label: "Memberships" },
 ];
 
 export default function SiteNavbar() {
@@ -37,6 +38,19 @@ export default function SiteNavbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (onHome && href.startsWith("/#")) {
+      const targetId = href.replace("/#", "");
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        e.preventDefault();
+        elem.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", href);
+        setMenuOpen(false);
+      }
+    }
+  };
+
   const surface = onHome
     ? "border-orange-200/80 bg-white/95 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.22)] backdrop-blur-xl"
     : "border-orange-200/80 bg-white/95 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.18)] backdrop-blur-xl";
@@ -44,12 +58,21 @@ export default function SiteNavbar() {
   return (
     <div className="site-navbar sticky top-0 z-50 bg-transparent">
       <div className="relative mx-auto max-w-7xl px-3 py-3 sm:px-5">
-        <nav className={`flex items-center justify-between gap-2 rounded-full border-2 px-2.5 py-2 transition-transform duration-300 ease-out sm:gap-3 sm:px-3 ${hidden ? "pointer-events-none -translate-y-[calc(100%+0.75rem)]" : "translate-y-0"} ${surface}`}>
+        <nav
+          className={`flex items-center justify-between gap-2 rounded-full border-2 px-2.5 py-2 transition-transform duration-300 ease-out sm:gap-3 sm:px-3 ${
+            hidden ? "pointer-events-none -translate-y-[calc(100%+0.75rem)]" : "translate-y-0"
+          } ${surface}`}
+        >
           <BrandLogo size="sm" />
 
           <div className="hidden min-w-0 items-center gap-2.5 xl:gap-4 text-[12px] xl:text-[13px] font-medium text-stone-700 lg:flex">
             {LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="whitespace-nowrap transition-colors hover:text-orange-600">
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="whitespace-nowrap transition-colors hover:text-orange-600"
+              >
                 {link.label}
               </a>
             ))}
@@ -83,14 +106,19 @@ export default function SiteNavbar() {
         </nav>
 
         {menuOpen && (
-          <div className={`absolute inset-x-3 top-[calc(100%-0.35rem)] z-50 rounded-3xl border-2 p-3 sm:inset-x-5 lg:hidden ${surface}`}>
+          <div
+            className={`absolute inset-x-3 top-[calc(100%-0.35rem)] z-50 rounded-3xl border-2 p-3 sm:inset-x-5 lg:hidden ${surface}`}
+          >
             <div className="flex flex-col">
               {LINKS.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   className="rounded-2xl px-3 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-black/5 hover:text-orange-600"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(e) => {
+                    handleNavClick(e, link.href);
+                    setMenuOpen(false);
+                  }}
                 >
                   {link.label}
                 </a>

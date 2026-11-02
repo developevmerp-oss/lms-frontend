@@ -6,40 +6,59 @@ import { ArrowRight, BookOpen, Briefcase, Gem, GraduationCap, Package, Play, Shi
 
 const ACCENT = "#e36b32";
 
-// ─── ANIMATED COUNT UP COMPONENT ───
+// ─── ANIMATED COUNT UP COMPONENT (STARTS FROM 0 ON ENTERING SECTION) ───
 function CountUp({
+  inView,
   target,
   suffix = "",
   decimals = 0,
+  duration = 1800,
+  delay = 100,
 }: {
+  inView: boolean;
   target: number;
   suffix?: string;
   decimals?: number;
+  duration?: number;
+  delay?: number;
 }) {
-  const [count, setCount] = useState(target);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
+    if (!inView) {
+      setCount(0);
+      return;
+    }
+
+    let frameId: number | null = null;
     let startTimestamp: number | null = null;
-    const duration = 1200;
+    let timerId: NodeJS.Timeout | null = null;
 
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // easeOutExpo curve
-      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      const current = easeProgress * target;
-      setCount(current);
+    // Small delay so user visually sees the numbers start rolling up right as they arrive
+    timerId = setTimeout(() => {
+      const step = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // easeOutExpo curve for smooth decelerating counter
+        const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = easeProgress * target;
+        setCount(current);
 
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      } else {
-        setCount(target);
-      }
+        if (progress < 1) {
+          frameId = window.requestAnimationFrame(step);
+        } else {
+          setCount(target);
+        }
+      };
+
+      frameId = window.requestAnimationFrame(step);
+    }, delay);
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
     };
-
-    const frameId = window.requestAnimationFrame(step);
-    return () => window.cancelAnimationFrame(frameId);
-  }, [target]);
+  }, [inView, target, duration, delay]);
 
   return (
     <span>
@@ -140,6 +159,59 @@ const ACCOLADES = [
 
 export default function MentorAboutSec() {
   const sectionRef = useRef<HTMLElement>(null);
+  const statsContainerRef = useRef<HTMLDivElement>(null);
+  const [statsInView, setStatsInView] = useState(false);
+
+  useEffect(() => {
+    const checkVisibility = () => {
+      const el = statsContainerRef.current;
+      if (!el) return;
+
+      // If user is at top of landing page, mentor section is definitely not in view
+      if (typeof window !== "undefined" && window.scrollY < 120) {
+        setStatsInView(false);
+        return;
+      }
+
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || 800;
+
+      // In view when entering bottom 82% of screen and not scrolled off top
+      const inView = rect.top < vh * 0.82 && rect.bottom > 60;
+      setStatsInView(inView);
+    };
+
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+    window.addEventListener("resize", checkVisibility);
+
+    let observer: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined" && statsContainerRef.current) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          if (entry.isIntersecting) {
+            checkVisibility();
+          } else {
+            setStatsInView(false);
+          }
+        },
+        {
+          threshold: [0, 0.2, 0.4],
+          rootMargin: "0px 0px -15% 0px",
+        }
+      );
+      observer.observe(statsContainerRef.current);
+    }
+
+    const timer = setTimeout(checkVisibility, 250);
+
+    return () => {
+      window.removeEventListener("scroll", checkVisibility);
+      window.removeEventListener("resize", checkVisibility);
+      if (observer) observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, []);
 
 
   // ─── 4 AWARDS TIMELINE DATA (EXACT 4 CARDS AS PER USER SPECIFICATION) ───
@@ -441,12 +513,15 @@ export default function MentorAboutSec() {
           {/* ─── RIGHT COLUMN: LITTLE BOTTOM TO IMAGE (lg:pt-12 lg:self-end) ─── */}
           <div className="lg:col-span-7 flex flex-col gap-7 lg:pt-12 lg:self-end">
             {/* ─── 4 STAT CARDS WITH COUNT-UP ANIMATION ─── */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-3.5">
+            <div
+              ref={statsContainerRef}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-3.5"
+            >
               {/* Card 1: 10+ Years */}
               <div className="relative overflow-hidden rounded-2xl bg-[#c33d18] text-white p-4 sm:p-5 flex flex-col justify-between shadow-md min-h-[9rem] sm:min-h-[10rem] group transition-transform duration-300 hover:-translate-y-1">
                 <div>
                   <div className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight leading-none">
-                    <CountUp target={10} suffix="+" />
+                    <CountUp inView={statsInView} target={10} suffix="+" delay={80} />
                   </div>
                 </div>
                 <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
@@ -460,7 +535,7 @@ export default function MentorAboutSec() {
               <div className="relative overflow-hidden rounded-2xl bg-[#b53310] text-white p-4 sm:p-5 flex flex-col justify-between shadow-md min-h-[9rem] sm:min-h-[10rem] group transition-transform duration-300 hover:-translate-y-1">
                 <div>
                   <div className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight leading-none">
-                    <CountUp target={54} suffix="K+" />
+                    <CountUp inView={statsInView} target={54} suffix="K+" delay={120} />
                   </div>
                 </div>
                 <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
@@ -474,7 +549,7 @@ export default function MentorAboutSec() {
               <div className="relative overflow-hidden rounded-2xl bg-[#942008] text-white p-4 sm:p-5 flex flex-col justify-between shadow-md min-h-[9rem] sm:min-h-[10rem] group transition-transform duration-300 hover:-translate-y-1">
                 <div>
                   <div className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight leading-none">
-                    <CountUp target={8} suffix="K+" />
+                    <CountUp inView={statsInView} target={8} suffix="K+" delay={160} />
                   </div>
                 </div>
                 <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
@@ -488,7 +563,7 @@ export default function MentorAboutSec() {
               <div className="relative overflow-hidden rounded-2xl bg-[#701405] text-white p-4 sm:p-5 flex flex-col justify-between shadow-md min-h-[9rem] sm:min-h-[10rem] group transition-transform duration-300 hover:-translate-y-1">
                 <div>
                   <div className="text-3xl sm:text-4xl lg:text-[2.65rem] font-black tracking-tight leading-none text-[#fef08a]">
-                    <CountUp target={5.0} decimals={1} suffix=" ★" />
+                    <CountUp inView={statsInView} target={5.0} decimals={1} suffix=" ★" delay={200} />
                   </div>
                 </div>
                 <p className="text-sm sm:text-lg lg:text-sm font-semibold text-white/95 leading-snug mt-3">
