@@ -5368,18 +5368,14 @@ section#real-transformations,
 .rc-marquee-track {
   display: flex;
   width: max-content;
-  animation: rc-continuous-slide 32s linear infinite;
+  animation: rc-continuous-slide 44s linear infinite;
   will-change: transform;
 }
 
 @media (min-width: 640px) {
   .rc-marquee-track {
-    animation-duration: 36s;
+    animation-duration: 48s;
   }
-}
-
-.rc-marquee-track.is-paused {
-  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
