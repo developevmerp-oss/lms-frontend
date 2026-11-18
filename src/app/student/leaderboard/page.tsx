@@ -3,11 +3,66 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
-import { Trophy, Flame, Crown, Medal, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { API_BASE_URL } from "@/config/api";
 import { getLevelCode } from "@/components/layout/StudentNav";
+
+/* Fallback avatar portraits for students without avatars */
+const DEFAULT_AVATARS = [
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=200&auto=format&fit=crop",
+];
+
+const getAvatarSrc = (student: any, index: number) => {
+  if (student?.avatarUrl && typeof student.avatarUrl === "string" && student.avatarUrl.trim() !== "") {
+    return student.avatarUrl;
+  }
+  return DEFAULT_AVATARS[index % DEFAULT_AVATARS.length];
+};
+
+/* Golden crown matching reference image #2 */
+const GoldenCrown = () => (
+  <svg
+    viewBox="0 0 60 42"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-8 h-6 sm:w-11 sm:h-8 md:w-14 md:h-10 drop-shadow-md select-none"
+  >
+    <defs>
+      <linearGradient id="goldCrownGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stopColor="#FDE047" />
+        <stop offset="45%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+    </defs>
+    {/* 5 balls on tips */}
+    <circle cx="6" cy="16" r="2.8" fill="url(#goldCrownGradient)" />
+    <circle cx="17.5" cy="9" r="3" fill="url(#goldCrownGradient)" />
+    <circle cx="30" cy="4" r="3.5" fill="url(#goldCrownGradient)" />
+    <circle cx="42.5" cy="9" r="3" fill="url(#goldCrownGradient)" />
+    <circle cx="54" cy="16" r="2.8" fill="url(#goldCrownGradient)" />
+    {/* Crown body */}
+    <path
+      d="M6 18 L13 28 L17.5 11 L24 27 L30 6 L36 27 L42.5 11 L47 28 L54 18 L51 34 C39 37.5 21 37.5 9 34 Z"
+      fill="url(#goldCrownGradient)"
+    />
+    {/* Crown bottom trim band */}
+    <path
+      d="M9 34 C21 37.5 39 37.5 51 34 C50 36.5 49 37 47 38 C37 40.5 23 40.5 13 38 C11 37 10 36.5 9 34 Z"
+      fill="url(#goldCrownGradient)"
+      opacity="0.9"
+    />
+  </svg>
+);
 
 export default function StudentLeaderboard() {
   const { user, token, logout } = useAuth();
@@ -83,8 +138,20 @@ export default function StudentLeaderboard() {
   const top3 = students.slice(0, 3);
   const rest = students.slice(3);
 
+  const top1 = top3[0];
+  const top2 = top3[1];
+  const top3rd = top3[2];
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <StudentNav 
         user={user || stats} 
         level={getLevelName()} 
@@ -93,131 +160,239 @@ export default function StudentLeaderboard() {
         notifications={stats.notifications}
       />
 
-      <main className="flex-1 max-w-[1000px] mx-auto w-full p-4 md:p-8">
-        <header className="mb-12 text-center">
-          <h1 className="text-3xl md:text-5xl font-black text-white flex justify-center items-center gap-4 mb-4">
-            <Trophy className="text-yellow-400" size={40} /> Global Leaderboard
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+        {/* Header: Left aligned, no trophy icon, responsive typography */}
+        <header className="mb-6 sm:mb-8 text-left">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight mb-1.5 sm:mb-2">
+            Global Leaderboard
           </h1>
-          <p className="text-slate-400 text-lg">Compete with artists worldwide and earn your spot at the top.</p>
+          <p className="text-stone-500 text-xs sm:text-sm md:text-base font-normal">
+            Compete with artists worldwide and earn your spot at the top.
+          </p>
         </header>
 
-        {/* Top 3 Podium */}
+        {/* Top 3 Podium Cards - matching reference image #2 */}
         {top3.length > 0 && (
-          <div className="flex justify-center items-end gap-2 sm:gap-6 mb-16 h-64">
-            {/* 2nd Place */}
-            {top3[1] && (
-              <motion.div 
-                initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="w-1/3 max-w-[180px] flex flex-col items-center"
+          <div className="flex justify-center items-end gap-2.5 sm:gap-6 md:gap-8 mb-10 sm:mb-14 pt-8 sm:pt-12">
+            {/* 2nd Place (Left) */}
+            {top2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="w-1/3 max-w-[240px] flex flex-col items-center"
               >
-                <div className="relative mb-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-slate-300 overflow-hidden relative z-10">
-                    <img src={top3[1].avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"} alt={top3[1].name} className="w-full h-full object-cover" />
+                {/* Avatar + Badge */}
+                <div className="relative -mb-8 sm:-mb-12 md:-mb-14 z-10">
+                  <div className="w-16 h-16 sm:w-22 sm:h-22 md:w-26 md:h-26 rounded-full border-3 sm:border-4 border-white shadow-md overflow-hidden bg-stone-100">
+                    <img
+                      src={getAvatarSrc(top2, 1)}
+                      alt={top2.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_AVATARS[1];
+                      }}
+                    />
                   </div>
-                  <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-950 w-8 h-8 rounded-full flex items-center justify-center font-black border-2 border-slate-950 z-20">2</div>
+                  <div className="absolute -bottom-2 sm:-bottom-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-b from-[#A0AEC0] to-[#718096] text-white w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center font-black text-[0.6875rem] sm:text-xs md:text-sm border-2 border-white shadow-sm z-20">
+                    2
+                  </div>
                 </div>
-                <div className="w-full h-32 bg-gradient-to-t from-slate-800 to-slate-800/50 rounded-t-3xl border border-slate-700 flex flex-col items-center pt-6 px-2 text-center">
-                  <p className="font-bold text-white text-sm sm:text-base truncate w-full">{top3[1].name}</p>
-                  <p className="text-slate-400 font-black text-xs sm:text-sm mt-1">{top3[1].points.toLocaleString()} XP</p>
+
+                {/* Card Box */}
+                <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 pt-10 sm:pt-14 md:pt-16 pb-4 sm:pb-6 px-1.5 sm:px-3 md:px-4 text-center shadow-xs">
+                  <p className="font-bold text-stone-900 text-xs sm:text-sm md:text-base lg:text-lg truncate w-full">
+                    {top2.name}
+                  </p>
+                  <p className="font-semibold text-stone-700 text-[0.6875rem] sm:text-xs md:text-sm mt-1 sm:mt-1.5">
+                    {top2.streak || 1} Days
+                  </p>
+                  <p className="font-bold text-stone-900 text-[0.6875rem] sm:text-xs md:text-sm mt-0.5 sm:mt-1">
+                    {(top2.points || 0).toLocaleString()} XP
+                  </p>
                 </div>
               </motion.div>
             )}
 
-            {/* 1st Place */}
-            {top3[0] && (
-              <motion.div 
-                initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="w-1/3 max-w-[200px] flex flex-col items-center"
+            {/* 1st Place (Center - Elevated & Champion Gold) */}
+            {top1 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="w-1/3 max-w-[260px] flex flex-col items-center z-10"
               >
-                <div className="relative mb-4">
-                  <Crown className="absolute -top-8 left-1/2 -translate-x-1/2 text-yellow-400 z-20" size={32} />
-                  <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-yellow-400 overflow-hidden relative z-10 shadow-[0_0_30px_rgba(250,204,21,0.3)]">
-                    <img src={top3[0].avatarUrl || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=150&auto=format&fit=crop"} alt={top3[0].name} className="w-full h-full object-cover" />
+                {/* Avatar + Crown + Badge */}
+                <div className="relative -mb-10 sm:-mb-14 md:-mb-16 z-20">
+                  {/* Golden Crown */}
+                  <div className="absolute -top-6 sm:-top-8 md:-top-10 left-1/2 -translate-x-1/2 z-30">
+                    <GoldenCrown />
                   </div>
-                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-950 w-10 h-10 rounded-full flex items-center justify-center font-black border-4 border-slate-950 z-20 shadow-lg">1</div>
+
+                  {/* Avatar Circle */}
+                  <div className="w-20 h-20 sm:w-26 sm:h-26 md:w-32 md:h-32 rounded-full border-3 sm:border-4 border-[#FBBF24] shadow-lg shadow-amber-300/30 overflow-hidden bg-stone-100">
+                    <img
+                      src={getAvatarSrc(top1, 0)}
+                      alt={top1.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_AVATARS[0];
+                      }}
+                    />
+                  </div>
+
+                  {/* 1 Badge */}
+                  <div className="absolute -bottom-2.5 sm:-bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-b from-[#FBBF24] to-[#F59E0B] text-white w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center font-black text-xs sm:text-sm md:text-base border-2 border-white shadow-sm z-30">
+                    1
+                  </div>
                 </div>
-                <div className="w-full h-40 bg-gradient-to-t from-yellow-500/20 to-slate-800 rounded-t-3xl border border-yellow-500/30 flex flex-col items-center pt-8 px-2 text-center shadow-[0_-10px_40px_rgba(250,204,21,0.1)]">
-                  <p className="font-black text-white text-base sm:text-lg truncate w-full">{top3[0].name}</p>
-                  <p className="text-yellow-400 font-black text-sm mt-1">{top3[0].points.toLocaleString()} XP</p>
+
+                {/* Card Box */}
+                <div className="w-full bg-gradient-to-b from-[#FFFDF7] via-[#FFF9EE] to-[#FFF3E3] rounded-2xl sm:rounded-3xl border border-[#FDE68A] pt-12 sm:pt-16 md:pt-18 pb-5 sm:pb-7 px-2 sm:px-3 md:px-4 text-center shadow-md shadow-amber-900/5">
+                  <p className="font-bold text-stone-900 text-xs sm:text-base md:text-lg lg:text-xl truncate w-full">
+                    {top1.name}
+                  </p>
+                  <p className="font-semibold text-stone-700 text-[0.6875rem] sm:text-xs md:text-sm mt-1 sm:mt-1.5">
+                    {top1.streak || 1} Days
+                  </p>
+                  <p className="font-bold text-stone-900 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1">
+                    {(top1.points || 0).toLocaleString()} XP
+                  </p>
                 </div>
               </motion.div>
             )}
 
-            {/* 3rd Place */}
-            {top3[2] && (
-              <motion.div 
-                initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                className="w-1/3 max-w-[180px] flex flex-col items-center"
+            {/* 3rd Place (Right) */}
+            {top3rd && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="w-1/3 max-w-[240px] flex flex-col items-center"
               >
-                <div className="relative mb-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-orange-600 overflow-hidden relative z-10">
-                    <img src={top3[2].avatarUrl || "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=150&auto=format&fit=crop"} alt={top3[2].name} className="w-full h-full object-cover" />
+                {/* Avatar + Badge */}
+                <div className="relative -mb-8 sm:-mb-12 md:-mb-14 z-10">
+                  <div className="w-16 h-16 sm:w-22 sm:h-22 md:w-26 md:h-26 rounded-full border-3 sm:border-4 border-[#D97706]/40 shadow-md overflow-hidden bg-stone-100">
+                    <img
+                      src={getAvatarSrc(top3rd, 2)}
+                      alt={top3rd.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_AVATARS[2];
+                      }}
+                    />
                   </div>
-                  <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black border-2 border-slate-950 z-20">3</div>
+                  <div className="absolute -bottom-2 sm:-bottom-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-b from-[#D97706] to-[#B45309] text-white w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center font-black text-[0.6875rem] sm:text-xs md:text-sm border-2 border-white shadow-sm z-20">
+                    3
+                  </div>
                 </div>
-                <div className="w-full h-24 bg-gradient-to-t from-slate-800 to-slate-800/40 rounded-t-3xl border border-slate-700 flex flex-col items-center pt-5 px-2 text-center">
-                  <p className="font-bold text-white text-sm sm:text-base truncate w-full">{top3[2].name}</p>
-                  <p className="text-slate-400 font-black text-xs sm:text-sm mt-1">{top3[2].points.toLocaleString()} XP</p>
+
+                {/* Card Box */}
+                <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 pt-10 sm:pt-14 md:pt-16 pb-4 sm:pb-6 px-1.5 sm:px-3 md:px-4 text-center shadow-xs">
+                  <p className="font-bold text-stone-900 text-xs sm:text-sm md:text-base lg:text-lg truncate w-full">
+                    {top3rd.name}
+                  </p>
+                  <p className="font-semibold text-stone-700 text-[0.6875rem] sm:text-xs md:text-sm mt-1 sm:mt-1.5">
+                    {top3rd.streak || 1} Days
+                  </p>
+                  <p className="font-bold text-stone-900 text-[0.6875rem] sm:text-xs md:text-sm mt-0.5 sm:mt-1">
+                    {(top3rd.points || 0).toLocaleString()} XP
+                  </p>
                 </div>
               </motion.div>
             )}
           </div>
         )}
 
-        {/* Rest of Leaderboard */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-          <div className="grid grid-cols-10 sm:grid-cols-12 gap-2 px-4 md:px-6 py-4 bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <div className="col-span-2 text-center">Rank</div>
-            <div className="col-span-5 sm:col-span-6">Artist</div>
-            <div className="hidden sm:block col-span-2 text-center">Streak</div>
-            <div className="col-span-3 sm:col-span-2 text-right">Points</div>
+        {/* Student List Table - matching reference image #3 */}
+        <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] p-3 sm:p-5 md:p-6 lg:p-8">
+          {/* Table Header */}
+          <div className="grid grid-cols-12 items-center px-2.5 sm:px-4 pb-3 sm:pb-4 border-b border-stone-100 text-stone-700 text-xs sm:text-sm font-bold">
+            <div className="col-span-2 sm:col-span-1 text-left">Rank</div>
+            <div className="col-span-4 sm:col-span-4 md:col-span-4 text-left pl-1 sm:pl-2">Student</div>
+            <div className="col-span-3 sm:col-span-4 md:col-span-4 text-center">Streak</div>
+            <div className="col-span-3 sm:col-span-3 md:col-span-3 text-right pr-2 sm:pr-4">XP</div>
           </div>
-          
-          <div className="divide-y divide-slate-800/50">
-            {students.length === 0 && (
-              <div className="p-16 text-center text-slate-500 font-medium">Loading rankings...</div>
+
+          {/* Table Body */}
+          <div className="pt-1">
+            {students.length === 0 ? (
+              <div className="py-16 text-center text-stone-400 font-medium text-xs sm:text-sm md:text-base">
+                Loading rankings...
+              </div>
+            ) : rest.length === 0 ? (
+              <div className="py-12 text-center text-stone-400 font-medium text-xs sm:text-sm md:text-base">
+                No other artists in the rankings yet.
+              </div>
+            ) : (
+              rest.map((student, index) => {
+                const isMe = student.id === user?.id || (Boolean(user?.email) && student.email === user?.email);
+                const rankNumber = index + 4;
+                const formattedRank = String(rankNumber).padStart(2, "0");
+                const displayName = isMe ? "You" : student.name;
+
+                return (
+                  <motion.div
+                    key={student.id || index}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.03 }}
+                    className={`grid grid-cols-12 items-center py-3 sm:py-3.5 md:py-4 px-2.5 sm:px-4 transition-colors ${
+                      isMe
+                        ? "bg-[#FFF6EF] rounded-xl sm:rounded-2xl border border-[#FDE6D2]/60 my-1 text-[#C4431D]"
+                        : "border-b border-stone-100/80 last:border-b-0 hover:bg-stone-50/70"
+                    }`}
+                  >
+                    {/* Rank (e.g. 04, 05, 08) */}
+                    <div
+                      className={`col-span-2 sm:col-span-1 text-left font-bold text-xs sm:text-sm md:text-base shrink-0 ${
+                        isMe ? "text-[#C4431D]" : "text-stone-900"
+                      }`}
+                    >
+                      {formattedRank}
+                    </div>
+
+                    {/* Student (Avatar + Name) */}
+                    <div className="col-span-4 sm:col-span-4 md:col-span-4 flex items-center gap-2 sm:gap-3.5 pl-1 sm:pl-2 min-w-0">
+                      <img
+                        src={getAvatarSrc(student, rankNumber - 1)}
+                        alt={displayName}
+                        className="w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full object-cover shrink-0 bg-stone-100"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            DEFAULT_AVATARS[(rankNumber - 1) % DEFAULT_AVATARS.length];
+                        }}
+                      />
+                      <span
+                        className={`font-semibold text-xs sm:text-sm md:text-base truncate ${
+                          isMe ? "text-[#C4431D] font-bold" : "text-stone-900"
+                        }`}
+                      >
+                        {displayName}
+                      </span>
+                    </div>
+
+                    {/* Streak (e.g. 28 Days, 12 Days) */}
+                    <div
+                      className={`col-span-3 sm:col-span-4 md:col-span-4 text-center text-xs sm:text-sm md:text-base shrink-0 ${
+                        isMe ? "text-[#C4431D] font-semibold" : "text-stone-700 font-medium sm:font-semibold"
+                      }`}
+                    >
+                      {student.streak || 1} Days
+                    </div>
+
+                    {/* XP (e.g. 7,980 XP, 5,980 XP) */}
+                    <div
+                      className={`col-span-3 sm:col-span-3 md:col-span-3 text-right pr-2 sm:pr-4 font-bold text-xs sm:text-sm md:text-base shrink-0 ${
+                        isMe ? "text-[#C4431D]" : "text-stone-900"
+                      }`}
+                    >
+                      {(student.points || 0).toLocaleString()} XP
+                    </div>
+                  </motion.div>
+                );
+              })
             )}
-            {rest.map((student, index) => {
-              const isMe = student.id === user?.id;
-              const rank = index + 4;
-              return (
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 0.05 }}
-                  key={student.id}
-                  className={`grid grid-cols-10 sm:grid-cols-12 gap-2 px-4 md:px-6 py-4 items-center hover:bg-slate-800/30 transition-colors ${isMe ? 'bg-blue-500/10 hover:bg-blue-500/20' : ''}`}
-                >
-                  <div className="col-span-2 flex justify-center">
-                    <span className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-black text-xs sm:text-sm ${isMe ? 'bg-blue-500 text-white' : 'text-slate-500 bg-slate-800'}`}>
-                      {rank}
-                    </span>
-                  </div>
-
-                  <div className="col-span-5 sm:col-span-6 flex items-center gap-2 sm:gap-4 min-w-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white shadow-inner shrink-0 text-xs sm:text-sm">
-                      {student.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-white flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
-                        <span className="truncate max-w-[80px] sm:max-w-none">{student.name}</span>
-                        {isMe && <span className="text-[9px] uppercase tracking-wider bg-blue-500 text-white px-1.5 py-0.5 rounded-full shrink-0">You</span>}
-                      </div>
-                      <p className="text-xs text-slate-500 truncate">{student.membershipLevel}</p>
-                    </div>
-                  </div>
-
-                  <div className="hidden sm:flex col-span-2 justify-center">
-                    <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full bg-slate-950 border border-slate-800">
-                      <Flame size={12} className="text-orange-500" />
-                      <span className="font-bold text-slate-300 text-xs sm:text-sm">{student.streak}</span>
-                    </div>
-                  </div>
-
-                  <div className="col-span-3 sm:col-span-2 text-right">
-                    <span className="font-black text-white text-sm sm:text-base tracking-tight">{student.points.toLocaleString()} <span className="text-[10px] text-slate-500 font-semibold">XP</span></span>
-                  </div>
-                </motion.div>
-              );
-            })}
           </div>
         </div>
       </main>

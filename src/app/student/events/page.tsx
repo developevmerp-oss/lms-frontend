@@ -147,7 +147,15 @@ export default function StudentEventsPage() {
   const pastEvents = classesList.filter((e) => !isClassActiveOrUpcoming(e));
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <StudentNav
         user={user || stats}
         level={effectiveLevel || "Fast Track (L0)"}
@@ -156,28 +164,28 @@ export default function StudentEventsPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <Calendar size={13} className="text-orange-400" /> Live Interactive Masterclasses
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
+              <Calendar size={13} className="text-[#942008]" /> Live Interactive Masterclasses
             </span>
-            <h1 className="text-2xl md:text-4xl font-black text-white">
+            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
               Live Coaching &amp; Attendance Portal
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-stone-500 text-sm mt-1">
               Join live interactive coaching sessions with Vrajangna Patel. Clicking "Join Live Class" marks your attendance and awards bonus XP.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-2xl self-start md:self-auto">
+          <div className="flex items-center gap-2 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-1.5 rounded-2xl self-start md:self-auto">
             <button
               onClick={() => setActiveTab("upcoming")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "upcoming"
-                  ? "bg-orange-500 text-slate-950 font-black shadow-md shadow-orange-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/20"
+                  : "text-stone-500 hover:text-stone-900"
               }`}
             >
               Upcoming ({upcomingEvents.length})
@@ -186,8 +194,8 @@ export default function StudentEventsPage() {
               onClick={() => setActiveTab("past")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "past"
-                  ? "bg-orange-500 text-slate-950 font-black shadow-md shadow-orange-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/20"
+                  : "text-stone-500 hover:text-stone-900"
               }`}
             >
               Past &amp; Replays ({pastEvents.length})
@@ -204,75 +212,75 @@ export default function StudentEventsPage() {
 
         {/* Access Check */}
         {!isAccessible ? (
-          <div className="rounded-3xl border border-orange-500/40 bg-slate-900/90 p-8 md:p-12 text-center max-w-2xl mx-auto shadow-2xl">
-            <div className="w-16 h-16 rounded-3xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 mx-auto mb-4">
+          <div className="rounded-3xl border border-[#ecdccb] bg-white/95 p-8 md:p-12 text-center max-w-2xl mx-auto shadow-2xl">
+            <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto mb-4">
               <Lock size={32} />
             </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-orange-400 block mb-1">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#942008] block mb-1">
               Level 1 (Silver Member) or Higher Required
             </span>
-            <h2 className="text-2xl font-black text-white mb-3">
+            <h2 className="text-2xl font-black text-stone-900 mb-3">
               Live Masterclasses are Locked for Fast Track
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed mb-6">
+            <p className="text-sm text-stone-600 leading-relaxed mb-6">
               Live interactive masterclasses, weekly Q&amp;A calls, and live portfolio reviews unlock when your account is upgraded to <strong>Level 1 ({levelTiers.find((t: any) => (t.code || "").toUpperCase() === "L1")?.price || "₹4,999"})</strong>, <strong>Level 2 ({levelTiers.find((t: any) => (t.code || "").toUpperCase() === "L2")?.price || "₹19,999"})</strong>, or <strong>Level 3 ({levelTiers.find((t: any) => (t.code || "").toUpperCase() === "L3")?.price || "₹59,999"})</strong>.
             </p>
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 mb-6 text-left">
-              <div className="flex justify-between text-xs font-bold text-slate-300">
+            <div className="rounded-2xl border border-stone-200 bg-[#faf8f5] p-4 mb-6 text-left">
+              <div className="flex justify-between text-xs font-bold text-stone-600">
                 <span>Your Current Membership:</span>
-                <span className="text-orange-400 font-bold">{stats?.membershipLevel || "Fast Track (L0)"}</span>
+                <span className="text-[#942008] font-bold">{stats?.membershipLevel || "Fast Track (L0)"}</span>
               </div>
             </div>
             <button
               onClick={() => setPurchaseModal({ isOpen: true, tierCode: "L1" })}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm h-11 px-8 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-105 transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-sm h-11 px-8 rounded-xl shadow-md shadow-[#c4431d]/20 hover:scale-105 transition-all cursor-pointer"
             >
               <Zap size={16} /> Upgrade to Silver &amp; Unlock Live Classes
             </button>
           </div>
         ) : activeTab === "upcoming" ? (
           upcomingEvents.length === 0 ? (
-            <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
+            <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/95 p-8">
               <Calendar size={36} className="text-slate-600 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-white mb-1">No Upcoming Classes Scheduled Yet</h3>
-              <p className="text-sm text-slate-400">The mentor will post the next live Masterclass schedule shortly.</p>
+              <h3 className="text-lg font-bold text-stone-900 mb-1">No Upcoming Classes Scheduled Yet</h3>
+              <p className="text-sm text-stone-500">The mentor will post the next live Masterclass schedule shortly.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingEvents.map((ev) => (
                 <div
                   key={ev.id}
-                  className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl"
+                  className="rounded-3xl border border-stone-200 bg-white/95 p-6 flex flex-col justify-between hover:border-[#ecdccb] transition-all shadow-xl"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className={`rounded-md px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider ${
+                      <span className={`rounded-md px-2.5 py-0.5 text-xs font-black uppercase tracking-wider ${
                         ev.status === "live"
                           ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"
-                          : "bg-orange-500/10 text-orange-400 border border-orange-500/30"
+                          : "bg-[#fde5d6] text-[#942008] border border-[#f5ded0]"
                       }`}>
                         {ev.status === "live" ? "🔴 Live Now" : "Upcoming Live"}
                       </span>
 
-                      <span className="rounded-md bg-slate-800 border border-slate-700 px-2 py-0.5 text-[11px] font-bold text-slate-300">
+                      <span className="rounded-md bg-stone-100 border border-stone-300 px-2 py-0.5 text-xs font-bold text-stone-600">
                         🎯 {ev.targetLevel === "All" ? "All Levels" : ev.targetLevel}
                       </span>
 
                       {ev.isAttended && (
-                        <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
                           <CheckCircle2 size={12} /> Attended
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-lg font-black text-white mb-2 leading-snug">{ev.title}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                    <h3 className="text-lg font-black text-stone-900 mb-2 leading-snug">{ev.title}</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed mb-4">
                       {ev.description || "Live resin coaching and interactive techniques with Vrajangna Patel."}
                     </p>
 
-                    <div className="rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3.5 mb-4 space-y-1.5 text-xs">
-                      <p className="font-semibold text-white flex items-center gap-2">
-                        <Calendar size={13} className="text-orange-400" />{" "}
+                    <div className="rounded-2xl bg-[#faf8f5] border border-stone-200/80 p-3.5 mb-4 space-y-1.5 text-xs">
+                      <p className="font-semibold text-stone-900 flex items-center gap-2">
+                        <Calendar size={13} className="text-[#942008]" />{" "}
                         {new Date(ev.scheduledAt).toLocaleDateString("en-IN", {
                           weekday: "short",
                           day: "numeric",
@@ -281,11 +289,11 @@ export default function StudentEventsPage() {
                           minute: "2-digit",
                         })}
                       </p>
-                      <p className="text-slate-400 flex items-center gap-2">
-                        <Clock size={13} className="text-amber-400" /> Duration: {ev.durationMinutes || 60} Minutes
+                      <p className="text-stone-500 flex items-center gap-2">
+                        <Clock size={13} className="text-amber-500" /> Duration: {ev.durationMinutes || 60} Minutes
                       </p>
-                      <p className="text-slate-400 flex items-center gap-2">
-                        <Users size={13} className="text-slate-400" /> Mentor: {ev.instructor || "Vrajangna Patel"}
+                      <p className="text-stone-500 flex items-center gap-2">
+                        <Users size={13} className="text-stone-500" /> Mentor: {ev.instructor || "Vrajangna Patel"}
                       </p>
                     </div>
                   </div>
@@ -294,29 +302,31 @@ export default function StudentEventsPage() {
                     <button
                       onClick={() => handleJoinClass(ev.id, ev.meetingUrl)}
                       disabled={joiningClassId === ev.id}
-                      className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs py-3 px-4 rounded-xl shadow-lg shadow-orange-500/20 hover:scale-[1.02] transition-all cursor-pointer"
+                      className="self-start inline-flex items-center gap-1.5 bg-gradient-to-r from-[#b53310] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs py-2 px-3.5 sm:px-4 rounded-xl shadow-sm hover:scale-[1.02] transition-all cursor-pointer"
                     >
-                      <Video size={15} />
-                      {joiningClassId === ev.id
-                        ? "Recording Attendance..."
-                        : ev.isAttended
-                        ? "Re-Join Live Class Room"
-                        : "Join Live Class & Mark Attendance (+100 XP)"}
+                      <Video size={14} />
+                      <span>
+                        {joiningClassId === ev.id
+                          ? "Recording Attendance..."
+                          : ev.isAttended
+                          ? "Re-Join Live Class"
+                          : "Join Live Class (+100 XP)"}
+                      </span>
                     </button>
                   ) : (
-                    <div className="w-full flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950 border border-slate-800">
+                    <div className="w-full flex items-center justify-between gap-2 p-3 rounded-xl bg-[#faf8f5] border border-stone-200">
                       <div className="text-left">
-                        <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                          <Lock size={13} className="text-orange-400" />
+                        <span className="text-xs font-bold text-stone-600 flex items-center gap-1.5">
+                          <Lock size={13} className="text-[#942008]" />
                           Locked for Your Tier
                         </span>
-                        <span className="text-[11px] text-slate-500 block">
+                        <span className="text-xs text-stone-500 block">
                           Access reserved for {ev.targetLevel}
                         </span>
                       </div>
                       <button
                         onClick={() => setPurchaseModal({ isOpen: true, tierCode: ev.targetLevel.split(",")[0].trim() })}
-                        className="px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-lg shadow-md hover:scale-105 transition-all cursor-pointer whitespace-nowrap"
+                        className="px-3.5 py-2 bg-gradient-to-r from-[#b53310] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-sm hover:scale-105 transition-all cursor-pointer whitespace-nowrap"
                       >
                         Upgrade Tier
                       </button>
@@ -329,32 +339,32 @@ export default function StudentEventsPage() {
         ) : (
           /* Past / Replay Tab */
           pastEvents.length === 0 ? (
-            <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
+            <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/95 p-8">
               <Video size={36} className="text-slate-600 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-white mb-1">No Past Class Recordings Yet</h3>
-              <p className="text-sm text-slate-400">Class recordings will appear here after live sessions conclude.</p>
+              <h3 className="text-lg font-bold text-stone-900 mb-1">No Past Class Recordings Yet</h3>
+              <p className="text-sm text-stone-500">Class recordings will appear here after live sessions conclude.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {pastEvents.map((ev) => (
                 <div
                   key={ev.id}
-                  className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl"
+                  className="rounded-3xl border border-stone-200 bg-white/95 p-6 flex flex-col justify-between hover:border-stone-300 transition-all shadow-xl"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="rounded-md bg-slate-800 border border-slate-700 px-2.5 py-0.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      <span className="rounded-md bg-stone-100 border border-stone-200 px-2.5 py-0.5 text-xs font-bold text-stone-600 uppercase tracking-wider">
                         Concluded
                       </span>
                       {ev.isAttended && (
-                        <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                        <span className="text-xs font-bold text-emerald-500 flex items-center gap-1">
                           <CheckCircle2 size={12} /> You Attended
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-lg font-black text-white mb-2 leading-snug">{ev.title}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                    <h3 className="text-lg font-black text-stone-900 mb-2 leading-snug">{ev.title}</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed mb-4">
                       {ev.description || "Class replay and discussion notes."}
                     </p>
                   </div>
@@ -364,21 +374,22 @@ export default function StudentEventsPage() {
                       href={ev.recordingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 px-4 rounded-xl border border-slate-700 transition-colors"
+                      className="self-start inline-flex items-center gap-1.5 bg-white hover:bg-[#fff9f5] text-stone-900 font-bold text-xs py-2 px-3.5 rounded-xl border border-[#c4431d] shadow-2xs hover:scale-[1.02] transition-all"
                     >
-                      <PlayCircle size={15} className="text-orange-400" /> Watch Class Replay
+                      <PlayCircle size={14} className="text-[#c4431d]" />
+                      <span>Watch Class Replay</span>
                     </a>
                   ) : (
                     <div className="space-y-2">
                       {ev.meetingUrl && (
                         <button
                           onClick={() => handleJoinClass(ev.id, ev.meetingUrl)}
-                          className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs py-2.5 px-4 rounded-xl shadow-lg transition-all cursor-pointer"
+                          className="self-start inline-flex items-center gap-1.5 bg-gradient-to-r from-[#b53310] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs py-2 px-3.5 rounded-xl shadow-sm transition-all cursor-pointer"
                         >
                           <Video size={14} /> Join Live Meeting Room
                         </button>
                       )}
-                      <div className="text-center py-2 text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                      <div className="text-center py-2 text-xs text-slate-500 border border-dashed border-stone-200 rounded-xl">
                         Replay processing by mentor
                       </div>
                     </div>

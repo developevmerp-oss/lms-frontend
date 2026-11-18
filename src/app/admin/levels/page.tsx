@@ -34,6 +34,9 @@ import {
   Upload,
   Image as ImageIcon,
   Link as LinkIcon,
+  ChevronRight,
+  ChevronDown,
+  MoreHorizontal,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
 import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
@@ -137,7 +140,7 @@ const CATEGORY_OPTIONS = [
 
 const COLOR_OPTIONS = [
   { label: 'Emerald / Green', value: 'emerald', bg: 'bg-emerald-500', text: 'text-emerald-400', border: 'border-emerald-500/40' },
-  { label: 'Silver / Slate', value: 'slate', bg: 'bg-slate-400', text: 'text-slate-300', border: 'border-slate-400/40' },
+  { label: 'Silver / Slate', value: 'slate', bg: 'bg-stone-400', text: 'text-stone-700', border: 'border-stone-400/40' },
   { label: 'Amber / Gold', value: 'amber', bg: 'bg-amber-500', text: 'text-amber-400', border: 'border-amber-500/40' },
   { label: 'Cyan / Diamond', value: 'cyan', bg: 'bg-cyan-500', text: 'text-cyan-400', border: 'border-cyan-500/40' },
   { label: 'Purple / Royal', value: 'purple', bg: 'bg-purple-500', text: 'text-purple-400', border: 'border-purple-500/40' },
@@ -156,6 +159,11 @@ export default function AdminLevels() {
   const [isLoading, setIsLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [expandedOffersTierId, setExpandedOffersTierId] = useState<string | null>(null);
+  const [expandedInstallmentsTierId, setExpandedInstallmentsTierId] = useState<string | null>(null);
+  const [openCardMenuId, setOpenCardMenuId] = useState<string | null>(null);
+  const [statusModalTier, setStatusModalTier] = useState<LevelTier | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   // Modal State for Level Tier
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -245,7 +253,7 @@ export default function AdminLevels() {
           setActiveRazorpayKey(dataKey.keyId || "");
           setIsKeyConfigured(!!dataKey.isConfigured);
         }
-      } catch (_) {}
+      } catch (_) { }
     } catch (err: any) {
       console.error(err);
       showError("Failed to fetch level config data.");
@@ -365,25 +373,46 @@ export default function AdminLevels() {
     }
   };
 
-  // Quick 1-click Toggle Level Enabled/Disabled Status
-  const handleToggleLevelStatus = async (tier: LevelTier) => {
+  // Toggle Level Enabled/Disabled Status after confirmation popup
+  const handleToggleLevelStatus = async (tier: LevelTier, targetStatus?: boolean) => {
+    const newStatus = typeof targetStatus === 'boolean' ? targetStatus : tier.isPublished === false;
+    if (tier.isPublished === newStatus) {
+      setStatusModalTier(null);
+      return;
+    }
+
+    const previousPublished = tier.isPublished;
+    setStatusModalTier(null);
+    setIsUpdatingStatus(true);
+
+    // Update card state immediately so the white icon knob rotates once and slides to its direction
+    setLevels((prev) =>
+      prev.map((item) => (item.id === tier.id ? { ...item, isPublished: newStatus } : item))
+    );
+
     try {
-      const newStatus = tier.isPublished === false ? true : false;
       const res = await fetch(`${API}/admin/levels/${tier.id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({ isPublished: newStatus }),
       });
       if (res.ok) {
-        showSuccess(`Level ${tier.code} ${newStatus ? "enabled (visible to students)" : "disabled (hidden from students)"}!`);
         fetchData();
       } else {
+        setLevels((prev) =>
+          prev.map((item) => (item.id === tier.id ? { ...item, isPublished: previousPublished } : item))
+        );
         const errData = await res.json().catch(() => ({}));
         showError(`Failed to update status: ${errData.message || "Server Error"}`);
       }
     } catch (err: any) {
+      setLevels((prev) =>
+        prev.map((item) => (item.id === tier.id ? { ...item, isPublished: previousPublished } : item))
+      );
       console.error("Status toggle error:", err);
       showError(`Error toggling status: ${err.message || "Network issue"}`);
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -453,28 +482,36 @@ export default function AdminLevels() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
-        
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <Trophy size={13} className="text-orange-400" /> Membership Tier Hierarchy &amp; Pricing
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#942008] mb-2">
+              <Trophy size={13} className="text-[#c4431d]" /> Membership Tier Hierarchy &amp; Pricing
             </span>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight flex items-center gap-3">
               Membership Level &amp; Price Settings
             </h1>
-            <p className="text-slate-400 mt-1 text-sm">
+            <p className="text-stone-500 mt-1 text-xs sm:text-sm lg:text-base font-medium">
               Manage level titles, customize offer prices (₹499, ₹4,999, ₹19,999, ₹59,999), and edit access privileges.
             </p>
           </div>
 
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-6 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer self-start md:self-auto"
+            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm sm:text-base h-11 px-6 rounded-2xl shadow-md shadow-[#c4431d]/25 transition-all hover:scale-[1.02] cursor-pointer self-start sm:self-auto w-full sm:w-auto"
           >
             <Plus size={18} /> Create New Level Tier
           </button>
@@ -482,34 +519,34 @@ export default function AdminLevels() {
 
         {/* Alert Messages */}
         {successMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
-            <CheckCircle2 size={18} /> {successMsg}
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm lg:text-base font-bold flex items-center gap-2">
+            <CheckCircle2 size={18} className="text-emerald-600 shrink-0" /> {successMsg}
           </div>
         )}
 
         {/* Razorpay Gateway Live Settings */}
-        <div className="mb-6 p-5 rounded-3xl bg-slate-900 border border-orange-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0">
+        <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-white/95 border border-[#ecdccb] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_4px_16px_-4px_rgba(45,30,15,0.06)]">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
               <CreditCard size={20} />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-black text-white">
+                <h3 className="text-xs sm:text-sm lg:text-base font-black text-stone-900">
                   Razorpay Payment Gateway Integration
                 </h3>
                 {isKeyConfigured ? (
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 break-all">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                     Live Key Active: {activeRazorpayKey}
                   </span>
                 ) : (
-                  <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 break-all">
                     ⚠️ Using Dummy Fallback Key ({activeRazorpayKey || 'None'})
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-stone-500 mt-1">
                 Saved keys persist permanently in the database across all server restarts.
               </p>
             </div>
@@ -520,17 +557,17 @@ export default function AdminLevels() {
               setRzpForm({ keyId: activeRazorpayKey.includes('1DP5mmOlF5G5ag') ? '' : activeRazorpayKey, keySecret: '' });
               setIsRazorpayModalOpen(true);
             }}
-            className="px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer whitespace-nowrap flex items-center gap-2 transition-transform hover:scale-105"
+            className="px-4 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs sm:text-sm rounded-xl shadow-md shadow-[#c4431d]/25 cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 transition-transform hover:scale-[1.02] shrink-0"
           >
             ⚙️ Configure Razorpay Keys
           </button>
         </div>
 
         {/* Info Note */}
-        <div className="mb-6 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-300 text-xs md:text-sm flex items-center gap-3">
-          <Info size={18} className="text-orange-400 shrink-0" />
+        <div className="mb-6 p-4 rounded-2xl bg-white/95 border border-[#ecdccb] text-stone-700 text-xs sm:text-sm flex items-start sm:items-center gap-3 shadow-xs">
+          <Info size={18} className="text-[#c4431d] shrink-0 mt-0.5 sm:mt-0" />
           <span>
-            <strong>Dynamic Level Pricing:</strong> Click <strong>"Edit Tier &amp; Price"</strong> on any level card below to update its <strong>Offer Price</strong>, title, badge color, or description. Changes immediately reflect across the entire portal.
+            <strong>Dynamic Level Pricing:</strong> Click <strong>&quot;Edit Tier &amp; Price&quot;</strong> on any level card below to update its <strong>Offer Price</strong>, title, badge color, or description. Changes immediately reflect across the entire portal.
           </span>
         </div>
 
@@ -541,11 +578,10 @@ export default function AdminLevels() {
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                selectedCategory === cat
-                  ? 'bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20'
-                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${selectedCategory === cat
+                ? 'bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-lg shadow-[#c4431d]/25'
+                : 'bg-white border border-[#ecdccb] text-stone-600 hover:border-[#c4431d]/50 hover:text-[#942008]'
+                }`}
             >
               {cat === 'All' ? '🌟 All Categories' : `📂 ${cat}`}
             </button>
@@ -554,277 +590,382 @@ export default function AdminLevels() {
 
         {/* Level Tiers Grid */}
         {isLoading ? (
-          <div className="p-16 text-center text-slate-500">Loading level configurations...</div>
+          <div className="p-16 text-center text-stone-400 text-xs sm:text-sm lg:text-base">Loading level configurations...</div>
         ) : levels.length === 0 ? (
-          <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
-            <Trophy size={40} className="text-slate-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-white mb-1">No Level Tiers Configured</h3>
-            <p className="text-sm text-slate-400 mb-4">Create your first level tier to configure membership access.</p>
+          <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/40 p-8">
+            <Trophy size={40} className="text-stone-400 mx-auto mb-3" />
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-stone-900 mb-1">No Level Tiers Configured</h3>
+            <p className="text-xs sm:text-sm lg:text-base text-stone-500 mb-4">Create your first level tier to configure membership access.</p>
             <button
               onClick={openCreateModal}
-              className="bg-orange-500 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl"
+              className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-bold text-xs sm:text-sm h-10 px-5 rounded-xl cursor-pointer"
             >
               + Create Level Tier
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {levels
               .filter((tier) => selectedCategory === 'All' || (tier.category || 'General') === selectedCategory)
               .map((tier) => {
-              const studentCount = getStudentCountForTier(tier.code);
-              const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
-              const displayPrice = tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : tier.code === 'L3' ? '₹59,999' : 'Custom');
-              const formatValidityLabel = (days: number | null | undefined) => {
-                if (!days || Number(days) === 0) return '♾️ Lifetime Access';
-                const d = Number(days);
-                if (d === 30) return '⏱️ 1 Month Access';
-                if (d === 90) return '⏱️ 3 Months Access';
-                if (d === 180) return '⏱️ 6 Months Access';
-                if (d === 365) return '⏱️ 1 Year Access';
-                if (d === 1095) return '⏱️ 3 Years Access';
-                return `⏳ ${d} Days Access`;
-              };
-              const validityText = formatValidityLabel(tier.validityDays);
-              const isPub = tier.isPublished !== false;
+                const studentCount = getStudentCountForTier(tier.code);
+                const colorConfig = COLOR_OPTIONS.find(c => c.value === tier.badgeColor) || COLOR_OPTIONS[2];
+                const displayPrice = tier.price || (tier.code === 'L0' ? '₹499' : tier.code === 'L1' ? '₹4,999' : tier.code === 'L2' ? '₹19,999' : tier.code === 'L3' ? '₹59,999' : 'Custom');
+                const formatValidityLabel = (days: number | null | undefined) => {
+                  if (!days || Number(days) === 0) return '♾️ Lifetime Access';
+                  const d = Number(days);
+                  if (d === 30) return '⏱️ 1 Month Access';
+                  if (d === 90) return '⏱️ 3 Months Access';
+                  if (d === 180) return '⏱️ 6 Months Access';
+                  if (d === 365) return '⏱️ 1 Year Access';
+                  if (d === 1095) return '⏱️ 3 Years Access';
+                  return `⏳ ${d} Days Access`;
+                };
+                const validityText = formatValidityLabel(tier.validityDays);
+                const isPub = tier.isPublished !== false;
+                const offersForLevel = levelOffers.filter(o => o.levelCode === tier.code || o.levelCode === 'ALL');
+                const activeFreqs = normalizeFrequencies(tier.installmentPlans).filter((f) => f.enabled);
+                const isOffersExpanded = expandedOffersTierId === tier.id;
+                const isInstallmentsExpanded = expandedInstallmentsTierId === tier.id;
+                const isMenuOpen = openCardMenuId === tier.id;
 
-              return (
-                <div
-                  key={tier.id}
-                  className={`rounded-3xl border ${isPub ? 'border-slate-800 bg-slate-900/90' : 'border-slate-800/60 bg-slate-950/60 opacity-80'} flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl overflow-hidden`}
-                >
-                  {/* Level Banner Image (Thumbnail) */}
-                  {tier.thumbnail && (
-                    <div className="relative w-full h-36 bg-slate-950 overflow-hidden border-b border-slate-800">
-                      <img
-                        src={getImageUrl(tier.thumbnail)}
-                        alt={tier.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                      <div className="absolute top-3 left-3">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-950/80 backdrop-blur text-orange-400 border border-orange-500/30">
-                          {tier.code}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="p-6 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-4">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-2xl">{tier.icon || '⭐'}</span>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-black text-orange-400 uppercase tracking-widest block">
-                              {tier.code} Tier
-                            </span>
-                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 ${isPub ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/30'}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                              {isPub ? 'Enabled' : 'Disabled'}
-                            </span>
-                          </div>
-                          <h3 className="text-lg font-black text-white">{tier.name}</h3>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="text-sm font-black text-amber-400 font-mono bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
-                          <Tag size={12} /> {displayPrice}
-                        </span>
-
-                        {tier.offerActive && (
-                          <div className="flex flex-col items-end gap-0.5">
-                            {tier.offerTitle && (
-                              <span className="text-[9px] font-extrabold text-red-400 uppercase tracking-tight">
-                                🎁 {tier.offerTitle}
-                              </span>
-                            )}
-                            <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
-                              <Flame size={10} />
-                              {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
-                            </span>
-                          </div>
-                        )}
-
-                        <span className="text-[10px] text-slate-500 font-bold">
-                          Order #{tier.order}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Category & Validity Strip */}
-                    <div className="flex items-center gap-2 mb-3 text-[11px] font-bold">
-                      <span className="bg-slate-800/80 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">
-                        📂 {tier.category || 'General'}
-                      </span>
-                      <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-2.5 py-1 rounded-lg">
-                        {validityText}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                      {tier.description || "Full membership tier benefits and unlocked portal privileges."}
-                    </p>
-
-                    <div className="rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 mb-3 flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Assigned Members:</span>
-                      <span className="font-black text-white flex items-center gap-1">
-                        <Users size={13} className="text-orange-400" /> {studentCount} Students
-                      </span>
-                    </div>
-
-                    {/* Level Offers Box (Multiple Offers per Level) */}
-                    {(() => {
-                      const offersForLevel = levelOffers.filter(o => o.levelCode === tier.code || o.levelCode === 'ALL');
-                      return (
-                        <div className="my-3 p-3 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-black text-slate-300 flex items-center gap-1.5">
-                              <Tag size={12} className="text-red-400" /> Level Offers ({offersForLevel.length})
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => openAddOfferForLevelModal(tier.code)}
-                              className="px-2.5 py-1 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-black transition-all cursor-pointer flex items-center gap-1"
-                            >
-                              + Add Offer
-                            </button>
-                          </div>
-
-                          {offersForLevel.length > 0 ? (
-                            <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
-                              {offersForLevel.map((off) => (
-                                <div key={off.id} className="flex items-center justify-between text-[11px] bg-slate-900/90 p-2 rounded-xl border border-slate-800/80">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <span className="text-red-400">🎁</span>
-                                    <span className="font-bold text-white truncate">{off.title}</span>
-                                  </div>
-                                  <span className="font-black text-red-400 font-mono text-[10px] shrink-0 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded-md">
-                                    {off.discountType === 'percentage' ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-[10px] text-slate-500 font-medium">No campaign offers added for {tier.code} yet.</p>
-                          )}
-                        </div>
-                      );
-                    })()}
-
-                    {/* Installment Plans Status Box */}
-                    {tier.installmentsEnabled ? (
-                      <div className="my-3 p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-black text-emerald-400 flex items-center gap-1.5">
-                            <CreditCard size={12} /> Installments Enabled
+                return (
+                  <div
+                    key={tier.id}
+                    data-color={colorConfig.value}
+                    className={`rounded-3xl border flex flex-col justify-between transition-all duration-200 ${isPub
+                      ? 'border-[#ecdccb] bg-white shadow-[0_10px_28px_-10px_rgba(45,30,15,0.08)] hover:border-[#c4431d]/40'
+                      : 'border-stone-200 bg-[#fcfaf7] opacity-85'
+                      }`}
+                  >
+                    {/* Top Visual Area: Banner Image OR Clean Pill Header Bar */}
+                    {tier.thumbnail ? (
+                      <div className="relative w-full h-48 sm:h-52 lg:h-56 bg-stone-100 overflow-hidden rounded-t-3xl border-b border-stone-100">
+                        <img
+                          src={getImageUrl(tier.thumbnail)}
+                          alt={tier.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                          <span className="px-3 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-white/95 backdrop-blur-xs text-[#942008] border border-[#f5ded0]/80 shadow-xs">
+                            {tier.code}
                           </span>
-                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                            Active
+                          <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-white/95 backdrop-blur-xs border shadow-xs inline-flex items-center gap-1.5 ${isPub ? 'border-emerald-200 text-emerald-700' : 'border-rose-200 text-rose-700'
+                            }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                            {isPub ? 'Enabled' : 'Disabled'}
                           </span>
                         </div>
-                        {(() => {
-                          const activeFreqs = normalizeFrequencies(tier.installmentPlans).filter((f) => f.enabled);
-                          return activeFreqs.length > 0 ? (
-                            <div>
-                              <div className="flex flex-wrap gap-1 mb-1.5">
-                                {activeFreqs.map((f) => (
-                                  <span
-                                    key={f.frequency}
-                                    className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300"
-                                  >
-                                    🗓️ {f.label}
-                                  </span>
-                                ))}
-                              </div>
-                              <p className="text-[10px] text-slate-400">
-                                Students enter count (2-12) &amp; choose frequency; price auto-divides from {displayPrice}.
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[10px] text-amber-400 font-medium">
-                              Installments active. Edit tier to check allowed frequencies.
-                            </p>
-                          );
-                        })()}
                       </div>
                     ) : (
-                      <div className="my-2 px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[10px] text-slate-500 flex items-center justify-between">
-                        <span>Installments: Disabled</span>
-                        <span className="text-[9px] text-slate-600">Full payment only</span>
+                      <div className="px-5 sm:px-6 py-3.5 bg-[#fcfaf7] border-b border-stone-100 rounded-t-3xl flex items-center justify-between gap-2">
+                        <span className="px-3 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-white text-[#942008] border border-[#f5ded0] shadow-xs">
+                          {tier.code}
+                        </span>
+                        <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-white border shadow-xs inline-flex items-center gap-1.5 ${isPub ? 'border-emerald-200 text-emerald-700' : 'border-rose-200 text-rose-700'
+                          }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                          {isPub ? 'Enabled' : 'Disabled'}
+                        </span>
                       </div>
                     )}
-                  </div>
 
-                  <div className="flex items-center gap-2 pt-3 border-t border-slate-800/80">
-                    <button
-                      onClick={() => openEditModal(tier)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl border border-slate-700 transition-colors cursor-pointer"
-                    >
-                      <Edit2 size={13} /> Edit Tier &amp; Price
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleLevelStatus(tier)}
-                      className={`px-3 font-bold text-xs h-9 rounded-xl border transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 ${
-                        isPub 
-                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                          : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30'
-                      }`}
-                      title={isPub ? "Click to Disable Level (Hide from students)" : "Click to Enable Level (Make visible to students)"}
-                    >
-                      {isPub ? <Eye size={13} /> : <EyeOff size={13} />}
-                      <span>{isPub ? "Enabled" : "Disabled"}</span>
-                    </button>
-                    <button
-                      onClick={() => setQrModalTier(tier)}
-                      className="px-3 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-bold text-xs h-9 rounded-xl border border-orange-500/30 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
-                      title="Generate &amp; Download QR Code"
-                    >
-                      <QrCode size={13} /> QR Code
-                    </button>
-                    <button
-                      onClick={() => handleDeleteTier(tier.id, tier.code)}
-                      className="text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
-                      title="Delete Tier"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {/* Main Card Body */}
+                    <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-5 flex-1 flex flex-col">
+                      {/* Header Row: Icon + Code/Order + Name + Price Pill */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-11 h-11 rounded-full bg-[#fff2e6] border border-[#fde0c6] flex items-center justify-center text-xl sm:text-2xl shrink-0">
+                            {tier.icon || '⭐'}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="text-xs sm:text-sm font-bold text-[#942008] tracking-wide">
+                                {tier.code} Tier
+                              </span>
+                              <span className="text-stone-300" aria-hidden="true">·</span>
+                              <span className="text-xs text-stone-400 font-semibold">
+                                Order #{tier.order}
+                              </span>
+                            </div>
+                            <h3 className="text-base sm:text-lg lg:text-xl font-black text-stone-900 leading-snug break-words">
+                              {tier.name}
+                            </h3>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <span className="text-xs sm:text-sm lg:text-base font-black text-[#c4431d] font-mono bg-[#fff7ed] border border-[#fed7aa] px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap shadow-xs">
+                            <Tag size={14} className="text-[#ea580c]" /> {displayPrice}
+                          </span>
+
+                          {tier.offerActive && (
+                            <div className="flex flex-col items-end gap-1">
+                              {tier.offerTitle && (
+                                <span className="text-xs font-extrabold text-rose-700 tracking-tight text-right">
+                                  🎁 {tier.offerTitle}
+                                </span>
+                              )}
+                              <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-xs px-2 py-0.5 rounded-lg shadow-xs inline-flex items-center gap-1 whitespace-nowrap">
+                                <Flame size={11} />
+                                {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <p className="mt-3 text-xs sm:text-sm lg:text-base text-stone-600 leading-relaxed">
+                        {tier.description || "Full membership tier benefits and unlocked portal privileges."}
+                      </p>
+
+                      {/* Category & Validity Pills */}
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="bg-[#f6f3ee] border border-[#eae4dc] text-stone-800 font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
+                          📂 {tier.category || 'General'}
+                        </span>
+                        <span className="bg-[#eef6ff] border border-[#d6e8ff] text-[#2563eb] font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
+                          {validityText}
+                        </span>
+                      </div>
+
+                      {/* Clean Hairline Divider Rows */}
+                      <div className="mt-5 border-t border-stone-200/80 divide-y divide-stone-200/80">
+                        {/* Row 1: Assigned Members */}
+                        <div className="py-3 flex items-center justify-between gap-2 text-xs sm:text-sm lg:text-base">
+                          <span className="inline-flex items-center gap-2 font-medium text-stone-600">
+                            <Users size={15} className="text-[#c4431d] shrink-0" /> Assigned Members
+                          </span>
+                          <span className="inline-flex items-center gap-1 font-bold text-stone-900">
+                            {studentCount} Students <ChevronRight size={15} className="text-stone-400" />
+                          </span>
+                        </div>
+
+                        {/* Row 2: Level Offers (Accordion Row) */}
+                        <div className="py-3 text-xs sm:text-sm lg:text-base">
+                          <div className="flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedOffersTierId(isOffersExpanded ? null : tier.id)}
+                              className="flex-1 flex items-center justify-between gap-2 text-left cursor-pointer group"
+                            >
+                              <span className="inline-flex items-center gap-2 font-medium text-stone-600 group-hover:text-stone-900 transition-colors">
+                                <Tag size={15} className="text-[#c4431d] shrink-0" /> Level Offers ({offersForLevel.length})
+                              </span>
+                            </button>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => openAddOfferForLevelModal(tier.code)}
+                                className="px-2.5 py-0.5 rounded-full bg-[#fff5ee] hover:bg-[#fde5d6] text-[#942008] border border-[#f5ded0] text-xs font-bold transition-colors cursor-pointer"
+                              >
+                                + Add Offer
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setExpandedOffersTierId(isOffersExpanded ? null : tier.id)}
+                                className="p-0.5 text-stone-400 hover:text-stone-700 cursor-pointer"
+                                aria-label={isOffersExpanded ? "Collapse level offers" : "Expand level offers"}
+                              >
+                                {isOffersExpanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                              </button>
+                            </div>
+                          </div>
+
+                          {isOffersExpanded && (
+                            <div className="mt-2.5 pl-6 space-y-1.5">
+                              {offersForLevel.length > 0 ? (
+                                <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
+                                  {offersForLevel.map((off) => (
+                                    <div key={off.id} className="flex items-center justify-between gap-2 text-xs bg-[#fcfaf7] px-2.5 py-1.5 rounded-xl border border-[#ecdccb]/80">
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        <span className="shrink-0">🎁</span>
+                                        <span className="font-bold text-stone-900 truncate">{off.title}</span>
+                                      </div>
+                                      <span className="font-black text-rose-700 font-mono text-xs shrink-0 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                                        {off.discountType === 'percentage' ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-stone-400 font-medium">
+                                  No campaign offers added for {tier.code} yet.
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Row 3: Installment Plans */}
+                        <div className="py-3 text-xs sm:text-sm lg:text-base">
+                          {tier.installmentsEnabled ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => setExpandedInstallmentsTierId(isInstallmentsExpanded ? null : tier.id)}
+                                className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
+                              >
+                                <span className="inline-flex items-center gap-2 font-medium text-stone-600">
+                                  <CreditCard size={15} className="text-emerald-600 shrink-0" /> Installments Enabled
+                                </span>
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                                  Active {isInstallmentsExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                                </span>
+                              </button>
+                              {isInstallmentsExpanded && (
+                                <div className="mt-2.5 pl-6 space-y-1.5">
+                                  {activeFreqs.length > 0 ? (
+                                    <>
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {activeFreqs.map((f) => (
+                                          <span
+                                            key={f.frequency}
+                                            className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-[#fcfaf7] border border-stone-200 text-stone-700"
+                                          >
+                                            🗓️ {f.label}
+                                          </span>
+                                        ))}
+                                      </div>
+                                      <p className="text-xs text-stone-500">
+                                        Students enter count (2-12) &amp; choose frequency; price auto-divides from {displayPrice}.
+                                      </p>
+                                    </>
+                                  ) : (
+                                    <p className="text-xs text-amber-800 font-medium">
+                                      Installments active. Edit tier to check allowed frequencies.
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="inline-flex items-center gap-2 font-medium text-stone-500">
+                                <CreditCard size={15} className="text-stone-400 shrink-0" /> Installments: Disabled
+                              </span>
+                              <span className="text-xs text-stone-400 font-medium">Full payment only</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Footer: Edit Tier & Price | Status Switch | More Menu */}
+                    <div className="mt-auto px-5 pb-5 pt-2 sm:px-6 sm:pb-6 flex items-center gap-2.5 relative">
+                      <button
+                        onClick={() => openEditModal(tier)}
+                        className="flex-1 h-9 bg-white hover:bg-stone-50 text-stone-900 font-bold text-xs sm:text-sm lg:text-base rounded-2xl border border-stone-200/90 shadow-xs transition-colors inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap px-3"
+                      >
+                        <Edit2 size={14} /> Edit Tier &amp; Price
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setStatusModalTier(tier)}
+                        className={`w-12 h-7 rounded-full p-1 transition-colors duration-500 flex items-center cursor-pointer shrink-0 shadow-inner ${isPub ? 'bg-[#4f9a3d]' : 'bg-stone-300'
+                          }`}
+                        title={isPub ? "Level Enabled — click to change visibility" : "Level Disabled — click to change visibility"}
+                        aria-label={isPub ? "Change level status (currently enabled)" : "Change level status (currently disabled)"}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform duration-500 ease-in-out ${isPub ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                        >
+                          <span
+                            className={`inline-flex items-center justify-center transition-transform duration-500 ease-in-out ${isPub ? 'rotate-[360deg] text-[#4f9a3d]' : 'rotate-0 text-rose-600'
+                              }`}
+                          >
+                            {isPub ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
+                          </span>
+                        </span>
+                      </button>
+
+                      <div className="relative shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setOpenCardMenuId(isMenuOpen ? null : tier.id)}
+                          className="w-9 h-9 rounded-full border border-stone-200/90 bg-white hover:bg-stone-50 text-stone-700 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+                          title="More actions"
+                          aria-label="More actions"
+                        >
+                          <MoreHorizontal size={16} />
+                        </button>
+
+                        {isMenuOpen && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setOpenCardMenuId(null)}
+                            />
+                            <div className="absolute right-0 bottom-12 z-20 w-44 rounded-2xl bg-white border border-[#ecdccb] shadow-xl p-1.5 space-y-0.5 text-xs sm:text-sm">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenCardMenuId(null);
+                                  setQrModalTier(tier);
+                                }}
+                                className="w-full px-3 py-2 rounded-xl text-left font-bold text-[#942008] hover:bg-[#fff5ee] flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <QrCode size={14} className="text-[#c4431d]" /> QR Code
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenCardMenuId(null);
+                                  openAddOfferForLevelModal(tier.code);
+                                }}
+                                className="w-full px-3 py-2 rounded-xl text-left font-bold text-stone-700 hover:bg-stone-50 flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <Tag size={14} className="text-[#c4431d]" /> + Add Offer
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenCardMenuId(null);
+                                  handleDeleteTier(tier.id, tier.code);
+                                }}
+                                className="w-full px-3 py-2 rounded-xl text-left font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer transition-colors"
+                              >
+                                <Trash2 size={14} /> Delete Tier
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-            })}
+                );
+              })}
           </div>
         )}
 
         {/* Modal for Editing / Creating Tier */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 md:p-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden animate-scale-up">
+          <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6">
+            <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden animate-scale-up">
               {/* Decorative Background Glows */}
-              <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c]/10 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Fixed Header */}
-              <div className="flex justify-between items-center px-6 py-4 md:px-8 md:py-5 border-b border-slate-800 shrink-0 bg-slate-900/95 backdrop-blur-md relative z-10">
+              <div className="flex justify-between items-center px-6 py-4 md:px-8 md:py-5 border-b border-stone-200 shrink-0 bg-white/95 backdrop-blur-md relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                  <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d]">
                     <Trophy size={20} />
                   </div>
                   <div>
-                    <h3 className="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                    <h3 className="text-lg md:text-xl font-black text-stone-900 flex items-center gap-2">
                       {editingTier ? `Edit Level & Price (${editingTier.code})` : 'Create New Level Tier'}
                     </h3>
-                    <p className="text-xs text-slate-400">Configure tier pricing, validity, installment options & privileges</p>
+                    <p className="text-xs text-stone-500">Configure tier pricing, validity, installment options & privileges</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
@@ -832,68 +973,68 @@ export default function AdminLevels() {
 
               {/* Form with Scrollable Content Body and Sticky Footer */}
               <form onSubmit={handleSaveTier} className="flex flex-col flex-1 min-h-0">
-                
+
                 {/* Scrollable Body */}
                 <div className="overflow-y-auto px-6 py-5 md:px-8 md:py-6 space-y-5 flex-1 relative z-10">
-                  
+
                   {/* Card 1: Core Tier Identity & Pricing */}
-                  <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
-                    <div className="text-xs font-black uppercase text-orange-400 tracking-wider flex items-center gap-2">
+                  <div className="p-4 md:p-5 rounded-2xl bg-[#fcfaf7] border border-stone-200 space-y-4">
+                    <div className="text-xs font-black uppercase text-[#c4431d] tracking-wider flex items-center gap-2">
                       <Tag size={13} /> Tier Identity &amp; Pricing
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Tier Code</label>
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5">Tier Code</label>
                         <input
                           type="text"
                           value={formData.code}
                           onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                           placeholder="e.g. L1"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-sm text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                           required
                         />
                       </div>
 
                       <div className="sm:col-span-1 md:col-span-2">
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Level Title / Name</label>
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5">Level Title / Name</label>
                         <input
                           type="text"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           placeholder="e.g. Silver Member"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-sm text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Hierarchy Order #</label>
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5">Hierarchy Order #</label>
                         <input
                           type="number"
                           value={formData.order}
                           onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
                           placeholder="0, 1, 2, 3..."
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-800/60">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-stone-200/60">
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Base Price / Fee (₹)</label>
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5">Base Price / Fee (₹)</label>
                         <input
                           type="text"
                           value={formData.price}
                           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                           placeholder="e.g. ₹4,999"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-sm text-amber-800 font-mono font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                         />
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5 flex items-center gap-1.5">
-                          <Clock size={13} className="text-orange-400" /> Level Tier Validity Duration
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5 flex items-center gap-1.5">
+                          <Clock size={13} className="text-[#c4431d]" /> Level Tier Validity Duration
                         </label>
                         <select
                           value={String(formData.validityDays ?? 0)}
@@ -905,7 +1046,7 @@ export default function AdminLevels() {
                               category: days === 0 ? 'Lifetime Validity' : 'Single Validity',
                             });
                           }}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500 cursor-pointer"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 cursor-pointer"
                         >
                           <option value="30">1 Month (30 Days from student registration / purchase)</option>
                           <option value="90">3 Months (90 Days from student registration / purchase)</option>
@@ -914,7 +1055,7 @@ export default function AdminLevels() {
                           <option value="1095">3 Years (1095 Days from student registration / purchase)</option>
                           <option value="0">Lifetime (Permanent Access, No Expiration)</option>
                         </select>
-                        <p className="text-[10px] text-slate-500 mt-1">
+                        <p className="text-xs text-stone-400 mt-1">
                           Starts on the day student registers or purchases this level tier (L0, L1, L2, L3, L3+). When expired, student can re-purchase to renew.
                         </p>
                       </div>
@@ -924,15 +1065,15 @@ export default function AdminLevels() {
                   {/* Card 2: Publication Status & Installment Payments */}
                   <div className="space-y-4">
                     {/* Published / Active Toggle */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-slate-950/70 border border-slate-800 gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-[#fcfaf7] border border-stone-200 gap-3">
                       <div>
-                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                          {formData.isPublished ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} className="text-red-400" />}
+                        <span className="text-xs md:text-sm lg:text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                          {formData.isPublished ? <Eye size={14} className="text-emerald-600" /> : <EyeOff size={14} className="text-rose-600" />}
                           Level Visibility Status for Students
                         </span>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">
-                          {formData.isPublished 
-                            ? "Enabled: Visible in student course library, tiers row, and checkout modal for purchase." 
+                        <span className="text-xs text-stone-500 block mt-0.5">
+                          {formData.isPublished
+                            ? "Enabled: Visible in student course library, tiers row, and checkout modal for purchase."
                             : "Disabled: Hidden from student store & purchase flow (existing members retain their access)."}
                         </span>
                       </div>
@@ -940,22 +1081,20 @@ export default function AdminLevels() {
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, isPublished: true })}
-                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                            formData.isPublished
-                              ? "bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/20"
-                              : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
-                          }`}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${formData.isPublished
+                            ? "bg-emerald-500 text-white font-black shadow-md shadow-emerald-500/20"
+                            : "bg-white border border-[#ecdccb] text-stone-600 hover:border-emerald-400 hover:text-emerald-700"
+                            }`}
                         >
                           <Check size={13} /> Enabled
                         </button>
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, isPublished: false })}
-                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                            !formData.isPublished
-                              ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
-                              : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
-                          }`}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${!formData.isPublished
+                            ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
+                            : "bg-white border border-[#ecdccb] text-stone-600 hover:border-rose-400 hover:text-rose-700"
+                            }`}
                         >
                           <X size={13} /> Disabled
                         </button>
@@ -963,14 +1102,14 @@ export default function AdminLevels() {
                     </div>
 
                     {/* Level Banner Image (Thumbnail) Studio */}
-                    <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between">
+                    <div className="p-4 md:p-5 rounded-2xl bg-[#fcfaf7] border border-stone-200 space-y-4">
+                      <div className="flex items-center justify-between gap-2">
                         <div>
                           <div className="flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4 text-orange-400" />
-                            <span className="text-xs font-bold text-white">Level Banner Image (Thumbnail)</span>
+                            <ImageIcon className="w-4 h-4 text-[#c4431d]" />
+                            <span className="text-xs md:text-sm lg:text-xs font-bold text-stone-800">Level Banner Image (Thumbnail)</span>
                           </div>
-                          <p className="text-[10px] text-slate-400 mt-0.5">
+                          <p className="text-xs text-stone-500 mt-0.5">
                             Upload a 16:9 banner or poster for this level. Showcased on the student courses page and in the membership purchase modal.
                           </p>
                         </div>
@@ -978,7 +1117,7 @@ export default function AdminLevels() {
                           <button
                             type="button"
                             onClick={() => setFormData({ ...formData, thumbnail: "" })}
-                            className="text-[11px] text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
+                            className="text-xs text-rose-600 hover:text-rose-700 font-semibold transition-colors cursor-pointer shrink-0"
                           >
                             Clear
                           </button>
@@ -991,13 +1130,13 @@ export default function AdminLevels() {
                             type="url"
                             value={formData.thumbnail}
                             onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500 pr-8"
+                            className="w-full bg-white border border-[#ecdccb] rounded-xl px-3 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 pr-8"
                             placeholder="Paste banner image URL or upload below..."
                           />
-                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-slate-600" />
+                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-stone-400" />
                         </div>
 
-                        <label className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                        <label className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-stone-300 shrink-0 transition-colors">
                           <Upload size={12} />
                           <span>Upload Banner</span>
                           <input
@@ -1022,7 +1161,7 @@ export default function AdminLevels() {
                       </div>
 
                       {/* Live Preview Box */}
-                      <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center">
+                      <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-white flex items-center justify-center">
                         {formData.thumbnail ? (
                           <>
                             <img
@@ -1030,55 +1169,55 @@ export default function AdminLevels() {
                               alt="Level Banner Preview"
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
-                              <span className="text-[10px] font-bold text-white bg-slate-900/80 backdrop-blur px-2 py-0.5 rounded border border-slate-700">
+                            <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent flex items-end p-3">
+                              <span className="text-xs font-bold text-stone-900 bg-white/90 backdrop-blur px-2.5 py-0.5 rounded border border-stone-300">
                                 16:9 Level Banner Preview
                               </span>
                             </div>
                           </>
                         ) : (
-                          <div className="flex flex-col items-center justify-center text-slate-600 gap-1.5 p-4 text-center">
-                            <ImageIcon size={28} className="text-slate-700" />
-                            <span className="text-xs font-semibold text-slate-500">No Level Banner Uploaded</span>
-                            <span className="text-[10px] text-slate-600">Upload a banner or paste a URL to display for this level</span>
+                          <div className="flex flex-col items-center justify-center text-stone-400 gap-1.5 p-4 text-center">
+                            <ImageIcon size={28} className="text-stone-400" />
+                            <span className="text-xs font-semibold text-stone-500">No Level Banner Uploaded</span>
+                            <span className="text-xs text-stone-400">Upload a banner or paste a URL to display for this level</span>
                           </div>
                         )}
                       </div>
                     </div>
 
                     {/* Installment Payment Plans Configuration */}
-                    <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
-                      <div className="flex items-center justify-between">
+                    <div className="p-4 md:p-5 rounded-2xl bg-[#fcfaf7] border border-stone-200 space-y-4">
+                      <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <CreditCard className="w-4 h-4 text-orange-400" />
-                            <span className="text-xs font-bold text-white">Enable Installment Payment Plans</span>
+                            <CreditCard className="w-4 h-4 text-[#c4431d]" />
+                            <span className="text-xs md:text-sm lg:text-xs font-bold text-stone-900">Enable Installment Payment Plans</span>
                           </div>
-                          <p className="text-[10px] text-slate-400 mt-0.5">
+                          <p className="text-xs text-stone-500 mt-0.5">
                             Allow students to purchase this level via custom recurring installments (Bi-weekly, Monthly, Every 2 Months, etc.)
                           </p>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
                           <input
                             type="checkbox"
                             checked={formData.installmentsEnabled}
                             onChange={(e) => setFormData({ ...formData, installmentsEnabled: e.target.checked })}
                             className="sr-only peer"
                           />
-                          <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
+                          <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c]"></div>
                         </label>
                       </div>
 
                       {formData.installmentsEnabled && (
-                        <div className="space-y-4 pt-3 border-t border-slate-800/80">
+                        <div className="space-y-4 pt-3 border-t border-stone-200/80">
                           {/* Total Number of Installments set by Admin */}
-                          <div className="p-4 rounded-2xl bg-slate-900 border border-amber-500/30 space-y-2.5">
+                          <div className="p-4 rounded-2xl bg-white border border-amber-200 space-y-2.5">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                               <div>
-                                <label className="text-xs font-black text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
-                                  <CreditCard size={14} /> Total Number of Installments (Fixed for Students)
+                                <label className="text-xs font-black text-amber-800 uppercase tracking-wide flex items-center gap-1.5">
+                                  <CreditCard size={14} className="text-amber-600" /> Total Number of Installments (Fixed for Students)
                                 </label>
-                                <p className="text-[11px] text-slate-300 mt-0.5">
+                                <p className="text-xs text-stone-600 mt-0.5">
                                   Students cannot edit this count. When a student chooses installments, the fee is automatically divided into this exact number of installments.
                                 </p>
                               </div>
@@ -1100,9 +1239,9 @@ export default function AdminLevels() {
                                       })),
                                     }));
                                   }}
-                                  className="w-24 bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-sm text-amber-300 font-mono font-black text-center focus:outline-none focus:border-amber-400 shadow-inner"
+                                  className="w-24 bg-[#fcfaf7] border border-amber-300 rounded-xl px-3 py-2 text-sm text-amber-800 font-mono font-black text-center focus:outline-none focus:border-[#c4431d] shadow-inner"
                                 />
-                                <span className="text-xs font-bold text-slate-300">Installments</span>
+                                <span className="text-xs font-bold text-stone-700">Installments</span>
                               </div>
                             </div>
 
@@ -1112,7 +1251,7 @@ export default function AdminLevels() {
                               const numInst = Math.max(2, formData.totalInstallments || 3);
                               const perInst = Math.round(cleanNumeric / numInst);
                               return (
-                                <div className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl flex flex-wrap items-center justify-between gap-1">
+                                <div className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl flex flex-wrap items-center justify-between gap-1">
                                   <span>💡 Student Breakdown Preview:</span>
                                   <span className="font-mono font-bold">
                                     ₹{cleanNumeric.toLocaleString('en-IN')} ÷ {numInst} = ₹{perInst.toLocaleString('en-IN')} / installment
@@ -1122,19 +1261,19 @@ export default function AdminLevels() {
                             })()}
                           </div>
 
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between gap-2">
                             <div>
-                              <span className="text-xs font-bold text-amber-400 block">
+                              <span className="text-xs font-bold text-amber-800 block">
                                 Allowed Installment Frequencies ({formData.installmentFrequencies.filter((f) => f.enabled).length} Enabled)
                               </span>
-                              <span className="text-[10px] text-slate-400">
+                              <span className="text-xs text-stone-500">
                                 Check the payment intervals that students will see in their dropdown during checkout.
                               </span>
                             </div>
                             <button
                               type="button"
                               onClick={() => setShowAddCustomFreq(!showAddCustomFreq)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 border border-orange-500/30 rounded-xl transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-[#fff5ee] text-[#942008] hover:bg-[#fde5d6] border border-[#f5ded0] rounded-xl transition-all cursor-pointer"
                             >
                               <Plus className="w-3.5 h-3.5" /> Add Custom Frequency
                             </button>
@@ -1142,28 +1281,28 @@ export default function AdminLevels() {
 
                           {/* Add Custom Frequency Inline Form */}
                           {showAddCustomFreq && (
-                            <div className="p-3.5 rounded-2xl bg-slate-900 border border-orange-500/30 space-y-3">
-                              <span className="text-xs font-bold text-white block">Add Custom Frequency Option</span>
+                            <div className="p-3.5 rounded-2xl bg-white border border-[#f5ded0] space-y-3">
+                              <span className="text-xs font-bold text-stone-900 block">Add Custom Frequency Option</span>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                  <label className="text-[10px] text-slate-400 block mb-1 font-bold">Display Label</label>
+                                  <label className="text-xs text-stone-600 block mb-1 font-bold">Display Label</label>
                                   <input
                                     type="text"
                                     value={customFreqLabel}
                                     onChange={(e) => setCustomFreqLabel(e.target.value)}
                                     placeholder="e.g. Every 45 Days, Every 4 Months"
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                                   />
                                 </div>
                                 <div>
-                                  <label className="text-[10px] text-slate-400 block mb-1 font-bold">Interval Period (Days)</label>
+                                  <label className="text-xs text-stone-600 block mb-1 font-bold">Interval Period (Days)</label>
                                   <input
                                     type="number"
                                     min="1"
                                     value={customFreqDays}
                                     onChange={(e) => setCustomFreqDays(parseInt(e.target.value) || 30)}
                                     placeholder="Days e.g. 45"
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold focus:outline-none focus:border-orange-500"
+                                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-amber-800 font-mono font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                                   />
                                 </div>
                               </div>
@@ -1174,7 +1313,7 @@ export default function AdminLevels() {
                                     setShowAddCustomFreq(false);
                                     setCustomFreqLabel("");
                                   }}
-                                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
+                                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 cursor-pointer"
                                 >
                                   Cancel
                                 </button>
@@ -1197,7 +1336,7 @@ export default function AdminLevels() {
                                     setShowAddCustomFreq(false);
                                     setCustomFreqLabel("");
                                   }}
-                                  className="px-4 py-1.5 rounded-xl text-xs font-bold bg-orange-500 text-slate-950 hover:bg-orange-400 cursor-pointer shadow-md"
+                                  className="px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white hover:opacity-90 cursor-pointer shadow-md"
                                 >
                                   Add Frequency
                                 </button>
@@ -1210,23 +1349,22 @@ export default function AdminLevels() {
                             {formData.installmentFrequencies.map((item, idx) => (
                               <div
                                 key={item.frequency}
-                                className={`p-3 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all ${
-                                  item.enabled
-                                    ? "bg-slate-900/90 border-orange-500/40 text-white"
-                                    : "bg-slate-950/60 border-slate-800/80 text-slate-500"
-                                }`}
+                                className={`p-3 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all ${item.enabled
+                                  ? "bg-white border-[#c4431d]/40 text-stone-900 shadow-xs"
+                                  : "bg-[#fcfaf7] border-stone-200/80 text-stone-500"
+                                  }`}
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1.5">
                                       <span className="text-xs font-bold truncate">{item.label}</span>
                                       {item.isCustom && (
-                                        <span className="text-[9px] font-bold text-cyan-400 bg-cyan-500/10 px-1 rounded">
+                                        <span className="text-xs font-bold text-sky-700 bg-sky-50 px-1.5 rounded">
                                           Custom
                                         </span>
                                       )}
                                     </div>
-                                    <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                                    <span className="text-xs text-stone-500 block truncate mt-0.5">
                                       {item.interval || item.frequency}
                                     </span>
                                   </div>
@@ -1241,7 +1379,7 @@ export default function AdminLevels() {
                                             installmentFrequencies: prev.installmentFrequencies.filter((_, i) => i !== idx),
                                           }));
                                         }}
-                                        className="text-slate-500 hover:text-red-400 p-1 transition-colors cursor-pointer"
+                                        className="text-stone-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
                                         title="Delete custom frequency"
                                       >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -1262,14 +1400,14 @@ export default function AdminLevels() {
                                         }}
                                         className="sr-only peer"
                                       />
-                                      <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                                      <div className="w-8 h-4 bg-stone-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
                                     </label>
                                   </div>
                                 </div>
 
                                 {item.enabled && (
-                                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-1 text-[11px]">
-                                    <span className="text-amber-400 font-bold">EMIs:</span>
+                                  <div className="pt-2 border-t border-stone-200/80 flex items-center justify-between gap-1 text-xs">
+                                    <span className="text-amber-800 font-bold">EMIs:</span>
                                     <div className="flex items-center gap-1">
                                       <input
                                         type="number"
@@ -1286,16 +1424,16 @@ export default function AdminLevels() {
                                             ),
                                           }));
                                         }}
-                                        className="w-14 bg-slate-950 border border-amber-500/40 rounded-lg px-2 py-0.5 text-xs text-amber-300 font-bold font-mono text-center focus:outline-none focus:border-amber-400"
+                                        className="w-14 bg-[#fcfaf7] border border-amber-300 rounded-lg px-2 py-0.5 text-xs text-amber-800 font-bold font-mono text-center focus:outline-none focus:border-[#c4431d]"
                                       />
-                                      <span className="text-[10px] text-slate-400">EMIs</span>
+                                      <span className="text-xs text-stone-500">EMIs</span>
                                     </div>
                                     {(() => {
                                       const cleanNumeric = parseFloat((formData.price || '0').replace(/[^0-9.]/g, '')) || 0;
                                       const count = item.totalInstallments || formData.totalInstallments || 3;
                                       const each = Math.round(cleanNumeric / count);
                                       return (
-                                        <span className="text-[10px] text-emerald-400 font-mono font-bold shrink-0">
+                                        <span className="text-xs text-emerald-700 font-mono font-bold shrink-0">
                                           ₹{each.toLocaleString('en-IN')}/ea
                                         </span>
                                       );
@@ -1306,8 +1444,8 @@ export default function AdminLevels() {
                             ))}
                           </div>
 
-                          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[11px] text-slate-400 flex items-start gap-2">
-                            <Sparkles className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                          <div className="p-3 rounded-xl bg-white/80 border border-stone-200/80 text-xs text-stone-600 flex items-start gap-2">
+                            <Sparkles className="w-4 h-4 text-[#c4431d] shrink-0 mt-0.5" />
                             <span>
                               <strong>Smart Multi-Frequency EMIs:</strong> When enabled, students select from your checked frequencies during checkout. The total installments and pricing auto-calculate dynamically based on your settings above.
                             </span>
@@ -1318,26 +1456,25 @@ export default function AdminLevels() {
                   </div>
 
                   {/* Card 3: Visual Styling & Description */}
-                  <div className="p-4 md:p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
-                    <div className="text-xs font-black uppercase text-orange-400 tracking-wider flex items-center gap-2">
+                  <div className="p-4 md:p-5 rounded-2xl bg-[#fcfaf7] border border-stone-200 space-y-4">
+                    <div className="text-xs font-black uppercase text-[#c4431d] tracking-wider flex items-center gap-2">
                       <Sparkles size={13} /> Visual Appearance &amp; Details
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {/* Icon Selection */}
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Choose Icon / Emoji</label>
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5">Choose Icon / Emoji</label>
                         <div className="flex flex-wrap gap-2 mb-2.5">
                           {EMOJI_PRESETS.map((em, i) => (
                             <button
                               key={i}
                               type="button"
                               onClick={() => setFormData({ ...formData, icon: em })}
-                              className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all cursor-pointer ${
-                                formData.icon === em
-                                  ? 'bg-orange-500/20 border-orange-500 scale-110 shadow-sm'
-                                  : 'bg-slate-900 border-slate-800 hover:border-slate-700'
-                              }`}
+                              className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-all cursor-pointer ${formData.icon === em
+                                ? 'bg-[#fff5ee] border-[#c4431d] scale-110 shadow-xs'
+                                : 'bg-white border-stone-200 hover:border-stone-300'
+                                }`}
                             >
                               {em}
                             </button>
@@ -1348,24 +1485,23 @@ export default function AdminLevels() {
                           value={formData.icon}
                           onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                           placeholder="Or type custom emoji"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                         />
                       </div>
 
                       {/* Theme Color */}
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 mb-1.5">Theme Color</label>
+                        <label className="block text-xs font-bold text-stone-500 mb-1.5">Theme Color</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           {COLOR_OPTIONS.map((c) => (
                             <button
                               key={c.value}
                               type="button"
                               onClick={() => setFormData({ ...formData, badgeColor: c.value })}
-                              className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-                                formData.badgeColor === c.value
-                                  ? 'bg-slate-800 border-white text-white shadow-md'
-                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                              }`}
+                              className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${formData.badgeColor === c.value
+                                ? 'bg-stone-100 border-white text-white shadow-md'
+                                : 'bg-white border-stone-200 text-stone-500 hover:border-stone-300'
+                                }`}
                             >
                               <span className={`w-3 h-3 rounded-full ${c.bg}`} />
                               <span className="truncate">{c.label.split('/')[0]}</span>
@@ -1377,13 +1513,13 @@ export default function AdminLevels() {
 
                     {/* Description */}
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 mb-1.5">Description &amp; Access Privileges</label>
+                      <label className="block text-xs font-bold text-stone-500 mb-1.5">Description &amp; Access Privileges</label>
                       <textarea
                         rows={3}
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="e.g. Access to live interactive masterclasses, weekly Q&A calls, and replay vault."
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
+                        className="w-full bg-white border border-[#ecdccb] rounded-xl p-3.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none leading-relaxed"
                       />
                     </div>
                   </div>
@@ -1391,17 +1527,17 @@ export default function AdminLevels() {
                 </div>
 
                 {/* Fixed Sticky Footer */}
-                <div className="flex items-center justify-end gap-3 px-6 py-4 md:px-8 md:py-4.5 border-t border-slate-800 shrink-0 bg-slate-900/95 backdrop-blur-md relative z-10">
+                <div className="flex items-center justify-end gap-3 px-6 py-4 md:px-8 md:py-4.5 border-t border-stone-200 shrink-0 bg-white/95 backdrop-blur-md relative z-10">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm h-11 px-6 rounded-xl transition-colors cursor-pointer"
+                    className="border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-sm h-11 px-6 rounded-xl transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-8 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 px-8 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
                   >
                     {editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}
                   </button>
@@ -1413,47 +1549,47 @@ export default function AdminLevels() {
 
         {/* Quick Add Offer Modal directly for Level Card */}
         {isOfferModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-            <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-slate-900 p-6 sm:p-7 shadow-2xl text-white">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm">
+            <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-white p-6 sm:p-7 shadow-2xl text-stone-900">
               <button
                 onClick={() => setIsOfferModalOpen(false)}
-                className="absolute right-4 top-4 text-slate-400 hover:text-white"
+                className="absolute right-4 top-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-colors cursor-pointer"
               >
                 ✕
               </button>
 
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
+                <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700">
                   <Tag size={18} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-white">
+                  <h3 className="text-lg font-black text-stone-900">
                     Add Campaign Offer for {offerTargetCode}
                   </h3>
-                  <p className="text-xs text-slate-400">Create another offer deal for {offerTargetCode} tier</p>
+                  <p className="text-xs text-stone-500">Create another offer deal for {offerTargetCode} tier</p>
                 </div>
               </div>
 
               <form onSubmit={handleSaveOfferForLevel} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Offer Campaign Title</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">Offer Campaign Title</label>
                   <input
                     type="text"
                     required
                     value={offerFormData.title}
                     onChange={(e) => setOfferFormData({ ...offerFormData, title: e.target.value })}
                     placeholder="e.g. Diwali Flash Sale 20% OFF"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-bold"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-bold"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Discount Type</label>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">Discount Type</label>
                     <select
                       value={offerFormData.discountType}
                       onChange={(e) => setOfferFormData({ ...offerFormData, discountType: e.target.value as any })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                     >
                       <option value="percentage">Percentage (%)</option>
                       <option value="flat">Flat (₹)</option>
@@ -1461,7 +1597,7 @@ export default function AdminLevels() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Discount Value</label>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">Discount Value</label>
                     <input
                       type="number"
                       min="0"
@@ -1469,29 +1605,29 @@ export default function AdminLevels() {
                       value={offerFormData.discountValue}
                       onChange={(e) => setOfferFormData({ ...offerFormData, discountValue: parseFloat(e.target.value) || 0 })}
                       placeholder={offerFormData.discountType === "percentage" ? "20 for 20%" : "1000 for ₹1,000"}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-red-400 font-mono font-bold focus:outline-none focus:border-red-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-rose-700 font-mono font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Start Date &amp; Time</label>
+                    <label className="block text-xs font-bold text-stone-600 mb-1">Start Date &amp; Time</label>
                     <input
                       type="datetime-local"
                       value={offerFormData.startDate}
                       onChange={(e) => setOfferFormData({ ...offerFormData, startDate: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 mb-1">End Date &amp; Time</label>
+                    <label className="block text-xs font-bold text-stone-600 mb-1">End Date &amp; Time</label>
                     <input
                       type="datetime-local"
                       value={offerFormData.endDate}
                       onChange={(e) => setOfferFormData({ ...offerFormData, endDate: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-red-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                     />
                   </div>
                 </div>
@@ -1499,14 +1635,14 @@ export default function AdminLevels() {
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 text-white font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
                   >
                     + Add Offer to {offerTargetCode}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsOfferModalOpen(false)}
-                    className="px-4 bg-slate-800 text-slate-300 font-semibold text-xs h-10 rounded-xl cursor-pointer"
+                    className="px-4 bg-stone-100 text-stone-700 font-semibold text-xs h-10 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1519,20 +1655,20 @@ export default function AdminLevels() {
         {/* Razorpay Credentials Modal */}
         {isRazorpayModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-white border border-[#ecdccb] rounded-3xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+                  <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d]">
                     <CreditCard size={20} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-white">Configure Razorpay Gateway</h3>
-                    <p className="text-xs text-slate-400">Keys persist permanently in Postgres database</p>
+                    <h3 className="text-base font-black text-stone-900">Configure Razorpay Gateway</h3>
+                    <p className="text-xs text-stone-500">Keys persist permanently in Postgres database</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsRazorpayModalOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center cursor-pointer transition-colors"
                 >
                   ✕
                 </button>
@@ -1574,8 +1710,8 @@ export default function AdminLevels() {
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Razorpay Key ID <span className="text-orange-400">*</span>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                    Razorpay Key ID <span className="text-[#c4431d]">*</span>
                   </label>
                   <input
                     type="text"
@@ -1583,16 +1719,16 @@ export default function AdminLevels() {
                     placeholder="rzp_test_... or rzp_live_..."
                     value={rzpForm.keyId}
                     onChange={(e) => setRzpForm({ ...rzpForm, keyId: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono placeholder-slate-600 outline-none focus:border-orange-500"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 font-mono placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                   />
-                  <span className="text-[11px] text-slate-500 mt-1 block">
-                    Starts with <code className="text-orange-400">rzp_test_</code> (Test mode) or <code className="text-emerald-400">rzp_live_</code> (Live mode).
+                  <span className="text-xs text-stone-500 mt-1 block">
+                    Starts with <code className="text-[#c4431d]">rzp_test_</code> (Test mode) or <code className="text-emerald-700">rzp_live_</code> (Live mode).
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                    Razorpay Key Secret <span className="text-orange-400">*</span>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                    Razorpay Key Secret <span className="text-[#c4431d]">*</span>
                   </label>
                   <input
                     type="password"
@@ -1600,31 +1736,31 @@ export default function AdminLevels() {
                     placeholder="Enter Key Secret provided by Razorpay"
                     value={rzpForm.keySecret}
                     onChange={(e) => setRzpForm({ ...rzpForm, keySecret: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono placeholder-slate-600 outline-none focus:border-orange-500"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 font-mono placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                   />
-                  <span className="text-[11px] text-slate-500 mt-1 block">
+                  <span className="text-xs text-stone-500 mt-1 block">
                     Used to cryptographically sign orders and verify genuine student transactions.
                   </span>
                 </div>
 
-                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1">
-                  <p className="font-semibold text-slate-300">💡 Tip for Production (Render):</p>
-                  <p className="text-[11px]">
-                    You can also add <code className="text-orange-400">RAZORPAY_KEY_ID</code> and <code className="text-orange-400">RAZORPAY_KEY_SECRET</code> in Render Dashboard &gt; lms-backend &gt; Environment for permanent cloud deployment.
+                <div className="p-3 bg-[#fcfaf7] rounded-xl border border-stone-200 text-xs text-stone-500 space-y-1">
+                  <p className="font-semibold text-stone-700">💡 Tip for Production (Render):</p>
+                  <p className="text-xs">
+                    You can also add <code className="text-[#c4431d]">RAZORPAY_KEY_ID</code> and <code className="text-[#c4431d]">RAZORPAY_KEY_SECRET</code> in Render Dashboard &gt; lms-backend &gt; Environment for permanent cloud deployment.
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-lg cursor-pointer"
                   >
                     💾 Save &amp; Persist Configuration
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsRazorpayModalOpen(false)}
-                    className="px-5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm h-11 rounded-xl cursor-pointer"
+                    className="px-5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-sm h-11 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1633,6 +1769,94 @@ export default function AdminLevels() {
             </div>
           </div>
         )}
+
+        {/* Level Enable / Disable Confirmation Popup */}
+        {statusModalTier && (() => {
+          const isEnabling = statusModalTier.isPublished === false;
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm">
+              <div className="relative w-full max-w-md rounded-3xl border border-[#ecdccb] bg-white p-6 shadow-2xl text-stone-900 space-y-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-11 h-11 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-xl shrink-0">
+                      {statusModalTier.icon || '⭐'}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs md:text-sm lg:text-xs font-black text-[#942008] uppercase tracking-wider block">
+                        {statusModalTier.code} Tier
+                      </span>
+                      <h3 className="text-lg md:text-xl lg:text-lg font-black text-stone-900 truncate mt-0.5">
+                        {statusModalTier.name}
+                      </h3>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setStatusModalTier(null)}
+                    className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                    aria-label="Close popup"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {isEnabling ? (
+                  <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 space-y-1.5">
+                    <p className="text-sm md:text-base lg:text-sm font-bold text-emerald-800 flex items-center gap-2">
+                      <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                      <span>Level {statusModalTier.code} enabled (visible to students)!</span>
+                    </p>
+                    <p className="text-xs sm:text-sm md:text-base lg:text-xs text-emerald-700 leading-relaxed pl-6">
+                      Visible in student course library, tiers row, and checkout modal for purchase.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 space-y-1.5">
+                    <p className="text-sm md:text-base lg:text-sm font-bold text-rose-800 flex items-center gap-2">
+                      <EyeOff size={18} className="text-rose-600 shrink-0" />
+                      <span>Level {statusModalTier.code} disabled (hidden from students)!</span>
+                    </p>
+                    <p className="text-xs sm:text-sm md:text-base lg:text-xs text-rose-700 leading-relaxed pl-6">
+                      Hidden from student store &amp; purchase flow (existing members retain their access).
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setStatusModalTier(null)}
+                    className="h-10 px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base lg:text-sm bg-stone-100 hover:bg-stone-200 text-stone-700 inline-flex items-center justify-center cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+
+                  {isEnabling ? (
+                    <button
+                      type="button"
+                      disabled={isUpdatingStatus}
+                      onClick={() => handleToggleLevelStatus(statusModalTier, true)}
+                      className="h-10 px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base lg:text-sm bg-[#4f9a3d] hover:bg-[#438633] text-white shadow-md shadow-emerald-600/20 inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      <Check size={15} strokeWidth={3} />
+                      <span>Enable</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isUpdatingStatus}
+                      onClick={() => handleToggleLevelStatus(statusModalTier, false)}
+                      className="h-10 px-4 rounded-2xl font-bold text-xs sm:text-sm md:text-base lg:text-sm bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      <X size={15} strokeWidth={3} />
+                      <span>Disable</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* QR Code Generator & Download Modal */}
         <LevelQrCodeModal

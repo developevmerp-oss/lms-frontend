@@ -225,6 +225,9 @@ export default function MentorAboutSec() {
       image: "/images/mentor/hall-of-fame-award.jpg",
       icon: Trophy,
       highlight: "National Stage Felicitation",
+      aspect: "aspect-square",
+      objectFit: "object-cover object-center",
+      bg: "bg-white",
     },
     {
       step: "02",
@@ -235,6 +238,9 @@ export default function MentorAboutSec() {
       image: "/images/mentor/diamond-award.jpg",
       icon: Gem,
       highlight: "Elite Mentor Status",
+      aspect: "aspect-square",
+      objectFit: "object-cover object-center",
+      bg: "bg-white",
     },
     {
       step: "03",
@@ -245,6 +251,9 @@ export default function MentorAboutSec() {
       image: "/images/mentor/author-feature.jpg",
       icon: BookOpen,
       highlight: "National Bestseller Feature",
+      aspect: "aspect-square",
+      objectFit: "object-cover object-center",
+      bg: "bg-[#071630]",
     },
     /*
     {
@@ -727,11 +736,11 @@ export default function MentorAboutSec() {
                       /* Image on Left: Connects seamlessly to horizontal line on its right border */
                       <div className={`flex justify-end pr-20 md:pr-24 lg:pr-32 transition-all duration-500 ${isReached ? "opacity-100 scale-100" : "opacity-60 scale-98"
                         }`}>
-                        <div className="relative aspect-[16/11] w-full max-w-md lg:max-w-lg rounded-2xl sm:rounded-3xl overflow-hidden border border-[#eadfd4] bg-white shadow-[0_16px_36px_-12px_rgba(90,55,20,0.14)] group transition-all duration-300 hover:shadow-[0_22px_45px_-12px_rgba(234,88,12,0.2)]">
+                        <div className={`relative ${item.aspect || "aspect-square"} w-full max-w-md lg:max-w-md rounded-2xl sm:rounded-3xl overflow-hidden border border-[#eadfd4] ${item.bg || "bg-white"} shadow-[0_16px_36px_-12px_rgba(90,55,20,0.14)] group transition-all duration-300 hover:shadow-[0_22px_45px_-12px_rgba(234,88,12,0.2)]`}>
                           <img
                             src={item.image}
                             alt={item.title}
-                            className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                            className={`w-full h-full ${item.objectFit || "object-cover object-center"} transition-transform duration-700 ease-out group-hover:scale-105`}
                           />
                         </div>
                       </div>
@@ -783,11 +792,11 @@ export default function MentorAboutSec() {
                       /* Image on Right: Connects seamlessly to horizontal line on its left border */
                       <div className={`flex justify-start pl-20 md:pl-24 lg:pl-32 transition-all duration-500 ${isReached ? "opacity-100 scale-100" : "opacity-60 scale-98"
                         }`}>
-                        <div className="relative aspect-[16/11] w-full max-w-md lg:max-w-lg rounded-2xl sm:rounded-3xl overflow-hidden border border-[#eadfd4] bg-white shadow-[0_16px_36px_-12px_rgba(90,55,20,0.14)] group transition-all duration-300 hover:shadow-[0_22px_45px_-12px_rgba(234,88,12,0.2)]">
+                        <div className={`relative ${item.aspect || "aspect-square"} w-full max-w-md lg:max-w-md rounded-2xl sm:rounded-3xl overflow-hidden border border-[#eadfd4] ${item.bg || "bg-white"} shadow-[0_16px_36px_-12px_rgba(90,55,20,0.14)] group transition-all duration-300 hover:shadow-[0_22px_45px_-12px_rgba(234,88,12,0.2)]`}>
                           <img
                             src={item.image}
                             alt={item.title}
-                            className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                            className={`w-full h-full ${item.objectFit || "object-cover object-center"} transition-transform duration-700 ease-out group-hover:scale-105`}
                           />
                         </div>
                       </div>
@@ -830,11 +839,11 @@ export default function MentorAboutSec() {
                   className="rounded-2xl sm:rounded-3xl bg-white border border-[#eadfd4] p-4 sm:p-6 shadow-[0_16px_36px_-12px_rgba(90,55,20,0.12)] transition-all duration-300"
                 >
                   {/* Top Image with Floating Step Badge */}
-                  <div className="relative aspect-[16/10] w-full rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-5 border border-[#eadfd4] bg-stone-50">
+                  <div className={`relative ${item.aspect || "aspect-square"} w-full rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-5 border border-[#eadfd4] ${item.bg || "bg-stone-50"}`}>
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-cover object-top"
+                      className={`w-full h-full ${item.objectFit || "object-cover object-center"}`}
                     />
 
                     {/* Floating Pill Badge (Matching Reference Mobile Screen) */}

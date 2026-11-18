@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import {
@@ -14,13 +14,13 @@ import {
   Trash2,
   Copy,
   Check,
-  TrendingUp,
-  Filter,
-  Bell,
   Calendar,
   Send,
-  Zap,
   Users,
+  Bell,
+  BarChart2,
+  Hourglass,
+  MoreHorizontal,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 import { Pagination } from "@/components/ui/Pagination";
@@ -52,6 +52,25 @@ interface PaymentStats {
   totalAttempts: number;
 }
 
+interface InstallmentPlan {
+  id: string;
+  status: string;
+  tierCode?: string;
+  tierName?: string;
+  frequency?: string;
+  paidInstallments: number;
+  totalInstallments: number;
+  installmentAmount: number;
+  totalAmount: number;
+  nextDueDate?: string | null;
+  lastReminderSentAt?: string | null;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  } | null;
+}
+
 export default function AdminPaymentTransactions() {
   const { token, user, logout } = useAuth();
   const [transactions, setTransactions] = useState<PaymentTx[]>([]);
@@ -71,57 +90,81 @@ export default function AdminPaymentTransactions() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit] = useState(25);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   // Installment Management State
   const [activeMainTab, setActiveMainTab] = useState<"transactions" | "installments">("transactions");
-  const [installmentPlans, setInstallmentPlans] = useState<any[]>([]);
+  const [installmentPlans, setInstallmentPlans] = useState<InstallmentPlan[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [remindingId, setRemindingId] = useState<string | null>(null);
+  const [nowTimestamp, setNowTimestamp] = useState<number>(0);
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNowTimestamp(Date.now());
+  }, []);
 
-  const fetchTransactions = async (targetPage = page) => {
-    setIsLoading(true);
-    try {
-      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ravishingarthub.com';
-      const url = new URL(`${API_BASE_URL}/payments/history`, baseOrigin);
-      if (statusFilter !== "all") url.searchParams.append("status", statusFilter);
-      if (searchQuery.trim()) url.searchParams.append("search", searchQuery.trim());
-      url.searchParams.append("page", String(targetPage));
-      url.searchParams.append("limit", String(limit));
+  const headers = React.useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }),
+    [token]
+  );
 
-      const res = await fetch(url.toString(), { headers });
-      const data = await res.json();
-      if (data.success) {
-        setTransactions(data.transactions || []);
-        if (data.stats) setStats(data.stats);
-        if (data.total !== undefined) setTotal(data.total);
-        if (data.totalPages !== undefined) setTotalPages(data.totalPages);
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest(".action-menu-container")) {
+        setOpenMenuId(null);
       }
-    } catch (err) {
-      console.error("Error fetching payment history:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const fetchInstallments = async () => {
+  const fetchTransactions = useCallback(
+    async (targetPage = page) => {
+      setIsLoading(true);
+      try {
+        const baseOrigin = typeof window !== "undefined" ? window.location.origin : "https://ravishingarthub.com";
+        const url = new URL(`${API_BASE_URL}/payments/history`, baseOrigin);
+        if (statusFilter !== "all") url.searchParams.append("status", statusFilter);
+        if (searchQuery.trim()) url.searchParams.append("search", searchQuery.trim());
+        url.searchParams.append("page", String(targetPage));
+        url.searchParams.append("limit", String(limit));
+
+        const res = await fetch(url.toString(), { headers });
+        const data = await res.json();
+        if (data.success) {
+          setTransactions(data.transactions || []);
+          if (data.stats) setStats(data.stats);
+          if (data.total !== undefined) setTotal(data.total);
+          if (data.totalPages !== undefined) setTotalPages(data.totalPages);
+        }
+      } catch (err) {
+        console.error("Error fetching payment history:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [page, limit, statusFilter, searchQuery, headers]
+  );
+
+  const fetchInstallments = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/payments/installments`, { headers });
       const data = await res.json();
       if (data.success && Array.isArray(data.plans)) {
         setInstallmentPlans(data.plans);
+        setNowTimestamp(Date.now());
       }
     } catch (err) {
       console.error("Error fetching admin installments:", err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [headers]);
 
   const handleScanReminders = async () => {
     setIsScanning(true);
@@ -166,13 +209,25 @@ export default function AdminPaymentTransactions() {
   useEffect(() => {
     if (token) {
       if (activeMainTab === "transactions") {
-        setPage(1);
-        fetchTransactions(1);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchTransactions(page);
       } else {
         fetchInstallments();
       }
     }
-  }, [token, statusFilter, activeMainTab]);
+  }, [token, activeMainTab, statusFilter, page, fetchTransactions, fetchInstallments]);
+
+  const handleStatusFilterChange = (filter: string) => {
+    setStatusFilter(filter);
+    setPage(1);
+  };
+
+  const handleMainTabChange = (tab: "transactions" | "installments") => {
+    setActiveMainTab(tab);
+    if (tab === "transactions") {
+      setPage(1);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,63 +263,69 @@ export default function AdminPaymentTransactions() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, failureReason?: string | null) => {
     switch (status) {
       case "completed":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-            <CheckCircle2 size={13} className="text-emerald-400" /> Success
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#ECFDF5] text-emerald-700 border border-emerald-200">
+            <CheckCircle2 size={13} className="text-emerald-600" /> Success
           </span>
         );
       case "pending":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
-            <Clock size={13} className="text-amber-400" /> Pending
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#FFFBEB] text-amber-700 border border-amber-200">
+            <Clock size={13} className="text-amber-600" /> Pending
           </span>
         );
       case "failed":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 border border-red-500/30 text-red-400">
-            <XCircle size={13} className="text-red-400" /> Failed
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#FEF2F2] text-rose-700 border border-rose-200"
+            title={failureReason || undefined}
+          >
+            <XCircle size={13} className="text-rose-600" /> Failed
           </span>
         );
       case "cancelled":
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 border border-slate-700 text-slate-400">
-            <AlertTriangle size={13} className="text-slate-400" /> Cancelled
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F5F5F4] text-stone-700 border border-stone-200/80"
+            title={failureReason || undefined}
+          >
+            <AlertTriangle size={13} className="text-stone-500" /> Cancelled
           </span>
         );
       default:
-        return <span className="text-xs text-slate-400 uppercase">{status}</span>;
+        return <span className="text-xs text-stone-500 uppercase font-semibold">{status}</span>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 transition-colors lg:pl-[284px]">
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+          <span>Students &amp; CRM</span>
+          <span className="text-stone-300">/</span>
+          <span className="text-stone-700 font-medium">Payment Transactions</span>
+        </div>
+
+        {/* Page Header */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-lg shadow-orange-500/10">
-                <CreditCard size={24} />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                  Razorpay Payment &amp; Transactions History
-                </h1>
-                <p className="text-slate-400 text-sm mt-0.5">
-                  Complete audit log of all membership checkout attempts with live gateway verification.
-                </p>
-              </div>
-            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              Razorpay Payment &amp; Transactions
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Complete audit log of all membership checkout attempts with live gateway verification.
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
             {toastMsg && (
-              <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-xl">
+              <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-xl">
                 ✓ {toastMsg}
               </span>
             )}
@@ -273,39 +334,34 @@ export default function AdminPaymentTransactions() {
                 if (activeMainTab === "transactions") fetchTransactions();
                 else fetchInstallments();
               }}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 bg-white hover:bg-stone-50 border border-stone-200/90 text-stone-700 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
-              <RefreshCw size={15} className={isLoading ? "animate-spin" : ""} /> Refresh
+              <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} /> Refresh
             </button>
           </div>
         </header>
 
         {/* View Switcher Tabs */}
-        <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4 mb-8">
+        <div className="flex items-center gap-2 sm:gap-3 mb-6 flex-wrap">
           <button
-            onClick={() => setActiveMainTab("transactions")}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
-              activeMainTab === "transactions"
-                ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                : "bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800"
-            }`}
+            onClick={() => handleMainTabChange("transactions")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all cursor-pointer shadow-xs ${activeMainTab === "transactions"
+              ? "bg-[#B84A1A] text-white"
+              : "bg-white border border-stone-200/90 text-stone-700 hover:bg-stone-50"
+              }`}
           >
-            <CreditCard size={16} /> All Gateway Transactions
+            <CreditCard size={15} /> All Gateway Transactions
           </button>
           <button
-            onClick={() => {
-              setActiveMainTab("installments");
-              fetchInstallments();
-            }}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
-              activeMainTab === "installments"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
-                : "bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800"
-            }`}
+            onClick={() => handleMainTabChange("installments")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all cursor-pointer shadow-xs ${activeMainTab === "installments"
+              ? "bg-[#B84A1A] text-white"
+              : "bg-white border border-stone-200/90 text-stone-700 hover:bg-stone-50"
+              }`}
           >
-            <Calendar size={16} /> Student Installment Plans
+            <Calendar size={15} /> Student Installment Plans
             {installmentPlans.length > 0 && (
-              <span className="bg-emerald-950 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-bold ml-1 border border-emerald-500/30">
+              <span className="bg-[#FDF0E9] text-[#C45E32] text-xs px-2 py-0.5 rounded-full font-bold ml-1 border border-[#F6D8C8]">
                 {installmentPlans.length}
               </span>
             )}
@@ -315,70 +371,81 @@ export default function AdminPaymentTransactions() {
         {activeMainTab === "installments" ? (
           <div>
             {/* Installment KPIs */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-                  <span>Total Installment Plans</span>
-                  <Users size={16} className="text-blue-400" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Total Installment Plans</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-stone-900 mt-2 tracking-tight">
+                    {installmentPlans.length}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">Students enrolled on plans</p>
                 </div>
-                <p className="text-2xl md:text-3xl font-black text-white">{installmentPlans.length}</p>
-                <p className="text-xs text-slate-500 mt-1">Students enrolled on plans</p>
+                <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                  <Users size={18} />
+                </div>
               </div>
 
-              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-                  <span>Active &amp; On Track</span>
-                  <Clock size={16} className="text-emerald-400" />
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Active &amp; On Track</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-emerald-600 mt-2 tracking-tight">
+                    {installmentPlans.filter((p) => p.status === "active").length}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">Currently paying installments</p>
                 </div>
-                <p className="text-2xl md:text-3xl font-black text-emerald-400">
-                  {installmentPlans.filter((p) => p.status === "active").length}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Currently paying installments</p>
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                  <Clock size={18} />
+                </div>
               </div>
 
-              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-                  <span>Fully Completed</span>
-                  <CheckCircle2 size={16} className="text-teal-400" />
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Fully Completed</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-teal-600 mt-2 tracking-tight">
+                    {installmentPlans.filter((p) => p.status === "completed").length}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">All installments cleared</p>
                 </div>
-                <p className="text-2xl md:text-3xl font-black text-teal-400">
-                  {installmentPlans.filter((p) => p.status === "completed").length}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">All installments cleared</p>
+                <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center shrink-0">
+                  <CheckCircle2 size={18} />
+                </div>
               </div>
 
-              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-                  <span>Overdue / Attention</span>
-                  <AlertTriangle size={16} className="text-rose-400" />
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Overdue / Attention</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-rose-500 mt-2 tracking-tight">
+                    {
+                      installmentPlans.filter(
+                        (p) =>
+                          p.status === "overdue" ||
+                          (p.nextDueDate &&
+                            nowTimestamp > 0 &&
+                            new Date(p.nextDueDate).getTime() < nowTimestamp &&
+                            p.status !== "completed")
+                      ).length
+                    }
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">Due date passed</p>
                 </div>
-                <p className="text-2xl md:text-3xl font-black text-rose-400">
-                  {
-                    installmentPlans.filter(
-                      (p) =>
-                        p.status === "overdue" ||
-                        (p.nextDueDate &&
-                          new Date(p.nextDueDate).getTime() < Date.now() &&
-                          p.status !== "completed")
-                    ).length
-                  }
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Due date passed</p>
+                <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                  <AlertTriangle size={18} />
+                </div>
               </div>
             </div>
 
             {/* Quick Actions Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-lg font-bold text-white">Active Student Installment Agreements</h2>
-                <p className="text-xs text-slate-400">
+                <h2 className="text-base font-bold text-stone-900">Active Student Installment Agreements</h2>
+                <p className="text-xs text-stone-500 font-medium">
                   Automated recurring reminders run daily. You can also trigger manual alerts per student below.
                 </p>
               </div>
               <button
                 onClick={handleScanReminders}
                 disabled={isScanning}
-                className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-2 bg-[#B84A1A] hover:bg-[#A03E14] text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
               >
                 {isScanning ? (
                   <>
@@ -393,31 +460,31 @@ export default function AdminPaymentTransactions() {
             </div>
 
             {/* Installments Table */}
-            <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-white border border-stone-200/70 rounded-2xl shadow-xs overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-800/60 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <table className="w-full text-left text-sm min-w-[850px]">
+                  <thead className="bg-[#FFFFFF] border-b border-stone-100 text-xs font-semibold text-stone-700">
                     <tr>
-                      <th className="py-4 px-6">Student</th>
+                      <th className="py-4 pl-6 pr-4">Student</th>
                       <th className="py-4 px-4">Level / Plan</th>
                       <th className="py-4 px-4">Installment Progress</th>
                       <th className="py-4 px-4">Next Due Date</th>
                       <th className="py-4 px-4">Status</th>
                       <th className="py-4 px-4">Last Reminder</th>
-                      <th className="py-4 px-6 text-right">Actions</th>
+                      <th className="py-4 pr-6 pl-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-stone-100">
                     {isLoading ? (
                       <tr>
-                        <td colSpan={7} className="py-16 text-center text-slate-500 font-medium">
-                          <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-emerald-400" />
+                        <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
+                          <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-[#B84A1A]" />
                           Loading installment records...
                         </td>
                       </tr>
                     ) : installmentPlans.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="py-16 text-center text-slate-500 font-medium">
+                        <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
                           No student installment plans created yet. Once a student chooses installment checkout for Level 3, they will appear here.
                         </td>
                       </tr>
@@ -426,60 +493,69 @@ export default function AdminPaymentTransactions() {
                         const isOverdue =
                           plan.status === "overdue" ||
                           (plan.nextDueDate &&
-                            new Date(plan.nextDueDate).getTime() < Date.now() &&
+                            nowTimestamp > 0 &&
+                            new Date(plan.nextDueDate).getTime() < nowTimestamp &&
                             plan.status !== "completed");
                         const percentPaid = Math.round(
                           (plan.paidInstallments / plan.totalInstallments) * 100
                         );
+                        const studentName = plan.user?.name || "Student";
+                        const initial = studentName.trim().charAt(0).toUpperCase() || "S";
 
                         return (
-                          <tr key={plan.id} className="hover:bg-slate-800/30 transition-colors">
+                          <tr key={plan.id} className="hover:bg-stone-50/50 transition-colors">
                             {/* Student */}
-                            <td className="py-4 px-6">
-                              <div className="font-bold text-white leading-snug">
-                                {plan.user?.name || "Student"}
-                              </div>
-                              <div className="text-xs text-slate-400">
-                                {plan.user?.email || "No email"}
-                              </div>
-                              {plan.user?.phone && (
-                                <div className="text-[11px] text-slate-500 mt-0.5">
-                                  {plan.user?.phone}
+                            <td className="py-4 pl-6 pr-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-[#FDF0E9] text-[#C45E32] flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 uppercase">
+                                  {initial}
                                 </div>
-                              )}
+                                <div>
+                                  <div className="font-semibold text-stone-900 text-sm leading-tight">
+                                    {studentName}
+                                  </div>
+                                  <div className="text-xs text-stone-500 font-normal mt-0.5">
+                                    {plan.user?.email || "No email"}
+                                  </div>
+                                  {plan.user?.phone && (
+                                    <div className="text-[11px] text-stone-400 mt-0.5">
+                                      {plan.user?.phone}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </td>
 
                             {/* Level / Plan */}
                             <td className="py-4 px-4">
-                              <span className="font-bold text-white">
+                              <div className="font-semibold text-stone-900 text-sm">
                                 {plan.tierName || plan.tierCode}
-                              </span>
-                              <div className="text-xs text-emerald-400 capitalize">
+                              </div>
+                              <div className="text-xs text-emerald-600 font-medium capitalize mt-0.5">
                                 {plan.frequency ? plan.frequency.replace("_", " ") : "Flexible"} Plan
                               </div>
                             </td>
 
                             {/* Progress */}
                             <td className="py-4 px-4">
-                              <div className="flex items-center justify-between text-xs font-bold mb-1">
-                                <span className="text-white">
+                              <div className="flex items-center justify-between text-xs font-medium mb-1">
+                                <span className="text-stone-800">
                                   {plan.paidInstallments} of {plan.totalInstallments} Paid
                                 </span>
-                                <span className="text-slate-400">{percentPaid}%</span>
+                                <span className="text-stone-500 font-bold">{percentPaid}%</span>
                               </div>
-                              <div className="w-36 h-2 bg-slate-800 rounded-full overflow-hidden mb-1">
+                              <div className="w-36 h-2 bg-stone-100 rounded-full overflow-hidden mb-1">
                                 <div
-                                  className={`h-full rounded-full transition-all ${
-                                    plan.status === "completed"
-                                      ? "bg-teal-400"
-                                      : isOverdue
+                                  className={`h-full rounded-full transition-all ${plan.status === "completed"
+                                    ? "bg-teal-500"
+                                    : isOverdue
                                       ? "bg-rose-500"
                                       : "bg-emerald-500"
-                                  }`}
+                                    }`}
                                   style={{ width: `${percentPaid}%` }}
                                 />
                               </div>
-                              <div className="text-[11px] text-slate-400">
+                              <div className="text-[11px] text-stone-400">
                                 ₹{Number(plan.installmentAmount).toLocaleString("en-IN")} / inst • Total: ₹
                                 {Number(plan.totalAmount).toLocaleString("en-IN")}
                               </div>
@@ -488,15 +564,14 @@ export default function AdminPaymentTransactions() {
                             {/* Next Due Date */}
                             <td className="py-4 px-4">
                               {plan.status === "completed" ? (
-                                <span className="text-xs text-teal-400 font-bold flex items-center gap-1">
+                                <span className="text-xs text-teal-600 font-medium flex items-center gap-1">
                                   <CheckCircle2 size={13} /> Completed
                                 </span>
                               ) : plan.nextDueDate ? (
                                 <div>
                                   <div
-                                    className={`text-xs font-bold ${
-                                      isOverdue ? "text-rose-400" : "text-white"
-                                    }`}
+                                    className={`text-xs font-semibold ${isOverdue ? "text-rose-600 font-bold" : "text-stone-800"
+                                      }`}
                                   >
                                     {new Date(plan.nextDueDate).toLocaleDateString("en-IN", {
                                       day: "numeric",
@@ -505,35 +580,35 @@ export default function AdminPaymentTransactions() {
                                     })}
                                   </div>
                                   {isOverdue && (
-                                    <span className="inline-block text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-1.5 py-0.5 rounded mt-0.5">
+                                    <span className="inline-block text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded mt-0.5">
                                       Overdue
                                     </span>
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-xs text-slate-500">—</span>
+                                <span className="text-xs text-stone-400">—</span>
                               )}
                             </td>
 
                             {/* Status */}
                             <td className="py-4 px-4">
                               {plan.status === "completed" ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-teal-500/10 border border-teal-500/30 text-teal-400">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200">
                                   <CheckCircle2 size={12} /> Complete
                                 </span>
                               ) : isOverdue ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 border border-rose-500/30 text-rose-400">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">
                                   <AlertTriangle size={12} /> Overdue
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   <Clock size={12} /> Active
                                 </span>
                               )}
                             </td>
 
                             {/* Last Reminder */}
-                            <td className="py-4 px-4 text-xs text-slate-400">
+                            <td className="py-4 px-4 text-xs text-stone-600">
                               {plan.lastReminderSentAt ? (
                                 <span>
                                   {new Date(plan.lastReminderSentAt).toLocaleDateString("en-IN", {
@@ -542,19 +617,19 @@ export default function AdminPaymentTransactions() {
                                   })}
                                 </span>
                               ) : (
-                                <span className="text-slate-500">None yet</span>
+                                <span className="text-stone-400 font-normal">None yet</span>
                               )}
                             </td>
 
                             {/* Actions */}
-                            <td className="py-4 px-6 text-right">
+                            <td className="py-4 pr-6 pl-4 text-right">
                               {plan.status === "completed" ? (
-                                <span className="text-xs font-bold text-slate-500">Fully Cleared</span>
+                                <span className="text-xs font-medium text-stone-400">Fully Cleared</span>
                               ) : (
                                 <button
                                   onClick={() => handleSendManualReminder(plan.id)}
                                   disabled={remindingId === plan.id}
-                                  className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                                  className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
                                   title="Send notification reminder to student"
                                 >
                                   {remindingId === plan.id ? (
@@ -578,249 +653,320 @@ export default function AdminPaymentTransactions() {
         ) : (
           <div>
             {/* KPI Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-                  <span>Total Verified Revenue</span>
-                  <TrendingUp size={16} className="text-emerald-400" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Total Verified Revenue</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-emerald-600 mt-2 tracking-tight">
+                    ₹{stats.totalRevenue.toLocaleString("en-IN")}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">From completed orders</p>
                 </div>
-                <p className="text-2xl md:text-3xl font-black text-emerald-400">
-                  ₹{stats.totalRevenue.toLocaleString("en-IN")}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">From completed orders</p>
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                  <BarChart2 size={18} />
+                </div>
               </div>
 
-              <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-                  <span>Successful Orders</span>
-                  <CheckCircle2 size={16} className="text-emerald-400" />
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Successful Orders</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-stone-900 mt-2 tracking-tight">
+                    {stats.completedCount}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">Membership unlocked</p>
                 </div>
-            <p className="text-2xl md:text-3xl font-black text-white">{stats.completedCount}</p>
-            <p className="text-xs text-emerald-400/80 mt-1">Membership unlocked</p>
-          </div>
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                  <CheckCircle2 size={18} />
+                </div>
+              </div>
 
-          <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-              <span>Pending Sessions</span>
-              <Clock size={16} className="text-amber-400" />
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Pending Sessions</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-amber-500 mt-2 tracking-tight">
+                    {stats.pendingCount}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">Checkout opened / awaiting auth</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                  <Hourglass size={18} />
+                </div>
+              </div>
+
+              <div className="bg-white border border-stone-200/70 rounded-2xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-start justify-between">
+                <div>
+                  <p className="text-stone-600 text-xs sm:text-sm font-medium">Failed / Cancelled</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-rose-500 mt-2 tracking-tight">
+                    {stats.failedCount}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1 font-normal">Declined or closed by student</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                  <XCircle size={18} />
+                </div>
+              </div>
             </div>
-            <p className="text-2xl md:text-3xl font-black text-amber-400">{stats.pendingCount}</p>
-            <p className="text-xs text-slate-500 mt-1">Checkout opened / awaiting auth</p>
-          </div>
 
-          <div className="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
-              <span>Failed / Cancelled</span>
-              <XCircle size={16} className="text-red-400" />
+            {/* Filter & Search Controls */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6">
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none">
+                {[
+                  { label: "All Attempts", value: "all" },
+                  { label: "Success", value: "completed" },
+                  { label: "Pending", value: "pending" },
+                  { label: "Failed", value: "failed" },
+                  { label: "Cancelled", value: "cancelled" },
+                ].map((tab) => (
+                  <button
+                    key={tab.value}
+                    onClick={() => handleStatusFilterChange(tab.value)}
+                    className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${statusFilter === tab.value
+                      ? "bg-[#B84A1A] text-white shadow-xs"
+                      : "text-stone-600 hover:text-stone-900 hover:bg-stone-100/60"
+                      }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Box */}
+              <form onSubmit={handleSearch} className="w-full md:w-[360px] lg:w-[400px]">
+                <div className="bg-white border border-stone-200/90 rounded-2xl flex items-center p-1 pl-3.5 shadow-xs transition-all focus-within:border-[#B84A1A] focus-within:ring-1 focus-within:ring-[#B84A1A]/20">
+                  <Search size={16} className="text-stone-400 shrink-0 mr-2" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, order ID..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-transparent text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 outline-none pr-2"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-[#B84A1A] hover:bg-[#A03E14] text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
             </div>
-            <p className="text-2xl md:text-3xl font-black text-red-400">{stats.failedCount}</p>
-            <p className="text-xs text-slate-500 mt-1">Declined or closed by student</p>
-          </div>
-        </div>
 
-        {/* Filter & Search Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 border border-slate-800 rounded-2xl w-full md:w-auto overflow-x-auto">
-            {[
-              { label: "All Attempts", value: "all" },
-              { label: "✓ Success", value: "completed" },
-              { label: "⏳ Pending", value: "pending" },
-              { label: "✕ Failed", value: "failed" },
-              { label: "⊘ Cancelled", value: "cancelled" },
-            ].map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => setStatusFilter(tab.value)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  statusFilter === tab.value
-                    ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Box */}
-          <form onSubmit={handleSearch} className="flex items-center gap-2 w-full md:w-80">
-            <div className="relative flex-1">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search name, email, order ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-orange-500 transition-colors"
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white px-3 py-2 rounded-xl text-sm font-bold cursor-pointer"
-            >
-              Search
-            </button>
-          </form>
-        </div>
-
-        {/* Transactions Table */}
-        <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-800/60 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <tr>
-                  <th className="py-4 px-6">Student Details</th>
-                  <th className="py-4 px-4">Tier / Product</th>
-                  <th className="py-4 px-4">Amount</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-4">Gateway IDs</th>
-                  <th className="py-4 px-4">Date &amp; Time</th>
-                  <th className="py-4 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-500 font-medium">
-                      <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-orange-400" />
-                      Loading transactions...
-                    </td>
-                  </tr>
-                ) : transactions.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-500 font-medium">
-                      No transactions found matching your criteria.
-                    </td>
-                  </tr>
-                ) : (
-                  transactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-800/30 transition-colors">
-                      {/* Student Info */}
-                      <td className="py-4 px-6">
-                        <div className="font-bold text-white leading-snug">
-                          {tx.customerName || "Art Student"}
-                        </div>
-                        <div className="text-xs text-slate-400">{tx.customerEmail || "No email"}</div>
-                        {tx.customerPhone && (
-                          <div className="text-[11px] text-slate-500 mt-0.5">{tx.customerPhone}</div>
-                        )}
-                      </td>
-
-                      {/* Tier */}
-                      <td className="py-4 px-4">
-                        <span className="font-semibold text-white">{tx.tierName}</span>
-                        <div className="text-xs text-orange-400 font-bold">{tx.tierCode}</div>
-                      </td>
-
-                      {/* Amount */}
-                      <td className="py-4 px-4">
-                        <span className="font-black text-white text-base">
-                          ₹{tx.amount.toLocaleString("en-IN")}
-                        </span>
-                        <span className="text-[11px] text-slate-500 block uppercase">{tx.currency}</span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-4 px-4">
-                        {getStatusBadge(tx.status)}
-                        {tx.failureReason && (
-                          <p className="text-[11px] text-red-400/90 mt-1 max-w-xs line-clamp-2">
-                            {tx.failureReason}
-                          </p>
-                        )}
-                      </td>
-
-                      {/* Order & Payment IDs */}
-                      <td className="py-4 px-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-xs text-slate-300 font-mono">
-                            <span className="text-slate-500 text-[10px]">ORD:</span>
-                            <span className="truncate max-w-[130px]">{tx.orderId}</span>
-                            <button
-                              onClick={() => copyToClipboard(tx.orderId, `${tx.id}-ord`)}
-                              className="text-slate-500 hover:text-white p-0.5 cursor-pointer"
-                              title="Copy Order ID"
-                            >
-                              {copiedId === `${tx.id}-ord` ? (
-                                <Check size={12} className="text-emerald-400" />
-                              ) : (
-                                <Copy size={12} />
-                              )}
-                            </button>
-                          </div>
-                          {tx.paymentId && (
-                            <div className="flex items-center gap-1 text-xs text-emerald-400 font-mono">
-                              <span className="text-slate-500 text-[10px]">PAY:</span>
-                              <span className="truncate max-w-[130px]">{tx.paymentId}</span>
-                              <button
-                                onClick={() => copyToClipboard(tx.paymentId!, `${tx.id}-pay`)}
-                                className="text-slate-500 hover:text-white p-0.5 cursor-pointer"
-                                title="Copy Payment ID"
-                              >
-                                {copiedId === `${tx.id}-pay` ? (
-                                  <Check size={12} className="text-emerald-400" />
-                                ) : (
-                                  <Copy size={12} />
-                                )}
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Date & Time */}
-                      <td className="py-4 px-4 text-xs text-slate-400">
-                        {new Date(tx.createdAt).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                        <span className="block text-[11px] text-slate-500">
-                          {new Date(tx.createdAt).toLocaleTimeString("en-IN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </td>
-
-                      {/* Action */}
-                      <td className="py-4 px-4 text-right">
-                        <button
-                          onClick={() => deleteTransaction(tx.id)}
-                          className="text-slate-600 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                          title="Delete transaction record"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </td>
+            {/* Transactions Table */}
+            <div className="bg-white border border-stone-200/70 rounded-2xl shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm min-w-[850px]">
+                  <thead className="bg-[#FFFFFF] border-b border-stone-100 text-xs font-semibold text-stone-700">
+                    <tr>
+                      <th className="py-4 pl-6 pr-4">Student Details</th>
+                      <th className="py-4 px-4">Tier / Product</th>
+                      <th className="py-4 px-4">Amount</th>
+                      <th className="py-4 px-4">Status</th>
+                      <th className="py-4 px-4">Gateway ID</th>
+                      <th className="py-4 px-4">Date &amp; Time</th>
+                      <th className="py-4 pr-6 pl-4 text-right"></th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
+                          <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-[#B84A1A]" />
+                          Loading transactions...
+                        </td>
+                      </tr>
+                    ) : transactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
+                          No transactions found matching your criteria.
+                        </td>
+                      </tr>
+                    ) : (
+                      transactions.map((tx) => {
+                        const studentName = tx.customerName || "Art Student";
+                        const initial = studentName.trim().charAt(0).toUpperCase() || "A";
 
-          {/* Table Footer */}
-          {transactions.length > 0 && (
-            <div className="px-6 py-4 bg-slate-800/40 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                total={total}
-                limit={limit}
-                onPageChange={handlePageChange}
-                itemLabel="transactions"
-                className="w-full sm:w-auto"
-              />
-              <span className="font-bold text-white whitespace-nowrap">
-                Showing {transactions.length} of {total} records
-              </span>
+                        return (
+                          <tr key={tx.id} className="hover:bg-stone-50/50 transition-colors">
+                            {/* Student Info */}
+                            <td className="py-4 pl-6 pr-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-[#FDF0E9] text-[#C45E32] flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 uppercase">
+                                  {initial}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-stone-900 text-sm leading-tight">
+                                    {studentName}
+                                  </div>
+                                  <div className="text-xs text-stone-500 font-normal mt-0.5">
+                                    {tx.customerEmail || "No email"}
+                                  </div>
+                                  {tx.customerPhone && (
+                                    <div className="text-[11px] text-stone-400 mt-0.5">
+                                      {tx.customerPhone}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Tier / Product */}
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-stone-900 text-sm">{tx.tierName}</span>
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FDF0E9] text-[#C45E32] border border-[#F6D8C8] uppercase tracking-wide">
+                                  {tx.tierCode}
+                                </span>
+                              </div>
+                            </td>
+
+                            {/* Amount */}
+                            <td className="py-4 px-4">
+                              <div className="font-bold text-stone-900 text-sm">
+                                ₹{tx.amount.toLocaleString("en-IN")}
+                              </div>
+                              <div className="text-[11px] text-stone-400 uppercase font-medium mt-0.5">
+                                {tx.currency}
+                              </div>
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-4 px-4">
+                              {getStatusBadge(tx.status, tx.failureReason)}
+                            </td>
+
+                            {/* Order & Payment IDs */}
+                            <td className="py-4 px-4">
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1.5 text-xs text-stone-700 font-mono">
+                                  <span className="truncate max-w-[140px]" title={tx.orderId}>
+                                    {tx.orderId}
+                                  </span>
+                                  <button
+                                    onClick={() => copyToClipboard(tx.orderId, `${tx.id}-ord`)}
+                                    className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 cursor-pointer"
+                                    title="Copy Order ID"
+                                  >
+                                    {copiedId === `${tx.id}-ord` ? (
+                                      <Check size={12} className="text-emerald-500" />
+                                    ) : (
+                                      <Copy size={12} />
+                                    )}
+                                  </button>
+                                </div>
+                                {tx.paymentId && (
+                                  <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-mono">
+                                    <span className="truncate max-w-[140px]" title={tx.paymentId}>
+                                      {tx.paymentId}
+                                    </span>
+                                    <button
+                                      onClick={() => copyToClipboard(tx.paymentId!, `${tx.id}-pay`)}
+                                      className="text-stone-400 hover:text-emerald-700 transition-colors p-0.5 cursor-pointer"
+                                      title="Copy Payment ID"
+                                    >
+                                      {copiedId === `${tx.id}-pay` ? (
+                                        <Check size={12} className="text-emerald-500" />
+                                      ) : (
+                                        <Copy size={12} />
+                                      )}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Date & Time */}
+                            <td className="py-4 px-4">
+                              <div className="text-xs font-medium text-stone-700">
+                                {new Date(tx.createdAt).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </div>
+                              <div className="text-[11px] text-stone-400 font-normal mt-0.5">
+                                {new Date(tx.createdAt).toLocaleTimeString("en-IN", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                })}
+                              </div>
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-4 pr-6 pl-4 text-right">
+                              <div className="relative inline-block text-right action-menu-container">
+                                <button
+                                  onClick={() => setOpenMenuId(openMenuId === tx.id ? null : tx.id)}
+                                  className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer"
+                                  title="Actions"
+                                >
+                                  <MoreHorizontal size={16} />
+                                </button>
+                                {openMenuId === tx.id && (
+                                  <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-stone-200/90 rounded-xl shadow-lg py-1.5 z-20 text-left">
+                                    <button
+                                      onClick={() => {
+                                        copyToClipboard(tx.orderId, `${tx.id}-ord`);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 cursor-pointer"
+                                    >
+                                      <Copy size={13} className="text-stone-400" /> Copy Order ID
+                                    </button>
+                                    {tx.paymentId && (
+                                      <button
+                                        onClick={() => {
+                                          copyToClipboard(tx.paymentId!, `${tx.id}-pay`);
+                                          setOpenMenuId(null);
+                                        }}
+                                        className="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 cursor-pointer"
+                                      >
+                                        <Copy size={13} className="text-emerald-500" /> Copy Payment ID
+                                      </button>
+                                    )}
+                                    <div className="my-1 border-t border-stone-100" />
+                                    <button
+                                      onClick={() => {
+                                        setOpenMenuId(null);
+                                        deleteTransaction(tx.id);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                    >
+                                      <Trash2 size={13} /> Delete Record
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Table Footer */}
+              {transactions.length > 0 && (
+                <div className="px-6 py-4 bg-white border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 font-medium">
+                  <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    total={total}
+                    limit={limit}
+                    onPageChange={handlePageChange}
+                    itemLabel="transactions"
+                    className="w-full sm:w-auto"
+                  />
+                  <span className="font-semibold text-stone-700 whitespace-nowrap">
+                    Showing {transactions.length} of {total} records
+                  </span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-    )}
+          </div>
+        )}
       </main>
     </div>
   );

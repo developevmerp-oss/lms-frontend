@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem } from 'lucide-react';
+import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAuth } from '@/context/AuthContext';
 
@@ -202,7 +202,22 @@ export const WinWall = ({
     } catch (_) {}
   };
 
-  const displayWins: WinItem[] = wins.map((w, idx) => ({
+  const fallbackWins: WinItem[] = [
+    {
+      id: 'demo-vrajangna',
+      studentName: 'Patel Vrajanga (Admin)',
+      studentLevel: 'Admin',
+      title: 'Completed my first resin tray with floral design! ✨',
+      amount: undefined,
+      image: '/images/student-art/real-art-14.jpg',
+      likes: 0,
+      comments: [],
+      badge: '🏆 Win',
+      timeAgo: 'Just now',
+    },
+  ];
+
+  const parsedWins: WinItem[] = wins.map((w, idx) => ({
     id: w.id || String(idx),
     studentName: w.studentName || w.userName || 'Fellow Artist',
     studentLevel: w.level || 'L1 Member',
@@ -215,289 +230,332 @@ export const WinWall = ({
     timeAgo: w.timeAgo || 'Recently',
   }));
 
+  const displayWins: WinItem[] = parsedWins.length > 0 ? parsedWins : fallbackWins;
+
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'P';
+
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between h-full space-y-4"
-      >
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <Trophy size={16} />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-1.5">
-                  Community Win Feed
-                </h2>
-                <p className="text-[11px] text-slate-400">Live sisterhood sales, photos &amp; comments</p>
-              </div>
-            </div>
-
-            {canPost ? (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-md transition-all hover:scale-105 cursor-pointer"
-              >
-                <Plus size={13} /> Post a Win {canEarnWinXp && '(+100 XP)'}
-              </button>
-            ) : (
-              <span className="text-[11px] font-bold text-slate-400 bg-slate-950/90 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-default shadow-inner" title="General and Level 0 members have view-only access to community feed. Upgrade to L1 to post!">
-                🔒 View Only Mode
-              </span>
-            )}
+      {/* 1. Dedicated Composer Card (Matches Reference Image 2) */}
+      <div className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm flex items-center justify-center shrink-0">
+            {userInitial}
           </div>
 
-          {/* Wins Feed */}
-          <div className="space-y-4 pr-1">
-            {displayWins.length === 0 ? (
-              <div className="text-center py-8 text-xs text-slate-500">
-                Be the first to share a win today!
-              </div>
-            ) : (
-              displayWins.map((win) => {
-                const isExpanded = expandedCommentsId === win.id;
-
-                return (
-                  <div
-                    key={win.id}
-                    className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 transition-colors space-y-2 text-xs"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0 space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white truncate">{win.studentName}</span>
-                          <span className="text-[10px] text-slate-400">· {win.timeAgo}</span>
-                        </div>
-                        <p className="text-slate-300 text-[11px] leading-relaxed">
-                          {(() => {
-                            const text = win.title || '';
-                            const urlRegex = /(https?:\/\/[^\s]+)/g;
-                            const parts = text.split(urlRegex);
-
-                            return parts.map((part, index) => {
-                              if (part.match(urlRegex)) {
-                                return (
-                                  <a
-                                    key={index}
-                                    href={part}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-orange-400 font-bold underline hover:text-orange-300 break-all inline-flex items-center gap-0.5 ml-1"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    🔗 {part} ↗
-                                  </a>
-                                );
-                              }
-                              return part;
-                            });
-                          })()}
-                        </p>
-                      </div>
-                      {win.amount && (
-                        <span className="font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[11px] shrink-0 font-mono">
-                          {win.amount}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Attached Photo / Video / Document / YouTube / External Link */}
-                    {(() => {
-                      const mediaUrl = win.image;
-                      if (!mediaUrl) return null;
-
-                      const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
-                        (() => {
-                          const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                          const match = mediaUrl.match(regExp);
-                          return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
-                        })()
-                      ) : null;
-
-                      if (ytEmbed) {
-                        return (
-                          <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video shadow-lg">
-                            <iframe
-                              src={ytEmbed}
-                              title="YouTube Video"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                              className="w-full h-full border-0"
-                            />
-                          </div>
-                        );
-                      }
-
-                      const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
-                      const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
-                      const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
-                      const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
-
-                      if (isVideo) {
-                        return (
-                          <div className="rounded-2xl overflow-hidden border border-slate-800 bg-black mt-2 shadow-lg">
-                            <video src={getMediaUrl(mediaUrl)} controls className="w-full max-h-64 object-contain bg-black" />
-                          </div>
-                        );
-                      }
-
-                      if (isDoc) {
-                        return (
-                          <div className="mt-2 p-3 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
-                            <div className="flex items-center gap-2.5 overflow-hidden">
-                              <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold shrink-0 text-sm">
-                                📄
-                              </div>
-                              <div className="truncate">
-                                <p className="text-xs font-bold text-white truncate">Attached Document / File</p>
-                                <p className="text-[10px] text-slate-400">Click to download or view</p>
-                              </div>
-                            </div>
-                            <a
-                              href={getMediaUrl(mediaUrl)}
-                              download="community-file"
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-3 py-1 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-300 text-[11px] font-bold transition-all shrink-0"
-                            >
-                              Download File
-                            </a>
-                          </div>
-                        );
-                      }
-
-                      if (isWebUrl && !isDirectImage) {
-                        return (
-                          <div className="mt-2 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
-                            <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-                              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
-                                🔗
-                              </div>
-                              <div className="truncate min-w-0">
-                                <p className="text-xs font-bold text-white truncate">External Link Attachment</p>
-                                <p className="text-[10px] text-slate-400 truncate">{mediaUrl}</p>
-                              </div>
-                            </div>
-                            <a
-                              href={mediaUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
-                            >
-                              Open Link ↗
-                            </a>
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div className="rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950 mt-2 max-h-80 shadow-lg">
-                          <img src={getMediaUrl(mediaUrl)} alt="Post attachment" className="w-full h-full max-h-80 object-cover hover:scale-102 transition-transform duration-300" />
-                        </div>
-                      );
-                    })()}
-
-                    {/* Like & Comment Bar */}
-                    <div className="flex items-center justify-between pt-1 border-t border-slate-900 text-[11px] text-slate-400">
-                      <button
-                        type="button"
-                        onClick={() => handleLike(win.id)}
-                        className="flex items-center gap-1 hover:text-rose-400 transition-colors cursor-pointer"
-                      >
-                        <Heart size={12} className={win.likes ? 'text-rose-500 fill-rose-500' : ''} />
-                        <span>{win.likes || 0} Likes</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
-                        className="flex items-center gap-1 hover:text-orange-400 transition-colors cursor-pointer"
-                      >
-                        <MessageCircle size={12} />
-                        <span>{win.comments?.length || 0} Comments</span>
-                      </button>
-                    </div>
-
-                    {/* Comments Section */}
-                    {isExpanded && (
-                      <div className="pt-2 space-y-2 border-t border-slate-900/80">
-                        {win.comments && win.comments.length > 0 ? (
-                          <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                            {win.comments.map((c, i) => (
-                              <div key={i} className="bg-slate-900/60 p-2 rounded-xl text-[11px]">
-                                <span className="font-bold text-orange-400 mr-1.5">{c.author}:</span>
-                                <span className="text-slate-300">{c.text}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-[10px] text-slate-500">No comments yet. Say congratulations!</p>
-                        )}
-
-                        {canPost ? (
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              placeholder="Write a supportive comment..."
-                              value={commentText[win.id] || ''}
-                              onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
-                              onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
-                              className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none focus:border-orange-500"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleAddComment(win.id)}
-                              disabled={commenting}
-                              className="px-2.5 py-1 bg-orange-500 text-slate-950 rounded-lg font-bold text-[11px] hover:bg-orange-600 transition-colors cursor-pointer shrink-0"
-                            >
-                              <Send size={11} />
-                            </button>
-                          </div>
-                        ) : (
-                          <p className="text-[10px] text-slate-500 italic py-1">
-                            🔒 Upgrade to Level 1 or above to participate in comments &amp; discussions.
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
+          <div
+            onClick={() => {
+              if (!canPost) {
+                alert("Only Level 3 (Diamond Club) members can post.");
+                return;
+              }
+              setIsModalOpen(true);
+            }}
+            className="flex-1 bg-[#faf8f5] hover:bg-[#f6f2ed] border border-stone-200/80 rounded-full px-5 py-2.5 sm:py-3 text-stone-400 text-xs sm:text-sm cursor-pointer transition-colors truncate"
+          >
+            <span>Share your win, artwork, or learning...</span>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!canPost) {
+                alert("Only Level 3 (Diamond Club) members can post.");
+                return;
+              }
+              setIsModalOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-md shadow-[#c4431d]/20 transition-all hover:scale-[1.02] cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <span>+ Post a Win (+100 XP)</span>
+          </button>
         </div>
 
-        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-          <span className="flex items-center gap-1">
-            <Gem size={12} className="text-cyan-400" /> Only L3 Diamond earns XP
-          </span>
-          <span className="flex items-center gap-1 text-orange-400 font-semibold">
+        <div className="mt-4 pt-3 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-stone-500">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-amber-500">💎</span>
+            <span>Only L3 Diamond earns XP</span>
+            <span className="text-stone-300 hidden sm:inline">·</span>
+            <span>Only Level 3 (Diamond Club) members can post.</span>
+          </div>
+          <span className="flex items-center gap-1 text-[#942008] font-semibold shrink-0">
             <Flame size={13} /> Active Sisterhood
           </span>
         </div>
-      </motion.div>
+      </div>
+
+      {/* 2. Feed Post Cards List (Matches Reference Image 2) */}
+      <div className="space-y-6">
+        {displayWins.map((win) => {
+          const isExpanded = expandedCommentsId === win.id;
+          const authorInitial = (win.studentName || 'P').charAt(0).toUpperCase();
+
+          return (
+            <div
+              key={win.id}
+              className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] space-y-4"
+            >
+              {/* Post Header: Avatar + Author Name + Time + Three Dots */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm flex items-center justify-center shrink-0">
+                    {authorInitial}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-bold text-stone-900 text-sm sm:text-base">
+                        {win.studentName}
+                      </span>
+                      <span className="text-xs text-stone-400 font-normal">
+                        · {win.timeAgo}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="p-1 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-50 transition-colors cursor-pointer"
+                >
+                  <MoreHorizontal size={18} />
+                </button>
+              </div>
+
+              {/* Post Text */}
+              <p className="text-stone-900 text-sm sm:text-base leading-relaxed">
+                {(() => {
+                  const text = win.title || '';
+                  const urlRegex = /(https?:\/\/[^\s]+)/g;
+                  const parts = text.split(urlRegex);
+
+                  return parts.map((part, index) => {
+                    if (part.match(urlRegex)) {
+                      return (
+                        <a
+                          key={index}
+                          href={part}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[#942008] font-bold underline hover:text-[#c4431d] break-all inline-flex items-center gap-0.5 ml-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          🔗 {part} ↗
+                        </a>
+                      );
+                    }
+                    return part;
+                  });
+                })()}
+              </p>
+
+              {/* Sales Amount Badge (if present) */}
+              {win.amount && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold font-mono">
+                  <span>💰 Sale Logged:</span>
+                  <span>{win.amount}</span>
+                </div>
+              )}
+
+              {/* Media Attachment (Video, Doc, Image, YouTube) */}
+              {(() => {
+                const mediaUrl = win.image;
+                if (!mediaUrl) return null;
+
+                const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                  (() => {
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                    const match = mediaUrl.match(regExp);
+                    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                  })()
+                ) : null;
+
+                if (ytEmbed) {
+                  return (
+                    <div className="rounded-2xl overflow-hidden border border-stone-200 bg-black aspect-video shadow-xs mt-3">
+                      <iframe
+                        src={ytEmbed}
+                        title="YouTube Video"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full border-0"
+                      />
+                    </div>
+                  );
+                }
+
+                const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
+                const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
+                const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+
+                if (isVideo) {
+                  return (
+                    <div className="rounded-2xl overflow-hidden border border-stone-200 bg-black mt-3 shadow-xs">
+                      <video src={getMediaUrl(mediaUrl)} controls className="w-full max-h-96 object-contain bg-black" />
+                    </div>
+                  );
+                }
+
+                if (isDoc) {
+                  return (
+                    <div className="mt-3 p-3.5 rounded-2xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <div className="w-9 h-9 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] font-bold shrink-0 text-sm">
+                          📄
+                        </div>
+                        <div className="truncate">
+                          <p className="text-xs font-bold text-stone-900 truncate">Attached Document / File</p>
+                          <p className="text-[10px] text-stone-500">Click to download or view</p>
+                        </div>
+                      </div>
+                      <a
+                        href={getMediaUrl(mediaUrl)}
+                        download="community-file"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-[#fde5d6] hover:bg-[#fde5d6]/80 border border-[#f5ded0] text-[#942008] text-xs font-bold transition-all shrink-0"
+                      >
+                        Download File
+                      </a>
+                    </div>
+                  );
+                }
+
+                if (isWebUrl && !isDirectImage) {
+                  return (
+                    <div className="mt-3 p-3.5 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
+                      <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
+                          🔗
+                        </div>
+                        <div className="truncate min-w-0">
+                          <p className="text-xs font-bold text-stone-900 truncate">External Link Attachment</p>
+                          <p className="text-[10px] text-stone-500 truncate">{mediaUrl}</p>
+                        </div>
+                      </div>
+                      <a
+                        href={mediaUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-700 text-xs font-bold transition-all shrink-0 flex items-center gap-1"
+                      >
+                        Open Link ↗
+                      </a>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="rounded-2xl overflow-hidden border border-stone-100 bg-[#faf8f5] mt-3 shadow-xs">
+                    <img
+                      src={getMediaUrl(mediaUrl)}
+                      alt={win.title || "Post artwork"}
+                      className="w-full max-h-[500px] object-cover hover:scale-[1.01] transition-transform duration-300"
+                    />
+                  </div>
+                );
+              })()}
+
+              {/* Post Footer Action Bar */}
+              <div className="flex items-center justify-between pt-3 border-t border-stone-100 text-xs text-stone-500">
+                <div className="flex items-center gap-6">
+                  {/* Likes Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleLike(win.id)}
+                    className="flex items-center gap-1.5 hover:text-rose-500 transition-colors cursor-pointer"
+                  >
+                    <Heart
+                      size={16}
+                      className={win.likes ? 'text-rose-500 fill-rose-500' : 'text-stone-400'}
+                    />
+                    <span className="font-medium">{win.likes || 0} Likes</span>
+                  </button>
+
+                  {/* Comments Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
+                    className="flex items-center gap-1.5 hover:text-[#c4431d] transition-colors cursor-pointer"
+                  >
+                    <MessageCircle size={16} className="text-stone-400" />
+                    <span className="font-medium">{win.comments?.length || 0} Comments</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  className="text-stone-400 hover:text-stone-600 cursor-pointer"
+                >
+                  <MoreHorizontal size={18} />
+                </button>
+              </div>
+
+              {/* Expandable Comments Drawer */}
+              {isExpanded && (
+                <div className="pt-3 space-y-2.5 border-t border-stone-100">
+                  {win.comments && win.comments.length > 0 ? (
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      {win.comments.map((c, i) => (
+                        <div key={i} className="bg-[#faf8f5] p-2.5 rounded-xl text-xs">
+                          <span className="font-bold text-[#942008] mr-2">{c.author}:</span>
+                          <span className="text-stone-700">{c.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-stone-400 py-1">No comments yet. Say congratulations!</p>
+                  )}
+
+                  {canPost ? (
+                    <div className="flex gap-2 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Write a supportive comment..."
+                        value={commentText[win.id] || ''}
+                        onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
+                        className="flex-1 bg-[#faf8f5] border border-stone-200 rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddComment(win.id)}
+                        disabled={commenting}
+                        className="px-3.5 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white rounded-xl font-bold text-xs hover:opacity-95 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                      >
+                        <Send size={13} />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-stone-400 italic py-1">
+                      🔒 Upgrade to Level 1 or above to participate in comments &amp; discussions.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {/* Post Win Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="relative w-full max-w-md rounded-3xl border border-orange-500/30 bg-slate-900 p-6 sm:p-7 shadow-2xl text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#faf8f5]/80 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-3xl border border-[#ecdccb] bg-white p-6 sm:p-7 shadow-2xl text-stone-900">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4 text-slate-400 hover:text-white"
+              className="absolute right-4 top-4 text-stone-500 hover:text-stone-900"
             >
               <X size={18} />
             </button>
 
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+              <div className="w-9 h-9 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008]">
                 <Trophy size={18} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-white">Post Your Win on the Feed</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-lg font-black text-stone-900">Post Your Win on the Feed</h3>
+                <p className="text-xs text-stone-500">
                   {canEarnWinXp
                     ? '🌟 Share your milestone and earn +100 XP!'
                     : 'Share your milestone with the sisterhood!'}
@@ -512,46 +570,46 @@ export const WinWall = ({
             ) : (
               <form onSubmit={handlePostWin} className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300">Win / Milestone Title</label>
+                  <label className="text-xs font-bold text-stone-600">Win / Milestone Title</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sold my first 3D Geode Wall Clock!"
                     value={winForm.title}
                     onChange={(e) => setWinForm({ ...winForm, title: e.target.value })}
-                    className="flex h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+                    className="flex h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Sales Amount (₹ optional)</label>
+                    <label className="text-xs font-bold text-stone-600">Sales Amount (₹ optional)</label>
                     <input
                       type="number"
                       placeholder="e.g. 4500"
                       value={winForm.salesAmount}
                       onChange={(e) => setWinForm({ ...winForm, salesAmount: e.target.value })}
-                      className="flex h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+                      className="flex h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Technique Used</label>
+                    <label className="text-xs font-bold text-stone-600">Technique Used</label>
                     <input
                       type="text"
                       placeholder="e.g. Ocean Wave Lacing"
                       value={winForm.technique}
                       onChange={(e) => setWinForm({ ...winForm, technique: e.target.value })}
-                      className="flex h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+                      className="flex h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Browser File Upload & URL input */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-600 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <Image size={13} className="text-orange-400" /> Upload File (Image, Video, Document)
+                      <Image size={13} className="text-[#942008]" /> Upload File (Image, Video, Document)
                     </span>
                     <span className="text-[10px] text-slate-500 font-normal">Browser File Picker</span>
                   </label>
@@ -563,10 +621,10 @@ export const WinWall = ({
                         accept="image/*,video/*,.pdf,.doc,.docx"
                         onChange={handleFileBrowserSelect}
                         disabled={uploadingFile}
-                        className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500/20 file:text-orange-400 hover:file:bg-orange-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1 disabled:opacity-50"
+                        className="w-full text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#fde5d6]/80 cursor-pointer bg-[#faf8f5] border border-stone-200 rounded-xl p-1 disabled:opacity-50"
                       />
                       {uploadingFile && (
-                        <span className="absolute inset-0 flex items-center justify-center bg-slate-950/80 rounded-xl text-xs font-bold text-orange-400">
+                        <span className="absolute inset-0 flex items-center justify-center bg-[#faf8f5]/80 rounded-xl text-xs font-bold text-[#942008]">
                           ⏳ Uploading file...
                         </span>
                       )}
@@ -577,17 +635,17 @@ export const WinWall = ({
                       placeholder="Or paste external file / image URL..."
                       value={winForm.imageUrl}
                       onChange={(e) => setWinForm({ ...winForm, imageUrl: e.target.value })}
-                      className="flex h-9 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+                      className="flex h-9 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                     />
                   </div>
 
                   {/* Preview — shows after file is uploaded to server or URL is typed */}
                   {winForm.imageUrl && (
-                    <div className="mt-2 p-2 rounded-xl bg-slate-950 border border-slate-800 relative">
+                    <div className="mt-2 p-2 rounded-xl bg-[#faf8f5] border border-stone-200 relative">
                       <button
                         type="button"
                         onClick={() => setWinForm({ ...winForm, imageUrl: '' })}
-                        className="absolute right-2 top-2 bg-slate-900 text-slate-400 hover:text-white p-1 rounded-lg z-10"
+                        className="absolute right-2 top-2 bg-white text-stone-500 hover:text-stone-900 p-1 rounded-lg z-10"
                       >
                         <X size={12} />
                       </button>
@@ -610,13 +668,13 @@ export const WinWall = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-300">Story / Reflection</label>
+                  <label className="text-xs font-bold text-stone-600">Story / Reflection</label>
                   <textarea
                     rows={2}
                     placeholder="How did you achieve this? What did you learn?"
                     value={winForm.notes}
                     onChange={(e) => setWinForm({ ...winForm, notes: e.target.value })}
-                    className="flex w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs text-white placeholder-slate-500 focus:border-orange-500 focus:outline-none resize-none"
+                    className="flex w-full rounded-xl border border-stone-200 bg-[#faf8f5] p-3 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none resize-none"
                   />
                 </div>
 
@@ -624,14 +682,14 @@ export const WinWall = ({
                   <button
                     type="submit"
                     disabled={posting || uploadingFile}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {posting ? 'Publishing...' : `Publish Win ${canEarnWinXp ? '(+100 XP)' : ''}`}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-xs h-10 px-4 rounded-xl cursor-pointer"
+                    className="border border-stone-300 bg-stone-100 text-stone-600 font-semibold text-xs h-10 px-4 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>

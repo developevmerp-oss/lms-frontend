@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import {
@@ -35,6 +35,10 @@ import {
   EyeOff,
   Check,
   QrCode,
+  LayoutGrid,
+  MoreVertical,
+  Type,
+  ArrowRight,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
 import { CourseQrCodeModal } from "@/components/admin/CourseQrCodeModal";
@@ -50,7 +54,7 @@ export const PRESET_COURSE_BANNERS = [
 
 export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
   L0: { name: "Fast Track", price: "₹499", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
-  L1: { name: "Silver Member", price: "₹4,999", color: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-500/30" },
+  L1: { name: "Silver Member", price: "₹4,999", color: "text-stone-700", bg: "bg-stone-100", border: "border-stone-200" },
   L2: { name: "Gold Member", price: "₹19,999", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
   L3: { name: "Diamond Club", price: "₹59,999", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
   "L3+": { name: "Masters Club", price: "Custom", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
@@ -64,7 +68,7 @@ function formatEmbedUrl(url: string): string {
       const videoId = new URL(fullUrl).searchParams.get("v");
       if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
     }
-  } catch {}
+  } catch { }
   if (url.includes("youtu.be/")) {
     const videoId = url.split("youtu.be/")[1]?.split("?")[0];
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
@@ -132,6 +136,32 @@ export default function AdminCourses() {
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
   const [previewFlyerModal, setPreviewFlyerModal] = useState<string | null>(null);
   const [qrModalCourse, setQrModalCourse] = useState<any | null>(null);
+  const [statusConfirmCourse, setStatusConfirmCourse] = useState<{ id: string; title: string; isPublished?: boolean } | null>(null);
+  const [optimisticStatusMap, setOptimisticStatusMap] = useState<Record<string, { value: boolean; seq: number }>>({});
+  const toggleSeqRef = useRef(0);
+  const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!openActionMenuId && !statusConfirmCourse) return;
+    const handleOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (openActionMenuId && !target?.closest("[data-course-menu-root]")) {
+        setOpenActionMenuId(null);
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenActionMenuId(null);
+        setStatusConfirmCourse(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [openActionMenuId, statusConfirmCourse]);
   const [imageRatioInfo, setImageRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
   const [flyerRatioInfo, setFlyerRatioInfo] = useState<{ width: number; height: number; ratioText: string } | null>(null);
 
@@ -219,6 +249,11 @@ export default function AdminCourses() {
     pdfUrl: "",
   });
   const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [chapterDrawer, setChapterDrawer] = useState<{ key: string; video: boolean; pdf: boolean }>({
+    key: "",
+    video: false,
+    pdf: false,
+  });
 
   // Video Preview Modal
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
@@ -340,9 +375,9 @@ export default function AdminCourses() {
   };
 
   const fetchCourses = () => {
-    if (!token) return;
+    if (!token) return Promise.resolve();
     setIsLoading(true);
-    fetch(`${API_BASE_URL}/courses`, {
+    return fetch(`${API_BASE_URL}/courses`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -468,9 +503,23 @@ export default function AdminCourses() {
   };
 
   // Quick 1-click Toggle Course Enabled/Disabled Status
-  const handleToggleCourseStatus = async (course: any) => {
+  const handleToggleCourseStatus = async (course: { id: string; title: string; isPublished?: boolean }) => {
+    const newStatus = course.isPublished === false ? true : false;
+    const seq = ++toggleSeqRef.current;
+
+    // Update UI toggle state immediately so the slide + rotation animation starts without waiting for the network
+    setOptimisticStatusMap((prev) => ({ ...prev, [course.id]: { value: newStatus, seq } }));
+
+    const clearOptimistic = () => {
+      setOptimisticStatusMap((prev) => {
+        if (prev[course.id]?.seq !== seq) return prev;
+        const next = { ...prev };
+        delete next[course.id];
+        return next;
+      });
+    };
+
     try {
-      const newStatus = course.isPublished === false ? true : false;
       const res = await fetch(`${API_BASE_URL}/courses/${course.id}`, {
         method: "PUT",
         headers,
@@ -478,12 +527,15 @@ export default function AdminCourses() {
       });
       if (res.ok) {
         showSuccess(`Course "${course.title}" ${newStatus ? "enabled (visible to students)" : "disabled (hidden from students)"}!`);
-        fetchCourses();
+        await fetchCourses();
+        clearOptimistic();
       } else {
+        clearOptimistic();
         const errData = await res.json().catch(() => ({}));
         alert(`Failed to update status: ${errData.message || "Server Error"}`);
       }
     } catch (err: any) {
+      clearOptimistic();
       console.error("Course status toggle error:", err);
       alert(`Error toggling status: ${err.message || "Network issue"}`);
     }
@@ -734,12 +786,12 @@ export default function AdminCourses() {
         if (res.ok) {
           seeded = true;
         }
-      } catch (_) {}
+      } catch (_) { }
 
       // 2. Fallback: Create courses via standard POST /courses
       if (!seeded) {
         const existingTitles = new Set(courses.map((c) => c.title.trim().toLowerCase()));
-        
+
         for (const item of DEFAULT_30_COURSES) {
           if (!existingTitles.has(item.title.trim().toLowerCase())) {
             const courseRes = await fetch(`${API_BASE_URL}/courses`, {
@@ -791,17 +843,25 @@ export default function AdminCourses() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <BookOpen size={13} className="text-orange-400" /> Sequential Level & Individual Curriculum
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
+              <BookOpen size={13} className="text-[#c4431d]" /> Sequential Level & Individual Curriculum
             </span>
-            <h1 className="text-3xl font-black text-white">Course Management</h1>
-            <p className="text-slate-400 mt-1 text-sm">
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">Course Management</h1>
+            <p className="text-stone-500 mt-1 text-sm font-medium">
               Organize sequential level-wise courses (L0-L3) or create standalone individual courses with custom pricing.
             </p>
           </div>
@@ -810,7 +870,7 @@ export default function AdminCourses() {
             <button
               onClick={handleSyncCurriculum}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-amber-500/30 transition-all cursor-pointer shadow-md"
+              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-stone-50 text-amber-700 font-bold text-xs border border-amber-300 shadow-xs transition-all cursor-pointer"
               title="Populate or sync all 30 standard courses into the database"
             >
               <Sparkles size={16} /> Sync 30 Curriculum Courses
@@ -839,7 +899,7 @@ export default function AdminCourses() {
                 });
                 setShowCourseModal(true);
               }}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs px-5 py-3 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer shrink-0"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs px-5 py-3 rounded-2xl shadow-md shadow-[#c4431d]/25 transition-all hover:scale-105 cursor-pointer shrink-0"
             >
               <Plus size={18} /> Create New Course
             </button>
@@ -852,83 +912,113 @@ export default function AdminCourses() {
           </div>
         )}
 
-        {/* Level Tabs / Filter Bar */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-3 mb-8 no-scrollbar">
-          <button
-            onClick={() => setActiveLevelFilter("all")}
-            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-              activeLevelFilter === "all"
-                ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
-                : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
-            }`}
-          >
-            All Courses ({courses.length})
-          </button>
+        {/* Level Tabs / Filter Bar (Single-Row Horizontal Scroll) */}
+        <div className="mb-8">
+          <div className="flex flex-nowrap items-center gap-2.5 sm:gap-3 overflow-x-auto py-1 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <button
+              onClick={() => setActiveLevelFilter("all")}
+              className={`shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeLevelFilter === "all"
+                ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/25 border border-transparent"
+                : "bg-white border border-[#ecdccb] text-stone-700 hover:text-[#942008] hover:bg-[#fff5ee] hover:border-[#f5ded0] shadow-2xs"
+                }`}
+            >
+              <LayoutGrid size={15} className="shrink-0" />
+              <span>All Courses ({courses.length})</span>
+            </button>
 
-          {/* Standalone / Individual Courses Filter Tab */}
-          <button
-            onClick={() => setActiveLevelFilter("NONE")}
-            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
-              activeLevelFilter === "NONE"
-                ? "bg-purple-600 text-white font-black shadow-lg shadow-purple-500/20"
-                : "bg-slate-900 border border-slate-800 text-purple-300 hover:text-white"
-            }`}
-          >
-            <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${activeLevelFilter === "NONE" ? "bg-slate-950 text-purple-300" : "bg-purple-500/20 text-purple-400"}`}>
-              NONE
-            </span>
-            <span>Individual / Standalone</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
-              {courses.filter((c) => !c.levelCode || c.levelCode.toUpperCase() === "NONE").length}
-            </span>
-          </button>
+            {/* Standalone / Individual Courses Filter Tab */}
+            <button
+              onClick={() => setActiveLevelFilter("NONE")}
+              className={`shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeLevelFilter === "NONE"
+                ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/25 border border-transparent"
+                : "bg-white border border-[#ecdccb] text-stone-700 hover:text-[#942008] hover:bg-[#fff5ee] hover:border-[#f5ded0] shadow-2xs"
+                }`}
+            >
+              <Layers size={15} className={`shrink-0 ${activeLevelFilter === "NONE" ? "text-white" : "text-stone-600"}`} />
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-black ${activeLevelFilter === "NONE"
+                  ? "bg-white/20 text-white"
+                  : "bg-[#fde5d6] text-[#942008]"
+                  }`}
+              >
+                NONE
+              </span>
+              <span>Individual / Standalone</span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-bold ${activeLevelFilter === "NONE"
+                  ? "bg-white/20 text-white"
+                  : "bg-stone-100 text-stone-600"
+                  }`}
+              >
+                {courses.filter((c) => !c.levelCode || c.levelCode.toUpperCase() === "NONE").length}
+              </span>
+            </button>
 
-          {(levels.length > 0
-            ? levels.map((l) => ({ code: l.code, name: l.name, price: l.price || "₹499" }))
-            : [
+            {(levels.length > 0
+              ? levels.map((l) => ({ code: l.code, name: l.name, price: l.price || "₹499" }))
+              : [
                 { code: "L0", name: "Fast Track", price: "₹499" },
                 { code: "L1", name: "Silver Member", price: "₹4,999" },
                 { code: "L2", name: "Gold Member", price: "₹19,999" },
                 { code: "L3", name: "Diamond Club", price: "₹59,999" },
                 { code: "L3+", name: "Masters Club", price: "Custom" },
               ]
-          ).map((lvlObj) => {
-            const lvl = lvlObj.code;
-            const cfg = getLevelConfig(lvl);
-            const count = courses.filter((c) => (c.levelCode || "").toUpperCase() === lvl.toUpperCase()).length;
-            const isActive = activeLevelFilter.toUpperCase() === lvl.toUpperCase();
+            ).map((lvlObj) => {
+              const lvl = lvlObj.code;
+              const cfg = getLevelConfig(lvl);
+              const count = courses.filter((c) => (c.levelCode || "").toUpperCase() === lvl.toUpperCase()).length;
+              const isActive = activeLevelFilter.toUpperCase() === lvl.toUpperCase();
+              const lvlUpper = lvl.toUpperCase();
+              const badgeTone =
+                lvlUpper === "L0"
+                  ? "bg-emerald-100/90 text-emerald-800"
+                  : lvlUpper === "L1"
+                    ? "bg-rose-100/90 text-rose-800"
+                    : lvlUpper === "L2"
+                      ? "bg-amber-100/90 text-amber-800"
+                      : lvlUpper === "L3"
+                        ? "bg-sky-100/90 text-sky-800"
+                        : "bg-purple-100/90 text-purple-800";
 
-            return (
-              <button
-                key={lvl}
-                onClick={() => setActiveLevelFilter(lvl)}
-                className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
-                  isActive
-                    ? "bg-orange-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
-                    : "bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
-                }`}
-              >
-                <span className={`px-2 py-0.5 rounded-md text-[11px] font-black ${isActive ? "bg-slate-950 text-orange-400" : `${cfg.bg} ${cfg.color}`}`}>
-                  {lvl}
-                </span>
-                <span>{cfg.name}</span>
-                <span className="text-[11px] opacity-75 font-mono">({cfg.price})</span>
-                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800/80 text-[10px] text-slate-400">
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={lvl}
+                  onClick={() => setActiveLevelFilter(lvl)}
+                  className={`shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${isActive
+                    ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/25 border border-transparent"
+                    : "bg-white border border-[#ecdccb] text-stone-700 hover:text-[#942008] hover:bg-[#fff5ee] hover:border-[#f5ded0] shadow-2xs"
+                    }`}
+                >
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs font-black ${isActive ? "bg-white/20 text-white" : badgeTone
+                      }`}
+                  >
+                    {lvl}
+                  </span>
+                  <span>{cfg.name}</span>
+                  <span className={`text-xs font-mono ${isActive ? "text-white/90" : "text-stone-500"}`}>
+                    ({cfg.price})
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs font-bold ${isActive ? "bg-white/20 text-white" : "bg-stone-100 text-stone-600"
+                      }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Courses Grid */}
-        {isLoading ? (
-          <div className="p-16 text-center text-slate-500">Loading curriculum library...</div>
+        {isLoading && courses.length === 0 ? (
+          <div className="p-16 text-center text-stone-400 font-medium">Loading curriculum library...</div>
         ) : displayedCourses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl p-8">
-            <BookOpen size={48} className="text-slate-700 mb-4" />
-            <h3 className="text-lg font-bold text-white mb-1">No Courses Found</h3>
-            <p className="text-slate-400 text-sm mb-4">
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-white/60 border border-dashed border-stone-200 rounded-3xl p-8">
+            <BookOpen size={48} className="text-stone-300 mb-4" />
+            <h3 className="text-lg font-bold text-stone-900 mb-1">No Courses Found</h3>
+            <p className="text-stone-500 text-sm mb-4 font-medium">
               {activeLevelFilter === "NONE"
                 ? "No standalone individual courses yet. Click below to create one with a custom price."
                 : `Click "Create New Course" to add a course to ${activeLevelFilter}.`}
@@ -956,18 +1046,20 @@ export default function AdminCourses() {
                 });
                 setShowCourseModal(true);
               }}
-              className="bg-orange-500 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl cursor-pointer"
+              className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-xs cursor-pointer"
             >
               + Create Course
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedCourses.map((course) => {
               const isSelected = selectedCourse?.id === course.id;
               const isStandalone = !course.levelCode || course.levelCode.toUpperCase() === "NONE";
               const lvl = isStandalone ? "NONE" : (course.levelCode || "L0").toUpperCase();
               const cfg = getLevelConfig(lvl);
+              const isCourseEnabled = optimisticStatusMap[course.id]?.value ?? (course.isPublished !== false);
+              const isMenuOpen = openActionMenuId === course.id;
               const displayPrice = isStandalone
                 ? (course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "Price not set")
                 : cfg.price;
@@ -975,15 +1067,74 @@ export default function AdminCourses() {
               return (
                 <div
                   key={course.id}
-                  className={`bg-slate-900/90 border rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all ${
-                    isSelected ? "border-orange-500 ring-2 ring-orange-500/30" : "border-slate-800 hover:border-slate-700"
-                  }`}
+                  className={`relative bg-white/95 border rounded-3xl p-3.5 sm:p-4 lg:p-5 flex flex-col justify-between shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] transition-all ${isMenuOpen ? "z-30" : ""
+                    } ${isSelected ? "border-[#c4431d] ring-2 ring-[#c4431d]/30" : "border-[#ecdccb] hover:border-[#d8c1aa]"}`}
                 >
                   <div>
+                    {/* Card Header Row Above Image: Course Badge (Left) & Smooth Animated Slide Toggle (Right) */}
+                    <div className="flex items-center justify-between gap-2.5 mb-3">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        <span
+                          title={isStandalone ? "Individual Course" : `${lvl} • ${cfg.name}`}
+                          className={`px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold border shadow-2xs min-w-0 truncate ${isStandalone
+                            ? "bg-[#fde5d6]/70 text-[#942008] border-[#f5ded0]"
+                            : "bg-[#fff5ee] text-stone-800 border-[#ecdccb]"
+                            }`}
+                        >
+                          {isStandalone ? "✨ Individual Course" : `${lvl} • ${cfg.name}`}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={isCourseEnabled}
+                        onClick={() =>
+                          setStatusConfirmCourse({
+                            id: course.id,
+                            title: course.title,
+                            isPublished: isCourseEnabled,
+                          })
+                        }
+                        title={
+                          isCourseEnabled
+                            ? "Enabled — Click to Disable Course (Hide from students)"
+                            : "Disabled — Click to Enable Course (Make visible to students)"
+                        }
+                        className={`relative inline-flex items-center w-14 h-8 rounded-full p-1 transition-colors duration-500 ease-in-out cursor-pointer shrink-0 bg-white ring-1 ring-inset shadow-inner ${isCourseEnabled ? "ring-[#ebcbb6]" : "ring-[#e6d6c3]"
+                          }`}
+                      >
+                        <span
+                          className={`relative w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 ease-in-out ${isCourseEnabled
+                            ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] shadow-[0_2px_8px_rgba(196,67,29,0.35)]"
+                            : "bg-[#dfd0be] shadow-xs"
+                            }`}
+                          style={{
+                            transform: isCourseEnabled
+                              ? "translateX(1.5rem) rotate(360deg)"
+                              : "translateX(0rem) rotate(0deg)",
+                          }}
+                        >
+                          <Check
+                            size={14}
+                            strokeWidth={2.75}
+                            className={`absolute text-white transition-all duration-300 ${isCourseEnabled ? "opacity-100 scale-100" : "opacity-0 scale-50"
+                              }`}
+                          />
+                          <X
+                            size={14}
+                            strokeWidth={2.75}
+                            className={`absolute text-white transition-all duration-300 ${isCourseEnabled ? "opacity-0 scale-50" : "opacity-100 scale-100"
+                              }`}
+                          />
+                        </span>
+                      </button>
+                    </div>
+
                     {/* Course Banner Thumbnail */}
-                    <div 
+                    <div
                       onClick={() => (course.flyerImage || course.image) && setPreviewFlyerModal(course.flyerImage || course.image)}
-                      className={`relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 group flex items-center justify-center ${(course.flyerImage || course.image) ? "cursor-pointer" : ""}`}
+                      className={`relative w-full h-52 sm:h-56 rounded-2xl overflow-hidden mb-4 border border-[#ecdccb]/80 bg-[#fcfaf7] group flex items-center justify-center ${(course.flyerImage || course.image) ? "cursor-pointer" : ""}`}
                       title={(course.flyerImage || course.image) ? "Click to view full original flyer" : undefined}
                     >
                       {(course.image || course.flyerImage) ? (
@@ -994,140 +1145,52 @@ export default function AdminCourses() {
                             alt={course.title}
                             className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/15 to-slate-950/40 pointer-events-none z-10" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none z-10" />
                         </>
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center">
-                          <BookOpen size={36} className="text-slate-700" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none z-10" />
+                        <div className="w-full h-full bg-gradient-to-br from-[#fcfaf7] via-[#fff5ee]/70 to-[#fde5d6]/40 flex items-center justify-center">
+                          <BookOpen size={40} className="text-[#c4431d]/25" />
                         </div>
                       )}
-                      
-                      {/* Top Overlay Badges */}
-                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap z-20">
-                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${isStandalone ? "bg-purple-500/20 text-purple-300 border-purple-500/40" : `${cfg.bg} ${cfg.color} ${cfg.border}`}`}>
-                          {isStandalone ? "✨ Individual Course" : `${lvl} • ${cfg.name}`}
-                        </span>
 
-                        {/* Visibility Status Badge */}
-                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black border shadow-md flex items-center gap-1 backdrop-blur-md ${
-                          course.isPublished !== false 
-                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" 
-                            : "bg-red-500/20 text-red-300 border-red-500/40"
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${course.isPublished !== false ? "bg-emerald-400" : "bg-red-400"}`} />
-                          {course.isPublished !== false ? "Enabled" : "Disabled"}
-                        </span>
-
-                        {course.offerActive && (
-                          <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md border border-red-400/40 flex items-center gap-1">
-                            <Tag size={10} />
-                            {course.discountType === "percentage" ? `${course.discountValue}% OFF` : `₹${course.discountValue} OFF`}
+                      {/* Bottom Thumbnail Pills: Price, Offer & Order */}
+                      <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-20 pointer-events-none">
+                        <div className="pointer-events-auto flex items-center gap-1.5 min-w-0">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-extrabold bg-white/95 backdrop-blur-md border border-stone-200/90 shadow-sm shrink-0 ${isStandalone ? "text-[#942008]" : "text-amber-800"}`}>
+                            {displayPrice}
                           </span>
-                        )}
-                      </div>
-
-                      <div 
-                        onClick={(e) => e.stopPropagation()} 
-                        className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-slate-950/80 backdrop-blur-md px-1.5 py-0.5 rounded-xl border border-slate-800 z-20"
-                      >
-                        {/* Quick Enable / Disable Status Toggle */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleCourseStatus(course)}
-                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                            course.isPublished !== false 
-                              ? "text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20" 
-                              : "text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
-                          }`}
-                          title={course.isPublished !== false ? "Click to Disable Course (Hide from students)" : "Click to Enable Course (Make visible to students)"}
-                        >
-                          {course.isPublished !== false ? <Eye size={13} /> : <EyeOff size={13} />}
-                        </button>
-
-                        {/* Course QR Code & Promotional Flyer */}
-                        <button
-                          type="button"
-                          onClick={() => setQrModalCourse(course)}
-                          className="p-1 text-purple-300 hover:text-white hover:bg-purple-500/20 rounded-lg transition-colors cursor-pointer"
-                          title="Course Purchase QR Code & Promotional Poster Flyer"
-                        >
-                          <QrCode size={13} />
-                        </button>
-
-                        {(course.flyerImage || course.image) && (
-                          <button
-                            type="button"
-                            onClick={() => setPreviewFlyerModal(course.flyerImage || course.image)}
-                            className="p-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                            title="View Full Flyer / Poster"
-                          >
-                            <Maximize2 size={13} />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => {
-                            setEditingCourse(course);
-                            setCourseForm({
-                              title: course.title,
-                              description: course.description || "",
-                              image: course.image || "",
-                              flyerImage: course.flyerImage || "",
-                              levelCode: course.levelCode || "NONE",
-                              price: course.price ? course.price.replace(/[^0-9]/g, "") : "",
-                              order: course.order || 0,
-                              offerActive: Boolean(course.offerActive),
-                              discountType: course.discountType || "percentage",
-                              discountValue: course.discountValue || 0,
-                              offerStartDate: course.offerStartDate ? new Date(course.offerStartDate).toISOString().slice(0, 16) : "",
-                              offerEndDate: course.offerEndDate ? new Date(course.offerEndDate).toISOString().slice(0, 16) : "",
-                              validityStartDate: course.validityStartDate ? new Date(course.validityStartDate).toISOString().slice(0, 16) : "",
-                              validityEndDate: course.validityEndDate ? new Date(course.validityEndDate).toISOString().slice(0, 16) : "",
-                              validityMonths: course.validityMonths !== undefined && course.validityMonths !== null ? Number(course.validityMonths) : 1,
-                              isPublished: course.isPublished !== false,
-                            });
-                            setShowCourseModal(true);
-                          }}
-                          className="p-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                          title="Edit Course"
-                        >
-                          <Edit2 size={13} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCourse(course.id, course.title)}
-                          className="p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors cursor-pointer"
-                          title="Delete Course"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-
-                      <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-                        <span className={`text-[11px] font-mono font-bold ${isStandalone ? "text-purple-300" : "text-amber-400"}`}>
-                          {displayPrice}
-                        </span>
-                        <span className="text-[10px] text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-700 font-semibold">
+                          {course.offerActive && (
+                            <span className="bg-gradient-to-r from-[#942008] to-[#ea580c] text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 shrink-0">
+                              <Tag size={11} />
+                              {course.discountType === "percentage" ? `${course.discountValue}% OFF` : `₹${course.discountValue} OFF`}
+                            </span>
+                          )}
+                        </div>
+                        <span className="pointer-events-auto text-xs text-stone-800 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-stone-200/90 font-extrabold shadow-sm shrink-0">
                           #{course.order || 1}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2.5 mb-2">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-sm font-black text-white leading-snug truncate">{course.title}</h3>
-                        <p className="text-slate-400 text-[11px] flex items-center gap-1.5 mt-0.5 font-semibold">
-                          <Layers size={11} className="text-orange-400" /> {course.chapters?.length || 0} Lessons
-                        </p>
-                      </div>
-                    </div>
+                    {/* Lessons Count Above Title */}
+                    <p className="text-stone-600 text-xs sm:text-sm flex items-center gap-1.5 font-semibold mb-1.5">
+                      <Layers size={14} className="text-[#c4431d] shrink-0" />
+                      <span>{course.chapters?.length || 0} Lessons</span>
+                    </p>
 
-                    <p className="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">
+                    {/* Course Title */}
+                    <h3 className="text-base sm:text-lg lg:text-xl font-black text-stone-900 leading-snug mb-2">
+                      {course.title}
+                    </h3>
+
+                    {/* Course Description */}
+                    <p className="text-stone-500 text-xs sm:text-sm leading-relaxed mb-5 line-clamp-3">
                       {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
                     </p>
 
                     {isStandalone && (
-                      <div className="mb-3 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm bg-indigo-500/10 text-indigo-300 border-indigo-500/30">
-                        <Clock size={12} className="shrink-0 text-indigo-400" />
+                      <div className="mb-4 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border bg-[#fff5ee]/90 text-[#942008] border-[#f5ded0]">
+                        <Clock size={14} className="shrink-0 text-[#c4431d]" />
                         <span>
                           {course.validityMonths && Number(course.validityMonths) > 0
                             ? `Validity: ${course.validityMonths} Month${Number(course.validityMonths) > 1 ? 's' : ''} (from student purchase date)`
@@ -1137,48 +1200,151 @@ export default function AdminCourses() {
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="space-y-2 pt-3 border-t border-slate-800/80">
+                  {/* Card Footer: Single Visible Pill Option (Left) + 3-Vertical-Dot Actions Menu (Right) */}
+                  <div
+                    data-course-menu-root
+                    className="mt-auto pt-3.5 border-t border-[#f5ded0]/80 flex items-center justify-between gap-2 relative"
+                  >
                     <button
                       onClick={() => setSelectedCourse(isSelected ? null : course)}
-                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                        isSelected
-                          ? "bg-orange-500 text-slate-950 shadow-md shadow-orange-500/20"
-                          : "bg-slate-800 hover:bg-slate-700 text-white border border-slate-700"
-                      }`}
+                      className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold border transition-all cursor-pointer max-w-[calc(100%-2.75rem)] ${isSelected
+                        ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white border-transparent shadow-sm"
+                        : "bg-[#fff8f3] border-[#f5ded0] text-[#c4431d] hover:bg-[#fde5d6]/60 hover:border-[#ebcbb6]"
+                        }`}
                     >
-                      <FolderOpen size={15} />
-                      {isSelected ? "Close Folder" : "📂 Open Folder & View Chapters"}
+                      <FolderOpen size={16} className="shrink-0" />
+                      <span className="truncate">{isSelected ? "Close Folder" : "Open Folder & View Chapters"}</span>
                     </button>
 
-                    <button
-                      onClick={() => {
-                        setEditingChapter(null);
-                        setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
-                        setShowChapterModal(course.id);
-                      }}
-                      className="w-full py-2 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 rounded-xl text-xs font-bold transition-colors border border-orange-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <Plus size={14} /> + Add Chapter / Video Lesson
-                    </button>
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenActionMenuId(isMenuOpen ? null : course.id);
+                        }}
+                        aria-haspopup="menu"
+                        aria-expanded={isMenuOpen}
+                        title="More course actions"
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer border ${isMenuOpen
+                          ? "bg-[#fff5ee] text-[#942008] border-[#f5ded0]"
+                          : "text-stone-700 border-transparent hover:bg-[#fff5ee] hover:text-[#942008] hover:border-[#f5ded0]"
+                          }`}
+                      >
+                        <MoreVertical size={18} />
+                      </button>
 
-                    {/* QR Code & Promotional Flyer Action Button */}
-                    <button
-                      type="button"
-                      onClick={() => setQrModalCourse(course)}
-                      className="w-full py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white rounded-xl text-xs font-bold transition-colors border border-purple-500/25 flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <QrCode size={14} className="text-purple-400" />
-                      <span>QR Code &amp; Promotional Flyer</span>
-                    </button>
+                      {isMenuOpen && (
+                        <div
+                          role="menu"
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute right-0 bottom-full mb-2 w-60 bg-white border border-[#ecdccb] rounded-2xl shadow-[0_14px_34px_-10px_rgba(90,55,20,0.22)] p-1.5 z-40 animate-in fade-in duration-150"
+                        >
+                          {/* Add Chapter / Video Lesson */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              setEditingChapter(null);
+                              setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
+                              setShowChapterModal(course.id);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-bold text-[#c4431d] hover:bg-[#fff5ee] transition-colors cursor-pointer"
+                          >
+                            <Plus size={15} className="shrink-0" />
+                            <span>Add Chapter / Video Lesson</span>
+                          </button>
+
+                          {/* QR Code & Promotional Flyer */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              setQrModalCourse(course);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-stone-700 hover:bg-[#fff5ee] hover:text-[#942008] transition-colors cursor-pointer"
+                          >
+                            <QrCode size={15} className="shrink-0 text-stone-600" />
+                            <span>QR Code &amp; Promotional Flyer</span>
+                          </button>
+
+                          {/* View Full Flyer / Poster */}
+                          {(course.flyerImage || course.image) && (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              onClick={() => {
+                                setOpenActionMenuId(null);
+                                setPreviewFlyerModal(course.flyerImage || course.image);
+                              }}
+                              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition-colors cursor-pointer"
+                            >
+                              <Maximize2 size={15} className="shrink-0 text-stone-600" />
+                              <span>View Full Flyer / Poster</span>
+                            </button>
+                          )}
+
+                          {/* Edit Course */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              setEditingCourse(course);
+                              setCourseForm({
+                                title: course.title,
+                                description: course.description || "",
+                                image: course.image || "",
+                                flyerImage: course.flyerImage || "",
+                                levelCode: course.levelCode || "NONE",
+                                price: course.price ? course.price.replace(/[^0-9]/g, "") : "",
+                                order: course.order || 0,
+                                offerActive: Boolean(course.offerActive),
+                                discountType: course.discountType || "percentage",
+                                discountValue: course.discountValue || 0,
+                                offerStartDate: course.offerStartDate ? new Date(course.offerStartDate).toISOString().slice(0, 16) : "",
+                                offerEndDate: course.offerEndDate ? new Date(course.offerEndDate).toISOString().slice(0, 16) : "",
+                                validityStartDate: course.validityStartDate ? new Date(course.validityStartDate).toISOString().slice(0, 16) : "",
+                                validityEndDate: course.validityEndDate ? new Date(course.validityEndDate).toISOString().slice(0, 16) : "",
+                                validityMonths: course.validityMonths !== undefined && course.validityMonths !== null ? Number(course.validityMonths) : 1,
+                                isPublished: course.isPublished !== false,
+                              });
+                              setShowCourseModal(true);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-stone-700 hover:bg-[#fff5ee] hover:text-[#942008] transition-colors cursor-pointer"
+                          >
+                            <Edit2 size={15} className="shrink-0 text-stone-600" />
+                            <span>Edit Course</span>
+                          </button>
+
+                          <div className="my-1 border-t border-[#f5ded0]/70" />
+
+                          {/* Delete Course */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              handleDeleteCourse(course.id, course.title);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          >
+                            <Trash2 size={15} className="shrink-0" />
+                            <span>Delete Course</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Inline Expanded Chapters Accordion */}
                   {isSelected && (
-                    <div className="mt-4 pt-4 border-t border-orange-500/30 space-y-3 bg-slate-950/90 p-4 rounded-2xl animate-in fade-in">
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <span className="text-xs font-black text-orange-400 flex items-center gap-1.5">
-                          <Layers size={13} /> Chapters in this Course ({course.chapters?.length || 0})
+                    <div className="mt-4 pt-4 border-t border-[#f5ded0] space-y-3 bg-[#fcfaf7] p-4 rounded-2xl border border-stone-200 animate-in fade-in">
+                      <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+                        <span className="text-xs sm:text-sm font-black text-[#c4431d] flex items-center gap-1.5">
+                          <Layers size={14} /> Chapters in this Course ({course.chapters?.length || 0})
                         </span>
                         <button
                           onClick={() => {
@@ -1186,22 +1352,22 @@ export default function AdminCourses() {
                             setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                             setShowChapterModal(course.id);
                           }}
-                          className="text-[10px] font-bold bg-orange-500 text-slate-950 px-2 py-0.5 rounded-md hover:bg-orange-600 cursor-pointer"
+                          className="text-xs font-bold bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white px-3 py-1 rounded-lg hover:opacity-90 cursor-pointer shadow-xs"
                         >
                           + Add Lesson
                         </button>
                       </div>
 
                       {(course.chapters || []).length === 0 ? (
-                        <div className="text-center py-6 border border-dashed border-slate-800 rounded-xl">
-                          <p className="text-slate-500 text-xs mb-2">No video lessons added yet.</p>
+                        <div className="text-center py-6 border border-dashed border-stone-200 rounded-xl">
+                          <p className="text-stone-400 text-xs sm:text-sm mb-2">No video lessons added yet.</p>
                           <button
                             onClick={() => {
                               setEditingChapter(null);
                               setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                               setShowChapterModal(course.id);
                             }}
-                            className="bg-orange-500/20 text-orange-400 border border-orange-500/40 text-[11px] font-bold px-3 py-1 rounded-lg cursor-pointer"
+                            className="bg-[#fff5ee] text-[#942008] border border-[#f5ded0] text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer"
                           >
                             + Add First Lesson Video
                           </button>
@@ -1210,32 +1376,32 @@ export default function AdminCourses() {
                         course.chapters.map((chapter: any, chIndex: number) => (
                           <div
                             key={chapter.id}
-                            className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2"
+                            className="bg-white border border-[#ecdccb] p-3 rounded-xl flex items-center justify-between gap-2"
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <span className="w-6 h-6 rounded-full bg-orange-500/20 text-orange-400 text-[11px] font-bold flex items-center justify-center shrink-0">
+                              <span className="w-6 h-6 rounded-full bg-[#fde5d6] text-[#942008] border border-[#f5ded0] text-xs font-bold flex items-center justify-center shrink-0">
                                 {chIndex + 1}
                               </span>
                               <div className="min-w-0">
-                                <p className="font-bold text-white text-xs truncate">{chapter.title}</p>
-                                <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                                <p className="font-bold text-stone-900 text-xs sm:text-sm truncate">{chapter.title}</p>
+                                <div className="flex items-center gap-2 text-xs text-stone-500 mt-0.5">
                                   {chapter.videoUrl ? (
-                                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                                      <FileVideo size={10} /> Video Attached
+                                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                                      <FileVideo size={11} /> Video Attached
                                     </span>
                                   ) : (
-                                    <span className="text-slate-600">No Video</span>
+                                    <span className="text-stone-400">No Video</span>
                                   )}
                                   {chapter.pdfUrl && (
                                     <a
                                       href={getFileUrl(chapter.pdfUrl)}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
+                                      className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer"
                                       title="Open PDF Document"
                                     >
-                                      <FileText size={10} /> PDF
-                                      <ExternalLink size={8} />
+                                      <FileText size={11} /> PDF
+                                      <ExternalLink size={10} />
                                     </a>
                                   )}
                                 </div>
@@ -1246,10 +1412,10 @@ export default function AdminCourses() {
                               {chapter.videoUrl && (
                                 <button
                                   onClick={() => setPreviewVideoUrl(chapter.videoUrl)}
-                                  className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-[#fff5ee] text-[#942008] border border-[#f5ded0] hover:bg-[#fde5d6] cursor-pointer"
                                   title="Preview Video"
                                 >
-                                  <Play size={12} className="fill-orange-400" />
+                                  <Play size={12} className="fill-[#c4431d]" />
                                 </button>
                               )}
                               <button
@@ -1287,14 +1453,14 @@ export default function AdminCourses() {
                                   });
                                   setShowChapterModal(course.id);
                                 }}
-                                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer"
+                                className="p-1.5 rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-300 cursor-pointer"
                                 title="Edit Lesson"
                               >
                                 <Edit2 size={12} />
                               </button>
                               <button
                                 onClick={() => handleDeleteChapter(chapter.id)}
-                                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 border border-slate-700 cursor-pointer"
+                                className="p-1.5 rounded-lg bg-stone-100 text-stone-500 hover:text-rose-600 hover:bg-rose-50 border border-stone-300 cursor-pointer"
                                 title="Delete Lesson"
                               >
                                 <Trash2 size={12} />
@@ -1313,24 +1479,24 @@ export default function AdminCourses() {
 
         {/* Opened Course Chapters Drawer / View */}
         {selectedCourse && (
-          <div className="mt-12 bg-slate-900/90 border border-orange-500/40 rounded-3xl p-6 md:p-8 shadow-2xl animate-in fade-in duration-300">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+          <div className="mt-12 bg-white/90 border border-[#ecdccb] rounded-3xl shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-6 sm:p-8 shadow-2xl animate-in fade-in duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-stone-200">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
                   <FolderOpen size={24} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-black uppercase tracking-wider text-orange-400">
+                    <span className="text-xs font-black uppercase tracking-wider text-[#c4431d]">
                       Tier: {!selectedCourse.levelCode || selectedCourse.levelCode === "NONE" ? "Individual Course" : selectedCourse.levelCode}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-stone-500 font-mono">
                       ({!selectedCourse.levelCode || selectedCourse.levelCode === "NONE"
                         ? (selectedCourse.price ? (selectedCourse.price.startsWith("₹") ? selectedCourse.price : `₹${selectedCourse.price}`) : "Custom Price")
                         : (LEVEL_TIER_CONFIG[selectedCourse.levelCode]?.price || "₹499")})
                     </span>
                   </div>
-                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                  <h2 className="text-2xl font-black text-stone-900 flex items-center gap-2">
                     {selectedCourse.title}
                   </h2>
                 </div>
@@ -1343,13 +1509,13 @@ export default function AdminCourses() {
                     setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                     setShowChapterModal(selectedCourse.id);
                   }}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-md cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md cursor-pointer"
                 >
                   <Plus size={15} /> Add Lesson to this Course
                 </button>
                 <button
                   onClick={() => setSelectedCourse(null)}
-                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
+                  className="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-white cursor-pointer"
                   title="Close Folder"
                 >
                   <X size={18} />
@@ -1360,15 +1526,15 @@ export default function AdminCourses() {
             {/* Chapters List */}
             <div className="mt-6 space-y-3">
               {(selectedCourse.chapters || []).length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl">
-                  <p className="text-slate-400 text-sm mb-3">No chapters uploaded in this course yet.</p>
+                <div className="text-center py-12 border border-dashed border-stone-200 rounded-2xl">
+                  <p className="text-stone-500 text-sm mb-3">No chapters uploaded in this course yet.</p>
                   <button
                     onClick={() => {
                       setEditingChapter(null);
                       setChapterForm({ title: "", videoType: "url", videoUrl: "", pdfType: "url", pdfUrl: "" });
                       setShowChapterModal(selectedCourse.id);
                     }}
-                    className="bg-orange-500 text-slate-950 font-bold text-xs h-9 px-4 rounded-xl cursor-pointer"
+                    className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-9 px-4 rounded-xl cursor-pointer shadow-xs"
                   >
                     + Add First Chapter
                   </button>
@@ -1377,21 +1543,21 @@ export default function AdminCourses() {
                 selectedCourse.chapters.map((chapter: any, index: number) => (
                   <div
                     key={chapter.id}
-                    className="bg-slate-950/80 border border-slate-800 hover:border-slate-700 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
+                    className="bg-stone-900/40 border border-stone-200 hover:border-stone-300 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-[#fff5ee] text-[#942008] border border-[#f5ded0] flex items-center justify-center font-bold text-xs shrink-0">
                         {index + 1}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">{chapter.title}</h4>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                        <h4 className="font-bold text-stone-900 text-sm truncate">{chapter.title}</h4>
+                        <div className="flex items-center gap-2 mt-0.5 text-xs text-stone-400">
                           {chapter.videoUrl ? (
                             <span className="text-emerald-400 font-semibold flex items-center gap-1">
                               <FileVideo size={12} /> Video Attached
                             </span>
                           ) : (
-                            <span className="text-slate-600">No Video</span>
+                            <span className="text-stone-400">No Video</span>
                           )}
                           {chapter.pdfUrl && (
                             <span className="text-blue-400 font-semibold flex items-center gap-1">
@@ -1406,9 +1572,9 @@ export default function AdminCourses() {
                       {chapter.videoUrl && (
                         <button
                           onClick={() => setPreviewVideoUrl(chapter.videoUrl)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-bold transition-all cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#fff5ee] hover:bg-[#fde5d6] text-[#942008] border border-[#f5ded0] text-xs font-bold transition-all cursor-pointer"
                         >
-                          <Play size={13} className="fill-orange-400" /> Preview Video
+                          <Play size={13} className="fill-[#c4431d]" /> Preview Video
                         </button>
                       )}
 
@@ -1459,7 +1625,7 @@ export default function AdminCourses() {
                           });
                           setShowChapterModal(selectedCourse.id);
                         }}
-                        className="p-2 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl transition-colors cursor-pointer"
+                        className="p-2 text-stone-500 hover:text-white bg-white border border-[#ecdccb] hover:border-stone-300 rounded-xl transition-colors cursor-pointer"
                         title="Edit Chapter"
                       >
                         <Edit2 size={14} />
@@ -1467,7 +1633,7 @@ export default function AdminCourses() {
 
                       <button
                         onClick={() => handleDeleteChapter(chapter.id)}
-                        className="p-2 text-slate-500 hover:text-red-400 bg-slate-900 border border-slate-800 hover:border-red-500/30 rounded-xl transition-colors cursor-pointer"
+                        className="p-2 text-stone-400 hover:text-red-400 bg-white border border-[#ecdccb] hover:border-red-500/30 rounded-xl transition-colors cursor-pointer"
                         title="Delete Chapter"
                       >
                         <Trash2 size={14} />
@@ -1483,19 +1649,19 @@ export default function AdminCourses() {
 
       {/* Course Modal (Create / Edit) */}
       {showCourseModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col my-auto shadow-2xl text-white overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col my-auto shadow-2xl text-stone-900 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="flex justify-between items-center px-6 sm:px-8 py-5 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur shrink-0">
+            <div className="flex justify-between items-center px-6 sm:px-8 py-5 border-b border-stone-200/80 bg-white/60 backdrop-blur shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d]">
                   <BookOpen size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-black text-white">
+                  <h2 className="text-lg sm:text-xl font-black text-stone-900">
                     {editingCourse ? "Edit Course" : "Create New Course"}
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-stone-500 mt-0.5">
                     {editingCourse
                       ? "Update course configuration, pricing, validity, and assets"
                       : "Configure new curriculum module, pricing, and content"}
@@ -1504,7 +1670,7 @@ export default function AdminCourses() {
               </div>
               <button
                 onClick={() => setShowCourseModal(false)}
-                className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-2 hover:bg-stone-100 rounded-xl text-stone-500 hover:text-white transition-colors cursor-pointer"
                 title="Close"
               >
                 <X size={20} />
@@ -1514,15 +1680,15 @@ export default function AdminCourses() {
             {/* Modal Body */}
             <form onSubmit={handleSaveCourse} className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-6">
               {/* Course Status: Enable / Disable */}
-              <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                     {courseForm.isPublished ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} className="text-red-400" />}
                     Course Visibility Status
                   </label>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {courseForm.isPublished 
-                      ? "Enabled: This course is actively visible for students in their curriculum & purchase catalog." 
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    {courseForm.isPublished
+                      ? "Enabled: This course is actively visible for students in their curriculum & purchase catalog."
                       : "Disabled: This course is hidden from the student catalog (previously enrolled students keep access)."}
                   </p>
                 </div>
@@ -1530,22 +1696,20 @@ export default function AdminCourses() {
                   <button
                     type="button"
                     onClick={() => setCourseForm({ ...courseForm, isPublished: true })}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      courseForm.isPublished
-                        ? "bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/20"
-                        : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
-                    }`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${courseForm.isPublished
+                      ? "bg-emerald-500 text-white font-black shadow-md shadow-emerald-500/20"
+                      : "bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50"
+                      }`}
                   >
                     <Check size={13} /> Enabled (Visible)
                   </button>
                   <button
                     type="button"
                     onClick={() => setCourseForm({ ...courseForm, isPublished: false })}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      !courseForm.isPublished
-                        ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
-                        : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
-                    }`}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${!courseForm.isPublished
+                      ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
+                      : "bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50"
+                      }`}
                   >
                     <X size={13} /> Disabled (Hidden)
                   </button>
@@ -1553,36 +1717,36 @@ export default function AdminCourses() {
               </div>
 
               {/* Top Row: Course Title (6 cols), Level Tier (4 cols), Order (2 cols) */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-6">
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Course Title *</label>
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-6">
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Course Title *</label>
                   <input
                     type="text"
                     required
                     value={courseForm.title}
                     onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500 font-semibold transition-colors"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-semibold transition-colors"
                     placeholder="e.g. 1. Resin Fundamentals & Safety"
                   />
                 </div>
 
-                <div className="md:col-span-4">
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Level Tier</label>
+                <div className="sm:col-span-4">
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Level Tier</label>
                   <select
                     value={courseForm.levelCode}
                     onChange={(e) => setCourseForm({ ...courseForm, levelCode: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-medium transition-colors"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-medium transition-colors"
                   >
                     <option value="NONE">✨ None (Individual / Standalone Course)</option>
                     {(levels.length > 0
                       ? levels
                       : [
-                          { code: "L0", name: "Fast Track", price: "₹499" },
-                          { code: "L1", name: "Silver Member", price: "₹4,999" },
-                          { code: "L2", name: "Gold Member", price: "₹19,999" },
-                          { code: "L3", name: "Diamond Club", price: "₹59,999" },
-                          { code: "L3+", name: "Masters Club", price: "Custom" },
-                        ]
+                        { code: "L0", name: "Fast Track", price: "₹499" },
+                        { code: "L1", name: "Silver Member", price: "₹4,999" },
+                        { code: "L2", name: "Gold Member", price: "₹19,999" },
+                        { code: "L3", name: "Diamond Club", price: "₹59,999" },
+                        { code: "L3+", name: "Masters Club", price: "Custom" },
+                      ]
                     ).map((lvlObj) => (
                       <option key={lvlObj.code} value={lvlObj.code}>
                         {lvlObj.code} - {lvlObj.name} ({lvlObj.price || '₹499'})
@@ -1591,20 +1755,20 @@ export default function AdminCourses() {
                   </select>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Order #</label>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Order #</label>
                   <input
                     type="number"
                     value={courseForm.order}
                     onChange={(e) => setCourseForm({ ...courseForm, order: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-semibold"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-semibold"
                   />
                 </div>
               </div>
 
               {/* Conditional Standalone Course Section: Price & Validity side-by-side */}
               {(!courseForm.levelCode || courseForm.levelCode === "NONE") && (
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-950/20 via-indigo-950/20 to-slate-950/40 border border-indigo-500/30 space-y-4 animate-in fade-in">
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-50 via-indigo-50 to-stone-50 border border-indigo-200 space-y-4 animate-in fade-in">
                   <div className="flex items-center justify-between pb-2 border-b border-indigo-500/20">
                     <span className="text-xs font-black text-indigo-300 flex items-center gap-2">
                       <Tag size={14} className="text-indigo-400" />
@@ -1615,30 +1779,30 @@ export default function AdminCourses() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
                     {/* Left: Price */}
-                    <div className="md:col-span-5 space-y-2">
+                    <div className="sm:col-span-5 space-y-2">
                       <label className="block text-xs font-bold text-purple-300">
                         Individual Course Price (₹) *
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">₹</span>
+                        <span className="absolute left-3.5 top-2.5 text-xs text-stone-500 font-bold">₹</span>
                         <input
                           type="text"
                           required
                           value={courseForm.price}
                           onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
-                          className="w-full bg-slate-950 border border-purple-500/50 rounded-xl pl-8 pr-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-purple-400 placeholder-slate-600 shadow-inner"
+                          className="w-full bg-[#fcfaf7] border border-purple-500/50 rounded-xl pl-8 pr-4 py-2.5 text-xs text-stone-900 font-bold focus:outline-none focus:border-purple-500 placeholder:text-stone-400 shadow-xs"
                           placeholder="e.g. 999 or 1499"
                         />
                       </div>
-                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                      <p className="text-[10px] text-stone-500 leading-relaxed">
                         Students purchase this standalone without level membership. Any active offer configured below applies on top of this price.
                       </p>
                     </div>
 
                     {/* Right: Course Validity Duration Dropdown */}
-                    <div className="md:col-span-7 space-y-2">
+                    <div className="sm:col-span-7 space-y-2">
                       <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
                         <Clock size={13} className="text-indigo-400" /> Course Validity Duration (Rolling from Purchase Date)
                       </label>
@@ -1652,7 +1816,7 @@ export default function AdminCourses() {
                               validityMonths: val === "lifetime" ? null : parseInt(val, 10),
                             });
                           }}
-                          className="w-full bg-slate-950 border border-indigo-500/40 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold cursor-pointer shadow-inner appearance-none"
+                          className="w-full bg-[#fcfaf7] border border-indigo-500/40 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold cursor-pointer shadow-inner appearance-none"
                         >
                           <option value="1">1 Month (30 Days from student registration / purchase)</option>
                           <option value="3">3 Months (90 Days from student registration / purchase)</option>
@@ -1665,7 +1829,7 @@ export default function AdminCourses() {
                           ▼
                         </div>
                       </div>
-                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                      <p className="text-[10px] text-stone-500 leading-relaxed">
                         Access period starts from the day of student registration / purchase (1, 3, 6 months, 1, 3 years, or Lifetime). After expiry, student can re-purchase to renew.
                       </p>
                     </div>
@@ -1674,14 +1838,14 @@ export default function AdminCourses() {
               )}
 
               {/* Dual Image Media Studio (16:9 Banner & 9:16 Portrait Flyer) */}
-              <div className="bg-slate-950/70 border border-slate-800 p-5 sm:p-6 rounded-2xl space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+              <div className="bg-[#fcfaf7]/70 border border-stone-200 p-5 sm:p-6 rounded-2xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-stone-200/80 gap-2">
                   <div>
-                    <span className="text-xs font-black text-white flex items-center gap-2">
-                      <ImageIcon size={16} className="text-orange-400" />
+                    <span className="text-xs font-black text-stone-900 flex items-center gap-2">
+                      <ImageIcon size={16} className="text-[#c4431d]" />
                       Course Media Studio (Dual Image Support)
                     </span>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-stone-500 mt-0.5">
                       Upload both formats for crisp, uncropped presentation: 16:9 for cards &amp; video players, and 9:16 for full marketing flyers &amp; stories.
                     </p>
                   </div>
@@ -1692,14 +1856,14 @@ export default function AdminCourses() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Slot 1: Horizontal Card Banner (16:9 Landscape) */}
-                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
+                  <div className="bg-white/60 border border-stone-200/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-[11px] font-black text-amber-300 uppercase tracking-wider bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
                             16:9 Landscape Banner
                           </span>
-                          <span className="text-[10px] text-slate-400">Card &amp; Player</span>
+                          <span className="text-[10px] text-stone-500">Card &amp; Player</span>
                         </div>
                         {courseForm.image && (
                           <button
@@ -1718,13 +1882,13 @@ export default function AdminCourses() {
                             type="url"
                             value={courseForm.image}
                             onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 pr-8"
+                            className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 pr-8"
                             placeholder="Paste 16:9 banner URL..."
                           />
-                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-slate-600" />
+                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-stone-400" />
                         </div>
 
-                        <label className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                        <label className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-stone-300 shrink-0 transition-colors">
                           <Upload size={12} />
                           <span>Upload</span>
                           <input
@@ -1738,7 +1902,7 @@ export default function AdminCourses() {
 
                       {/* Presets */}
                       <div>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1.5">
                           Theme Presets:
                         </span>
                         <div className="flex flex-wrap gap-1">
@@ -1747,11 +1911,10 @@ export default function AdminCourses() {
                               key={preset.name}
                               type="button"
                               onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
-                              className={`text-[10px] px-2 py-0.5 rounded-md border font-medium transition-all cursor-pointer ${
-                                courseForm.image === preset.url
-                                  ? "bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold"
-                                  : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white"
-                              }`}
+                              className={`text-[10px] px-2 py-0.5 rounded-md border font-medium transition-all cursor-pointer ${courseForm.image === preset.url
+                                ? "bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold"
+                                : "bg-[#fcfaf7] text-stone-500 border-stone-200 hover:border-stone-300 hover:text-white"
+                                }`}
                             >
                               {preset.name}
                             </button>
@@ -1761,7 +1924,7 @@ export default function AdminCourses() {
                     </div>
 
                     {/* Live Preview Box 1 */}
-                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center mt-2">
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-[#fcfaf7] flex items-center justify-center mt-2">
                       {courseForm.image ? (
                         <>
                           <img
@@ -1772,37 +1935,37 @@ export default function AdminCourses() {
                               (e.target as HTMLElement).style.display = "none";
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none" />
                           <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-emerald-400 bg-slate-950/90 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                            <span className="text-[10px] font-bold text-emerald-400 bg-[#fcfaf7]/90 px-2 py-0.5 rounded-md border border-emerald-500/30">
                               ✓ 16:9 Banner Active
                             </span>
                             {imageRatioInfo && (
-                              <span className="text-[9px] font-mono text-slate-400 bg-slate-900/90 px-2 py-0.5 rounded-md border border-slate-800">
+                              <span className="text-[9px] font-mono text-stone-500 bg-white/90 px-2 py-0.5 rounded-md border border-stone-200">
                                 {imageRatioInfo.width} × {imageRatioInfo.height} px
                               </span>
                             )}
                           </div>
                         </>
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-slate-600 p-3 text-center">
-                          <ImageIcon size={22} className="mb-1 text-slate-700" />
-                          <span className="text-[11px] font-semibold text-slate-400">No 16:9 banner chosen</span>
-                          <span className="text-[9px] text-slate-600 mt-0.5">Used for course card thumbnails &amp; video headers</span>
+                        <div className="flex flex-col items-center justify-center text-stone-400 p-3 text-center">
+                          <ImageIcon size={22} className="mb-1 text-stone-400" />
+                          <span className="text-[11px] font-semibold text-stone-500">No 16:9 banner chosen</span>
+                          <span className="text-[9px] text-stone-400 mt-0.5">Used for course card thumbnails &amp; video headers</span>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Slot 2: Vertical Marketing Poster / Story Flyer (9:16 Portrait) */}
-                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
+                  <div className="bg-white/60 border border-stone-200/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-[11px] font-black text-rose-300 uppercase tracking-wider bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-lg">
                             9:16 Portrait Flyer
                           </span>
-                          <span className="text-[10px] text-slate-400">Marketing &amp; Stories</span>
+                          <span className="text-[10px] text-stone-500">Marketing &amp; Stories</span>
                         </div>
                         {courseForm.flyerImage && (
                           <button
@@ -1821,13 +1984,13 @@ export default function AdminCourses() {
                             type="url"
                             value={courseForm.flyerImage}
                             onChange={(e) => setCourseForm({ ...courseForm, flyerImage: e.target.value })}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 pr-8"
+                            className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 pr-8"
                             placeholder="Paste 9:16 poster / flyer URL..."
                           />
-                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-slate-600" />
+                          <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-stone-400" />
                         </div>
 
-                        <label className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-slate-700 shrink-0 transition-colors">
+                        <label className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-stone-300 shrink-0 transition-colors">
                           <Upload size={12} />
                           <span>Upload</span>
                           <input
@@ -1839,13 +2002,13 @@ export default function AdminCourses() {
                         </label>
                       </div>
 
-                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                      <p className="text-[10px] text-stone-500 leading-relaxed">
                         Upload your workshop brochure, story poster, or WhatsApp graphic. Displayed uncropped in full lightbox and enrollment modal.
                       </p>
                     </div>
 
                     {/* Live Preview Box 2 */}
-                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center mt-2">
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-[#fcfaf7] flex items-center justify-center mt-2">
                       {courseForm.flyerImage ? (
                         <>
                           <img
@@ -1856,31 +2019,31 @@ export default function AdminCourses() {
                               (e.target as HTMLElement).style.display = "none";
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none" />
                           <button
                             type="button"
                             onClick={() => setPreviewFlyerModal(courseForm.flyerImage)}
-                            className="absolute top-2 right-2 z-20 p-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-900 text-slate-300 border border-slate-700/80 backdrop-blur-md cursor-pointer transition-all"
+                            className="absolute top-2 right-2 z-20 p-1.5 rounded-lg bg-stone-900/40 hover:bg-white text-stone-700 border border-stone-300/80 backdrop-blur-md cursor-pointer transition-all"
                             title="Zoom Full Flyer"
                           >
                             <Maximize2 size={12} />
                           </button>
                           <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-rose-300 bg-slate-950/90 px-2 py-0.5 rounded-md border border-rose-500/30">
+                            <span className="text-[10px] font-bold text-rose-300 bg-[#fcfaf7]/90 px-2 py-0.5 rounded-md border border-rose-500/30">
                               ✓ 9:16 Flyer Active
                             </span>
                             {flyerRatioInfo && (
-                              <span className="text-[9px] font-mono text-slate-400 bg-slate-900/90 px-2 py-0.5 rounded-md border border-slate-800">
+                              <span className="text-[9px] font-mono text-stone-500 bg-white/90 px-2 py-0.5 rounded-md border border-stone-200">
                                 {flyerRatioInfo.width} × {flyerRatioInfo.height} px
                               </span>
                             )}
                           </div>
                         </>
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-slate-600 p-3 text-center">
-                          <ImageIcon size={22} className="mb-1 text-slate-700" />
-                          <span className="text-[11px] font-semibold text-slate-400">No 9:16 poster chosen</span>
-                          <span className="text-[9px] text-slate-600 mt-0.5">Will automatically fall back to 16:9 banner</span>
+                        <div className="flex flex-col items-center justify-center text-stone-400 p-3 text-center">
+                          <ImageIcon size={22} className="mb-1 text-stone-400" />
+                          <span className="text-[11px] font-semibold text-stone-500">No 9:16 poster chosen</span>
+                          <span className="text-[9px] text-stone-400 mt-0.5">Will automatically fall back to 16:9 banner</span>
                         </div>
                       )}
                     </div>
@@ -1889,15 +2052,15 @@ export default function AdminCourses() {
               </div>
 
               {/* Special Offer & Discount Configuration */}
-              <div className="bg-slate-950/50 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="bg-[#fcfaf7]/50 border border-stone-200 p-5 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
                       <Percent size={15} />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-white">Course Offer &amp; Discount</h4>
-                      <p className="text-[10px] text-slate-400">Configure percentage or flat price reduction with active dates</p>
+                      <h4 className="text-xs font-black text-stone-900">Course Offer &amp; Discount</h4>
+                      <p className="text-[10px] text-stone-500">Configure percentage or flat price reduction with active dates</p>
                     </div>
                   </div>
 
@@ -1908,36 +2071,34 @@ export default function AdminCourses() {
                       onChange={(e) => setCourseForm({ ...courseForm, offerActive: e.target.checked })}
                       className="sr-only peer"
                     />
-                    <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-red-500 peer-checked:to-orange-500"></div>
+                    <div className="w-10 h-5 bg-stone-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-[#942008] peer-checked:to-[#ea580c]"></div>
                   </label>
                 </div>
 
                 {courseForm.offerActive && (
-                  <div className="pt-4 border-t border-slate-800/80 space-y-4 animate-in fade-in">
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                  <div className="pt-4 border-t border-stone-200 space-y-4 animate-in fade-in">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                       {/* Discount Type */}
-                      <div className="md:col-span-6 space-y-1.5">
-                        <label className="block text-[11px] font-bold text-slate-400">Discount Type</label>
-                        <div className="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                      <div className="sm:col-span-6 space-y-1.5">
+                        <label className="block text-[11px] font-bold text-stone-500">Discount Type</label>
+                        <div className="grid grid-cols-2 gap-2 bg-white p-1 rounded-xl border border-stone-200">
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, discountType: "percentage" })}
-                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                              courseForm.discountType === "percentage"
-                                ? "bg-red-500 text-white shadow-sm font-black"
-                                : "text-slate-400 hover:text-white"
-                            }`}
+                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${courseForm.discountType === "percentage"
+                              ? "bg-red-500 text-white shadow-sm font-black"
+                              : "text-stone-500 hover:text-white"
+                              }`}
                           >
                             <Percent size={12} /> Percentage (%)
                           </button>
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, discountType: "flat" })}
-                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                              courseForm.discountType === "flat"
-                                ? "bg-red-500 text-white shadow-sm font-black"
-                                : "text-slate-400 hover:text-white"
-                            }`}
+                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${courseForm.discountType === "flat"
+                              ? "bg-red-500 text-white shadow-sm font-black"
+                              : "text-stone-500 hover:text-white"
+                              }`}
                           >
                             <Tag size={12} /> Flat (₹)
                           </button>
@@ -1945,8 +2106,8 @@ export default function AdminCourses() {
                       </div>
 
                       {/* Discount Value */}
-                      <div className="md:col-span-6 space-y-1.5">
-                        <label className="block text-[11px] font-bold text-slate-400">
+                      <div className="sm:col-span-6 space-y-1.5">
+                        <label className="block text-[11px] font-bold text-stone-500">
                           {courseForm.discountType === "percentage" ? "Discount Percentage (%)" : "Flat Discount Amount (₹)"}
                         </label>
                         <input
@@ -1955,7 +2116,7 @@ export default function AdminCourses() {
                           max={courseForm.discountType === "percentage" ? "100" : undefined}
                           value={courseForm.discountValue || ""}
                           onChange={(e) => setCourseForm({ ...courseForm, discountValue: parseFloat(e.target.value) || 0 })}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-bold"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-red-500 font-bold"
                           placeholder={courseForm.discountType === "percentage" ? "e.g. 25 for 25% OFF" : "e.g. 500 for ₹500 OFF"}
                         />
                       </div>
@@ -1964,26 +2125,26 @@ export default function AdminCourses() {
                     {/* Offer Start & End Date */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                          <Calendar size={11} className="text-orange-400" /> Offer Start Date &amp; Time
+                        <label className="block text-[11px] font-bold text-stone-500 mb-1 flex items-center gap-1">
+                          <Calendar size={11} className="text-[#c4431d]" /> Offer Start Date &amp; Time
                         </label>
                         <input
                           type="datetime-local"
                           value={courseForm.offerStartDate}
                           onChange={(e) => setCourseForm({ ...courseForm, offerStartDate: e.target.value })}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-red-500"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-400 mb-1 flex items-center gap-1">
+                        <label className="block text-[11px] font-bold text-stone-500 mb-1 flex items-center gap-1">
                           <Clock size={11} className="text-red-400" /> Offer End Date &amp; Time
                         </label>
                         <input
                           type="datetime-local"
                           value={courseForm.offerEndDate}
                           onChange={(e) => setCourseForm({ ...courseForm, offerEndDate: e.target.value })}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-red-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-red-500"
                         />
                       </div>
                     </div>
@@ -1993,29 +2154,29 @@ export default function AdminCourses() {
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Description</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1.5">Description</label>
                 <textarea
                   rows={3}
                   value={courseForm.description}
                   onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl p-3.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none leading-relaxed"
                   placeholder="Describe what students will master in this module..."
                 />
               </div>
 
               {/* Modal Footer */}
-              <div className="sticky bottom-0 bg-slate-900/95 backdrop-blur border-t border-slate-800/80 -mx-6 sm:-mx-8 -mb-6 px-6 sm:px-8 py-4 flex items-center justify-end gap-3 shrink-0">
+              <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t border-stone-200 -mx-6 sm:-mx-8 -mb-6 px-6 sm:px-8 py-4 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowCourseModal(false)}
-                  className="border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs h-10 px-5 rounded-xl cursor-pointer transition-colors"
+                  className="border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-xs h-10 px-5 rounded-xl cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-10 px-6 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+                  className="h-10 px-6 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   {isSubmitting ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}
                 </button>
@@ -2026,226 +2187,319 @@ export default function AdminCourses() {
       )}
 
       {/* Chapter Modal (Create / Edit) */}
-      {showChapterModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 max-w-2xl w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black text-white flex items-center gap-2">
-                <FileVideo className="text-orange-500" size={20} />
-                {editingChapter ? "Edit Chapter / Lesson" : "Add Chapter / Lesson"}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowChapterModal(null);
-                  setEditingChapter(null);
-                }}
-                className="p-1.5 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
+      {showChapterModal && (() => {
+        const currentModalKey = `${showChapterModal}::${editingChapter?.id || "new"}`;
+        const isCurrentDrawer = chapterDrawer.key === currentModalKey;
+        const showVideoInput =
+          (isCurrentDrawer && chapterDrawer.video) || Boolean(chapterForm.videoUrl) || uploadingVideo;
+        const showPdfInput =
+          (isCurrentDrawer && chapterDrawer.pdf) || Boolean(chapterForm.pdfUrl) || uploadingPdf;
 
-            <form onSubmit={handleSaveChapter} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">Chapter Title</label>
-                <input
-                  type="text"
-                  required
-                  value={chapterForm.title}
-                  onChange={(e) => setChapterForm({ ...chapterForm, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
-                  placeholder="e.g. Module 1: Resin Chemistry & Pouring Technique"
-                />
-              </div>
+        const openSection = (section: "video" | "pdf") => {
+          setChapterDrawer((prev) => ({
+            key: currentModalKey,
+            video: section === "video" ? true : prev.key === currentModalKey ? prev.video : false,
+            pdf: section === "pdf" ? true : prev.key === currentModalKey ? prev.pdf : false,
+          }));
+        };
 
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-2">Video Lesson Source</label>
-                <div className="flex items-center gap-2 mb-3 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setChapterForm({ ...chapterForm, videoType: "url" })}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      chapterForm.videoType === "url"
-                        ? "bg-orange-500 text-slate-950 font-black shadow-sm"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <LinkIcon size={13} /> YouTube / Drive / Cloud URL
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setChapterForm({ ...chapterForm, videoType: "upload" })}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      chapterForm.videoType === "upload"
-                        ? "bg-orange-500 text-slate-950 font-black shadow-sm"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <Upload size={13} /> Direct Video Upload
-                  </button>
+        const closeModal = () => {
+          setShowChapterModal(null);
+          setEditingChapter(null);
+          setChapterDrawer({ key: "", video: false, pdf: false });
+        };
+
+        const pillBtnClass = (isActive: boolean) =>
+          `inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${isActive
+            ? "bg-[#fdeee2] text-[#942008]"
+            : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+          }`;
+
+        return (
+          <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+            <div className="bg-white border border-[#ecdccb]/90 rounded-3xl p-5 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto my-auto shadow-[0_24px_60px_-15px_rgba(90,55,20,0.16)] text-stone-900">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center gap-3 mb-5 sm:mb-6">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#fdeee2] text-[#c4431d] flex items-center justify-center shrink-0">
+                    <FileVideo size={20} />
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight truncate">
+                    {editingChapter ? "Edit Chapter / Lesson" : "Add Chapter / Lesson"}
+                  </h2>
                 </div>
-
-                {chapterForm.videoType === "url" ? (
-                  <div>
-                    <input
-                      type="text"
-                      value={chapterForm.videoUrl}
-                      onChange={(e) => setChapterForm({ ...chapterForm, videoUrl: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
-                      placeholder="https://youtube.com/watch?v=... or Google Drive / MP4 URL"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Paste YouTube, Vimeo, Google Drive, or CDN (.mp4) video link.
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/quicktime"
-                      onChange={handleDirectVideoUpload}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-slate-950 hover:file:bg-orange-600 cursor-pointer"
-                    />
-                    {uploadingVideo ? (
-                      <p className="text-[11px] text-orange-400 mt-1 font-bold animate-pulse flex items-center gap-1">
-                        ⏳ Uploading video file to server... Please wait
-                      </p>
-                    ) : chapterForm.videoUrl && (
-                      <p className="text-[11px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
-                        ✓ Video file uploaded &amp; ready for students!
-                      </p>
-                    )}
-                  </div>
-                )}
-                {chapterForm.videoUrl && (
-                  <div className="mt-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-400 font-bold">
-                    <span className="flex items-center gap-1.5 truncate">
-                      <CheckCircle2 size={14} className="shrink-0" /> Video Attached: {chapterForm.videoUrl.length > 40 ? chapterForm.videoUrl.slice(0, 40) + "..." : chapterForm.videoUrl}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setPreviewVideoUrl(chapterForm.videoUrl)}
-                      className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/40 text-[10px] uppercase font-black cursor-pointer shrink-0 ml-2"
-                    >
-                      Preview
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-2">
-                  PDF / Notes Resource (Optional)
-                </label>
-                <div className="flex items-center gap-2 mb-3 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setChapterForm({ ...chapterForm, pdfType: "url" })}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      chapterForm.pdfType === "url"
-                        ? "bg-orange-500 text-slate-950 font-black shadow-sm"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <LinkIcon size={13} /> Drive / Cloud URL
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setChapterForm({ ...chapterForm, pdfType: "upload" })}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      chapterForm.pdfType === "upload"
-                        ? "bg-orange-500 text-slate-950 font-black shadow-sm"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <Upload size={13} /> Direct PDF Upload
-                  </button>
-                </div>
-
-                {chapterForm.pdfType === "url" ? (
-                  <div>
-                    <input
-                      type="text"
-                      value={chapterForm.pdfUrl}
-                      onChange={(e) => setChapterForm({ ...chapterForm, pdfUrl: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
-                      placeholder="https://drive.google.com/... (PDF Link)"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Paste Google Drive, Dropbox, or public Cloud PDF link.
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleDirectPdfUpload}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-slate-950 hover:file:bg-orange-600 cursor-pointer"
-                    />
-                    {uploadingPdf ? (
-                      <p className="text-[11px] text-orange-400 mt-1 font-bold animate-pulse flex items-center gap-1">
-                        ⏳ Uploading PDF document... Please wait
-                      </p>
-                    ) : chapterForm.pdfUrl && (
-                      <p className="text-[11px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
-                        ✓ PDF document attached &amp; ready for students!
-                      </p>
-                    )}
-                  </div>
-                )}
-                {chapterForm.pdfUrl && (
-                  <div className="mt-2 p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs text-blue-400 font-bold">
-                    <span className="flex items-center gap-1.5 truncate">
-                      <FileText size={14} className="shrink-0" /> PDF Attached: {chapterForm.pdfUrl.length > 40 ? chapterForm.pdfUrl.slice(0, 40) + "..." : chapterForm.pdfUrl}
-                    </span>
-                    <a
-                      href={getFileUrl(chapterForm.pdfUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/40 text-[10px] uppercase font-black cursor-pointer shrink-0 ml-2 flex items-center gap-1"
-                    >
-                      Preview <ExternalLink size={10} />
-                    </a>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || uploadingVideo || uploadingPdf}
-                  className={`flex-1 py-3 font-black text-sm rounded-xl shadow-lg transition-all cursor-pointer ${
-                    uploadingVideo || uploadingPdf || isSubmitting
-                      ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                      : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950"
-                  }`}
-                >
-                  {uploadingVideo
-                    ? "⏳ Video Uploading... Please Wait"
-                    : uploadingPdf
-                    ? "⏳ PDF Uploading... Please Wait"
-                    : isSubmitting
-                    ? "Saving..."
-                    : editingChapter
-                    ? "Update Lesson"
-                    : "Save Lesson"}
-                </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowChapterModal(null);
-                    setEditingChapter(null);
-                  }}
-                  className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
+                  onClick={closeModal}
+                  aria-label="Close modal"
+                  className="p-2 hover:bg-stone-100 rounded-full text-stone-500 hover:text-stone-800 transition-colors cursor-pointer shrink-0"
                 >
-                  Cancel
+                  <X size={20} />
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleSaveChapter} className="space-y-4">
+                {/* Chapter Title Card */}
+                <div className="rounded-2xl border border-stone-200 bg-white focus-within:border-[#c4431d] focus-within:ring-2 focus-within:ring-[#c4431d]/15 px-4 sm:px-5 py-3.5 transition-all">
+                  <div className="flex items-start gap-3.5">
+                    <Type size={18} className="text-stone-400 mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <label
+                        htmlFor="chapter-title-input"
+                        className="block text-sm sm:text-base font-semibold text-stone-900 mb-0.5 cursor-pointer"
+                      >
+                        Chapter Title
+                      </label>
+                      <input
+                        id="chapter-title-input"
+                        type="text"
+                        required
+                        value={chapterForm.title}
+                        onChange={(e) => setChapterForm({ ...chapterForm, title: e.target.value })}
+                        className="w-full bg-transparent text-sm sm:text-base text-stone-700 placeholder:text-stone-400 focus:outline-none"
+                        placeholder="e.g. Module 1: Resin Chemistry & Pouring Technique"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Video Lesson Row Card */}
+                <div className="rounded-2xl border border-stone-200/90 bg-[#faf9f7] px-4 py-3 transition-all">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <span className="w-10 h-10 rounded-full bg-[#fdeee2] text-[#c4431d] flex items-center justify-center shrink-0">
+                        <span className="w-5 h-5 rounded-full border-[1.5px] border-[#c4431d] flex items-center justify-center">
+                          <Play size={10} className="fill-[#c4431d] text-[#c4431d] ml-0.5" />
+                        </span>
+                      </span>
+                      <span className="text-sm sm:text-base font-semibold text-stone-900">
+                        Video Lesson
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChapterForm({ ...chapterForm, videoType: "url" });
+                          openSection("video");
+                        }}
+                        className={pillBtnClass(chapterForm.videoType === "url")}
+                      >
+                        <LinkIcon size={15} className="shrink-0" />
+                        <span>URL</span>
+                      </button>
+
+                      <span className="h-5 w-px bg-stone-200 shrink-0" aria-hidden="true" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChapterForm({ ...chapterForm, videoType: "upload" });
+                          openSection("video");
+                        }}
+                        className={pillBtnClass(chapterForm.videoType === "upload")}
+                      >
+                        <Upload size={15} className="shrink-0" />
+                        <span>Upload</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {showVideoInput && (
+                    <div className="mt-3 pt-3 border-t border-stone-200/80 space-y-2.5">
+                      {chapterForm.videoType === "url" ? (
+                        <div>
+                          <input
+                            type="text"
+                            autoFocus
+                            value={chapterForm.videoUrl}
+                            onChange={(e) => setChapterForm({ ...chapterForm, videoUrl: e.target.value })}
+                            className="w-full bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                            placeholder="https://youtube.com/watch?v=... or Google Drive / MP4 URL"
+                          />
+                          <p className="text-xs text-stone-500 mt-1.5">
+                            Paste YouTube, Vimeo, Google Drive, or CDN (.mp4) video link.
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="file"
+                            accept="video/mp4,video/webm,video/quicktime"
+                            onChange={handleDirectVideoUpload}
+                            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm sm:text-xs text-stone-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#f8d4bf] cursor-pointer"
+                          />
+                          {uploadingVideo ? (
+                            <p className="text-xs text-[#c4431d] mt-1.5 font-bold animate-pulse flex items-center gap-1">
+                              ⏳ Uploading video file to server... Please wait
+                            </p>
+                          ) : chapterForm.videoUrl && (
+                            <p className="text-xs text-emerald-700 mt-1.5 font-semibold flex items-center gap-1">
+                              ✓ Video file uploaded &amp; ready for students!
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {chapterForm.videoUrl && (
+                        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2 text-xs text-emerald-800 font-bold">
+                          <span className="flex items-center gap-1.5 truncate">
+                            <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                            <span className="truncate">
+                              Video Attached: {chapterForm.videoUrl.length > 40 ? chapterForm.videoUrl.slice(0, 40) + "..." : chapterForm.videoUrl}
+                            </span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setPreviewVideoUrl(chapterForm.videoUrl)}
+                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs uppercase font-bold cursor-pointer shrink-0 transition-colors"
+                          >
+                            Preview
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* PDF / Notes Row Card */}
+                <div className="rounded-2xl border border-stone-200/90 bg-[#faf9f7] px-4 py-3 transition-all">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <span className="w-10 h-10 rounded-xl bg-[#fdeee2] text-[#c4431d] flex items-center justify-center shrink-0">
+                        <FileText size={18} />
+                      </span>
+                      <span className="text-sm sm:text-base font-semibold text-stone-900">
+                        PDF / Notes <span className="font-normal text-stone-500">(Optional)</span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChapterForm({ ...chapterForm, pdfType: "url" });
+                          openSection("pdf");
+                        }}
+                        className={pillBtnClass(chapterForm.pdfType === "url")}
+                      >
+                        <LinkIcon size={15} className="shrink-0" />
+                        <span>URL</span>
+                      </button>
+
+                      <span className="h-5 w-px bg-stone-200 shrink-0" aria-hidden="true" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setChapterForm({ ...chapterForm, pdfType: "upload" });
+                          openSection("pdf");
+                        }}
+                        className={pillBtnClass(chapterForm.pdfType === "upload")}
+                      >
+                        <Upload size={15} className="shrink-0" />
+                        <span>Upload</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {showPdfInput && (
+                    <div className="mt-3 pt-3 border-t border-stone-200/80 space-y-2.5">
+                      {chapterForm.pdfType === "url" ? (
+                        <div>
+                          <input
+                            type="text"
+                            autoFocus
+                            value={chapterForm.pdfUrl}
+                            onChange={(e) => setChapterForm({ ...chapterForm, pdfUrl: e.target.value })}
+                            className="w-full bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                            placeholder="https://drive.google.com/... (PDF Link)"
+                          />
+                          <p className="text-xs text-stone-500 mt-1.5">
+                            Paste Google Drive, Dropbox, or public Cloud PDF link.
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handleDirectPdfUpload}
+                            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm sm:text-xs text-stone-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#f8d4bf] cursor-pointer"
+                          />
+                          {uploadingPdf ? (
+                            <p className="text-xs text-[#c4431d] mt-1.5 font-bold animate-pulse flex items-center gap-1">
+                              ⏳ Uploading PDF document... Please wait
+                            </p>
+                          ) : chapterForm.pdfUrl && (
+                            <p className="text-xs text-emerald-700 mt-1.5 font-semibold flex items-center gap-1">
+                              ✓ PDF document attached &amp; ready for students!
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {chapterForm.pdfUrl && (
+                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between gap-2 text-xs text-blue-800 font-bold">
+                          <span className="flex items-center gap-1.5 truncate">
+                            <FileText size={14} className="shrink-0 text-blue-600" />
+                            <span className="truncate">
+                              PDF Attached: {chapterForm.pdfUrl.length > 40 ? chapterForm.pdfUrl.slice(0, 40) + "..." : chapterForm.pdfUrl}
+                            </span>
+                          </span>
+                          <a
+                            href={getFileUrl(chapterForm.pdfUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs uppercase font-bold cursor-pointer shrink-0 flex items-center gap-1 transition-colors"
+                          >
+                            Preview <ExternalLink size={12} />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer Actions */}
+                <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-2xl text-stone-600 hover:text-stone-900 hover:bg-stone-100 font-medium text-base sm:text-sm transition-colors cursor-pointer text-center"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || uploadingVideo || uploadingPdf}
+                    className={`w-full sm:w-auto px-6 py-2.5 rounded-2xl font-semibold text-base sm:text-sm shadow-md transition-all inline-flex items-center justify-center gap-2 cursor-pointer ${uploadingVideo || uploadingPdf || isSubmitting
+                      ? "bg-stone-100 text-stone-400 cursor-not-allowed border border-stone-300 shadow-none"
+                      : "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white shadow-[#c4431d]/25"
+                      }`}
+                  >
+                    <span>
+                      {uploadingVideo
+                        ? "⏳ Video Uploading... Please Wait"
+                        : uploadingPdf
+                          ? "⏳ PDF Uploading... Please Wait"
+                          : isSubmitting
+                            ? "Saving..."
+                            : editingChapter
+                              ? "Update Lesson"
+                              : "Save Lesson"}
+                    </span>
+                    {!uploadingVideo && !uploadingPdf && !isSubmitting && (
+                      <ArrowRight size={16} className="shrink-0" />
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Video Preview Modal */}
       {previewVideoUrl && (() => {
@@ -2259,21 +2513,21 @@ export default function AdminCourses() {
           lower.includes("uploads/");
 
         return (
-          <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-white relative">
+          <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto">
+            <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-3xl w-full p-5 sm:p-7 max-h-[90vh] overflow-y-auto my-auto shadow-2xl text-stone-900 relative">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <Video className="text-orange-400" size={18} /> Video Lesson Player
+                <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+                  <Video className="text-[#c4431d]" size={18} /> Video Lesson Player
                 </h3>
                 <button
                   onClick={() => setPreviewVideoUrl(null)}
-                  className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 bg-stone-100 hover:bg-stone-200 rounded-full text-stone-500 hover:text-white transition-colors cursor-pointer"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner flex items-center justify-center">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-200 shadow-inner flex items-center justify-center">
                 {isDirectVideo ? (
                   <video
                     src={getFileUrl(normalizedUrl)}
@@ -2297,19 +2551,19 @@ export default function AdminCourses() {
 
       {/* Full Original Course Flyer / Poster Lightbox Modal */}
       {previewFlyerModal && (
-        <div 
+        <div
           onClick={() => setPreviewFlyerModal(null)}
-          className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center z-50 p-4 sm:p-8 overflow-y-auto cursor-zoom-out animate-in fade-in duration-200"
+          className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-8 overflow-y-auto cursor-zoom-out animate-in fade-in duration-200"
         >
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            className="relative max-w-4xl max-h-[92vh] flex flex-col items-center justify-center cursor-default bg-slate-900/90 border border-slate-700/80 rounded-3xl p-3 shadow-2xl"
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl max-h-[92vh] flex flex-col items-center justify-center cursor-default bg-white/90 border border-stone-300/80 rounded-3xl p-3 shadow-2xl"
           >
             <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => handleOpenImageFullSize(previewFlyerModal)}
-                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-white hover:bg-[#fff5ee] border border-stone-200 hover:border-[#f5ded0] rounded-xl text-xs font-bold text-stone-700 hover:text-[#942008] flex items-center gap-1.5 shadow-lg transition-colors cursor-pointer"
                 title="Open full size in new tab"
               >
                 <ExternalLink size={12} /> Open Full Size
@@ -2317,7 +2571,7 @@ export default function AdminCourses() {
               <button
                 type="button"
                 onClick={() => handleDownloadFlyer(previewFlyerModal)}
-                className="px-3 py-1.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-white hover:bg-[#fff5ee] border border-stone-200 hover:border-[#f5ded0] rounded-xl text-xs font-bold text-stone-700 hover:text-[#942008] flex items-center gap-1.5 shadow-lg transition-colors cursor-pointer"
                 title="Download poster image"
               >
                 <Download size={12} /> Download
@@ -2325,7 +2579,7 @@ export default function AdminCourses() {
               <button
                 type="button"
                 onClick={() => setPreviewFlyerModal(null)}
-                className="p-2 bg-slate-950/80 hover:bg-slate-800 border border-slate-700 rounded-full text-slate-300 hover:text-white transition-colors cursor-pointer shadow-lg"
+                className="p-2 bg-white hover:bg-stone-100 border border-stone-200 rounded-full text-stone-700 hover:text-stone-900 transition-colors cursor-pointer shadow-lg"
                 title="Close"
               >
                 <X size={18} />
@@ -2349,6 +2603,51 @@ export default function AdminCourses() {
         onClose={() => setQrModalCourse(null)}
         course={qrModalCourse}
       />
+
+      {/* Enable / Disable Course Confirmation Modal */}
+      {statusConfirmCourse && (
+        <div
+          onClick={() => setStatusConfirmCourse(null)}
+          className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="course-status-confirm-title"
+            className="bg-white border border-[#ecdccb] rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150"
+          >
+            <h3 id="course-status-confirm-title" className="text-base sm:text-lg lg:text-xl font-black text-stone-900">
+              {statusConfirmCourse.isPublished !== false ? "Disable course?" : "Enable course?"}
+            </h3>
+            <p className="text-xs sm:text-sm lg:text-base text-stone-600 mt-2 leading-relaxed">
+              {statusConfirmCourse.isPublished !== false
+                ? `Are you sure you want to disable "${statusConfirmCourse.title}"? It will no longer be visible to students.`
+                : `Are you sure you want to enable "${statusConfirmCourse.title}"? It will be visible to students.`}
+            </p>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setStatusConfirmCourse(null)}
+                className="px-4 py-2 rounded-xl border border-[#ecdccb] bg-white hover:bg-[#fcfaf7] active:scale-95 text-stone-700 text-xs sm:text-sm font-bold transition-all duration-150 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const targetCourse = statusConfirmCourse;
+                  setStatusConfirmCourse(null);
+                  handleToggleCourseStatus(targetCourse);
+                }}
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-md shadow-[#c4431d]/25 transition-all duration-150 cursor-pointer"
+              >
+                {statusConfirmCourse.isPublished !== false ? "Disable" : "Enable"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

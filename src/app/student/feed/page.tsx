@@ -47,8 +47,25 @@ export default function StudentFeedPage() {
 
   const getLevelName = () => user?.membershipLevel || user?.rank || "L0 Fast Track";
 
+  const defaultBadges = [
+    { name: "First Resin Pour", icon: "🎨", pointsRequired: 100 },
+    { name: "First Client Sale", icon: "💰", pointsRequired: 200 },
+    { name: "Streak Champion", icon: "🔥", pointsRequired: 300 },
+    { name: "Art-o-thon Finisher", icon: "🏆", pointsRequired: 500 },
+  ];
+
+  const displayBadges = (badges && badges.length > 0 ? badges : defaultBadges).slice(0, 4);
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <StudentNav
         user={user}
         level={getLevelName()}
@@ -57,16 +74,14 @@ export default function StudentFeedPage() {
         notifications={userStats.notifications}
       />
 
-      <main className="flex-1 max-w-[1400px] mx-auto w-full p-4 md:p-8">
-        <header className="mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-black text-white flex items-center gap-3">
-              <Sparkles className="text-orange-400" size={32} /> Sisterhood Community Feed
-            </h1>
-            <p className="text-slate-400 text-sm md:text-base mt-1">
-              Live sisterhood sales, resin artwork showcases, student milestones, and mentor updates.
-            </p>
-          </div>
+      <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+        <header className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-stone-900 tracking-tight flex items-center gap-2.5">
+            <Sparkles className="text-[#c4431d]" size={28} /> Sisterhood Community Feed
+          </h1>
+          <p className="text-stone-500 text-xs sm:text-sm mt-1">
+            Live sisterhood sales, resin artwork showcases, student milestones, and mentor updates.
+          </p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -77,45 +92,41 @@ export default function StudentFeedPage() {
 
           {/* Right Side: Badges Spotlight & Diamond Gamification (4 Cols - Sticky) */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-              <h3 className="text-base font-bold text-white flex items-center gap-2 mb-2">
-                <Trophy className="text-amber-400" size={20} /> Student Badges Spotlight
+            {/* Student Badges Spotlight Card (Exact match to Reference Image 2) */}
+            <div className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)]">
+              <h3 className="text-base font-bold text-stone-900 flex items-center gap-2 mb-1.5">
+                <Trophy className="text-[#c4431d]" size={18} /> Student Badges Spotlight
               </h3>
-              <p className="text-xs text-slate-400 mb-5">
+              <p className="text-xs text-stone-500 mb-4 leading-relaxed">
                 Earn badges by completing courses, sales milestones, and Art-o-Thon challenges.
               </p>
-              <div className="grid grid-cols-2 gap-3">
-                {(badges && badges.length > 0
-                  ? badges
-                  : [
-                      { name: "First Resin Pour", icon: "🎨", pointsRequired: 100 },
-                      { name: "First Client Sale", icon: "💰", pointsRequired: 500 },
-                      { name: "Art-o-thon finisher", icon: "💎", pointsRequired: 500 },
-                      { name: "HOF Creator", icon: "👑", pointsRequired: 1000 },
-                    ]
-                )
-                  .slice(0, 4)
-                  .map((b: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col items-center text-center hover:border-slate-700 transition-colors"
-                    >
-                      <span className="text-3xl mb-1.5">{b.icon || "🏆"}</span>
-                      <span className="text-xs font-bold text-white truncate w-full">{b.name}</span>
-                      <span className="text-[10px] text-amber-400 font-semibold mt-0.5">
-                        {b.pointsRequired || 100} XP
+              <div className="flex flex-col gap-2.5">
+                {displayBadges.map((b: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3.5 rounded-2xl bg-[#faf8f5]/80 hover:bg-[#f6f2ed] transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xl shrink-0">{b.icon || "🏆"}</span>
+                      <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
+                        {b.name}
                       </span>
                     </div>
-                  ))}
+                    <span className="text-xs font-bold text-[#c4431d] shrink-0 font-mono">
+                      {b.pointsRequired || 100} XP
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <Flame className="text-orange-400" size={16} /> Diamond Club Gamification
+            {/* Diamond Club Gamification Card */}
+            <div className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] space-y-2">
+              <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                <Flame className="text-[#c4431d]" size={16} /> Diamond Club Gamification
               </h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Level 3 (L3 Diamond Club) members earn <span className="text-amber-400 font-bold">+15 XP</span> for feed posts, <span className="text-amber-400 font-bold">+30 XP</span> for win wall sales shares, and <span className="text-amber-400 font-bold">+5 XP</span> for comments.
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Level 3 (L3 Diamond Club) members earn <strong className="text-[#c4431d] font-bold">+15 XP</strong> for feed posts, <strong className="text-[#c4431d] font-bold">+30 XP</strong> for win wall sales shares, and <strong className="text-[#c4431d] font-bold">+5 XP</strong> for comments.
               </p>
             </div>
           </div>

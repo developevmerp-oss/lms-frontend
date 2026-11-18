@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Gift, Lock, Check, Loader2 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Gift, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/config/api";
 
 interface Reward {
@@ -16,169 +17,169 @@ interface Reward {
 
 const DEFAULT_REWARDS: Reward[] = [
   {
-    id: 'reward-1',
-    title: 'Exclusive Resin Art Templates & Cutouts',
-    description: 'Download ready-to-print vector templates, clock dial bases, and coaster cutout designs.',
-    pointCost: 500,
-    imageUrl: '',
-  },
-  {
-    id: 'reward-2',
-    title: 'Live Masterclass Workshop (10% Off)',
-    description: 'Get an exclusive 10% discount pass for upcoming VIP live interactive workshops.',
-    pointCost: 1000,
-    imageUrl: '',
-  },
-  {
-    id: 'reward-3',
-    title: 'Store Merchandise & Materials (15% Off)',
-    description: 'Claim 15% discount coupon on pigments, silicone molds, crystal glass, and tools.',
+    id: "reward-1",
+    title: "30 min 1-on-1 Mentoring Call",
+    description: "Private 1-on-1 strategy & portfolio review session with Vrajangna Patel.",
     pointCost: 1500,
-    imageUrl: '',
+    imageUrl: "/images/mentor/vrajangna-patel.jpg",
   },
   {
-    id: 'reward-4',
-    title: '1-on-1 Consulting & Portfolio Review',
-    description: 'Personalized 30-minute private portfolio critique and art business roadmap with Vrajangna Patel.',
-    pointCost: 2000,
-    imageUrl: '',
-  },
-  {
-    id: 'reward-5',
-    title: 'Complete Brand Success Kit',
-    description: 'All-in-one packaging guidelines, pricing calculator spreadsheet, and legal client contract templates.',
+    id: "reward-2",
+    title: "15% Off Discount Voucher",
+    description: "Redeem 15% discount on any advanced masterclass course.",
     pointCost: 3000,
-    imageUrl: '',
+    imageUrl: "/images/valuestack/resin-rose.jpg",
+  },
+  {
+    id: "reward-3",
+    title: "Custom Artistry Journal with Pen",
+    description: "Premium hardcover resin artist planner & goal tracking journal.",
+    pointCost: 5000,
+    imageUrl: "/images/valuestack/resin-amber.jpg",
+  },
+  {
+    id: "reward-4",
+    title: "Ravishing Art Physical Merch Kit",
+    description: "Complete 9-Piece Merch Bundle: Badge/Fridge Magnet, Keychain.",
+    pointCost: 8000,
+    imageUrl: "/images/student-art/art-1.jpg",
+  },
+  {
+    id: "reward-5",
+    title: "50% OFF Live Ticket + Certification",
+    description: "50% discount on live event ticket + printed Renaissance Master Certification.",
+    pointCost: 10000,
+    imageUrl: "/images/mentor/live-workshop.jpg",
   },
 ];
 
-export const RewardsStore = ({ currentPoints, onRedeem }: { currentPoints: number, onRedeem: () => void }) => {
+export const RewardsStore = ({
+  currentPoints = 0,
+  onRedeem,
+}: {
+  currentPoints?: number;
+  onRedeem?: () => void;
+}) => {
   const { token } = useAuth();
   const [rewards, setRewards] = useState<Reward[]>(DEFAULT_REWARDS);
-  const [isLoading, setIsLoading] = useState(false);
-  const [redeeming, setRedeeming] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (token) {
       fetch(`${API_BASE_URL}/rewards`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data) && data.length > 0) setRewards(data);
-          setIsLoading(false);
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            const merged = data.map((d: Reward, idx: number) => ({
+              ...d,
+              imageUrl:
+                d.imageUrl ||
+                DEFAULT_REWARDS[idx % DEFAULT_REWARDS.length]?.imageUrl ||
+                "",
+            }));
+            setRewards(merged);
+          }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Error fetching rewards:", err);
-          setIsLoading(false);
         });
     }
   }, [token]);
 
-  const handleRedeem = async (reward: Reward) => {
-    if (currentPoints < reward.pointCost || redeeming) return;
-    
-    if (!confirm(`Redeem "${reward.title}" for ${reward.pointCost} XP?`)) return;
+  const total = rewards.length;
 
-    setRedeeming(reward.id);
-    try {
-      const res = await fetch(`${API_BASE_URL}/rewards/${reward.id}/redeem`, {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (res.ok) {
-        alert("Reward redeemed successfully! Check your email for details.");
-        onRedeem(); // trigger parent update to refresh points
-      } else {
-        const data = await res.json();
-        alert(data.message || "Failed to redeem reward.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("An error occurred.");
-    } finally {
-      setRedeeming(null);
-    }
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
   };
 
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % total);
+  };
+
+  // Get current 3 items wrapped around circular buffer
+  const visibleRewards = [
+    rewards[currentIndex % total],
+    rewards[(currentIndex + 1) % total],
+    rewards[(currentIndex + 2) % total],
+  ].filter(Boolean);
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.9 }}
-      className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl mt-6"
+      transition={{ delay: 0.5 }}
+      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
-      <div className="flex justify-between items-center mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
-          <Gift className="text-pink-500" />
-          <h2 className="text-xl font-bold text-white">Rewards Store</h2>
+          <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
+            <Gift size={16} />
+          </div>
+          <h2 className="text-sm sm:text-base font-bold text-stone-900">Rewards Store</h2>
         </div>
-        <div className="bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full text-orange-400 font-bold text-sm">
-          {currentPoints.toLocaleString('en-IN')} XP Available
-        </div>
+
+        <Link
+          href="/student/rewards"
+          className="text-xs font-bold text-[#c4431d] hover:text-[#942008] transition-colors flex items-center gap-0.5 cursor-pointer shrink-0"
+        >
+          <span>View All</span>
+          <ArrowRight size={13} />
+        </Link>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center p-8">
-          <Loader2 className="animate-spin text-slate-600" size={32} />
-        </div>
-      ) : rewards.length === 0 ? (
-        <div className="text-center p-8 text-slate-500">
-          No rewards available at the moment.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {rewards.map(reward => {
-            const canAfford = currentPoints >= reward.pointCost;
-            return (
-              <div key={reward.id} className="bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden flex flex-col group hover:border-slate-600 transition-colors">
-                <div className="h-32 bg-slate-800 relative overflow-hidden">
-                  {reward.imageUrl ? (
-                    <img src={reward.imageUrl} alt={reward.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600">
-                      <Gift size={40} />
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold text-orange-400 flex items-center gap-1">
-                    {reward.pointCost} XP
-                  </div>
-                </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <h3 className="font-bold text-white mb-1 line-clamp-1">{reward.title}</h3>
-                  <p className="text-slate-400 text-xs mb-4 flex-1 line-clamp-2">{reward.description}</p>
-                  
-                  <button 
-                    onClick={() => handleRedeem(reward)}
-                    disabled={!canAfford || redeeming === reward.id}
-                    className={`w-full py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                      redeeming === reward.id
-                        ? 'bg-slate-700 text-slate-400 cursor-wait'
-                        : canAfford 
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20' 
-                          : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                    }`}
-                  >
-                    {redeeming === reward.id ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : canAfford ? (
-                      'Redeem Now'
-                    ) : (
-                      <>
-                        <Lock size={14} /> Need {reward.pointCost - currentPoints} more XP
-                      </>
-                    )}
-                  </button>
-                </div>
+      {/* Carousel of Reward Items centered with balanced vertical proportions */}
+      <div className="flex-1 flex items-center justify-between gap-1.5 py-1">
+        {/* Left Arrow Button */}
+        <button
+          type="button"
+          onClick={handlePrev}
+          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border border-stone-200 hover:border-[#c4431d] text-stone-600 hover:text-[#c4431d] shadow-2xs flex items-center justify-center cursor-pointer transition-all shrink-0 z-10"
+          aria-label="Previous reward"
+        >
+          <ChevronLeft size={13} />
+        </button>
+
+        {/* Cards Row (3 visible) */}
+        <div className="flex-1 grid grid-cols-3 gap-1.5 sm:gap-2">
+          {visibleRewards.map((reward, idx) => (
+            <Link
+              key={`${reward.id}-${idx}`}
+              href="/student/rewards"
+              className="group flex flex-col items-center cursor-pointer"
+              title={`${reward.title} (${reward.pointCost} XP)`}
+            >
+              <div className="w-full h-20 sm:h-22 rounded-xl overflow-hidden bg-stone-100 border border-stone-200 relative group-hover:border-[#e86034] transition-all">
+                <img
+                  src={reward.imageUrl}
+                  alt={reward.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
-            );
-          })}
+              {/* Reward title */}
+              <p className="text-[10px] font-bold text-stone-800 truncate w-full text-center mt-1 group-hover:text-[#c4431d] transition-colors">
+                {reward.title}
+              </p>
+              {/* XP Pill Tag */}
+              <span className="mt-0.5 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#fff2ea] text-[#c4431d] border border-[#fbdcd0] transition-colors whitespace-nowrap">
+                {reward.pointCost} XP
+              </span>
+            </Link>
+          ))}
         </div>
-      )}
+
+        {/* Right Arrow Button */}
+        <button
+          type="button"
+          onClick={handleNext}
+          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border border-stone-200 hover:border-[#c4431d] text-stone-600 hover:text-[#c4431d] shadow-2xs flex items-center justify-center cursor-pointer transition-all shrink-0 z-10"
+          aria-label="Next reward"
+        >
+          <ChevronRight size={13} />
+        </button>
+      </div>
     </motion.div>
   );
 };

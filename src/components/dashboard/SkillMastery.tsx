@@ -1,64 +1,88 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
-import { Award } from 'lucide-react';
-
-const mockData = [
-  { subject: 'Resin Basics', A: 90, fullMark: 100 },
-  { subject: 'Mixing', A: 85, fullMark: 100 },
-  { subject: 'Colour Theory', A: 70, fullMark: 100 },
-  { subject: 'Finishing', A: 60, fullMark: 100 },
-  { subject: 'Creativity', A: 95, fullMark: 100 },
-  { subject: 'Professional Quality', A: 50, fullMark: 100 },
-];
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+} from "recharts";
+import { Target } from "lucide-react";
 
 export const SkillMastery = ({ skills }: { skills: any }) => {
-  // Use real database values, fallback to default score if null/undefined
+  // Radar data with labels matching Image 4
   const dynamicData = [
-    { subject: '🎨 Skill Mastery', A: skills?.skillMastery || skills?.resinBasics || 75, fullMark: 100 },
-    { subject: '🎯 Consistency', A: skills?.consistency || skills?.mixing || 80, fullMark: 100 },
-    { subject: '✨ Creative Excellence', A: skills?.creativeExcellence || skills?.creativity || 85, fullMark: 100 },
-    { subject: '📈 Growth & Action', A: skills?.implementationGrowth || skills?.colourTheory || 70, fullMark: 100 },
-    { subject: '💼 Business Progress', A: skills?.businessProgress || skills?.finishing || 65, fullMark: 100 },
-    { subject: '🤝 Leadership', A: skills?.communityLeadership || skills?.professionalQuality || 70, fullMark: 100 },
+    {
+      subject: "Skill Mastery",
+      score: skills?.skillMastery || skills?.resinBasics || 70,
+      fullMark: 100,
+    },
+    {
+      subject: "Consistency",
+      score: skills?.consistency || skills?.mixing || 75,
+      fullMark: 100,
+    },
+    {
+      subject: "Creative Excellence",
+      score: skills?.creativeExcellence || skills?.creativity || 80,
+      fullMark: 100,
+    },
+    {
+      subject: "Growth & Action",
+      score: skills?.implementationGrowth || skills?.colourTheory || 65,
+      fullMark: 100,
+    },
+    {
+      subject: "Business Progress",
+      score: skills?.businessProgress || skills?.finishing || 60,
+      fullMark: 100,
+    },
+    {
+      subject: "Leadership",
+      score: skills?.communityLeadership || skills?.professionalQuality || 65,
+      fullMark: 100,
+    },
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.1 }}
-      className="bg-slate-900 border border-slate-800 p-6 rounded-3xl h-full flex flex-col shadow-xl"
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Award className="text-orange-500" />
-          <h2 className="text-lg font-bold text-white">6-Point Skill Mastery</h2>
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
+          <Target size={16} />
         </div>
-        <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full font-bold">
-          Radar Matrix
-        </span>
+        <h2 className="text-base sm:text-lg font-bold text-stone-900">6-Point Skill Mastery</h2>
       </div>
-      
-      <div className="flex-1 min-h-[280px]">
+
+      {/* Radar Matrix Chart */}
+      <div className="w-full h-[180px] sm:h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="60%" data={dynamicData}>
-            <PolarGrid stroke="rgba(255,255,255,0.1)" />
-            <PolarAngleAxis dataKey="subject" tick={{ fill: '#d1d5db', fontSize: 11 }} />
+          <RadarChart cx="50%" cy="50%" outerRadius="62%" data={dynamicData}>
+            <PolarGrid stroke="#f2eee9" />
+            <PolarAngleAxis
+              dataKey="subject"
+              tick={{ fill: "#57534e", fontSize: 9, fontWeight: 500 }}
+            />
             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
             <Radar
               name="Skills"
-              dataKey="A"
-              stroke="#f97316"
-              fill="#f97316"
-              fillOpacity={0.45}
+              dataKey="score"
+              stroke="#e86034"
+              strokeWidth={1.5}
+              fill="#fbdcd0"
+              fillOpacity={0.5}
             />
           </RadarChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-center text-[11px] text-slate-500 mt-2">Verified mentor critique scores</p>
     </motion.div>
   );
 };

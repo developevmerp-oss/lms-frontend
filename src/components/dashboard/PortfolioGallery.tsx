@@ -1,68 +1,85 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Image as ImageIcon, MessageSquare, Plus } from 'lucide-react';
-import Link from 'next/link';
+import React from "react";
+import { motion } from "framer-motion";
+import { Image as ImageIcon, Plus, UploadCloud } from "lucide-react";
+import Link from "next/link";
 
-export const PortfolioGallery = ({ portfolios }: { portfolios?: any[] }) => {
-  // Use real portfolios if available, else empty array
+interface PortfolioProjectItem {
+  id?: string;
+  title: string;
+  technique: string;
+  imageUrl: string;
+}
+
+interface PortfolioGalleryProps {
+  portfolios?: PortfolioProjectItem[];
+}
+
+export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
   const activePortfolios = portfolios || [];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.5 }}
-      className="bg-slate-900 border border-slate-800 p-6 rounded-3xl h-full shadow-xl flex flex-col"
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.35 }}
+      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
-          <ImageIcon className="text-orange-500" />
-          <h2 className="text-xl font-bold text-white">Portfolio Projects</h2>
+          <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
+            <ImageIcon size={16} />
+          </div>
+          <h2 className="text-sm sm:text-base font-bold text-stone-900">Portfolio Projects</h2>
         </div>
-        <Link href="/student/portfolio" className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-full text-white transition-colors flex items-center gap-1">
-          <Plus size={14} /> Upload New
+        <Link
+          href="/student/portfolio"
+          className="text-[11px] font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-2.5 py-1 rounded-full shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
+        >
+          <Plus size={12} /> Upload New
         </Link>
       </div>
-      
-      <div className="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
+
+      {/* Content centered vertically with no bottom dead space */}
+      <div className="flex-1 flex flex-col justify-center py-2 sm:py-3">
         {activePortfolios.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 text-center border-2 border-dashed border-slate-800 rounded-2xl">
-            <p className="text-slate-500 text-sm mb-2">No projects uploaded yet.</p>
-            <Link href="/student/portfolio" className="text-orange-500 hover:text-orange-400 text-sm font-bold">Start your portfolio</Link>
+          <div className="flex flex-col items-center justify-center text-center">
+            <UploadCloud size={34} className="text-[#e86034] mb-2" />
+            <p className="text-stone-600 text-xs font-medium">No projects uploaded yet.</p>
+            <Link
+              href="/student/portfolio"
+              className="text-[#c4431d] hover:text-[#942008] text-xs font-bold transition-colors mt-0.5"
+            >
+              Start your portfolio
+            </Link>
           </div>
         ) : (
-          activePortfolios.map((project, i) => (
-            <div key={project.id || i} className="flex gap-4 p-3 bg-slate-800/50 border border-slate-700 rounded-2xl">
-              <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-black">
-                <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover opacity-90" />
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-white font-bold">{project.title}</h3>
-                  <span className="text-xs text-slate-500">
-                    {new Date(project.createdAt).toLocaleDateString()}
-                  </span>
+          <div className="space-y-2.5">
+            {activePortfolios.slice(0, 2).map((project, i) => (
+              <div
+                key={project.id || i}
+                className="flex items-center gap-2.5 p-2 bg-[#faf8f5] border border-stone-200/80 rounded-xl"
+              >
+                <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-stone-100">
+                  <img
+                    src={project.imageUrl}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <p className="text-xs text-orange-400 mb-2">{project.technique}</p>
-                
-                {project.feedback ? (
-                  <div className="bg-slate-950 p-2 rounded-lg border border-slate-800 flex gap-2 items-start mt-2">
-                    <MessageSquare size={14} className="text-slate-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-slate-300 italic">"{project.feedback}"</p>
-                      <p className="text-[10px] text-slate-500 font-bold mt-1">— {project.mentorName || 'Mentor'}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-orange-500/10 p-2 rounded-lg border border-orange-500/20 text-orange-400 text-xs italic">
-                    Awaiting mentor feedback...
-                  </div>
-                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xs font-bold text-stone-900 truncate">
+                    {project.title}
+                  </h3>
+                  <p className="text-[10px] text-[#c4431d] font-semibold truncate">
+                    {project.technique}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </motion.div>

@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus, IndianRupee, Sparkles, Tag, ArrowUpRight } from "lucide-react";
+import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus, IndianRupee, Layers, ArrowRight, Search, ArrowUpDown, User, Eye, MoreHorizontal, X } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
@@ -38,6 +40,16 @@ export default function AdminDashboard() {
   const [postingWin, setPostingWin] = useState(false);
   const [uploadingWinFile, setUploadingWinFile] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'notifications' | 'wins'>('overview');
+  const [notifSearch, setNotifSearch] = useState("");
+  const [notifSort, setNotifSort] = useState<{ field: 'title' | 'recipient' | 'status' | 'createdAt' | null; asc: boolean }>({ field: null, asc: true });
+  const [viewingNotification, setViewingNotification] = useState<{
+    id?: string;
+    title?: string;
+    message?: string;
+    isRead?: boolean;
+    createdAt?: string;
+    user?: { name?: string };
+  } | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
@@ -110,7 +122,7 @@ export default function AdminDashboard() {
     setSending(true);
     try {
       const isGroup = selectedStudent.startsWith('group:') || selectedStudent === 'all' || ['L0', 'L1', 'L2', 'L3', 'webinar'].includes(selectedStudent);
-      
+
       let res;
       if (isGroup) {
         const targetAudience = selectedStudent.startsWith('group:')
@@ -163,13 +175,13 @@ export default function AdminDashboard() {
     try {
       const res = await fetch(`${API}/admin/community-wins`, {
         method: 'POST', headers,
-        body: JSON.stringify({ 
-          studentName: winName || 'Patel Vrajangna (Admin)', 
-          achievement: winAchievement, 
+        body: JSON.stringify({
+          studentName: winName || 'Patel Vrajangna (Admin)',
+          achievement: winAchievement,
           salesAmount: winSalesAmount,
           technique: winTechnique,
           image: winImage,
-          timeAgo: 'Just now' 
+          timeAgo: 'Just now'
         })
       });
       if (res.ok) {
@@ -193,52 +205,103 @@ export default function AdminDashboard() {
   };
 
   const statCards = [
-    { label: 'Total Students', value: stats.totalStudents, icon: <Users className="text-blue-400" size={22} />, color: 'text-blue-400' },
-    { label: 'Active Courses', value: stats.activeCourses, icon: <BookOpen className="text-teal-400" size={22} />, color: 'text-teal-400' },
-    { label: 'Pending Assignments', value: stats.pendingAssignments, icon: <Trophy className="text-yellow-400" size={22} />, color: 'text-yellow-400' },
-    { label: 'Notifications Sent', value: notifications.length, icon: <Bell className="text-orange-400" size={22} />, color: 'text-orange-400' },
+    { label: 'Total Students', value: stats.totalStudents, icon: <Users className="text-sky-600" size={22} />, color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-100' },
+    { label: 'Active Courses', value: stats.activeCourses, icon: <BookOpen className="text-emerald-600" size={22} />, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    { label: 'Pending Assignments', value: stats.pendingAssignments, icon: <Trophy className="text-amber-600" size={22} />, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    { label: 'Notifications Sent', value: notifications.length, icon: <Bell className="text-[#c4431d]" size={22} />, color: 'text-[#c4431d]', bg: 'bg-[#fff5ee]', border: 'border-[#f5ded0]' },
   ];
 
+  const tierChartData = revenueData.tiers.map((t) => ({
+    code: t.code,
+    name: t.name,
+    revenue: Number(t.estimatedRevenue) || 0,
+    students: Number(t.enrolledCount) || 0,
+    price: t.price,
+  }));
+
+  const formatRupeeAxis = (value: number) => {
+    if (value >= 100000) {
+      const lakhs = value / 100000;
+      return `₹${Number.isInteger(lakhs) ? lakhs : lakhs.toFixed(1)}L`;
+    }
+    if (value >= 1000) {
+      return `₹${Math.round(value / 1000)}k`;
+    }
+    return `₹${value}`;
+  };
+
+  const toggleNotifSort = (field: 'title' | 'recipient' | 'status' | 'createdAt') => {
+    setNotifSort(prev =>
+      prev.field === field
+        ? { field, asc: !prev.asc }
+        : { field, asc: true }
+    );
+  };
+
+  const filteredNotifications = notifications
+    .filter((n) => {
+      const q = notifSearch.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        (n.title || '').toLowerCase().includes(q) ||
+        (n.message || '').toLowerCase().includes(q) ||
+        (n.user?.name || '').toLowerCase().includes(q)
+      );
+    })
+    .slice()
+    .sort((a, b) => {
+      if (!notifSort.field) return 0;
+      const dir = notifSort.asc ? 1 : -1;
+      if (notifSort.field === 'title') {
+        return (a.title || '').localeCompare(b.title || '') * dir;
+      }
+      if (notifSort.field === 'recipient') {
+        return (a.user?.name || 'Student').localeCompare(b.user?.name || 'Student') * dir;
+      }
+      if (notifSort.field === 'status') {
+        return (Number(Boolean(a.isRead)) - Number(Boolean(b.isRead))) * dir;
+      }
+      if (notifSort.field === 'createdAt') {
+        const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return (ta - tb) * dir;
+      }
+      return 0;
+    });
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
-        <header className="flex flex-wrap justify-between items-start gap-4 mb-6 md:mb-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+        <header className="flex flex-wrap justify-between items-start gap-4 mb-5">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">Admin Command Center</h1>
-            <p className="text-slate-400 mt-1 text-sm">Welcome back, {user?.name || 'Admin'} – manage students, notifications and wins.</p>
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">Admin Command Center</h1>
+            <p className="text-stone-500 mt-1 text-sm font-medium">Welcome back, {user?.name || 'Admin'} – manage students, notifications and wins.</p>
           </div>
         </header>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          {isLoading ? (
-            <>
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-            </>
-          ) : (
-            statCards.map((c, i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5">
-                <div className="flex items-center gap-2 mb-2">{c.icon}<span className="text-slate-400 text-xs md:text-sm">{c.label}</span></div>
-                <p className={`text-2xl md:text-3xl font-black ${c.color}`}>{c.value}</p>
-              </div>
-            ))
-          )}
-        </div>
-
         {/* Tabs */}
-        <div className="flex gap-1 md:gap-2 mb-6 bg-slate-900 border border-slate-800 p-1.5 rounded-2xl w-full md:w-fit overflow-x-auto scrollbar-none">
+        <div className="inline-flex items-center gap-1.5 mb-6 bg-white/95 border border-[#ecdccb] p-1.5 rounded-full max-w-full overflow-x-auto scrollbar-none shadow-[0_4px_16px_-4px_rgba(90,55,20,0.06)] backdrop-blur-md">
           {(['overview', 'notifications', 'wins'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 md:px-5 py-2 rounded-xl text-xs md:text-sm font-bold capitalize transition-all whitespace-nowrap ${activeTab === tab ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'}`}
+              className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold capitalize transition-all whitespace-nowrap cursor-pointer ${activeTab === tab
+                ? 'bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-md shadow-[#c4431d]/25'
+                : 'text-stone-600 hover:text-[#c4431d] hover:bg-[#fff5ee]/70'
+                }`}
             >
-              {tab === 'overview' ? '📊 Overview' : tab === 'notifications' ? '🔔 Notifications' : '🏆 Win Wall'}
+              {tab === 'overview' ? <TrendingUp size={15} /> : tab === 'notifications' ? <Bell size={15} /> : <Trophy size={15} />}
+              <span>{tab === 'overview' ? 'Overview' : tab === 'notifications' ? 'Notifications' : 'Win Wall'}</span>
             </button>
           ))}
         </div>
@@ -246,142 +309,351 @@ export default function AdminDashboard() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           isLoading ? (
-            <AdminTableSkeleton rows={6} cols={6} />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </div>
+              <AdminTableSkeleton rows={6} cols={6} />
+            </div>
           ) : (
             <div className="space-y-6">
-              {/* Level-Wise Revenue Analytics Card */}
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                      <IndianRupee size={20} />
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {statCards.map((c, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-5 shadow-[0_6px_20px_-6px_rgba(90,55,20,0.06)] hover:shadow-[0_10px_28px_-8px_rgba(196,67,29,0.12)] hover:border-[#e4c7ae] transition-all flex items-center gap-4"
+                  >
+                    <div className={`w-12 h-12 rounded-2xl ${c.bg} ${c.border} border flex items-center justify-center shrink-0`}>
+                      {c.icon}
                     </div>
-                    <div>
-                      <h2 className="text-lg font-black text-white flex items-center gap-2">
-                        Course &amp; Level-Wise Revenue Breakdown
-                        <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded-full">
-                          Real-time
-                        </span>
-                      </h2>
-                      <p className="text-xs text-slate-400">Track earnings, active subscribers, and tier market share.</p>
+                    <div className="min-w-0">
+                      <span className="text-stone-500 text-xs sm:text-sm font-semibold block truncate">{c.label}</span>
+                      <p className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight mt-0.5">{c.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Middle Bento Row: Revenue Chart + Level-Wise Breakdown */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Card: Revenue Overview + Area Chart */}
+                <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shrink-0">
+                        <IndianRupee size={19} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-lg font-black text-stone-900">
+                            Course &amp; Level-Wise Revenue Breakdown
+                          </h2>
+                          <span className="text-[10px] font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
+                            Real-time
+                          </span>
+                        </div>
+                        <p className="text-xs text-stone-500 font-medium mt-0.5">
+                          Track earnings, active subscribers, and tier market share.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="sm:text-right shrink-0">
+                      <span className="text-[11px] font-semibold text-stone-500 block">Total Platform Value:</span>
+                      <p className="text-2xl font-black text-emerald-600 font-mono leading-tight">
+                        ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="text-right sm:text-right">
-                    <span className="text-xs font-semibold text-slate-400">Total Platform Value:</span>
-                    <p className="text-2xl font-black text-emerald-400 font-mono">
-                      ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
-                    </p>
-                  </div>
+                  {tierChartData.length === 0 ? (
+                    <div className="h-[235px] flex items-center justify-center text-stone-400 text-sm font-medium bg-[#fcfaf7] rounded-2xl border border-stone-100">
+                      No revenue data available yet
+                    </div>
+                  ) : (
+                    <div className="h-[235px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={tierChartData} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="adminTierRevenueGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#c4431d" stopOpacity={0.28} />
+                              <stop offset="95%" stopColor="#ea580c" stopOpacity={0.01} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0e6db" />
+                          <XAxis
+                            dataKey="code"
+                            stroke="#78716c"
+                            fontSize={12}
+                            fontWeight={700}
+                            tickLine={false}
+                            axisLine={false}
+                            dy={8}
+                          />
+                          <YAxis
+                            stroke="#a8a29e"
+                            fontSize={11}
+                            tickLine={false}
+                            axisLine={false}
+                            width={54}
+                            tickFormatter={formatRupeeAxis}
+                          />
+                          <Tooltip
+                            content={({ active, payload }) => {
+                              if (!active || !payload || !payload.length) return null;
+                              const item = payload[0].payload;
+                              return (
+                                <div className="bg-white/95 border border-[#ecdccb] rounded-2xl px-3.5 py-2.5 shadow-lg text-xs">
+                                  <p className="font-black text-stone-900">{item.code} · {item.name}</p>
+                                  <p className="font-mono font-bold text-[#c4431d] mt-1">
+                                    ₹{Number(item.revenue).toLocaleString("en-IN")}
+                                  </p>
+                                  <p className="text-stone-500 font-medium mt-0.5">{item.students} Students</p>
+                                </div>
+                              );
+                            }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="#c4431d"
+                            strokeWidth={2.5}
+                            fillOpacity={1}
+                            fill="url(#adminTierRevenueGrad)"
+                            dot={{ r: 4, fill: "#ea580c", stroke: "#ffffff", strokeWidth: 2 }}
+                            activeDot={{ r: 6, fill: "#942008", stroke: "#ffffff", strokeWidth: 2 }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
                 </div>
 
-                {/* Level Tier Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  {revenueData.tiers.map((t) => {
-                    const sharePct = revenueData.totalRevenue > 0 ? Math.round((t.estimatedRevenue / revenueData.totalRevenue) * 100) : 0;
+                {/* Right Card: Tier-Wise Breakdown Rows */}
+                <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+                  <div className="flex items-start justify-between gap-3 mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
+                        <Layers size={19} />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-black text-stone-900">
+                          Tier Market Share
+                        </h2>
+                        <p className="text-xs text-stone-500 font-medium">
+                          Track earnings, active subscribers, and tier market share.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-full shrink-0">
+                      {revenueData.totalStudents} Students
+                    </span>
+                  </div>
 
-                    return (
-                      <div key={t.id} className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center justify-between gap-1 mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl">{t.icon}</span>
-                              <span className="text-xs font-black text-white">{t.name}</span>
-                            </div>
-                            <span className="text-[10px] font-black text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/30">
+                  <div className="space-y-2.5">
+                    {revenueData.tiers.map((t) => {
+                      const sharePct = revenueData.totalRevenue > 0 ? Math.round((t.estimatedRevenue / revenueData.totalRevenue) * 100) : 0;
+                      const isLeading = sharePct >= 50 && t.estimatedRevenue > 0;
+
+                      return (
+                        <div
+                          key={t.id}
+                          className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 bg-[#fcfaf7] border border-[#ecdccb]/80 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/40 rounded-2xl px-4 py-3 transition-all"
+                        >
+                          {/* Tier Badge + Name */}
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <span
+                              className={`w-10 h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 ${
+                                isLeading
+                                  ? 'bg-gradient-to-br from-[#942008] to-[#c4431d] text-white shadow-xs'
+                                  : 'bg-[#fde5d6] text-[#942008] border border-[#f5ded0]'
+                              }`}
+                            >
                               {t.code}
                             </span>
+                            <div className="min-w-0">
+                              <p className="text-xs sm:text-sm font-black text-stone-900 truncate flex items-center gap-1.5">
+                                <span>{t.icon}</span>
+                                <span className="truncate">{t.name}</span>
+                              </p>
+                              <p className="text-[11px] font-mono font-semibold text-amber-700">{t.price}</p>
+                            </div>
                           </div>
 
-                          <div className="flex items-baseline justify-between gap-2 mt-3">
-                            <span className="text-xs text-slate-400">{t.enrolledCount} Students</span>
-                            <span className="text-xs font-mono font-bold text-amber-400">{t.price}</span>
+                          {/* Revenue & Students */}
+                          <div className="flex items-center gap-5 shrink-0">
+                            <div className="min-w-[78px]">
+                              <p className="text-xs sm:text-sm font-black text-emerald-700 font-mono">
+                                ₹{t.estimatedRevenue.toLocaleString("en-IN")}
+                              </p>
+                              <p className="text-[10px] text-stone-400 font-semibold">Revenue</p>
+                            </div>
+                            <div className="min-w-[50px]">
+                              <p className="text-xs sm:text-sm font-black text-stone-800">{t.enrolledCount}</p>
+                              <p className="text-[10px] text-stone-400 font-semibold">Students</p>
+                            </div>
                           </div>
 
-                          <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2">
-                            <div
-                              className="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full transition-all"
-                              style={{ width: `${Math.max(5, sharePct)}%` }}
-                            />
+                          {/* Share Progress Bar */}
+                          <div className="flex items-center gap-2.5 w-full sm:w-32 shrink-0">
+                            <div className="flex-1 bg-stone-200/80 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] h-2 rounded-full transition-all"
+                                style={{ width: `${sharePct > 0 ? Math.max(5, sharePct) : 0}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-black text-stone-700 w-9 text-right">{sharePct}%</span>
                           </div>
                         </div>
-
-                        <div className="mt-3 pt-2.5 border-t border-slate-900 flex items-center justify-between text-xs">
-                          <span className="text-slate-500 text-[10px]">{sharePct}% Share</span>
-                          <span className="font-black text-emerald-400 font-mono">₹{t.estimatedRevenue.toLocaleString("en-IN")}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                    {revenueData.tiers.length === 0 && (
+                      <p className="text-stone-400 text-center py-8 text-sm font-medium">No tiers configured yet</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* All Students Table */}
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users size={20} className="text-blue-400" /> All Students</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-800">
-                      <th className="text-left text-slate-400 pb-3 font-semibold">Student</th>
-                      <th className="text-left text-slate-400 pb-3 font-semibold">Level</th>
-                      <th className="text-left text-slate-400 pb-3 font-semibold">XP</th>
-                      <th className="text-left text-slate-400 pb-3 font-semibold">Streak</th>
-                      <th className="text-left text-slate-400 pb-3 font-semibold">Courses</th>
-                      <th className="text-left text-slate-400 pb-3 font-semibold">Milestones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students.map((s, i) => (
-                      <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold text-white">
-                              {s.name?.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="text-white font-medium">{s.name}</p>
-                              <p className="text-slate-500 text-xs">{s.email}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3"><span className="text-orange-400 font-bold text-xs bg-orange-500/10 px-2 py-1 rounded-lg">{s.membershipLevel || 'L0'}</span></td>
-                        <td className="py-3 text-yellow-400 font-bold">{(s.points || 0).toLocaleString()}</td>
-                        <td className="py-3 text-orange-400 font-bold">🔥 {s.streak || 0}d</td>
-                        <td className="py-3 text-slate-300">{s.courses?.length || 0}</td>
-                        <td className="py-3">
-                          <div className="flex items-center gap-1">
-                            <span className="text-green-400 text-xs">{s.milestones?.filter((m: any) => m.completed).length || 0} done</span>
-                            <span className="text-slate-600 text-xs">/ {s.milestones?.length || 0}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {students.length === 0 && (
-                      <tr><td colSpan={6} className="py-8 text-center text-slate-500">No students found</td></tr>
+              {/* Bottom Bento Row: All Students Table + Sent Notifications Feed */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* All Students Table */}
+                <div className="lg:col-span-8 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h2 className="text-lg sm:text-xl font-black text-stone-900 flex items-center gap-2">
+                      <Users size={20} className="text-[#c4431d]" /> All Students
+                    </h2>
+                    <Link
+                      href="/admin/students"
+                      className="text-xs font-bold text-[#c4431d] hover:text-[#942008] inline-flex items-center gap-1 transition-colors"
+                    >
+                      View All <ArrowRight size={13} />
+                    </Link>
+                  </div>
+
+                  <div className="overflow-x-auto max-h-[420px] overflow-y-auto custom-scrollbar">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-white/95 z-10">
+                        <tr className="border-b border-[#ecdccb]/80 text-stone-500">
+                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Student</th>
+                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Level</th>
+                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">XP</th>
+                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Streak</th>
+                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Courses</th>
+                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Milestones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {students.map((s, i) => (
+                          <tr key={s.id || i} className="border-b border-stone-100 last:border-b-0 hover:bg-[#fff5ee]/60 transition-colors">
+                            <td className="py-3 pr-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-xs font-black text-[#942008] shrink-0">
+                                  {s.name?.charAt(0)?.toUpperCase() || 'S'}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-stone-900 font-bold text-sm truncate">{s.name}</p>
+                                  <p className="text-stone-500 text-xs truncate">{s.email}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 pr-3">
+                              <span className="text-[#942008] font-bold text-xs bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-lg whitespace-nowrap">
+                                {s.membershipLevel || 'L0'}
+                              </span>
+                            </td>
+                            <td className="py-3 pr-3 text-amber-700 font-bold font-mono whitespace-nowrap">{(s.points || 0).toLocaleString()}</td>
+                            <td className="py-3 pr-3 text-[#ea580c] font-bold whitespace-nowrap">🔥 {s.streak || 0}d</td>
+                            <td className="py-3 pr-3 text-stone-700 font-semibold">{s.courses?.length || 0}</td>
+                            <td className="py-3 whitespace-nowrap">
+                              <div className="flex items-center gap-1 font-medium">
+                                <span className="text-emerald-700 font-bold text-xs">{s.milestones?.filter((m: any) => m.completed).length || 0} done</span>
+                                <span className="text-stone-400 text-xs">/ {s.milestones?.length || 0}</span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {students.length === 0 && (
+                          <tr><td colSpan={6} className="py-8 text-center text-stone-400 font-medium">No students found</td></tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Sent Notifications Card */}
+                <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col">
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h2 className="text-lg sm:text-xl font-black text-stone-900 flex items-center gap-2">
+                      <Bell size={20} className="text-[#c4431d]" /> Sent Notifications
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('notifications')}
+                      className="text-xs font-bold text-[#c4431d] hover:text-[#942008] inline-flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      View All <ArrowRight size={13} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1 custom-scrollbar flex-1">
+                    {notifications.length === 0 && (
+                      <p className="text-stone-400 text-center py-12 font-medium text-sm">No notifications sent yet</p>
                     )}
-                  </tbody>
-                </table>
+                    {notifications.map((n, i) => (
+                      <div
+                        key={n.id || i}
+                        className="flex items-start gap-3 bg-[#fcfaf7] border border-stone-200/80 hover:border-[#ecdccb] rounded-2xl p-3.5 transition-colors"
+                      >
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 border ${
+                          n.isRead
+                            ? 'bg-stone-100 border-stone-200 text-stone-500'
+                            : 'bg-[#fff5ee] border-[#f5ded0] text-[#c4431d]'
+                        }`}>
+                          <Bell size={15} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="font-bold text-stone-900 text-xs sm:text-sm truncate">{n.title}</h4>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 ${
+                              n.isRead
+                                ? 'bg-stone-100 text-stone-500'
+                                : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                            }`}>
+                              {n.isRead ? 'Read' : 'Unread'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-stone-600 mt-0.5 line-clamp-2 leading-relaxed">{n.message}</p>
+                          <p className="text-[11px] text-stone-400 font-medium mt-1">To: {n.user?.name || 'Student'}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
           )
         )}
 
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Send notification form */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Send size={20} className="text-orange-400" /> Send Notification</h2>
-              
+            <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h2 className="text-xl font-black text-stone-900 mb-6 flex items-center gap-2">
+                <Send size={20} className="text-[#c4431d]" /> Send Notification
+              </h2>
+
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Select Target Audience</label>
+                  <label className="text-sm font-bold text-stone-700 block mb-2">Select Target Audience</label>
                   <select
                     value={selectedStudent}
                     onChange={e => setSelectedStudent(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-orange-500 font-medium"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-medium transition-colors"
                   >
                     <option value="">-- Choose target audience --</option>
                     <option value="group:L0">🌱 Level 0 (L0) Students</option>
@@ -394,63 +666,276 @@ export default function AdminDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Title</label>
+                  <label className="text-sm font-bold text-stone-700 block mb-2">Title</label>
                   <input
                     type="text"
                     value={notifTitle}
                     onChange={e => setNotifTitle(e.target.value)}
                     placeholder="e.g. Congratulations!"
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Message</label>
+                  <label className="text-sm font-bold text-stone-700 block mb-2">Message</label>
                   <textarea
                     value={notifMessage}
                     onChange={e => setNotifMessage(e.target.value)}
                     placeholder="e.g. You earned the Diamond Badge!"
                     rows={3}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-orange-500 resize-none"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none transition-colors"
                   />
                 </div>
                 <button
                   onClick={handleSendNotification}
                   disabled={sending || !selectedStudent || !notifTitle || !notifMessage}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Send size={16} />{' '}
                   {sending
                     ? 'Sending...'
                     : selectedStudent === 'all'
-                    ? 'Broadcast to All Students'
-                    : selectedStudent === 'group:general' || selectedStudent === 'general'
-                    ? 'Send to All General Students'
-                    : selectedStudent === 'group:webinar' || selectedStudent === 'webinar'
-                    ? 'Send to All Webinar Students'
-                    : selectedStudent.startsWith('group:')
-                    ? `Send to All ${selectedStudent.replace('group:', '').toUpperCase()} Students`
-                    : 'Send Notification'}
+                      ? 'Broadcast to All Students'
+                      : selectedStudent === 'group:general' || selectedStudent === 'general'
+                        ? 'Send to All General Students'
+                        : selectedStudent === 'group:webinar' || selectedStudent === 'webinar'
+                          ? 'Send to All Webinar Students'
+                          : selectedStudent.startsWith('group:')
+                            ? `Send to All ${selectedStudent.replace('group:', '').toUpperCase()} Students`
+                            : 'Send Notification'}
                 </button>
               </div>
             </div>
 
-            {/* Notification history */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Bell size={20} className="text-orange-400" /> Sent Notifications</h2>
-              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                {notifications.length === 0 && <p className="text-slate-500 text-center py-8">No notifications sent yet</p>}
-                {notifications.map((n, i) => (
-                  <div key={n.id || i} className="bg-slate-800/50 border border-slate-700 rounded-2xl p-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-bold text-white text-sm">{n.title}</h4>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${n.isRead ? 'bg-slate-700 text-slate-400' : 'bg-green-500/20 text-green-400'}`}>
-                        {n.isRead ? 'Read' : 'Unread'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-300 mb-2">{n.message}</p>
-                    <p className="text-xs text-slate-500">To: {n.user?.name || 'Student'}</p>
+            {/* Notification history table (matching reference design) */}
+            <div className="lg:col-span-8 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              {/* Top Header + Search */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
+                    <Bell size={20} />
                   </div>
-                ))}
+                  <div>
+                    <h2 className="text-xl font-black text-stone-900 leading-tight">Sent Notifications</h2>
+                    <p className="text-xs text-stone-500 font-medium mt-0.5">
+                      A history of all notifications sent to your students and members.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative w-full sm:w-64 shrink-0">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={notifSearch}
+                    onChange={(e) => setNotifSearch(e.target.value)}
+                    placeholder="Search by title or message..."
+                    className="w-full bg-[#fcfaf7] border border-[#ecdccb] text-stone-900 placeholder:text-stone-400 rounded-xl pl-9 pr-3.5 py-2 text-xs font-medium focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Notifications Table */}
+              <div className="overflow-x-auto max-h-[520px] overflow-y-auto custom-scrollbar">
+                <table className="w-full text-left border-collapse min-w-[680px]">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="bg-[#fff5ee] border-y border-[#f5ded0]/80 text-stone-700 text-xs font-bold">
+                      <th className="py-3 pl-4 pr-3 rounded-l-xl">
+                        <button
+                          type="button"
+                          onClick={() => toggleNotifSort('title')}
+                          className="inline-flex items-center gap-1.5 hover:text-[#c4431d] transition-colors cursor-pointer"
+                        >
+                          <span>Title</span>
+                          <ArrowUpDown size={12} className="text-stone-400" />
+                        </button>
+                      </th>
+                      <th className="py-3 px-3">Message Preview</th>
+                      <th className="py-3 px-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleNotifSort('recipient')}
+                          className="inline-flex items-center gap-1.5 hover:text-[#c4431d] transition-colors cursor-pointer"
+                        >
+                          <span>Recipients</span>
+                          <ArrowUpDown size={12} className="text-stone-400" />
+                        </button>
+                      </th>
+                      <th className="py-3 px-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleNotifSort('status')}
+                          className="inline-flex items-center gap-1.5 hover:text-[#c4431d] transition-colors cursor-pointer"
+                        >
+                          <span>Status</span>
+                          <ArrowUpDown size={12} className="text-stone-400" />
+                        </button>
+                      </th>
+                      <th className="py-3 px-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleNotifSort('createdAt')}
+                          className="inline-flex items-center gap-1.5 hover:text-[#c4431d] transition-colors cursor-pointer"
+                        >
+                          <span>Sent On</span>
+                          <ArrowUpDown size={12} className="text-stone-400" />
+                        </button>
+                      </th>
+                      <th className="py-3 pl-3 pr-4 rounded-r-xl text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {filteredNotifications.map((n, i) => (
+                      <tr key={n.id || i} className="hover:bg-[#fff5ee]/40 transition-colors">
+                        <td className="py-3.5 pl-4 pr-3 align-middle max-w-[200px]">
+                          <p className="font-bold text-stone-900 text-xs sm:text-sm leading-snug line-clamp-2">
+                            {n.title}
+                          </p>
+                        </td>
+                        <td className="py-3.5 px-3 align-middle max-w-[240px]">
+                          <p className="text-xs text-stone-600 leading-relaxed line-clamp-2">
+                            {n.message}
+                          </p>
+                        </td>
+                        <td className="py-3.5 px-3 align-middle whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-700">
+                            <User size={13} className="text-stone-400 shrink-0" />
+                            <span>{n.user?.name || 'Student'}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-3 align-middle whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                              n.isRead
+                                ? 'bg-stone-100 text-stone-500 border border-stone-200'
+                                : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                            }`}
+                          >
+                            {n.isRead ? 'Read' : 'Unread'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 align-middle whitespace-nowrap">
+                          {n.createdAt ? (
+                            <div className="text-[11px] leading-tight">
+                              <p className="font-semibold text-stone-700">
+                                {new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </p>
+                              <p className="text-stone-400 mt-0.5">
+                                {new Date(n.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-stone-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 pl-3 pr-4 align-middle whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setViewingNotification(n)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                            >
+                              <Eye size={13} />
+                              <span>View</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNotifTitle(n.title || '');
+                                setNotifMessage(n.message || '');
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#fff5ee] border border-[#f5ded0] text-[#c4431d] text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                              title="Copy title & message to Send Notification form"
+                            >
+                              <Send size={12} />
+                              <span>Resend</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setViewingNotification(n)}
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-500 transition-colors cursor-pointer shadow-2xs"
+                              aria-label="More notification options"
+                            >
+                              <MoreHorizontal size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredNotifications.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="py-10 text-center text-stone-400 text-sm font-medium">
+                          {notifications.length === 0 ? 'No notifications sent yet' : 'No matching notifications found'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notification Detail Modal */}
+        {viewingNotification && (
+          <div
+            className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={() => setViewingNotification(null)}
+          >
+            <div
+              className="w-full max-w-lg bg-white border border-[#ecdccb] rounded-3xl p-6 shadow-2xl space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
+                    <Bell size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-stone-900">{viewingNotification.title}</h3>
+                    <p className="text-xs text-stone-500 font-medium mt-0.5">
+                      To: {viewingNotification.user?.name || 'Student'}
+                      {viewingNotification.createdAt
+                        ? ` · ${new Date(viewingNotification.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                        : ''}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewingNotification(null)}
+                  className="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="bg-[#fcfaf7] border border-[#ecdccb]/80 rounded-2xl p-4 text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
+                {viewingNotification.message}
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <span
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                    viewingNotification.isRead
+                      ? 'bg-stone-100 text-stone-500 border border-stone-200'
+                      : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                  }`}
+                >
+                  {viewingNotification.isRead ? 'Read' : 'Unread'}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotifTitle(viewingNotification.title || '');
+                      setNotifMessage(viewingNotification.message || '');
+                      setViewingNotification(null);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white text-xs font-bold shadow-sm cursor-pointer"
+                  >
+                    <Send size={13} /> Resend in Composer
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -460,58 +945,60 @@ export default function AdminDashboard() {
         {activeTab === 'wins' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Post a Win form */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Plus size={20} className="text-pink-400" /> Post a Community Win</h2>
-              
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h2 className="text-xl font-black text-stone-900 mb-6 flex items-center gap-2">
+                <Plus size={20} className="text-[#c4431d]" /> Post a Community Win
+              </h2>
+
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Sales Amount (₹ optional)</label>
+                    <label className="text-xs font-bold text-stone-600 block mb-1">Sales Amount (₹ optional)</label>
                     <input
                       type="number"
                       placeholder="e.g. 4500"
                       value={winSalesAmount}
                       onChange={e => setWinSalesAmount(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-pink-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 block mb-1">Technique Used</label>
+                    <label className="text-xs font-bold text-stone-600 block mb-1">Technique Used</label>
                     <input
                       type="text"
                       placeholder="e.g. Ocean Wave Lacing"
                       value={winTechnique}
                       onChange={e => setWinTechnique(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-pink-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-slate-400 block mb-2">Achievement / Story</label>
+                  <label className="text-sm font-bold text-stone-700 block mb-2">Achievement / Story</label>
                   <textarea
                     value={winAchievement}
                     onChange={e => setWinAchievement(e.target.value)}
                     placeholder="e.g. Got her first corporate order for 50 custom clocks!"
                     rows={3}
-                    className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 focus:outline-none focus:border-pink-500 resize-none text-xs"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none text-xs transition-colors"
                   />
                 </div>
 
                 {/* Browser File Upload (Image, Video, Document) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-400 block">Upload File (Image, Video, Document)</label>
+                  <label className="text-xs font-bold text-stone-600 block">Upload File (Image, Video, Document)</label>
                   <label className="relative block w-full">
                     <input
                       type="file"
                       accept="image/*,video/*,.pdf,.doc,.docx"
                       onChange={handleAdminFileSelect}
                       disabled={uploadingWinFile}
-                      className="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500/20 file:text-pink-400 hover:file:bg-pink-500/30 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1 disabled:opacity-50"
+                      className="w-full text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#f8d4bf] cursor-pointer bg-[#fcfaf7] border border-stone-300 rounded-xl p-1 disabled:opacity-50"
                     />
                     {uploadingWinFile && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-slate-950/80 rounded-xl text-xs font-bold text-pink-400">
+                      <span className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-xl text-xs font-bold text-[#c4431d]">
                         ⏳ Uploading file... please wait
                       </span>
                     )}
@@ -522,15 +1009,15 @@ export default function AdminDashboard() {
                     placeholder="Or paste external file / image URL..."
                     value={winImage}
                     onChange={e => setWinImage(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2 text-xs focus:outline-none focus:border-pink-500 mt-1"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2 text-xs focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 mt-1 transition-colors"
                   />
 
                   {winImage && (
-                    <div className="mt-2 p-2 rounded-xl bg-slate-950 border border-slate-800 relative">
+                    <div className="mt-2 p-2 rounded-xl bg-stone-50 border border-stone-200 relative">
                       <button
                         type="button"
                         onClick={() => setWinImage('')}
-                        className="absolute right-2 top-2 bg-slate-900 text-slate-400 hover:text-white p-1 rounded-lg z-10 text-xs"
+                        className="absolute right-2 top-2 bg-stone-200 hover:bg-stone-300 text-stone-700 p-1 rounded-lg z-10 text-xs cursor-pointer"
                       >
                         ✕
                       </button>
@@ -550,7 +1037,7 @@ export default function AdminDashboard() {
 
                         if (ytEmbed) {
                           return (
-                            <div className="mt-2 rounded-xl overflow-hidden border border-slate-800 aspect-video bg-black shadow-lg">
+                            <div className="mt-2 rounded-xl overflow-hidden border border-stone-200 aspect-video bg-black shadow-md">
                               <iframe src={ytEmbed} title="YouTube Preview" allowFullScreen className="w-full h-full border-0" />
                             </div>
                           );
@@ -564,7 +1051,7 @@ export default function AdminDashboard() {
                         const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl);
                         if (isDoc) {
                           return (
-                            <div className="p-3 text-xs font-bold text-pink-400 flex items-center gap-2 mt-2 bg-slate-900 border border-slate-800 rounded-xl">
+                            <div className="p-3 text-xs font-bold text-[#942008] flex items-center gap-2 mt-2 bg-[#fde5d6]/50 border border-[#f5ded0] rounded-xl">
                               📄 Attached Document / File Ready!
                             </div>
                           );
@@ -575,13 +1062,13 @@ export default function AdminDashboard() {
 
                         if (isWebUrl && !isDirectImage) {
                           return (
-                            <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2 mt-2 bg-slate-900 border border-slate-800 rounded-xl truncate">
-                              🔗 External Web Link: <span className="text-white underline truncate">{mediaUrl}</span>
+                            <div className="p-3 text-xs font-bold text-sky-700 flex items-center gap-2 mt-2 bg-sky-50 border border-sky-200 rounded-xl truncate">
+                              🔗 External Web Link: <span className="text-stone-900 underline truncate">{mediaUrl}</span>
                             </div>
                           );
                         }
 
-                        return <img src={getMediaUrl(mediaUrl)} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover mt-2 border border-slate-800" />;
+                        return <img src={getMediaUrl(mediaUrl)} alt="Upload preview" className="max-h-36 rounded-lg w-full object-cover mt-2 border border-stone-200" />;
                       })()}
                     </div>
                   )}
@@ -590,7 +1077,7 @@ export default function AdminDashboard() {
                 <button
                   onClick={handlePostWin}
                   disabled={postingWin || uploadingWinFile || !winAchievement}
-                  className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Heart size={16} /> {uploadingWinFile ? 'Uploading file...' : postingWin ? 'Posting...' : 'Post Win to Wall'}
                 </button>
@@ -598,29 +1085,31 @@ export default function AdminDashboard() {
             </div>
 
             {/* Win history */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Trophy size={20} className="text-yellow-400" /> Community Win Wall</h2>
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h2 className="text-xl font-black text-stone-900 mb-6 flex items-center gap-2">
+                <Trophy size={20} className="text-[#c4431d]" /> Community Win Wall
+              </h2>
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                {wins.length === 0 && <p className="text-slate-500 text-center py-8">No wins posted yet</p>}
+                {wins.length === 0 && <p className="text-stone-400 text-center py-8 font-medium">No wins posted yet</p>}
                 {wins.map((w, i) => (
-                  <div key={w.id || i} className="bg-slate-800/50 border border-slate-700 rounded-2xl p-4 flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold shrink-0">
+                  <div key={w.id || i} className="bg-[#fcfaf7] border border-stone-200 rounded-2xl p-4 flex gap-4 shadow-xs">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center text-white font-bold shrink-0 shadow-xs">
                       {w.studentName?.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                          <h4 className="font-bold text-stone-900 text-sm flex items-center gap-2">
                             {w.studentName}
                             {w.studentName?.includes('Admin') && (
-                              <span className="text-[10px] font-bold text-pink-400 bg-pink-500/10 border border-pink-500/30 px-2 py-0.5 rounded-md">Admin</span>
+                              <span className="text-[10px] font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-md">Admin</span>
                             )}
                           </h4>
-                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">{w.achievement}</p>
+                          <p className="text-xs text-stone-600 mt-1 leading-relaxed">{w.achievement}</p>
                         </div>
                         <button
                           onClick={() => handleDeleteWin(w.id)}
-                          className="text-slate-600 hover:text-red-400 transition-colors p-1 ml-2 shrink-0 cursor-pointer"
+                          className="text-stone-400 hover:text-red-500 transition-colors p-1 ml-2 shrink-0 cursor-pointer"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -641,7 +1130,7 @@ export default function AdminDashboard() {
 
                         if (ytEmbed) {
                           return (
-                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video shadow-lg">
+                            <div className="mt-2 rounded-2xl overflow-hidden border border-stone-200 bg-black aspect-video shadow-md">
                               <iframe
                                 src={ytEmbed}
                                 title="YouTube Video"
@@ -656,7 +1145,7 @@ export default function AdminDashboard() {
                         const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
                         if (isVideo) {
                           return (
-                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-black shadow-lg">
+                            <div className="mt-2 rounded-2xl overflow-hidden border border-stone-200 bg-black shadow-md">
                               <video src={getMediaUrl(mediaUrl)} controls className="w-full max-h-56 object-contain bg-black" />
                             </div>
                           );
@@ -665,14 +1154,14 @@ export default function AdminDashboard() {
                         const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
                         if (isDoc) {
                           return (
-                            <div className="mt-2 p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                            <div className="mt-2 p-3 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
                               <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-                                <div className="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-bold shrink-0 text-sm">
+                                <div className="w-8 h-8 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] font-bold shrink-0 text-sm">
                                   📄
                                 </div>
                                 <div className="truncate min-w-0">
-                                  <p className="text-xs font-bold text-white truncate">Attached Document / File</p>
-                                  <p className="text-[10px] text-slate-400">Click to download or view</p>
+                                  <p className="text-xs font-bold text-stone-900 truncate">Attached Document / File</p>
+                                  <p className="text-[10px] text-stone-500">Click to download or view</p>
                                 </div>
                               </div>
                               <a
@@ -680,7 +1169,7 @@ export default function AdminDashboard() {
                                 download="community-file"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-3 py-1 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-300 text-[11px] font-bold transition-all shrink-0"
+                                className="px-3 py-1 rounded-xl bg-[#fde5d6] hover:bg-[#f8d4bf] border border-[#f5ded0] text-[#942008] text-[11px] font-bold transition-all shrink-0"
                               >
                                 Download File
                               </a>
@@ -693,21 +1182,21 @@ export default function AdminDashboard() {
 
                         if (isWebUrl && !isDirectImage) {
                           return (
-                            <div className="mt-2 p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+                            <div className="mt-2 p-3 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
                               <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-                                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
+                                <div className="w-8 h-8 rounded-xl bg-sky-100 border border-sky-200 flex items-center justify-center text-sky-700 font-bold shrink-0 text-sm">
                                   🔗
                                 </div>
                                 <div className="truncate min-w-0">
-                                  <p className="text-xs font-bold text-white truncate">External Web Link</p>
-                                  <p className="text-[10px] text-slate-400 truncate">{mediaUrl}</p>
+                                  <p className="text-xs font-bold text-stone-900 truncate">External Web Link</p>
+                                  <p className="text-[10px] text-stone-500 truncate">{mediaUrl}</p>
                                 </div>
                               </div>
                               <a
                                 href={mediaUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
+                                className="px-3 py-1 rounded-xl bg-sky-100 hover:bg-sky-200 border border-sky-300 text-sky-800 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
                               >
                                 Open Link ↗
                               </a>
@@ -716,15 +1205,15 @@ export default function AdminDashboard() {
                         }
 
                         return (
-                          <div className="mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 max-h-64 shadow-lg">
+                          <div className="mt-2 rounded-2xl overflow-hidden border border-stone-200 bg-stone-100 max-h-64 shadow-md">
                             <img src={getMediaUrl(mediaUrl)} alt="Attachment" className="w-full h-full max-h-64 object-cover" />
                           </div>
                         );
                       })()}
 
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-pink-400">❤️ {w.likes}</span>
-                        <span className="text-xs text-slate-500">· {w.timeAgo}</span>
+                        <span className="text-xs font-bold text-[#c4431d]">❤️ {w.likes}</span>
+                        <span className="text-xs text-stone-400 font-medium">· {w.timeAgo}</span>
                       </div>
                     </div>
                   </div>
