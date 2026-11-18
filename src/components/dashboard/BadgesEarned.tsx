@@ -66,18 +66,46 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
               Keep learning, stay consistent, and earn your first badge!
             </p>
           </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            {displayedBadges.slice(0, 2).map((badge, i) => (
+        ) : displayedBadges.length === 1 ? (
+          <div className="pt-1">
+            {displayedBadges.map((badge, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-[#faf8f5] border border-stone-200/80 text-center"
+                className="flex items-center gap-3 p-3 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] shadow-xs"
               >
-                <div className="text-xl mb-1">{badge.icon || "🏅"}</div>
-                <span className="text-[11px] font-bold text-stone-900 line-clamp-1">
+                <div className="w-11 h-11 rounded-xl bg-white shadow-xs border border-[#f5ded0] flex items-center justify-center text-2xl shrink-0">
+                  {badge.icon || "🎨"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-stone-900 block truncate">
+                    {badge.name || "Achievement"}
+                  </span>
+                  <span className="text-[11px] text-stone-500 block truncate mt-0.5">
+                    {badge.description || "Official milestone achievement"}
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#fde5d6] text-[#c4431d] text-[10px] font-bold shrink-0">
+                  ✓ Earned
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            {displayedBadges.slice(0, 4).map((badge, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] text-center"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-[#f5ded0] flex items-center justify-center text-xl mb-1.5">
+                  {badge.icon || "🏅"}
+                </div>
+                <span className="text-xs font-bold text-stone-900 line-clamp-1 w-full px-1">
                   {badge.name || "Achievement"}
                 </span>
-                <span className="text-[9px] text-[#e86034] font-bold mt-0.5">✓ Earned</span>
+                <span className="text-[9px] text-[#c4431d] font-bold mt-1 bg-[#fde5d6]/70 px-2 py-0.5 rounded-full">
+                  ✓ Earned
+                </span>
               </div>
             ))}
           </div>
