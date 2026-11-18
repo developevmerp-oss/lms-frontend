@@ -1,26 +1,26 @@
 "use client";
 
+import React, { useEffect } from "react";
 import type { FormEvent } from "react";
 import {
   ArrowRight,
   Calendar,
   Clock,
-  Gift,
   Globe,
   Mail,
   MessageSquare,
-  Phone,
-  Play,
-  ShieldCheck,
-  Sparkles,
   User,
   Users,
   Video,
-  Wifi,
+  AlertCircle,
 } from "lucide-react";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
+import { useForm, type FieldErrors } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { IndiaFlag } from "@/components/ui/IndiaFlag";
 
-type HeroForm = {
+export type HeroForm = {
   name: string;
   email: string;
   phone: string;
@@ -28,7 +28,14 @@ type HeroForm = {
   consent: boolean;
 };
 
-type WebinarHeroProps = {
+export type WebinarFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  challenge?: string;
+};
+
+export type WebinarHeroProps = {
   displayDateStr: string;
   displayTimeStr: string;
   displayDurationStr: string;
@@ -36,18 +43,47 @@ type WebinarHeroProps = {
     seatsRemaining: number;
     percentFull: number;
   };
-  error: string;
-  loading: boolean;
-  form: HeroForm;
-  onUpdate: (field: string, val: string | boolean) => void;
-  onSubmit: (event: FormEvent) => void;
-  onScrollToRegister: () => void;
-  onUnlockAndScroll: () => void;
-  onWebinarLoaded: (webinar: any) => void;
+  error?: string;
+  loading?: boolean;
+  form?: HeroForm;
+  onUpdate?: (field: string, val: string | boolean) => void;
+  onSubmit?: (event: FormEvent) => void;
+  onFormSubmit?: (data: WebinarFormData) => void | Promise<void>;
+  onScrollToRegister?: () => void;
+  onUnlockAndScroll?: () => void;
+  onWebinarLoaded?: (webinar: Record<string, unknown> | null) => void;
 };
 
 const inputClass =
   "flex h-11 sm:h-12 lg:h-12 w-full rounded-xl border border-[#eadfd4] bg-white py-2.5 pl-11 pr-4 text-sm sm:text-base md:text-base lg:text-base text-stone-900 placeholder-stone-400 transition focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400/40 shadow-sm";
+
+const webinarSchema: Yup.ObjectSchema<WebinarFormData> = Yup.object().shape({
+  name: Yup.string()
+    .trim()
+    .required("Full name is required")
+    .matches(/^[a-zA-Z\s]+$/, "Only alphabets are allowed in name")
+    .min(2, "Name must be at least 2 characters"),
+  email: Yup.string()
+    .trim()
+    .required("Email address is required")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Please enter a valid email address (e.g. name@example.com)"
+    ),
+  phone: Yup.string()
+    .required("WhatsApp number is required")
+    .test(
+      "digits-only",
+      "Phone number must contain only numbers",
+      (val) => !val || /^\d+$/.test(val.replace(/\s+/g, ""))
+    )
+    .test(
+      "ten-digits",
+      "Phone number must be exactly 10 digits",
+      (val) => !val || val.replace(/\s+/g, "").length === 10
+    ),
+  challenge: Yup.string().optional(),
+});
 
 export default function WebinarHero({
   displayDateStr,
@@ -55,12 +91,13 @@ export default function WebinarHero({
   displayDurationStr,
   stats,
   error,
-  loading,
+  loading = false,
   form,
   onUpdate,
   onSubmit,
-  onScrollToRegister,
-  onUnlockAndScroll,
+  onFormSubmit,
+  onScrollToRegister: _onScrollToRegister,
+  onUnlockAndScroll: _onUnlockAndScroll,
   onWebinarLoaded,
 }: WebinarHeroProps) {
   const details = [
@@ -69,6 +106,150 @@ export default function WebinarHero({
     { icon: Globe, label: "Language", value: "Hindi + English" },
     { icon: Video, label: "Duration", value: displayDurationStr },
   ];
+
+  // Helper to extract raw 10 digits from incoming phone if needed
+  const sanitizeInitialPhone = (ph?: string) => {
+    if (!ph) return "";
+    return ph.replace(/\D/g, "").slice(-10);
+  };
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<WebinarFormData>({
+    resolver: yupResolver(webinarSchema),
+    mode: "onTouched",
+    defaultValues: {
+      name: form?.name || "",
+      email: form?.email || "",
+      phone: sanitizeInitialPhone(form?.phone),
+      challenge: form?.challenge || "",
+    },
+  });
+
+  const watchName = watch("name");
+  const watchPhone = watch("phone");
+
+  // Keep parent form updated if parent passes form and onUpdate
+  useEffect(() => {
+    if (form) {
+      if (form.name && form.name !== watchName) {
+        setValue("name", form.name);
+      }
+      if (form.email) {
+        setValue("email", form.email);
+      }
+      const rawPh = sanitizeInitialPhone(form.phone);
+      if (rawPh && rawPh !== watchPhone) {
+        setValue("phone", rawPh);
+      }
+      if (form.challenge) {
+        setValue("challenge", form.challenge);
+      }
+    }
+  }, [form?.name, form?.email, form?.phone, form?.challenge]);
+
+  // Name handlers: strictly allow only alphabets and spaces, block numbers and special characters
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      [
+        "Backspace",
+        "Tab",
+        "Delete",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "Enter",
+        "Home",
+        "End",
+      ].includes(e.key) ||
+      e.ctrlKey ||
+      e.metaKey
+    ) {
+      return;
+    }
+    // Only allow alphabets (a-z, A-Z) and spaces
+    if (!/^[a-zA-Z\s]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleaned = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+    setValue("name", cleaned, { shouldValidate: true });
+    if (onUpdate) onUpdate("name", cleaned);
+  };
+
+  // Phone handlers: block alphabets and symbols, strictly allow at most 10 digits
+  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      [
+        "Backspace",
+        "Tab",
+        "Delete",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "Enter",
+        "Home",
+        "End",
+      ].includes(e.key) ||
+      e.ctrlKey ||
+      e.metaKey
+    ) {
+      return;
+    }
+    // Disallow if not a digit 0-9
+    if (!/^[0-9]$/.test(e.key)) {
+      e.preventDefault();
+      return;
+    }
+    // Disallow if already 10 digits and no selected text replacement
+    const target = e.target as HTMLInputElement;
+    const selectedLength = (target.selectionEnd ?? 0) - (target.selectionStart ?? 0);
+    if (target.value.length >= 10 && selectedLength === 0) {
+      e.preventDefault();
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setValue("phone", digitsOnly, { shouldValidate: true });
+    if (onUpdate) onUpdate("phone", digitsOnly);
+  };
+
+  // Submission handler
+  const onFormValid = async (data: WebinarFormData) => {
+    if (onFormSubmit) {
+      await onFormSubmit(data);
+    } else if (onSubmit) {
+      if (onUpdate) {
+        onUpdate("name", data.name);
+        onUpdate("email", data.email);
+        onUpdate("phone", data.phone);
+        if (data.challenge) onUpdate("challenge", data.challenge);
+      }
+      onSubmit({ preventDefault: () => {} } as FormEvent);
+    }
+  };
+
+  // Focus and scroll smoothly to the first field that has an error or is empty
+  const onFormError = (formErrors: FieldErrors<WebinarFormData>) => {
+    const fieldOrder: (keyof WebinarFormData)[] = ["name", "email", "phone"];
+    const firstInvalidField = fieldOrder.find((f) => formErrors[f]);
+    if (firstInvalidField) {
+      const el = document.getElementById(`lead-${firstInvalidField}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.focus();
+      }
+    }
+  };
 
   return (
     <section className="webinar-hero relative flex items-center justify-center overflow-hidden w-full">
@@ -146,10 +327,11 @@ export default function WebinarHero({
             </div>
 
             {error && (
-              <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-xs sm:text-sm text-red-400">{error}</div>
+              <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-xs sm:text-sm text-red-600 font-medium">{error}</div>
             )}
 
-            <form onSubmit={onSubmit} className="webinar-hero-form space-y-3.5 sm:space-y-4">
+            <form onSubmit={handleSubmit(onFormValid, onFormError)} className="webinar-hero-form space-y-3.5 sm:space-y-4" noValidate>
+              {/* Full Name */}
               <div className="space-y-1.5">
                 <label className="block text-sm sm:text-base md:text-base lg:text-sm font-semibold text-stone-700" htmlFor="lead-name">
                   Full name
@@ -157,17 +339,24 @@ export default function WebinarHero({
                 <div className="relative">
                   <User size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
-                    className={inputClass}
+                    className={`${inputClass} ${errors.name ? "!border-rose-500 !ring-1 !ring-rose-400/40 bg-rose-50/15" : ""}`}
                     id="lead-name"
                     placeholder="Jane Doe"
                     autoComplete="name"
-                    required
-                    value={form.name}
-                    onChange={(event) => onUpdate("name", event.target.value)}
+                    value={watchName || ""}
+                    onKeyDown={handleNameKeyDown}
+                    onChange={handleNameChange}
                   />
                 </div>
+                {errors.name && (
+                  <p className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1.5 animate-in fade-in duration-150" role="alert">
+                    <AlertCircle size={13} className="shrink-0 text-rose-500" />
+                    <span>{errors.name.message}</span>
+                  </p>
+                )}
               </div>
 
+              {/* Email Address */}
               <div className="space-y-1.5">
                 <label className="block text-sm sm:text-base md:text-base lg:text-sm font-semibold text-stone-700" htmlFor="lead-email">
                   Email address
@@ -176,35 +365,58 @@ export default function WebinarHero({
                   <Mail size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
                     type="email"
-                    className={inputClass}
+                    className={`${inputClass} ${errors.email ? "!border-rose-500 !ring-1 !ring-rose-400/40 bg-rose-50/15" : ""}`}
                     id="lead-email"
                     placeholder="jane@example.com"
                     autoComplete="email"
-                    required
-                    value={form.email}
-                    onChange={(event) => onUpdate("email", event.target.value)}
+                    {...register("email")}
+                    onChange={(e) => {
+                      register("email").onChange(e);
+                      if (onUpdate) onUpdate("email", e.target.value);
+                    }}
                   />
                 </div>
+                {errors.email && (
+                  <p className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1.5 animate-in fade-in duration-150" role="alert">
+                    <AlertCircle size={13} className="shrink-0 text-rose-500" />
+                    <span>{errors.email.message}</span>
+                  </p>
+                )}
               </div>
 
+              {/* WhatsApp Number with India Flag and +91 prefix */}
               <div className="space-y-1.5">
                 <label className="block text-sm sm:text-base md:text-base lg:text-sm font-semibold text-stone-700" htmlFor="lead-phone">
                   WhatsApp number
                 </label>
                 <div className="relative">
-                  <Phone size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-10 select-none">
+                    <IndiaFlag className="w-5 h-3.5" />
+                    <span className="text-xs sm:text-sm font-bold text-stone-700 tracking-tight">+91</span>
+                    <span className="h-4 w-px bg-stone-300 ml-0.5" />
+                  </div>
                   <input
                     type="tel"
-                    className={inputClass}
+                    inputMode="numeric"
+                    maxLength={10}
+                    className={`${inputClass} !pl-[76px] ${errors.phone ? "!border-rose-500 !ring-1 !ring-rose-400/40 bg-rose-50/15" : ""}`}
                     id="lead-phone"
-                    placeholder="+91 98765 43210"
-                    autoComplete="tel"
-                    value={form.phone}
-                    onChange={(event) => onUpdate("phone", event.target.value)}
+                    placeholder="98765 43210"
+                    autoComplete="tel-national"
+                    value={watchPhone || ""}
+                    onKeyDown={handlePhoneKeyDown}
+                    onChange={handlePhoneChange}
                   />
                 </div>
+                {errors.phone && (
+                  <p className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1.5 animate-in fade-in duration-150" role="alert">
+                    <AlertCircle size={13} className="shrink-0 text-rose-500" />
+                    <span>{errors.phone.message}</span>
+                  </p>
+                )}
               </div>
 
+              {/* Challenge Textarea */}
               <div className="space-y-1.5">
                 <label className="block text-sm sm:text-base md:text-base lg:text-sm font-semibold text-stone-700" htmlFor="lead-message">
                   Your biggest challenge right now <span className="font-normal lowercase text-stone-400">(optional)</span>
@@ -216,8 +428,11 @@ export default function WebinarHero({
                     id="lead-message"
                     placeholder="e.g. I don't know which resin techniques to learn first, or how to price my work."
                     rows={3}
-                    value={form.challenge}
-                    onChange={(event) => onUpdate("challenge", event.target.value)}
+                    {...register("challenge")}
+                    onChange={(e) => {
+                      register("challenge").onChange(e);
+                      if (onUpdate) onUpdate("challenge", e.target.value);
+                    }}
                   />
                 </div>
               </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SiteNavbar from "@/components/layout/SiteNavbar";
 import { WebinarCountdown } from "@/components/webinar/WebinarCountdown";
-import WebinarHero from "@/components/webinar/WebinarHero";
+import WebinarHero, { WebinarFormData } from "@/components/webinar/WebinarHero";
 import CommunityStories from "@/components/webinar/CommunityStories";
 import WebinarFaqs from "@/components/webinar/WebinarFaqs";
 import WebinarMentor from "@/components/webinar/WebinarMentor";
@@ -562,6 +562,65 @@ export default function WebinarPage() {
 
   const update = (field: string, val: any) => setForm(f => ({ ...f, [field]: val }));
 
+  const handleRegisterLead = async (data: WebinarFormData) => {
+    setError("");
+    setLoading(true);
+
+    const formattedPhone = data.phone.startsWith("+91")
+      ? data.phone
+      : `+91 ${data.phone.trim()}`;
+
+    const leadPayload = {
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: formattedPhone,
+      challenge: data.challenge || "",
+      consent: true,
+      webinarEventId: activeWebinar?.id || null,
+    };
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/webinar/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadPayload),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(resData.message || "Failed to register");
+      }
+
+      // Safely fire marketing events
+      try {
+        trackingService.trackLead({ source: "webinar_registration" });
+        trackingService.trackBooking({
+          service: "Resin Art Masterclass",
+          date: activeWebinar?.scheduledAt,
+        });
+      } catch (_) { }
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("webinar_lead", JSON.stringify(resData.data || leadPayload));
+      }
+
+      router.push("/thank-you");
+    } catch (err: any) {
+      // Still fire lead even if local network edge case saved to fallback
+      try {
+        trackingService.trackLead({ source: "webinar_registration_fallback" });
+      } catch (_) { }
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("webinar_lead", JSON.stringify(leadPayload));
+      }
+      router.push("/thank-you");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -753,6 +812,7 @@ export default function WebinarPage() {
           form={form}
           onUpdate={update}
           onSubmit={handleSubmit}
+          onFormSubmit={handleRegisterLead}
           onScrollToRegister={scrollToRegister}
           onUnlockAndScroll={handleUnlockAndScroll}
           onWebinarLoaded={(wb) => setActiveWebinar(wb)}

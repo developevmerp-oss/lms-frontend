@@ -76,11 +76,11 @@ export function getCourseOffer(course: any, basePriceStr: string) {
 }
 
 export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
-  L0: { name: "Fast Track", price: "₹499", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
-  L1: { name: "Silver Member", price: "₹4,999", color: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-500/30" },
-  L2: { name: "Gold Member", price: "₹19,999", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
-  L3: { name: "Diamond Club", price: "₹59,999", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
-  "L3+": { name: "Masters Club", price: "Exclusive", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
+  L0: { name: "Fast Track", price: "₹499", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-300" },
+  L1: { name: "Explore Membership", price: "₹14,999", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-300" },
+  L2: { name: "Master Membership", price: "₹19,999", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-300" },
+  L3: { name: "Renaissance Certification", price: "₹59,999", color: "text-cyan-700", bg: "bg-cyan-50", border: "border-cyan-300" },
+  "L3+": { name: "Masters Club", price: "Exclusive", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-300" },
 };
 
 const LEVEL_HIERARCHY: Record<string, number> = {
@@ -91,6 +91,89 @@ const LEVEL_HIERARCHY: Record<string, number> = {
   L3: 3,
   "L3+": 4,
 };
+
+const TIER_CARD_UI: Record<string, {
+  levelTag: string;
+  levelIcon: React.ElementType;
+  tagColor: string;
+  validityText: string;
+  defaultModules: string[];
+  fallbackImage: string;
+  hasOffer?: boolean;
+  hasEmi?: boolean;
+}> = {
+  L0: {
+    levelTag: "LEVEL 0",
+    levelIcon: Zap,
+    tagColor: "text-emerald-600",
+    validityText: "SINGLE VALIDITY • 3 YEARS ACCESS",
+    defaultModules: [
+      "Resin Fundamentals",
+      "The Right Approach to Resin Art",
+      "Student Success Stories & Their Roadmap Ahead",
+    ],
+    fallbackImage: "/images/student-art/real-art-1.jpg",
+  },
+  L1: {
+    levelTag: "LEVEL 1",
+    levelIcon: Award,
+    tagColor: "text-blue-600",
+    validityText: "LIFETIME VALIDITY • LIFETIME ACCESS",
+    defaultModules: [
+      "Coasters, Fridge Magnets, Keychains",
+      "Marbling Technique",
+      "Evil Eye / Iris",
+    ],
+    fallbackImage: "/images/student-art/real-art-23.jpg",
+    hasOffer: true,
+  },
+  L2: {
+    levelTag: "LEVEL 2",
+    levelIcon: Trophy,
+    tagColor: "text-amber-600",
+    validityText: "GENERAL • LIFETIME ACCESS",
+    defaultModules: [
+      "Geode Art",
+      "Vein Effect",
+      "Tree of Life Clock",
+    ],
+    fallbackImage: "/images/student-art/real-art-2.jpg",
+  },
+  L3: {
+    levelTag: "LEVEL 3",
+    levelIcon: Sparkles,
+    tagColor: "text-teal-600",
+    validityText: "GENERAL • LIFETIME ACCESS",
+    defaultModules: [
+      "3D Photo Resin Art",
+      "Wood and Resin Tables",
+      "Resin Jewellery",
+    ],
+    fallbackImage: "/images/student-art/real-art-14.jpg",
+    hasEmi: true,
+  },
+};
+
+export const DEFAULT_STANDALONE_COURSES = [
+  {
+    id: "course-powder-secrets-live-workshop",
+    title: "Powder Secrets: One-Day Live Resin Art Workshop",
+    description: "Confused about which powders to use to achieve those beautiful colours, stunning effects, and flawless finishes in your resin art? Learn master powder blending and effects.",
+    price: "₹499",
+    levelCode: "NONE",
+    order: 1,
+    validityMonths: 3,
+    image: "/images/courses/powder-secrets-flyer.jpeg",
+    flyerImage: "/images/courses/powder-secrets-flyer.jpeg",
+    chapters: [],
+    isPublished: true,
+    features: [
+      "Resin Powder Blending & Saturation Secrets",
+      "Mica, Glow & Metallic Pigment Effects",
+      "Live Q&A Session Recording & Q&A Access",
+    ],
+  },
+];
 
 function formatEmbedUrl(url: string): string {
   if (!url) return "";
@@ -409,7 +492,7 @@ export default function StudentCourses() {
     return effectiveLevelName || "Fast Track (L0)";
   };
 
-  const displayedCourses = courses.filter((c) => {
+  const serverStandaloneCourses = courses.filter((c) => {
     // If course is disabled by admin, hide from student catalog unless student already unlocked it
     if (c.isPublished === false && !isCourseUnlocked(c)) {
       return false;
@@ -418,8 +501,21 @@ export default function StudentCourses() {
     return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
   });
 
+  // If backend returns standalone courses, show them; otherwise fallback to DEFAULT_STANDALONE_COURSES so the card is never lost!
+  const displayedCourses = serverStandaloneCourses.length > 0
+    ? serverStandaloneCourses
+    : DEFAULT_STANDALONE_COURSES;
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <StudentNav 
         user={user} 
         level={getLevelName()} 
@@ -428,23 +524,23 @@ export default function StudentCourses() {
         notifications={stats.notifications}
       />
 
-      <main className="flex-1 max-w-[1400px] mx-auto w-full p-4 md:p-8">
+      <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <BookOpen size={13} className="text-orange-400" /> Sequential Video Curriculum
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
+              <BookOpen size={13} className="text-[#942008]" /> Sequential Video Curriculum
             </span>
-            <h1 className="text-3xl md:text-4xl font-black text-white flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
               Course Library &amp; Video Modules
             </h1>
-            <p className="text-slate-400 mt-1 text-sm md:text-base">
+            <p className="text-stone-500 mt-1 text-sm md:text-base">
               Your step-by-step masterclass library structured from foundational casting (L0) to commercial masterworks (L3).
             </p>
           </div>
 
           <button
             onClick={() => setPurchaseModal({ isOpen: true, tierCode: studentLevelCode === "L0" ? "L1" : studentLevelCode === "L1" ? "L2" : "L3" })}
-            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs transition-all hover:scale-105 shadow-lg shadow-orange-500/20 cursor-pointer self-start md:self-auto"
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs transition-all hover:scale-105 shadow-md shadow-[#c4431d]/25 cursor-pointer self-start md:self-auto"
           >
             <Zap size={16} /> Upgrade Membership Level
           </button>
@@ -458,23 +554,23 @@ export default function StudentCourses() {
 
         {/* Student Expiry Alert Banner (Single Validity) */}
         {stats.isExpired ? (
-          <div className="mb-6 p-5 rounded-3xl bg-gradient-to-r from-red-950/80 via-slate-900 to-red-950/80 border-2 border-red-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
+          <div className="mb-6 p-5 rounded-3xl bg-rose-50 border-2 border-rose-300 text-rose-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0 animate-pulse">
                 <Lock size={22} />
               </div>
               <div>
-                <h3 className="text-sm font-black text-white flex items-center gap-2">
+                <h3 className="text-sm font-black text-stone-900 flex items-center gap-2">
                   🔒 Level Access Expired (Single Validity Limit Reached)
                 </h3>
-                <p className="text-xs text-slate-300 mt-0.5">
+                <p className="text-xs text-stone-600 mt-0.5">
                   Your purchase validity expired on {stats.membershipExpiresAt ? new Date(stats.membershipExpiresAt).toLocaleDateString("en-IN") : "recently"}. Re-enroll or upgrade to Lifetime Validity to resume video lessons.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setPurchaseModal({ isOpen: true, tierCode: studentLevelCode })}
-              className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-black rounded-xl text-xs shadow-lg transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+              className="px-5 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md shadow-[#c4431d]/20 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
             >
               Renew Access Now →
             </button>
@@ -498,8 +594,8 @@ export default function StudentCourses() {
 
         {/* Primary 4 Membership Level Cards Section */}
         <div className="space-y-6 mb-12">
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3 text-xs text-slate-300">
-            <Sparkles size={18} className="text-orange-400 shrink-0" />
+          <div className="p-4 rounded-2xl bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex items-center gap-3 text-xs text-stone-600">
+            <Sparkles size={18} className="text-[#942008] shrink-0" />
             <span>
               <strong>Membership Level Purchase Flow:</strong> Students purchase complete <strong>Membership Levels</strong> (L0, L1, L2, L3) — purchasing a level unlocks all masterclasses, tools, and community perks included in that level! Click on any Level Card to inspect its included courses.
             </span>
@@ -521,134 +617,148 @@ export default function StudentCourses() {
                 const isCurrent = studentLevelCode === lvl;
                 const courseCount = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
                 const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
-                const levelDisplayName = tierPricing.name || liveLevel?.name || cfg.name;
+                
+                const defaultName = lvl === "L0" ? "Fast Track" : lvl === "L1" ? "Explore Membership" : lvl === "L2" ? "Master Membership" : "Renaissance Certification";
+                const levelDisplayName = tierPricing.name || liveLevel?.name || cfg.name || defaultName;
                 const levelDisplayDesc = liveLevel?.description || (
-                  lvl === "L0" ? "Foundational resin chemistry, bubble-free mixing, and essential art setup." :
-                  lvl === "L1" ? "Core casting techniques, marbling, lotus ponds, and first client sales." :
-                  lvl === "L2" ? "High-ticket geode wall art, luxury clocks, and 3D wave ripples." :
-                  "3D photo art, wood & resin tables, floral preservation, and trainer status."
+                  lvl === "L0" ? "Resin fundamentals, safety protocols, and foundational finishing techniques." :
+                  lvl === "L1" ? "Coasters, fridge magnets, marbling, lotus pond, and beach theme creations." :
+                  lvl === "L2" ? "Geode art, vein effect, Tree of Life clocks, and 3D wave masterclasses." :
+                  "River wood tables, bridal varmala preservation, 3D photo art, concrete candles, and business scaling."
                 );
+
+                const defaultFallbackThumbnail = lvl === "L0"
+                  ? "/images/valuestack/resin-white.jpg"
+                  : lvl === "L1"
+                  ? "/images/valuestack/resin-rose.jpg"
+                  : "";
+
+                const cardImage = liveLevel?.thumbnail 
+                  ? getImageUrl(liveLevel.thumbnail) 
+                  : defaultFallbackThumbnail;
+
+                const moduleCount = courseCount || (lvl === "L0" ? 4 : lvl === "L1" ? 5 : lvl === "L2" ? 4 : 18);
 
                 return (
                   <div
                     key={lvl}
-                    className={`rounded-3xl flex flex-col justify-between border transition-all overflow-hidden ${
+                    className={`rounded-3xl bg-white flex flex-col justify-between border transition-all overflow-hidden shadow-sm hover:shadow-md ${
                       isCurrent
-                        ? "bg-gradient-to-b from-orange-950/40 via-slate-900 to-slate-950 border-2 border-orange-500/80 shadow-2xl shadow-orange-500/20"
-                        : isUnlocked
-                        ? "bg-slate-900/90 border-slate-800"
-                        : "bg-slate-900/60 border-slate-800/80 hover:border-slate-700"
+                        ? "border-2 border-[#c4431d] ring-4 ring-[#c4431d]/10"
+                        : "border-stone-200/80 hover:border-stone-300"
                     }`}
                   >
                     {/* Level Banner Image Thumbnail */}
-                    <div className="relative w-full h-44 bg-slate-950 overflow-hidden border-b border-slate-800 group/thumb">
-                      {liveLevel?.thumbnail ? (
+                    <div className="relative w-full h-44 bg-[#faf8f5] overflow-hidden border-b border-stone-200/80 group/thumb">
+                      {cardImage ? (
                         <img
-                          src={getImageUrl(liveLevel.thumbnail)}
+                          src={cardImage}
                           alt={levelDisplayName}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover/thumb:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex flex-col items-center justify-center gap-1.5 p-4 text-center">
-                          <BookOpen size={36} className="text-orange-400/50" />
-                          <span className="text-[11px] font-bold text-slate-400">{levelDisplayName}</span>
+                        <div className="w-full h-full bg-gradient-to-br from-stone-100 via-stone-200 to-amber-50 flex flex-col items-center justify-center gap-1.5 p-4 text-center">
+                          <BookOpen size={36} className="text-[#942008]/40" />
+                          <span className="text-[11px] font-bold text-stone-600">{levelDisplayName}</span>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none" />
                       <div className="absolute top-3 left-3">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border backdrop-blur bg-slate-950/80 shadow-md ${cfg.color} ${cfg.border}`}>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border backdrop-blur bg-white/95 shadow-sm ${cfg.color} ${cfg.border}`}>
                           {lvl} Tier
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div className="p-5 flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
-                          {lvl}
-                        </span>
-                        <div className="flex flex-col items-end">
-                          {tierPricing.hasOffer ? (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[11px] text-slate-500 line-through font-mono">{tierPricing.originalPrice}</span>
-                              <span className="text-sm font-black text-amber-400 font-mono">{tierPricing.finalPrice}</span>
-                              <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow-sm">
-                                {tierPricing.discountLabel}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-sm font-black text-white font-mono">{tierPricing.finalPrice}</span>
-                          )}
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                            {lvl}
+                          </span>
+                          <div className="flex flex-col items-end">
+                            {tierPricing.hasOffer ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[11px] text-stone-400 line-through font-mono">{tierPricing.originalPrice}</span>
+                                <span className="text-base font-black text-stone-900 font-mono">{tierPricing.finalPrice}</span>
+                                <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow-sm">
+                                  {tierPricing.discountLabel}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-base font-black text-stone-900 font-mono">{tierPricing.finalPrice}</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      <h3 className="text-xl font-black text-white mb-2">{levelDisplayName}</h3>
-                      <p className="text-xs text-slate-400 mb-4 leading-relaxed line-clamp-3">
-                        {levelDisplayDesc}
-                      </p>
+                        <h3 className="text-xl font-black text-stone-900 mb-2">{levelDisplayName}</h3>
+                        <p className="text-xs text-stone-500 mb-4 leading-relaxed line-clamp-3">
+                          {levelDisplayDesc}
+                        </p>
 
-                      <div className="space-y-2 border-t border-slate-800/80 pt-4 text-xs text-slate-300">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 size={14} className={cfg.color} />
-                          <span>Includes {courseCount || (lvl === "L0" ? 3 : lvl === "L1" ? 5 : lvl === "L2" ? 4 : 4)} Masterclass Modules</span>
+                        <div className="space-y-2 border-t border-stone-100 pt-4 text-xs text-stone-600">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 size={14} className="text-teal-600 shrink-0" />
+                            <span>Includes {moduleCount} Masterclass Modules</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 size={14} className="text-teal-600 shrink-0" />
+                            <span>Full Community Access</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 size={14} className="text-teal-600 shrink-0" />
+                            <span>{lvl === "L3" ? "Exclusive Merch Store & Rewards Redemption" : "Q&A & Support Vault"}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 size={14} className={cfg.color} />
-                          <span>Full Community Access</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 size={14} className={cfg.color} />
-                          <span>{lvl === "L3" ? "Exclusive Merch Store & Rewards Redemption" : "Q&A & Support Vault"}</span>
-                        </div>
-                      </div>
 
-                      {/* Click to view included courses for information */}
-                      <button
-                        onClick={() => setExpandedLevel(lvl)}
-                        className="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <BookOpen size={13} className="text-orange-400" />
-                        <span>View Included Courses ({courseCount}) →</span>
-                      </button>
-                    </div>
-
-                    <div className="mt-5">
-                      {isCurrent ? (
-                        <div className="w-full py-3 bg-orange-500/20 text-orange-400 border border-orange-500/40 rounded-xl text-xs font-black text-center">
-                          ✓ Active Level Tier
-                        </div>
-                      ) : isUnlocked ? (
-                        <div className="w-full py-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-xl text-xs font-black text-center">
-                          ✓ Unlocked Level
-                        </div>
-                      ) : (
+                        {/* View Included Courses button */}
                         <button
-                          onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
-                          className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-md hover:scale-105 cursor-pointer"
+                          type="button"
+                          onClick={() => setExpandedLevel(lvl)}
+                          className="mt-4 w-full py-2 bg-stone-50 hover:bg-stone-100 text-stone-700 hover:text-stone-900 border border-stone-200/90 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                         >
-                          Unlock {levelDisplayName} ({tierPricing.hasOffer ? `Offer: ${tierPricing.finalPrice}` : tierPricing.finalPrice})
+                          <BookOpen size={13} className="text-stone-500" />
+                          <span>View Included Courses ({moduleCount}) →</span>
                         </button>
-                      )}
+                      </div>
+
+                      <div className="mt-5">
+                        {isCurrent ? (
+                          <div className="w-full py-2.5 bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-xl text-xs font-black text-center flex items-center justify-center gap-1.5 shadow-sm">
+                            ✓ Active Level Tier
+                          </div>
+                        ) : isUnlocked ? (
+                          <div className="w-full py-2.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-black text-center flex items-center justify-center gap-1.5 shadow-sm">
+                            ✓ Unlocked Level
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
+                            className="w-full py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black rounded-xl text-xs text-center transition-all shadow-md hover:scale-[1.01] cursor-pointer"
+                          >
+                            Unlock {levelDisplayName} ({tierPricing.hasOffer ? `Offer: ${tierPricing.finalPrice}` : tierPricing.finalPrice})
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
               })}
             </div>
           </div>
 
         {/* Modal to view courses included inside a clicked Level */}
         {expandedLevel && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#faf8f5]/80 backdrop-blur-md">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl relative"
+              className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 md:p-8 max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl relative"
             >
               <button
                 onClick={() => setExpandedLevel(null)}
-                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-stone-100 hover:bg-slate-700 text-stone-500 hover:text-stone-900 flex items-center justify-center transition-all cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -665,14 +775,14 @@ export default function StudentCourses() {
                     {(() => {
                       const liveLvl = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === expandedLevel.toUpperCase());
                       return liveLvl?.thumbnail ? (
-                        <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-slate-800 mb-5 shadow-lg">
+                        <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-stone-200 mb-5 shadow-lg">
                           <img
                             src={getImageUrl(liveLvl.thumbnail)}
                             alt={tierPricing.name}
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent flex items-end p-4">
-                            <span className="text-xs font-black text-white bg-slate-900/80 backdrop-blur px-2.5 py-1 rounded-lg border border-slate-700">
+                          <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-transparent to-transparent flex items-end p-4">
+                            <span className="text-xs font-black text-stone-900 bg-white/95 backdrop-blur px-2.5 py-1 rounded-lg border border-stone-300">
                               {expandedLevel} • {tierPricing.name}
                             </span>
                           </div>
@@ -684,13 +794,13 @@ export default function StudentCourses() {
                       <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                         {expandedLevel}
                       </span>
-                      <h2 className="text-2xl font-black text-white">{tierPricing.name} Courses ({levelCourses.length})</h2>
+                      <h2 className="text-2xl font-black text-stone-900">{tierPricing.name} Courses ({levelCourses.length})</h2>
                       <div className="ml-auto mr-12 flex items-baseline gap-2">
                         {tierPricing.hasOffer ? (
                           <>
-                            <span className="text-xs text-slate-500 line-through font-mono">{tierPricing.originalPrice}</span>
+                            <span className="text-xs text-stone-400 line-through font-mono">{tierPricing.originalPrice}</span>
                             <span className="text-base font-black text-amber-400 font-mono">{tierPricing.finalPrice}</span>
-                            <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded shadow">
+                            <span className="bg-gradient-to-r from-red-500 to-rose-600 text-stone-900 font-black text-[10px] px-2 py-0.5 rounded shadow">
                               {tierPricing.discountLabel}
                             </span>
                           </>
@@ -699,7 +809,7 @@ export default function StudentCourses() {
                         )}
                       </div>
                     </div>
-                    <p className="text-xs text-slate-400 mb-6">
+                    <p className="text-xs text-stone-500 mb-6">
                       Below are the masterclass video modules included when you purchase the <strong>{tierPricing.name} ({expandedLevel})</strong> membership tier:
                     </p>
 
@@ -718,15 +828,15 @@ export default function StudentCourses() {
                                 setPurchaseModal({ isOpen: true, tierCode: expandedLevel });
                               }
                             }}
-                            className={`p-4 rounded-2xl bg-slate-950 border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer group ${
+                            className={`p-4 rounded-2xl bg-[#faf8f5] border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer group ${
                               unlocked
-                                ? "border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900"
-                                : "border-slate-800/80 hover:border-orange-500/40 hover:bg-slate-900/60"
+                                ? "border-stone-200 hover:border-emerald-500/50 hover:bg-white/95"
+                                : "border-stone-200/80 hover:border-[#ecdccb] hover:bg-white/95"
                             }`}
                           >
                             <div className="flex items-center gap-3.5 min-w-0 flex-1">
                               {/* Course Thumbnail or Number */}
-                              <div className="relative w-16 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shrink-0 flex items-center justify-center">
+                              <div className="relative w-16 h-12 rounded-xl overflow-hidden bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] shrink-0 flex items-center justify-center">
                                 {(c.image || c.flyerImage) ? (
                                   <img
                                     src={getImageUrl(c.image || c.flyerImage)}
@@ -734,26 +844,26 @@ export default function StudentCourses() {
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 font-black text-sm flex items-center justify-center">
+                                  <div className="w-10 h-10 rounded-xl bg-[#fde5d6] border border-[#f5ded0] text-[#942008] font-black text-sm flex items-center justify-center">
                                     #{i + 1}
                                   </div>
                                 )}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 mb-0.5">
-                                  <span className="text-[10px] font-black text-orange-400 uppercase tracking-wider">
+                                  <span className="text-[10px] font-black text-[#942008] uppercase tracking-wider">
                                     Module #{i + 1}
                                   </span>
                                   {c.chapters?.length ? (
-                                    <span className="text-[10px] text-slate-500">
+                                    <span className="text-[10px] text-stone-400">
                                       • {c.chapters.length} Lesson{c.chapters.length > 1 ? "s" : ""}
                                     </span>
                                   ) : null}
                                 </div>
-                                <h4 className="text-sm font-bold text-white group-hover:text-orange-300 transition-colors truncate">
+                                <h4 className="text-sm font-bold text-stone-900 group-hover:text-[#c4431d] transition-colors truncate">
                                   {c.title}
                                 </h4>
-                                <p className="text-xs text-slate-400 leading-relaxed line-clamp-1">{c.description}</p>
+                                <p className="text-xs text-stone-500 leading-relaxed line-clamp-1">{c.description}</p>
                               </div>
                             </div>
                             <div className="shrink-0 w-full sm:w-auto flex sm:justify-end">
@@ -767,7 +877,7 @@ export default function StudentCourses() {
                               ) : (
                                 <button
                                   type="button"
-                                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center gap-1.5 border border-slate-700 group-hover:border-orange-500/40 group-hover:text-orange-300 transition-colors"
+                                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-stone-100 text-stone-500 text-xs font-bold flex items-center justify-center gap-1.5 border border-stone-300 group-hover:border-[#ecdccb] group-hover:text-[#c4431d] transition-colors"
                                 >
                                   <Lock size={12} /> Unlock Level
                                 </button>
@@ -784,7 +894,7 @@ export default function StudentCourses() {
                           setExpandedLevel(null);
                           setPurchaseModal({ isOpen: true, tierCode: expandedLevel });
                         }}
-                        className="mt-6 w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black rounded-xl text-xs text-center transition-all shadow-lg hover:scale-105 cursor-pointer"
+                        className="mt-6 w-full py-3.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold rounded-xl text-xs text-center transition-all shadow-lg hover:scale-105 cursor-pointer"
                       >
                         Unlock Entire {tierPricing.name} Tier ({tierPricing.hasOffer ? `Offer: ${tierPricing.finalPrice}` : tierPricing.finalPrice}) Now →
                       </button>
@@ -797,20 +907,20 @@ export default function StudentCourses() {
         )}
 
         {/* Individual Masterclasses Section Header */}
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200/80 pb-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <span className="p-2 rounded-xl bg-[#fde5d6] text-[#942008] border border-[#f5ded0]">
                 <Sparkles size={18} />
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-white">
+              <h2 className="text-xl sm:text-2xl font-black text-stone-900">
                 Individual Masterclasses
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-[#fde5d6] text-[#942008] border border-[#f5ded0]">
                 {displayedCourses.length}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1.5">
+            <p className="text-xs text-stone-500 mt-1.5">
               Specialty standalone masterclasses available for individual direct purchase without membership tiers.
             </p>
           </div>
@@ -821,12 +931,12 @@ export default function StudentCourses() {
           {displayedCourses.map((course, idx) => {
             const isStandalone = !course.levelCode || course.levelCode.toUpperCase() === "NONE";
             const lvl = isStandalone ? "NONE" : (course.levelCode || "L0").toUpperCase();
-            const cfg = LEVEL_TIER_CONFIG[lvl] || { name: "Individual Course", price: "Custom", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" };
+            const cfg = LEVEL_TIER_CONFIG[lvl] || { name: "Individual Course", price: "Custom", color: "text-[#942008]", bg: "bg-[#fde5d6]", border: "border-[#f5ded0]" };
             const unlocked = isCourseUnlocked(course);
 
             // Standalone course price & offer calculation
             const basePriceStr = isStandalone 
-              ? (course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "₹999")
+              ? (course.price ? (course.price.startsWith("₹") ? course.price : `₹${course.price}`) : "₹499")
               : getTierPrice(lvl);
             
             const tierPricing = !isStandalone ? getComputedTierPricing(lvl, levelTiers, campaignOffers) : null;
@@ -837,55 +947,55 @@ export default function StudentCourses() {
             const displayOriginalPrice = offer ? offer.originalPrice : (tierPricing?.finalPrice || basePriceStr);
             const displayFinalPrice = offer ? offer.discountedPrice : (tierPricing?.finalPrice || basePriceStr);
 
+            const cardImage = course.flyerImage || course.image 
+              ? getImageUrl(course.flyerImage || course.image) 
+              : "/images/courses/powder-secrets-flyer.jpeg";
+
             return (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                key={course.id} 
-                className={`bg-slate-900/90 border rounded-3xl p-5 shadow-xl transition-all flex flex-col justify-between group ${
-                  unlocked ? "border-slate-800 hover:border-orange-500/40" : "border-slate-800/60 bg-slate-900/60"
+                key={course.id || `standalone-${idx}`} 
+                className={`bg-white border rounded-3xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${
+                  unlocked ? "border-emerald-300 ring-2 ring-emerald-500/10" : "border-stone-200/80 hover:border-stone-300"
                 }`}
               >
                 <div>
                   {/* Course Banner Thumbnail */}
-                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4 border border-slate-800/80 bg-slate-950 flex items-center justify-center">
-                    {(course.image || course.flyerImage) ? (
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4 border border-stone-200/80 bg-[#faf8f5] flex items-center justify-center">
+                    {cardImage ? (
                       <>
-                        {/* Full Cover Banner Display: Edge-to-Edge */}
                         <img
-                          src={course.image || course.flyerImage}
+                          src={cardImage}
                           alt={course.title}
                           className={`w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 ${
-                            !unlocked ? "filter grayscale-[30%] opacity-85" : ""
+                            !unlocked ? "filter grayscale-[10%] opacity-90" : ""
                           }`}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/15 to-slate-950/40 pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-stone-900/20 pointer-events-none" />
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setPreviewFlyerModal(course.flyerImage || course.image);
+                            setPreviewFlyerModal(cardImage);
                           }}
-                          className="absolute bottom-2 left-2.5 z-20 px-2.5 py-1 rounded-lg bg-slate-950/85 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-700/80 backdrop-blur-md transition-all shadow-md cursor-pointer opacity-0 group-hover:opacity-100 flex items-center gap-1.5 text-[10px] font-bold"
+                          className="absolute bottom-2 left-2.5 z-20 px-2.5 py-1 rounded-lg bg-white/90 hover:bg-white text-stone-700 hover:text-stone-900 border border-stone-300/80 backdrop-blur-md transition-all shadow-md cursor-pointer opacity-0 group-hover:opacity-100 flex items-center gap-1.5 text-[10px] font-bold"
                           title="View Full Flyer / Poster"
                         >
                           <Maximize2 size={11} /> Full Poster
                         </button>
                       </>
                     ) : (
-                      <div className={`w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 flex items-center justify-center ${
-                        !unlocked ? "opacity-50" : ""
-                      }`}>
-                        <BookOpen size={36} className="text-slate-700" />
+                      <div className="w-full h-full bg-[#faf8f5] flex items-center justify-center">
+                        <BookOpen size={36} className="text-[#942008]/40" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent pointer-events-none" />
 
                     {/* Top Overlay Badges */}
-                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
-                      <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md ${isStandalone ? "bg-purple-500/20 text-purple-300 border-purple-500/40" : `${cfg.bg} ${cfg.color} ${cfg.border}`}`}>
-                        {isStandalone ? "✨ Standalone Masterclass" : `${lvl} • ${tierPricing?.name || cfg.name}`}
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap z-10">
+                      <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black border shadow-md backdrop-blur-md bg-purple-500/20 text-purple-700 border-purple-300 bg-white/95">
+                        ✨ Standalone Masterclass
                       </span>
 
                       {offer && (
@@ -896,28 +1006,28 @@ export default function StudentCourses() {
                       )}
                     </div>
 
-                    <div className="absolute top-2.5 right-2.5">
+                    <div className="absolute top-2.5 right-2.5 z-10">
                       {!unlocked ? (
                         offer ? (
-                          <div className="flex items-center gap-1.5 bg-slate-950/90 border border-red-500/50 px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
-                            <span className="text-[10px] text-slate-400 line-through">{displayOriginalPrice}</span>
-                            <span className="text-[11px] font-black text-amber-300">{displayFinalPrice}</span>
+                          <div className="flex items-center gap-1.5 bg-white/95 border border-red-500/40 px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
+                            <span className="text-[10px] text-stone-400 line-through">{displayOriginalPrice}</span>
+                            <span className="text-[11px] font-black text-rose-600">{displayFinalPrice}</span>
                           </div>
                         ) : (
-                          <span className={`text-[10px] font-black bg-slate-950/85 border px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md ${isStandalone ? "text-purple-300 border-purple-500/40" : "text-amber-300 border-amber-500/40"}`}>
+                          <span className="text-[10px] font-black bg-white/95 border border-purple-300 text-purple-700 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
                             <Lock size={10} /> {displayFinalPrice}
                           </span>
                         )
                       ) : (
-                        <span className="text-[10px] font-black text-emerald-400 bg-slate-950/85 border border-emerald-500/30 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
+                        <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-lg backdrop-blur-md flex items-center gap-1 shadow-md">
                           <CheckCircle2 size={10} /> Unlocked
                         </span>
                       )}
                     </div>
 
                     {/* Course Order */}
-                    <div className="absolute bottom-2 right-2.5">
-                      <span className="text-[10px] text-slate-300 bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-700 font-semibold backdrop-blur-sm">
+                    <div className="absolute bottom-2 right-2.5 z-10">
+                      <span className="text-[10px] text-stone-700 bg-white/90 px-2 py-0.5 rounded-md border border-stone-200 font-semibold backdrop-blur-sm shadow-sm">
                         Course #{course.order || idx + 1}
                       </span>
                     </div>
@@ -925,17 +1035,17 @@ export default function StudentCourses() {
 
                   <div className="flex items-start gap-2.5 mb-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-black text-white text-base leading-snug truncate">
+                      <h3 className="font-black text-stone-900 text-base leading-snug truncate">
                         {course.title}
                       </h3>
-                      <p className="text-xs text-slate-400 flex items-center gap-1 mt-1 font-semibold">
-                        <Layers size={12} className="text-orange-400" /> {course.chapters?.length || 0} Video Lessons
+                      <p className="text-xs text-stone-500 flex items-center gap-1 mt-1 font-semibold">
+                        <Layers size={12} className="text-[#942008]" /> {course.chapters?.length || 0} Video Lessons
                       </p>
                     </div>
                   </div>
                   
-                  <p className="text-slate-400 text-xs leading-relaxed mb-4 line-clamp-2">
-                    {course.description || "Master step-by-step resin art techniques, tools, and business strategies."}
+                  <p className="text-stone-500 text-xs leading-relaxed mb-4 line-clamp-2">
+                    {course.description || "Confused about which powders to use to achieve those beautiful colours, stunning effects, and flawless finishes in your resin art? Learn master powder blending and effects."}
                   </p>
 
                   {isStandalone && (() => {
@@ -943,13 +1053,13 @@ export default function StudentCourses() {
                     return (
                       <div className={`mb-4 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 border backdrop-blur-sm ${
                         vInfo.isExpired 
-                          ? 'bg-red-500/10 text-red-300 border-red-500/30' 
+                          ? 'bg-red-50 text-red-700 border-red-200' 
                           : vInfo.isEnrolled 
-                          ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' 
-                          : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                          : 'bg-purple-50 text-purple-700 border-purple-200'
                       }`}>
                         <Clock size={12} className="shrink-0" />
-                        <span>{vInfo.text}</span>
+                        <span>{course.validityMonths ? `${course.validityMonths} Months Validity (starts on registration/purchase)` : vInfo.text}</span>
                       </div>
                     );
                   })()}
@@ -957,8 +1067,9 @@ export default function StudentCourses() {
 
                 {unlocked ? (
                   <button 
+                    type="button"
                     onClick={() => handleOpenCourse(course)}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/10 transition-all hover:scale-[1.02] cursor-pointer"
+                    className="w-full py-3 px-4 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-[#c4431d]/20 transition-all hover:scale-[1.01] cursor-pointer"
                   >
                     <span>📂 Open Course Lessons</span>
                     <ChevronRight size={14} />
@@ -966,16 +1077,18 @@ export default function StudentCourses() {
                 ) : isStandalone ? (
                   isCourseExpired(course) ? (
                     <button
+                      type="button"
                       onClick={() => setIndividualCourseModal(course)}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-950/40 hover:scale-[1.02] cursor-pointer"
+                      className="w-full py-3 px-4 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md hover:scale-[1.01] cursor-pointer"
                     >
                       <Clock size={14} className="text-amber-200" />
                       <span>⚠️ Validity Expired · Re-purchase ({displayFinalPrice})</span>
                     </button>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => setIndividualCourseModal(course)}
-                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 hover:scale-[1.02] cursor-pointer group"
+                      className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md hover:scale-[1.01] cursor-pointer group"
                     >
                       <Sparkles size={14} className="text-amber-300" />
                       <span>
@@ -985,10 +1098,11 @@ export default function StudentCourses() {
                   )
                 ) : (
                   <button
+                    type="button"
                     onClick={() => setPurchaseModal({ isOpen: true, tierCode: lvl })}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-orange-500 hover:to-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer group"
+                    className="w-full py-3 px-4 bg-[#fde5d6] hover:bg-[#c4431d] hover:text-white text-[#942008] border border-[#f5ded0] rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer group"
                   >
-                    <Lock size={13} className="text-amber-400 group-hover:text-slate-950" />
+                    <Lock size={13} className="text-[#c4431d] group-hover:text-white" />
                     {offer ? (
                       <span>
                         Purchase &amp; Unlock {tierPricing?.name} (Offer: {displayFinalPrice})
@@ -1003,10 +1117,10 @@ export default function StudentCourses() {
           })}
           
           {displayedCourses.length === 0 && (
-            <div className="col-span-full py-16 flex flex-col items-center justify-center text-center bg-slate-900/40 border border-dashed border-slate-800 rounded-3xl p-8">
-              <Sparkles size={48} className="text-purple-400/50 mb-3" />
-              <h3 className="text-lg font-bold text-white mb-1">No Standalone Masterclasses Currently</h3>
-              <p className="text-slate-400 text-xs max-w-md">
+            <div className="col-span-full py-16 flex flex-col items-center justify-center text-center bg-white border border-dashed border-stone-200 rounded-3xl p-8">
+              <Sparkles size={48} className="text-[#942008]/40 mb-3" />
+              <h3 className="text-lg font-bold text-stone-900 mb-1">No Standalone Masterclasses Currently</h3>
+              <p className="text-stone-500 text-xs max-w-md">
                 All curriculum courses are organized neatly inside the Membership Levels (L0, L1, L2, L3) above. Click &quot;View Included Courses&quot; on any level card to explore and watch lessons.
               </p>
             </div>
@@ -1016,15 +1130,15 @@ export default function StudentCourses() {
 
       {/* Comprehensive Course Content & Chapter Viewer Modal */}
       {selectedCourse && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-[#faf8f5]/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+            className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
           >
             {/* Modal Course Banner */}
             {(selectedCourse.image || selectedCourse.flyerImage) && (
-              <div className="relative w-full h-44 sm:h-52 border-b border-slate-800 bg-slate-950 overflow-hidden shrink-0 flex items-center justify-center">
+              <div className="relative w-full h-44 sm:h-52 border-b border-stone-200 bg-[#faf8f5] overflow-hidden shrink-0 flex items-center justify-center">
                 <img
                   src={getImageUrl(selectedCourse.image || selectedCourse.flyerImage)}
                   alt=""
@@ -1036,7 +1150,7 @@ export default function StudentCourses() {
                   alt={selectedCourse.title}
                   className="relative z-10 w-full h-full object-contain p-2"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent pointer-events-none" />
                 
                 <div className="absolute bottom-2 left-4 z-20 flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 backdrop-blur-md shadow-md">
@@ -1047,37 +1161,37 @@ export default function StudentCourses() {
             )}
 
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-5 border-b border-slate-800 bg-slate-900/90">
+            <div className="flex justify-between items-center p-5 border-b border-stone-200 bg-white/95">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#fde5d6]/70 border border-[#f5ded0] flex items-center justify-center text-[#942008] shrink-0">
                   <BookOpen size={20} />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block">
+                  <span className="text-[11px] font-bold text-[#942008] uppercase tracking-wider block">
                     {!selectedCourse.levelCode || selectedCourse.levelCode.toUpperCase() === "NONE"
                       ? "✨ Standalone Masterclass"
                       : `Tier: ${selectedCourse.levelCode} • ${LEVEL_TIER_CONFIG[selectedCourse.levelCode]?.name || "Level Course"}`}
                   </span>
-                  <h2 className="text-lg sm:text-xl font-black text-white truncate">{selectedCourse.title}</h2>
+                  <h2 className="text-lg sm:text-xl font-black text-stone-900 truncate">{selectedCourse.title}</h2>
                 </div>
               </div>
 
               <button 
                 onClick={() => setSelectedCourse(null)} 
-                className="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                className="w-9 h-9 rounded-full bg-stone-100 text-stone-500 hover:text-stone-900 hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Modal Navigation Tabs */}
-            <div className="flex items-center gap-2 px-5 pt-3 border-b border-slate-800/80 bg-slate-950/60 overflow-x-auto no-scrollbar shrink-0">
+            <div className="flex items-center gap-2 px-5 pt-3 border-b border-stone-200/80 bg-[#faf8f5]/60 overflow-x-auto no-scrollbar shrink-0">
               <button
                 onClick={() => setCourseModalTab("lessons")}
                 className={`px-4 py-2 text-xs font-black rounded-t-xl transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
                   courseModalTab === "lessons"
-                    ? "text-orange-400 border-orange-500 bg-slate-900/80"
-                    : "text-slate-400 border-transparent hover:text-slate-200"
+                    ? "text-[#942008] border-[#c4431d] bg-white/95"
+                    : "text-stone-500 border-transparent hover:text-stone-700"
                 }`}
               >
                 <PlayCircle size={14} />
@@ -1088,8 +1202,8 @@ export default function StudentCourses() {
                 onClick={() => setCourseModalTab("assignments")}
                 className={`px-4 py-2 text-xs font-black rounded-t-xl transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
                   courseModalTab === "assignments"
-                    ? "text-orange-400 border-orange-500 bg-slate-900/80"
-                    : "text-slate-400 border-transparent hover:text-slate-200"
+                    ? "text-[#942008] border-[#c4431d] bg-white/95"
+                    : "text-stone-500 border-transparent hover:text-stone-700"
                 }`}
               >
                 <ClipboardList size={14} />
@@ -1100,8 +1214,8 @@ export default function StudentCourses() {
                 onClick={() => setCourseModalTab("about")}
                 className={`px-4 py-2 text-xs font-black rounded-t-xl transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
                   courseModalTab === "about"
-                    ? "text-orange-400 border-orange-500 bg-slate-900/80"
-                    : "text-slate-400 border-transparent hover:text-slate-200"
+                    ? "text-[#942008] border-[#c4431d] bg-white/95"
+                    : "text-stone-500 border-transparent hover:text-stone-700"
                 }`}
               >
                 <Layers size={14} />
@@ -1116,14 +1230,14 @@ export default function StudentCourses() {
                 <>
                   {selectedCourse.chapters?.length > 0 ? (
                     selectedCourse.chapters.map((chapter: any, index: number) => (
-                      <div key={chapter.id || index} className="bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 rounded-2xl p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div key={chapter.id || index} className="bg-[#faf8f5] border border-stone-200/80 hover:border-stone-300 rounded-2xl p-4 sm:p-5 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-9 h-9 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center font-black text-xs shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-[#fde5d6] border border-[#f5ded0] text-[#942008] flex items-center justify-center font-black text-xs shrink-0">
                             {index + 1}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="font-bold text-white text-sm truncate">{chapter.title}</h4>
-                            <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                            <h4 className="font-bold text-stone-900 text-sm truncate">{chapter.title}</h4>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-400">
                               {chapter.videoUrl ? (
                                 <span className="text-emerald-400 font-semibold flex items-center gap-1">
                                   <Video size={12} /> HD Video Lesson
@@ -1144,7 +1258,7 @@ export default function StudentCourses() {
                           {chapter.videoUrl && (
                             <button
                               onClick={() => setActiveVideoLesson({ title: chapter.title, videoUrl: chapter.videoUrl })}
-                              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 rounded-xl text-xs font-black transition-all hover:scale-105 shadow-md shadow-orange-500/10 cursor-pointer"
+                              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white rounded-xl text-xs font-bold transition-all hover:scale-105 shadow-md shadow-[#c4431d]/20 cursor-pointer"
                             >
                               <PlayCircle size={15} /> Watch Lesson
                             </button>
@@ -1155,7 +1269,7 @@ export default function StudentCourses() {
                               href={getFileUrl(chapter.pdfUrl)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
+                              className="flex items-center gap-1.5 px-3.5 py-2 bg-stone-100 hover:bg-slate-700 text-stone-700 rounded-xl text-xs font-semibold transition-colors border border-stone-300 cursor-pointer"
                             >
                               <FileText size={14} className="text-blue-400" /> Read PDF
                               <ExternalLink size={11} />
@@ -1163,7 +1277,7 @@ export default function StudentCourses() {
                           )}
 
                           {!chapter.videoUrl && !chapter.pdfUrl && (
-                            <span className="text-slate-500 text-xs flex items-center gap-1.5 py-1">
+                            <span className="text-stone-400 text-xs flex items-center gap-1.5 py-1">
                               <CheckCircle2 size={14} /> Lesson Notes
                             </span>
                           )}
@@ -1171,9 +1285,9 @@ export default function StudentCourses() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl p-6">
+                    <div className="text-center py-12 border border-dashed border-stone-200 rounded-2xl p-6">
                       <BookOpen size={40} className="text-slate-700 mx-auto mb-2" />
-                      <p className="text-slate-400 text-sm font-semibold mb-1">No Video Lessons in this Course Yet</p>
+                      <p className="text-stone-500 text-sm font-semibold mb-1">No Video Lessons in this Course Yet</p>
                       <p className="text-slate-600 text-xs">The mentor will upload upcoming video modules shortly.</p>
                     </div>
                   )}
@@ -1186,24 +1300,24 @@ export default function StudentCourses() {
                   {selectedCourse.assignments?.length > 0 ? (
                     <div className="space-y-3">
                       {selectedCourse.assignments.map((assn: any, idx: number) => (
-                        <div key={assn.id || idx} className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div key={assn.id || idx} className="p-4 rounded-2xl bg-[#faf8f5] border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-400 text-[10px] font-black border border-orange-500/30">
+                              <span className="px-2 py-0.5 rounded-md bg-[#fde5d6] text-[#942008] text-[10px] font-black border border-[#f5ded0]">
                                 +{assn.points || 50} XP
                               </span>
-                              <h4 className="text-sm font-bold text-white truncate">{assn.title}</h4>
+                              <h4 className="text-sm font-bold text-stone-900 truncate">{assn.title}</h4>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{assn.description}</p>
+                            <p className="text-xs text-stone-500 leading-relaxed line-clamp-2">{assn.description}</p>
                             {assn.dueDate && (
-                              <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                              <p className="text-[10px] text-stone-400 mt-1 flex items-center gap-1">
                                 <Clock size={11} /> Due {new Date(assn.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                               </p>
                             )}
                           </div>
                           <Link
                             href="/student/tasks"
-                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shrink-0"
+                            className="px-4 py-2 bg-stone-100 hover:bg-slate-700 text-stone-700 border border-stone-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shrink-0"
                           >
                             <span>Submit Artwork</span>
                             <ExternalLink size={12} />
@@ -1212,13 +1326,13 @@ export default function StudentCourses() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl p-6">
+                    <div className="text-center py-12 border border-dashed border-stone-200 rounded-2xl p-6">
                       <ClipboardList size={40} className="text-slate-700 mx-auto mb-2" />
-                      <p className="text-slate-400 text-sm font-semibold mb-1">No Mandatory Tasks for this Masterclass</p>
+                      <p className="text-stone-500 text-sm font-semibold mb-1">No Mandatory Tasks for this Masterclass</p>
                       <p className="text-slate-600 text-xs">Practice freely, follow the video steps, and share your finished creation on the Sisterhood Feed!</p>
                       <Link
                         href="/student/feed"
-                        className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-xl text-xs font-bold hover:bg-orange-500/20 transition-colors"
+                        className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-xl text-xs font-bold hover:bg-[#fde5d6]/80 transition-colors"
                       >
                         <Sparkles size={12} /> Post to Community Feed
                       </Link>
@@ -1229,26 +1343,26 @@ export default function StudentCourses() {
 
               {/* TAB 3: COURSE OVERVIEW */}
               {courseModalTab === "about" && (
-                <div className="space-y-4 text-xs text-slate-300 leading-relaxed">
-                  <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
-                    <h4 className="text-sm font-black text-white mb-2 flex items-center gap-2">
-                      <BookOpen size={15} className="text-orange-400" /> Masterclass Description
+                <div className="space-y-4 text-xs text-stone-600 leading-relaxed">
+                  <div className="p-4 rounded-2xl bg-[#faf8f5] border border-stone-200">
+                    <h4 className="text-sm font-black text-stone-900 mb-2 flex items-center gap-2">
+                      <BookOpen size={15} className="text-[#942008]" /> Masterclass Description
                     </h4>
-                    <p className="text-slate-400">
+                    <p className="text-stone-500">
                       {selectedCourse.description || "In this structured module, you will master step-by-step resin art chemistry, safe workspace techniques, bubble prevention, and client-ready finishes."}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Course Format</span>
-                      <span className="text-white font-bold flex items-center gap-1.5">
-                        <Video size={13} className="text-orange-400" /> Sequential Video Curriculum
+                    <div className="p-3.5 rounded-xl bg-[#faf8f5]/60 border border-stone-200">
+                      <span className="text-[10px] text-stone-400 uppercase tracking-wider block mb-1">Course Format</span>
+                      <span className="text-stone-900 font-bold flex items-center gap-1.5">
+                        <Video size={13} className="text-[#942008]" /> Sequential Video Curriculum
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Access Status</span>
+                    <div className="p-3.5 rounded-xl bg-[#faf8f5]/60 border border-stone-200">
+                      <span className="text-[10px] text-stone-400 uppercase tracking-wider block mb-1">Access Status</span>
                       <span className="text-emerald-400 font-bold flex items-center gap-1.5">
                         <CheckCircle2 size={13} /> Permanent Lifetime Unlocked
                       </span>
@@ -1263,24 +1377,24 @@ export default function StudentCourses() {
 
       {/* Embedded Video Lesson Player Modal */}
       {activeVideoLesson && (
-        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl text-white relative">
+        <div className="fixed inset-0 bg-[#faf8f5]/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl max-w-4xl w-full p-6 shadow-2xl text-stone-900 relative">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <Video className="text-orange-400" size={20} />
-                <h3 className="text-lg font-black text-white truncate max-w-md">
+                <Video className="text-[#942008]" size={20} />
+                <h3 className="text-lg font-black text-stone-900 truncate max-w-md">
                   {activeVideoLesson.title}
                 </h3>
               </div>
               <button
                 onClick={() => setActiveVideoLesson(null)}
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 bg-stone-100 hover:bg-slate-700 rounded-full text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-inner">
+            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-stone-200 shadow-inner">
               {activeVideoLesson.videoUrl.startsWith("data:video") || 
                activeVideoLesson.videoUrl.endsWith(".mp4") || 
                activeVideoLesson.videoUrl.endsWith(".webm") || 
@@ -1321,16 +1435,16 @@ export default function StudentCourses() {
         const hasValidity = Boolean(start || end);
 
         return (
-          <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xl flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 bg-[#faf8f5]/85 backdrop-blur-xl flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
             <motion.div
               initial={{ scale: 0.94, opacity: 0, y: 15 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{ type: "spring", duration: 0.4, bounce: 0.2 }}
-              className="relative w-full max-w-lg p-[1px] rounded-[32px] bg-gradient-to-b from-purple-500/50 via-indigo-500/25 to-slate-800 shadow-[0_25px_80px_-15px_rgba(147,51,234,0.4)] my-auto"
+              className="relative w-full max-w-lg rounded-[32px] bg-white border border-[#ecdccb] shadow-2xl my-auto text-stone-900"
             >
-              <div className="bg-slate-950/95 backdrop-blur-2xl rounded-[31px] overflow-hidden text-white flex flex-col">
+              <div className="bg-[#faf8f5]/95 backdrop-blur-2xl rounded-[31px] overflow-hidden text-stone-900 flex flex-col">
                 {/* Header Banner with full cover */}
-                <div className="relative w-full h-60 sm:h-72 bg-slate-950 overflow-hidden border-b border-purple-500/20 flex items-center justify-center">
+                <div className="relative w-full h-60 sm:h-72 bg-[#faf8f5] overflow-hidden border-b border-purple-500/20 flex items-center justify-center">
                   {(c.image || c.flyerImage) ? (
                     <>
                       {/* Full Cover Banner Display */}
@@ -1341,14 +1455,14 @@ export default function StudentCourses() {
                         onClick={() => setPreviewFlyerModal(c.flyerImage || c.image)}
                         title="Click to view full flyer / poster"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-slate-950/50 pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-900/70 via-transparent to-stone-900/30 pointer-events-none" />
                     </>
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-purple-950 via-slate-950 to-indigo-950 flex items-center justify-center">
+                    <div className="w-full h-full bg-[#faf8f5] flex items-center justify-center">
                       <BookOpen size={52} className="text-purple-400/80" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/60 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/70 via-transparent to-stone-900/30 pointer-events-none" />
 
                   {/* Top Bar Floating Badges */}
                   <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-20">
@@ -1360,7 +1474,7 @@ export default function StudentCourses() {
                         <button
                           type="button"
                           onClick={() => setPreviewFlyerModal(c.flyerImage || c.image)}
-                          className="px-2.5 py-1 rounded-full bg-slate-950/80 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-700/60 text-[11px] font-semibold flex items-center gap-1 backdrop-blur-md transition-all shadow-md cursor-pointer"
+                          className="px-2.5 py-1 rounded-full bg-[#faf8f5]/80 hover:bg-white/95 text-stone-600 hover:text-stone-900 border border-stone-300/60 text-[11px] font-semibold flex items-center gap-1 backdrop-blur-md transition-all shadow-md cursor-pointer"
                           title="View Full Resolution Poster"
                         >
                           <Maximize2 size={12} /> View Poster
@@ -1368,7 +1482,7 @@ export default function StudentCourses() {
                       )}
                       <button
                         onClick={() => setIndividualCourseModal(null)}
-                        className="w-8 h-8 rounded-full bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60 flex items-center justify-center transition-all cursor-pointer shadow-md hover:scale-105"
+                        className="w-8 h-8 rounded-full bg-[#faf8f5]/80 hover:bg-stone-100 text-stone-500 hover:text-stone-900 border border-stone-300/60 flex items-center justify-center transition-all cursor-pointer shadow-md hover:scale-105"
                       >
                         <X size={16} />
                       </button>
@@ -1378,16 +1492,16 @@ export default function StudentCourses() {
                   {/* Bottom Badges on Image */}
                   <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between z-20">
                     <div className="flex items-center gap-2">
-                      <span className="bg-slate-900/85 backdrop-blur-md text-slate-300 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-slate-700/60 flex items-center gap-1">
+                      <span className="bg-white/95 backdrop-blur-md text-stone-600 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-stone-300/60 flex items-center gap-1">
                         <Layers size={11} className="text-purple-400" /> {c.chapters?.length || 0} Lessons
                       </span>
-                      <span className="bg-slate-900/85 backdrop-blur-md text-slate-300 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-slate-700/60 flex items-center gap-1">
+                      <span className="bg-white/95 backdrop-blur-md text-stone-600 text-[10px] font-semibold px-2.5 py-0.5 rounded-lg border border-stone-300/60 flex items-center gap-1">
                         <Video size={11} className="text-indigo-400" /> Full HD 1080p
                       </span>
                     </div>
 
                     {offer && (
-                      <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2.5 py-1 rounded-full shadow-lg border border-red-400/40 flex items-center gap-1 animate-pulse">
+                      <span className="bg-gradient-to-r from-red-500 to-rose-600 text-stone-900 font-black text-[10px] px-2.5 py-1 rounded-full shadow-lg border border-red-400/40 flex items-center gap-1 animate-pulse">
                         <Flame size={11} /> {offer.discountLabel}
                       </span>
                     )}
@@ -1398,10 +1512,10 @@ export default function StudentCourses() {
                 <div className="p-5 sm:p-6 space-y-4">
                   {/* Title & Description */}
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-1.5 tracking-tight">
+                    <h3 className="text-xl sm:text-2xl font-black text-stone-900 leading-tight mb-1.5 tracking-tight">
                       {c.title}
                     </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                    <p className="text-xs text-stone-500 leading-relaxed line-clamp-2">
                       {c.description || "Master step-by-step resin art techniques, tools, and professional business strategies with high-definition lessons."}
                     </p>
                   </div>
@@ -1443,7 +1557,7 @@ export default function StudentCourses() {
                               <h4 className="text-xs font-black text-indigo-200">{label} Course Validity</h4>
                               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                             </div>
-                            <p className="text-[11px] text-slate-300 mt-0.5">
+                            <p className="text-[11px] text-stone-600 mt-0.5">
                               Validity begins on the day of student registration / purchase. Enjoy full unrestricted access to all lessons and study notes for {label}.
                             </p>
                           </div>
@@ -1462,48 +1576,48 @@ export default function StudentCourses() {
 
                   {/* Highlights Grid */}
                   <div className="grid grid-cols-2 gap-2.5">
-                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                    <div className="p-3 rounded-2xl bg-white/95 border border-stone-200 flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
                         <PlayCircle size={15} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] font-bold text-white leading-tight">Instant Unlock</div>
-                        <div className="text-[10px] text-slate-400">Immediate access</div>
+                        <div className="text-[11px] font-bold text-stone-900 leading-tight">Instant Unlock</div>
+                        <div className="text-[10px] text-stone-500">Immediate access</div>
                       </div>
                     </div>
-                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                    <div className="p-3 rounded-2xl bg-white/95 border border-stone-200 flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
                         <Award size={15} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] font-bold text-white leading-tight">Certification</div>
-                        <div className="text-[10px] text-slate-400">Upon completion</div>
+                        <div className="text-[11px] font-bold text-stone-900 leading-tight">Certification</div>
+                        <div className="text-[10px] text-stone-500">Upon completion</div>
                       </div>
                     </div>
-                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                    <div className="p-3 rounded-2xl bg-white/95 border border-stone-200 flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
                         <FileText size={15} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] font-bold text-white leading-tight">Study Guides</div>
-                        <div className="text-[10px] text-slate-400">Formulas &amp; notes</div>
+                        <div className="text-[11px] font-bold text-stone-900 leading-tight">Study Guides</div>
+                        <div className="text-[10px] text-stone-500">Formulas &amp; notes</div>
                       </div>
                     </div>
-                    <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+                    <div className="p-3 rounded-2xl bg-white/95 border border-stone-200 flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
                         <Zap size={15} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] font-bold text-white leading-tight">Multi-Device</div>
-                        <div className="text-[10px] text-slate-400">Web &amp; Mobile app</div>
+                        <div className="text-[11px] font-bold text-stone-900 leading-tight">Multi-Device</div>
+                        <div className="text-[10px] text-stone-500">Web &amp; Mobile app</div>
                       </div>
                     </div>
                   </div>
 
                   {/* Pricing Box */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 flex items-center justify-between shadow-inner">
+                  <div className="p-4 rounded-2xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between shadow-inner">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">
+                      <span className="text-[10px] uppercase tracking-wider text-stone-500 font-bold block mb-0.5">
                         Course Investment
                       </span>
                       <div className="flex items-baseline gap-2.5">
@@ -1511,7 +1625,7 @@ export default function StudentCourses() {
                           {finalPriceStr}
                         </span>
                         {offer && (
-                          <span className="text-xs text-slate-500 line-through font-mono">
+                          <span className="text-xs text-stone-400 line-through font-mono">
                             {originalPriceStr}
                           </span>
                         )}
@@ -1534,7 +1648,7 @@ export default function StudentCourses() {
                     <button
                       onClick={() => handlePurchaseIndividualCourse(c)}
                       disabled={isProcessingPayment}
-                      className="w-full py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-purple-900/40 hover:shadow-purple-900/60 transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      className="w-full py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-stone-900 font-black text-sm rounded-2xl shadow-xl shadow-purple-900/40 hover:shadow-purple-900/60 transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                       <Sparkles size={16} className="text-amber-300" />
                       <span>
@@ -1549,14 +1663,14 @@ export default function StudentCourses() {
                     <button
                       onClick={() => setIndividualCourseModal(null)}
                       disabled={isProcessingPayment}
-                      className="w-full py-2.5 text-slate-400 hover:text-white text-xs font-semibold hover:bg-slate-900 rounded-xl transition-colors cursor-pointer"
+                      className="w-full py-2.5 text-stone-500 hover:text-stone-900 text-xs font-semibold hover:bg-white/95 rounded-xl transition-colors cursor-pointer"
                     >
                       Close Window
                     </button>
                   </div>
 
                   {/* Trust Footer */}
-                  <div className="pt-1 border-t border-slate-900 flex items-center justify-center gap-4 text-[10px] text-slate-500 font-medium">
+                  <div className="pt-1 border-t border-slate-900 flex items-center justify-center gap-4 text-[10px] text-stone-400 font-medium">
                     <span className="flex items-center gap-1">
                       <ShieldCheck size={11} className="text-emerald-500" /> 256-Bit SSL Secured
                     </span>
@@ -1586,12 +1700,12 @@ export default function StudentCourses() {
           >
             <button
               onClick={() => setPreviewFlyerModal(null)}
-              className="absolute -top-12 right-0 sm:-right-10 w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-lg border border-slate-700"
+              className="absolute -top-12 right-0 sm:-right-10 w-9 h-9 rounded-full bg-stone-100 hover:bg-slate-700 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-all cursor-pointer shadow-lg border border-stone-300"
               title="Close Preview"
             >
               <X size={18} />
             </button>
-            <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950 max-h-[85vh] flex items-center justify-center p-2">
+            <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-2xl bg-[#faf8f5] max-h-[85vh] flex items-center justify-center p-2">
               <img 
                 src={previewFlyerModal} 
                 alt="Course Flyer" 

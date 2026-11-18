@@ -28,12 +28,12 @@ const CARDS: CardData[] = [
     description: "You don't need to be an expert to begin.",
     image: "/images/alreadyhave/already-have-1.png",
     waveColor: "#f9e1cb",
-    desktopX: -300,
+    desktopX: -290,
     desktopY: 0,
     desktopRotate: -4.5,
-    tabletX: -200,
+    tabletX: -190,
     tabletY: 0,
-    tabletRotate: -3.8,
+    tabletRotate: -3.5,
     mobileY: 0,
     mobileRotate: -2,
     zIndex: 10,
@@ -46,12 +46,12 @@ const CARDS: CardData[] = [
     image: "/images/alreadyhave/already-have-2.png",
     waveColor: "#fde0d3",
     desktopX: 0,
-    desktopY: -8,
-    desktopRotate: -1,
+    desktopY: -6,
+    desktopRotate: -0.5,
     tabletX: 0,
-    tabletY: -6,
-    tabletRotate: -0.8,
-    mobileY: 52,
+    tabletY: -4,
+    tabletRotate: -0.5,
+    mobileY: 28,
     mobileRotate: 1.5,
     zIndex: 20,
   },
@@ -62,13 +62,13 @@ const CARDS: CardData[] = [
     description: "You don't need thousands of social media followers.",
     image: "/images/alreadyhave/already-have-3.png",
     waveColor: "#ede2f5",
-    desktopX: 300,
+    desktopX: 290,
     desktopY: 0,
     desktopRotate: 4.5,
-    tabletX: 200,
+    tabletX: 190,
     tabletY: 0,
-    tabletRotate: 3.8,
-    mobileY: 104,
+    tabletRotate: 3.5,
+    mobileY: 56,
     mobileRotate: -0.5,
     zIndex: 30,
   },
@@ -76,7 +76,9 @@ const CARDS: CardData[] = [
 
 export default function AlreadyHaveSec() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
+  const targetProgressRef = useRef(0);
+  const currentProgressRef = useRef(0);
+  const [smoothProgress, setSmoothProgress] = useState(0);
   const [windowWidth, setWindowWidth] = useState(1200);
   const [activeMobileCard, setActiveMobileCard] = useState<number | null>(null);
 
@@ -88,31 +90,54 @@ export default function AlreadyHaveSec() {
   }, []);
 
   useEffect(() => {
-    let ticking = false;
+    let animationFrameId: number;
+    let isRunning = true;
+
     const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          if (!containerRef.current) {
-            ticking = false;
-            return;
-          }
-          const rect = containerRef.current.getBoundingClientRect();
-          const winH = window.innerHeight;
-          const totalScrollable = rect.height - winH;
-          if (totalScrollable > 0) {
-            const currentScroll = -rect.top;
-            const p = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-            setProgress(p);
-          }
-          ticking = false;
-        });
-        ticking = true;
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const winH = window.innerHeight;
+      const totalScrollable = rect.height - winH;
+      if (totalScrollable > 0) {
+        const currentScroll = -rect.top;
+        const p = Math.max(0, Math.min(1, currentScroll / totalScrollable));
+        targetProgressRef.current = p;
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // High-performance physics-based smooth damping loop (60fps/120fps)
+    const lerp = (start: number, end: number, factor: number) =>
+      start + (end - start) * factor;
+
+    const tick = () => {
+      if (!isRunning) return;
+
+      const current = currentProgressRef.current;
+      const target = targetProgressRef.current;
+      const diff = target - current;
+
+      if (Math.abs(diff) > 0.0002) {
+        const next = lerp(current, target, 0.12);
+        currentProgressRef.current = next;
+        setSmoothProgress(next);
+      } else if (current !== target) {
+        currentProgressRef.current = target;
+        setSmoothProgress(target);
+      }
+
+      animationFrameId = requestAnimationFrame(tick);
+    };
+
+    animationFrameId = requestAnimationFrame(tick);
+
+    return () => {
+      isRunning = false;
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   const isDesktop = windowWidth >= 1024;
@@ -121,64 +146,64 @@ export default function AlreadyHaveSec() {
 
   const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
 
-  // Desktop:
-  // Card 1: 0.02 -> 0.30, Card 2: 0.32 -> 0.60, Card 3: 0.62 -> 0.90
-  // Mobile & Tablet:
-  // Card 1 arrives 0.02 -> 0.12, stays resting until 0.38 (ample time to read)
-  // Card 2 arrives 0.38 -> 0.48, stays resting until 0.74 (ample time to read)
-  // Card 3 arrives 0.74 -> 0.84, stays resting through 1.00 (ample time to read)
+  // Staggered, overlapping arrival choreography
   const getCardTransform = (index: number) => {
     const card = CARDS[index];
 
-    let startP = 0.02;
-    let endP = 0.30;
+    let startP = 0.04;
+    let endP = 0.44;
 
-    if (isDesktop) {
+    if (isDesktop || isTablet) {
       if (index === 1) {
-        startP = 0.32;
-        endP = 0.60;
+        startP = 0.16;
+        endP = 0.56;
       } else if (index === 2) {
-        startP = 0.62;
-        endP = 0.90;
+        startP = 0.28;
+        endP = 0.68;
       }
     } else {
       if (index === 0) {
-        startP = 0.02;
-        endP = 0.12;
+        startP = 0.04;
+        endP = 0.35;
       } else if (index === 1) {
-        startP = 0.38;
-        endP = 0.48;
+        startP = 0.22;
+        endP = 0.54;
       } else {
-        startP = 0.74;
-        endP = 0.84;
+        startP = 0.42;
+        endP = 0.74;
       }
     }
 
-    const rawT = Math.max(0, Math.min(1, (progress - startP) / (endP - startP)));
+    const rawT = Math.max(0, Math.min(1, (smoothProgress - startP) / (endP - startP)));
     const easedT = easeOutCubic(rawT);
-    const enterY = (1 - easedT) * (isMobile ? 180 : 240);
+    const enterY = (1 - easedT) * (isMobile ? 50 : 80);
+    const scale = 0.94 + easedT * 0.06;
     const opacity = Math.min(1, rawT * 2.5);
 
     if (isDesktop) {
+      const currentX = card.desktopX * easedT;
+      const currentRot = card.desktopRotate * easedT;
       return {
-        transform: `translate3d(${card.desktopX}px, ${card.desktopY + enterY}px, 0) rotate(${card.desktopRotate}deg)`,
+        transform: `translate3d(${currentX}px, ${card.desktopY + enterY}px, 0) rotate(${currentRot}deg) scale(${scale})`,
         opacity,
-        transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out, box-shadow 0.25s ease",
+        zIndex: card.zIndex,
       };
     } else if (isTablet) {
+      const currentX = card.tabletX * easedT;
+      const currentRot = card.tabletRotate * easedT;
       return {
-        transform: `translate3d(${card.tabletX}px, ${card.tabletY + enterY}px, 0) rotate(${card.tabletRotate}deg)`,
+        transform: `translate3d(${currentX}px, ${card.tabletY + enterY}px, 0) rotate(${currentRot}deg) scale(${scale})`,
         opacity,
-        transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out, box-shadow 0.25s ease",
+        zIndex: card.zIndex,
       };
     } else {
       const isSelected = activeMobileCard === index;
-      const baseScale = index === 0 ? 0.96 : index === 1 ? 0.98 : 1.0;
+      const currentRot = card.mobileRotate * easedT;
+      const baseScale = (index === 0 ? 0.96 : index === 1 ? 0.98 : 1.0) * scale;
       return {
-        transform: `translate3d(0, ${card.mobileY + enterY}px, 0) rotate(${card.mobileRotate}deg) scale(${isSelected ? 1.02 : baseScale})`,
+        transform: `translate3d(0, ${card.mobileY + enterY}px, 0) rotate(${currentRot}deg) scale(${isSelected ? 1.03 : baseScale})`,
         opacity,
         zIndex: isSelected ? 40 : card.zIndex,
-        transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out, box-shadow 0.25s ease",
       };
     }
   };
@@ -197,31 +222,31 @@ export default function AlreadyHaveSec() {
       <div
         ref={containerRef}
         className="relative w-full"
-        style={{ height: isDesktop ? "260vh" : isTablet ? "340vh" : "380vh" }}
+        style={{ height: isDesktop ? "250vh" : isTablet ? "300vh" : "320vh" }}
       >
         {/* Sticky viewport frame pinned while scrolling through this section */}
-        <div className="sticky top-0 h-screen w-full flex flex-col justify-between items-center py-6 sm:py-8 lg:py-10 px-4 overflow-hidden select-none">
-          {/* Section Heading */}
-          <div className="relative z-20 mx-auto max-w-3xl text-center pt-2 sm:pt-4">
-            <p className="text-xs sm:text-base lg:text-xs font-semibold uppercase tracking-[0.18em] text-[#942008]">
+        <div className="sticky top-0 h-screen w-full flex flex-col justify-between items-center py-3 sm:py-5 lg:py-5 px-4 overflow-hidden select-none">
+          {/* Section Heading - Compact & Responsive so cards never get pushed off screen */}
+          <div className="relative z-20 mx-auto max-w-3xl text-center shrink-0 pt-1 sm:pt-2">
+            <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-[#942008]">
               Zero Barrier To Start
             </p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-neutral-950 sm:text-5xl">
+            <h2 className="mt-1.5 sm:mt-2 text-2xl font-black tracking-tight text-neutral-950 sm:text-4xl lg:text-[2.5rem] leading-tight">
               Your Journey Starts With <span className="text-[#942008]">What You Already Have.</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-xl lg:text-base leading-relaxed text-neutral-600 hidden sm:block">
-              {(isDesktop ? progress < 0.28 : progress < 0.12)
+            <p className="mx-auto mt-1.5 max-w-2xl text-xs sm:text-sm lg:text-base leading-relaxed text-neutral-600 hidden sm:block">
+              {smoothProgress < 0.2
                 ? "Scroll down to reveal what lies ahead..."
-                : (isDesktop ? progress < 0.58 : progress < 0.38)
-                  ? "No art degree? No problem. Every expert began right here."
-                  : (isDesktop ? progress < 0.88 : progress < 0.74)
-                    ? "No fancy studio needed. A simple table is all you need."
-                    : "You already have everything needed to begin."}
+                : smoothProgress < 0.45
+                ? "No art degree? No problem. Every expert began right here."
+                : smoothProgress < 0.65
+                ? "No fancy studio needed. A simple table is all you need."
+                : "You already have everything needed to begin."}
             </p>
           </div>
 
-          {/* Cards Stage Container */}
-          <div className="relative z-10 flex-1 w-full flex items-center justify-center min-h-[480px] sm:min-h-[520px] lg:min-h-[560px]">
+          {/* Cards Stage Container - Takes available vertical space cleanly */}
+          <div className="relative z-10 flex-1 w-full flex items-center justify-center min-h-0 py-2 sm:py-3">
             <div className="relative flex items-center justify-center w-full max-w-5xl h-full">
               {CARDS.map((card, idx) => {
                 const style = getCardTransform(idx);
@@ -238,28 +263,36 @@ export default function AlreadyHaveSec() {
                       zIndex: style.zIndex || card.zIndex,
                       transform: style.transform,
                       opacity: style.opacity,
-                      width: isDesktop ? "330px" : isTablet ? "280px" : "min(86vw, 320px)",
-                      height: isDesktop ? "490px" : isTablet ? "440px" : "430px",
-                      transition: style.transition,
+                      width: isDesktop
+                        ? "clamp(270px, 21vw, 315px)"
+                        : isTablet
+                        ? "clamp(240px, 26vw, 280px)"
+                        : "min(86vw, 310px)",
+                      height: isDesktop
+                        ? "clamp(370px, 54vh, 440px)"
+                        : isTablet
+                        ? "clamp(340px, 50vh, 400px)"
+                        : "clamp(350px, 52vh, 410px)",
+                      transition: "box-shadow 0.3s ease",
                       willChange: "transform, opacity",
                     }}
                   >
-                    {/* Top Content: Title & Subtitle matching Reference Image 2 */}
-                    <div className="pt-6 sm:pt-7 lg:pt-8 px-5 sm:px-6 text-center shrink-0">
-                      <h3 className="font-sans font-black tracking-tight uppercase leading-[0.96] text-[#2d2015] text-[24px] sm:text-[28px] lg:text-[32px]">
+                    {/* Top Content: Title & Subtitle */}
+                    <div className="pt-5 sm:pt-6 px-4 sm:px-5 text-center shrink-0">
+                      <h3 className="font-sans font-black tracking-tight uppercase leading-[0.98] text-[#2d2015] text-lg sm:text-xl lg:text-2xl">
                         <span className="block">{card.titleLine1}</span>
                         <span className="block">{card.titleLine2}</span>
                       </h3>
-                      <p className="text-[#554a3e] text-base sm:text-xl lg:text-base font-medium mt-2 sm:mt-2.5 leading-snug px-1">
+                      <p className="text-[#554a3e] text-xs sm:text-sm font-medium mt-1 sm:mt-1.5 leading-snug px-1">
                         {card.description}
                       </p>
                     </div>
 
                     {/* Bottom Illustration with Arched Color Wave Backdrop */}
-                    <div className="relative mt-2 w-full flex-1 min-h-0 flex items-end justify-center overflow-hidden rounded-b-[24px] sm:rounded-b-[28px]">
+                    <div className="relative mt-1 w-full flex-1 min-h-0 flex items-end justify-center overflow-hidden rounded-b-[24px] sm:rounded-b-[28px]">
                       {/* Arched Wave Shape behind character */}
                       <div
-                        className="absolute inset-x-0 bottom-0 h-[64%] rounded-t-[50%_35%] transition-colors duration-300"
+                        className="absolute inset-x-0 bottom-0 h-[62%] rounded-t-[50%_35%] transition-colors duration-300"
                         style={{ backgroundColor: card.waveColor }}
                       />
 
@@ -267,7 +300,7 @@ export default function AlreadyHaveSec() {
                       <img
                         src={card.image}
                         alt={`${card.titleLine1} ${card.titleLine2}`}
-                        className="relative z-10 w-full max-h-[220px] sm:max-h-[250px] lg:max-h-[270px] object-contain object-bottom pointer-events-none drop-shadow-sm select-none"
+                        className="relative z-10 w-full h-full max-h-[175px] sm:max-h-[200px] lg:max-h-[225px] object-contain object-bottom pointer-events-none drop-shadow-sm select-none"
                         loading="eager"
                       />
                     </div>
@@ -276,24 +309,6 @@ export default function AlreadyHaveSec() {
               })}
             </div>
           </div>
-
-          {/* Subtle scroll indicator / card progress dots */}
-          {/* <div className="relative z-20 flex items-center justify-center gap-2 pb-1 sm:pb-2">
-            {[0, 1, 2].map((i) => {
-              const isFilled =
-                (i === 0 && progress >= 0.28) ||
-                (i === 1 && progress >= 0.58) ||
-                (i === 2 && progress >= 0.88);
-              return (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    isFilled ? "w-6 bg-[#b87333]" : "w-1.5 bg-stone-300"
-                  }`}
-                />
-              );
-            })}
-          </div> */}
         </div>
       </div>
 

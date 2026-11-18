@@ -3,12 +3,12 @@ import React from "react";
 
 // --- Pulse animation base ----------------------------------------------------
 const Pulse = ({ className = "" }: { className?: string }) => (
-  <div className={`animate-pulse bg-slate-800 rounded-xl ${className}`} />
+  <div className={`animate-pulse bg-stone-200/90 rounded-xl ${className}`} />
 );
 
 // --- Stat Card Skeleton ------------------------------------------------------
 export const StatCardSkeleton = () => (
-  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+  <div className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 space-y-3 shadow-xs">
     <div className="flex items-center justify-between">
       <Pulse className="h-4 w-28" />
       <Pulse className="h-8 w-8 rounded-xl" />
@@ -20,7 +20,7 @@ export const StatCardSkeleton = () => (
 
 // --- Table Row Skeleton ------------------------------------------------------
 export const TableRowSkeleton = ({ cols = 5 }: { cols?: number }) => (
-  <tr>
+  <tr className="border-b border-stone-100">
     {Array.from({ length: cols }).map((_, i) => (
       <td key={i} className="px-4 py-3">
         <Pulse className={`h-4 ${i === 0 ? "w-32" : "w-20"}`} />
@@ -33,7 +33,7 @@ export const TableRowSkeleton = ({ cols = 5 }: { cols?: number }) => (
 export const CardGridSkeleton = ({ count = 6 }: { count?: number }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+      <div key={i} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 space-y-3 shadow-xs">
         <Pulse className="h-40 w-full rounded-xl" />
         <Pulse className="h-4 w-3/4" />
         <Pulse className="h-3 w-1/2" />
@@ -46,7 +46,7 @@ export const CardGridSkeleton = ({ count = 6 }: { count?: number }) => (
 export const DashboardSkeleton = () => (
   <div className="space-y-8 animate-pulse">
     {/* Welcome header */}
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+    <div className="bg-white/95 border border-[#ecdccb] rounded-2xl p-6 shadow-xs">
       <div className="flex items-center gap-4 mb-4">
         <Pulse className="h-12 w-12 rounded-full" />
         <div className="space-y-2">
@@ -66,7 +66,7 @@ export const DashboardSkeleton = () => (
 
     {/* Content row */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+      <div className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 space-y-3 shadow-xs">
         <Pulse className="h-5 w-36" />
         {[1, 2, 3].map(i => (
           <div key={i} className="flex items-center gap-3 py-2">
@@ -78,7 +78,7 @@ export const DashboardSkeleton = () => (
           </div>
         ))}
       </div>
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+      <div className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 space-y-3 shadow-xs">
         <Pulse className="h-5 w-36" />
         {[1, 2, 3].map(i => (
           <div key={i} className="flex items-center gap-3 py-2">
@@ -96,8 +96,8 @@ export const DashboardSkeleton = () => (
 
 // --- Admin Table Skeleton ----------------------------------------------------
 export const AdminTableSkeleton = ({ rows = 8, cols = 5 }: { rows?: number; cols?: number }) => (
-  <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-    <div className="p-5 border-b border-slate-800">
+  <div className="bg-white/95 border border-[#ecdccb] rounded-2xl overflow-hidden shadow-xs">
+    <div className="p-5 border-b border-stone-200">
       <Pulse className="h-5 w-40" />
     </div>
     <table className="w-full">
@@ -114,7 +114,7 @@ export const AdminTableSkeleton = ({ rows = 8, cols = 5 }: { rows?: number; cols
 export const LeaderboardSkeleton = ({ rows = 10 }: { rows?: number }) => (
   <div className="space-y-3">
     {Array.from({ length: rows }).map((_, i) => (
-      <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
+      <div key={i} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 flex items-center gap-4 shadow-xs">
         <Pulse className="h-8 w-8 rounded-full shrink-0" />
         <Pulse className="h-8 w-8 rounded-full shrink-0" />
         <div className="flex-1 space-y-1.5">

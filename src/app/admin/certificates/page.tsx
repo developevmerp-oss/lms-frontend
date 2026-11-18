@@ -67,16 +67,24 @@ export default function AdminCertificates() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <Award className="text-yellow-400" /> Certificate Management
+            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+              <Award className="text-[#c4431d]" /> Certificate Management
             </h1>
-            <p className="text-slate-400 mt-2">
+            <p className="text-stone-500 mt-2 font-medium">
               Award course completion certificates to students.
             </p>
           </div>
@@ -88,7 +96,7 @@ export default function AdminCertificates() {
             )}
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold transition-colors shadow-lg shadow-yellow-500/20"
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
             >
               <Plus size={18} /> Award Certificate
             </button>
@@ -102,16 +110,16 @@ export default function AdminCertificates() {
             { label: "Students Certified", value: new Set(certificates.map(c => c.userId || c.studentId)).size, color: "text-green-400" },
             { label: "Courses Covered", value: new Set(certificates.map(c => c.courseId)).size, color: "text-blue-400" },
           ].map(stat => (
-            <div key={stat.label} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-              <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
+            <div key={stat.label} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 shadow-[0_4px_16px_-4px_rgba(45,30,15,0.06)]">
+              <p className="text-stone-500 text-sm mb-1 font-bold">{stat.label}</p>
               <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
             </div>
           ))}
         </div>
 
         {/* Certificates Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="bg-white/95 border border-[#ecdccb] rounded-3xl overflow-hidden shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-[#fcfaf7] border-b border-stone-200 text-xs font-bold text-stone-600 uppercase tracking-wider">
             <div className="col-span-4">Student</div>
             <div className="col-span-4">Course</div>
             <div className="col-span-2">Issued</div>
@@ -120,30 +128,30 @@ export default function AdminCertificates() {
 
           {certificates.length === 0 ? (
             <div className="p-16 flex flex-col items-center justify-center text-center">
-              <Award size={48} className="text-slate-700 mb-4" />
-              <p className="text-slate-400 font-medium">No certificates issued yet</p>
-              <p className="text-slate-600 text-sm mt-1">Click "Award Certificate" to get started</p>
+              <Award size={48} className="text-stone-300 mb-4" />
+              <p className="text-stone-700 font-bold">No certificates issued yet</p>
+              <p className="text-stone-400 text-sm mt-1">Click "Award Certificate" to get started</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-stone-100">
               {certificates.map((cert) => (
                 <div
                   key={cert.id}
-                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-slate-800/30 transition-colors"
+                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-[#fff5ee]/60 transition-colors"
                 >
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center font-bold text-slate-950 text-sm shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center font-bold text-white text-sm shrink-0 shadow-xs">
                       {(cert.student?.name || cert.User?.name || "?").charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-bold text-white">{cert.student?.name || cert.User?.name || "Student"}</p>
-                      <p className="text-xs text-slate-500">{cert.student?.email || cert.User?.email || ""}</p>
+                      <p className="font-bold text-stone-900">{cert.student?.name || cert.User?.name || "Student"}</p>
+                      <p className="text-xs text-stone-400">{cert.student?.email || cert.User?.email || ""}</p>
                     </div>
                   </div>
                   <div className="col-span-4">
-                    <p className="font-medium text-slate-300">{cert.course?.title || cert.Course?.title || "Course"}</p>
+                    <p className="font-semibold text-stone-800">{cert.course?.title || cert.Course?.title || "Course"}</p>
                   </div>
-                  <div className="col-span-2 text-slate-500 text-sm">
+                  <div className="col-span-2 text-stone-500 text-sm">
                     {cert.createdAt
                       ? new Date(cert.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
@@ -163,7 +171,7 @@ export default function AdminCertificates() {
                         <ExternalLink size={14} /> View PDF
                       </a>
                     ) : (
-                      <span className="text-slate-600 text-sm">No PDF</span>
+                      <span className="text-stone-400 text-sm">No PDF</span>
                     )}
                   </div>
                 </div>
@@ -175,15 +183,15 @@ export default function AdminCertificates() {
 
       {/* Award Certificate Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-lg w-full shadow-2xl">
+        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-[#ecdccb] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-stone-900">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
                 <Award className="text-yellow-400" /> Award Certificate
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors"
+                className="p-2 hover:bg-stone-100 rounded-full text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -191,12 +199,12 @@ export default function AdminCertificates() {
 
             <form onSubmit={handleAward} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-400 mb-2">Select Student</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Select Student</label>
                 <select
                   required
                   value={studentId}
                   onChange={(e) => setStudentId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-yellow-500 transition-colors"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                 >
                   <option value="" disabled>-- Choose a student --</option>
                   {students.map((s) => (
@@ -206,12 +214,12 @@ export default function AdminCertificates() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-400 mb-2">Select Course</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Select Course</label>
                 <select
                   required
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-yellow-500 transition-colors"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                 >
                   <option value="" disabled>-- Choose a course --</option>
                   {courses.map((c) => (
@@ -221,13 +229,13 @@ export default function AdminCertificates() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-400 mb-2">PDF URL (optional)</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">PDF URL (optional)</label>
                 <input
                   type="url"
                   value={pdfUrl}
                   onChange={(e) => setPdfUrl(e.target.value)}
                   placeholder="https://drive.google.com/..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-yellow-500 transition-colors"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                 />
               </div>
 
@@ -235,14 +243,14 @@ export default function AdminCertificates() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors font-medium"
+                  className="flex-1 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl transition-colors border border-stone-300 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !studentId || !courseId}
-                  className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-950 disabled:opacity-50 rounded-xl font-bold transition-colors"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white disabled:opacity-50 rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
                 >
                   {isSubmitting ? "Awarding..." : "Award Certificate"}
                 </button>

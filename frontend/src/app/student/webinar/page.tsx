@@ -122,7 +122,15 @@ export default function StudentWebinarPage() {
   const isGeneral = studentLevelCode === "GENERAL";
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <StudentNav
         user={user || stats}
         level={isGeneral ? "General Member" : (user?.membershipLevel || stats?.membershipLevel || "Fast Track (L0)")}
@@ -131,19 +139,19 @@ export default function StudentWebinarPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
         {isGeneral ? (
           <div className="py-16 px-4 max-w-2xl mx-auto text-center space-y-6">
-            <div className="w-16 h-16 rounded-3xl bg-orange-500/20 border-2 border-orange-500/40 flex items-center justify-center text-orange-400 mx-auto shadow-2xl">
+            <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border-2 border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto shadow-2xl">
               <Lock size={32} />
             </div>
-            <h1 className="text-3xl font-black text-white">Live Webinar Hub is Locked</h1>
-            <p className="text-slate-300 text-sm leading-relaxed">
+            <h1 className="text-3xl font-black text-stone-900">Live Webinar Hub is Locked</h1>
+            <p className="text-stone-600 text-sm leading-relaxed">
               Live masterclass schedules, Zoom calls, VIP WhatsApp groups, and workshop preparation videos are exclusively available for enrolled Fast Track (Level 0) and higher members. Upgrade to Fast Track now to unlock live masterclasses and community perks.
             </p>
             <button
               onClick={() => setPurchaseModal(true)}
-              className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black rounded-xl text-sm shadow-xl flex items-center gap-2 mx-auto hover:scale-105 transition-all cursor-pointer"
+              className="px-8 py-3.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black rounded-xl text-sm shadow-xl flex items-center gap-2 mx-auto hover:scale-105 transition-all cursor-pointer"
             >
               <Zap size={16} />
               Unlock Fast Track (₹499)
@@ -154,24 +162,24 @@ export default function StudentWebinarPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <Sparkles size={13} className="text-orange-400" /> Free Masterclass Registration
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
+              <Sparkles size={13} className="text-[#942008]" /> Free Masterclass Registration
             </span>
-            <h1 className="text-3xl md:text-5xl font-black text-white">
+            <h1 className="text-3xl md:text-5xl font-black text-stone-900">
               Live Resin Art Webinar Hub
             </h1>
-            <p className="text-slate-400 text-sm md:text-base mt-1">
+            <p className="text-stone-500 text-sm md:text-base mt-1">
               Select your scheduled masterclass, join the live Zoom call, connect on WhatsApp, and access preparation workshop videos.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1.5 rounded-2xl self-start md:self-auto">
+          <div className="flex items-center gap-2 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-1.5 rounded-2xl self-start md:self-auto">
             <button
               onClick={() => setActiveTab("upcoming")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "upcoming"
-                  ? "bg-orange-500 text-slate-950 font-black shadow-md shadow-orange-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/20"
+                  : "text-stone-500 hover:text-stone-900"
               }`}
             >
               Upcoming Webinars ({upcomingWebinars.length})
@@ -180,8 +188,8 @@ export default function StudentWebinarPage() {
               onClick={() => setActiveTab("past")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "past"
-                  ? "bg-orange-500 text-slate-950 font-black shadow-md shadow-orange-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/20"
+                  : "text-stone-500 hover:text-stone-900"
               }`}
             >
               Past &amp; Recordings ({pastWebinars.length})
@@ -190,15 +198,15 @@ export default function StudentWebinarPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/95 border border-stone-200 p-4 rounded-2xl">
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
             <input
               type="text"
               placeholder="Search webinars..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#faf8f5] border border-stone-200 rounded-xl pl-10 pr-4 py-2 text-xs text-stone-900 placeholder-slate-500 focus:outline-none focus:border-[#c4431d]"
             />
           </div>
 
@@ -209,13 +217,13 @@ export default function StudentWebinarPage() {
 
         {/* Webinars Grid */}
         {loading ? (
-          <div className="p-16 text-center text-slate-500">Loading masterclass schedules...</div>
+          <div className="p-16 text-center text-stone-400">Loading masterclass schedules...</div>
         ) : activeTab === "upcoming" ? (
           upcomingWebinars.length === 0 ? (
-            <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
+            <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/95 p-8">
               <Calendar size={36} className="text-slate-600 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-white mb-1">No Upcoming Webinars Found</h3>
-              <p className="text-sm text-slate-400">Please check back soon for newly scheduled live masterclasses.</p>
+              <h3 className="text-lg font-bold text-stone-900 mb-1">No Upcoming Webinars Found</h3>
+              <p className="text-sm text-stone-500">Please check back soon for newly scheduled live masterclasses.</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -227,7 +235,7 @@ export default function StudentWebinarPage() {
                 return (
                   <div
                     key={webinar.id}
-                    className="rounded-3xl border-2 border-orange-500/30 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 md:p-8 shadow-2xl relative overflow-hidden group hover:border-orange-500/60 transition-all"
+                    className="rounded-3xl border-2 border-[#ecdccb] bg-white/95 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-6 md:p-8 shadow-2xl relative overflow-hidden group hover:border-[#c4431d]/60 transition-all"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
                       
@@ -236,12 +244,12 @@ export default function StudentWebinarPage() {
                           <span className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-black uppercase ${
                             webinar.status === "live"
                               ? "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse"
-                              : "bg-orange-500/20 text-orange-400 border border-orange-500/30"
+                              : "bg-[#fde5d6] text-[#942008] border border-[#f5ded0]"
                           }`}>
                             {webinar.status === "live" ? "🔴 Live Now" : "Upcoming Masterclass"}
                           </span>
 
-                          <span className="text-xs text-slate-400 flex items-center gap-1 bg-slate-950/80 px-2.5 py-0.5 rounded-lg border border-slate-800">
+                          <span className="text-xs text-stone-500 flex items-center gap-1 bg-[#faf8f5]/80 px-2.5 py-0.5 rounded-lg border border-stone-200">
                             <Clock size={12} className="text-amber-400" /> {webinar.durationMinutes || 90} Mins
                           </span>
 
@@ -250,18 +258,18 @@ export default function StudentWebinarPage() {
                           </span>
                         </div>
 
-                        <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                        <h2 className="text-2xl md:text-3xl font-black text-stone-900 leading-tight">
                           {webinar.title}
                         </h2>
 
-                        <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
+                        <p className="text-stone-600 text-xs md:text-sm leading-relaxed">
                           {webinar.description ||
                             "Learn the exact 3-phase roadmap to master bubble-free resin casting, flower preservation, pricing psychology, and launch your creative studio."}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-300">
-                          <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-medium">
-                            <Calendar size={14} className="text-orange-400" />
+                        <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-stone-600">
+                          <div className="flex items-center gap-1.5 bg-[#faf8f5] px-3 py-1.5 rounded-xl border border-stone-200 font-medium">
+                            <Calendar size={14} className="text-[#942008]" />
                             <span>
                               {scheduledDate.toLocaleDateString("en-IN", {
                                 weekday: "short",
@@ -272,7 +280,7 @@ export default function StudentWebinarPage() {
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-medium">
+                          <div className="flex items-center gap-1.5 bg-[#faf8f5] px-3 py-1.5 rounded-xl border border-stone-200 font-medium">
                             <Clock size={14} className="text-amber-400" />
                             <span>
                               {scheduledDate.toLocaleTimeString("en-IN", {
@@ -291,7 +299,7 @@ export default function StudentWebinarPage() {
                           href={zoomUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs md:text-sm py-3.5 px-6 rounded-2xl shadow-xl shadow-orange-500/25 transition-all hover:scale-[1.02] cursor-pointer"
+                          className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs md:text-sm py-3.5 px-6 rounded-2xl shadow-md shadow-[#c4431d]/20 transition-all hover:scale-[1.02] cursor-pointer"
                         >
                           <Video size={18} /> Join Live Zoom Webinar
                           <ExternalLink size={14} />
@@ -302,7 +310,7 @@ export default function StudentWebinarPage() {
                             href={whatsappUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs md:text-sm py-3 px-5 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] cursor-pointer"
+                            className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-stone-900 font-black text-xs md:text-sm py-3 px-5 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] cursor-pointer"
                           >
                             <MessageCircle size={17} /> Join VIP WhatsApp
                             <ExternalLink size={14} />
@@ -318,9 +326,9 @@ export default function StudentWebinarPage() {
                                 url: webinar.prepVideoUrl!,
                               })
                             }
-                            className="w-full inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                            className="w-full inline-flex items-center justify-center gap-1.5 bg-stone-100 hover:bg-slate-700 text-stone-900 font-bold text-xs py-2.5 px-4 rounded-xl border border-stone-300 transition-colors cursor-pointer"
                           >
-                            <PlayCircle size={15} className="text-orange-400" /> Watch Prep Video
+                            <PlayCircle size={15} className="text-[#942008]" /> Watch Prep Video
                           </button>
                         )}
                       </div>
@@ -333,24 +341,24 @@ export default function StudentWebinarPage() {
         ) : (
           /* Past Webinars Tab */
           pastWebinars.length === 0 ? (
-            <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
+            <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/95 p-8">
               <Video size={36} className="text-slate-600 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-white mb-1">No Past Webinars</h3>
-              <p className="text-sm text-slate-400">Past webinar replays will appear here after events conclude.</p>
+              <h3 className="text-lg font-bold text-stone-900 mb-1">No Past Webinars</h3>
+              <p className="text-sm text-stone-500">Past webinar replays will appear here after events conclude.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {pastWebinars.map((webinar) => (
                 <div
                   key={webinar.id}
-                  className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl"
+                  className="rounded-3xl border border-stone-200 bg-white/95 p-6 flex flex-col justify-between hover:border-stone-300 transition-all shadow-xl"
                 >
                   <div>
-                    <span className="rounded-md bg-slate-800 border border-slate-700 px-2.5 py-0.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 inline-block">
+                    <span className="rounded-md bg-stone-100 border border-stone-300 px-2.5 py-0.5 text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-2 inline-block">
                       Concluded
                     </span>
-                    <h3 className="text-lg font-black text-white mb-2 leading-snug">{webinar.title}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4">{webinar.description}</p>
+                    <h3 className="text-lg font-black text-stone-900 mb-2 leading-snug">{webinar.title}</h3>
+                    <p className="text-xs text-stone-500 leading-relaxed mb-4">{webinar.description}</p>
                   </div>
 
                   {webinar.prepVideoUrl ? (
@@ -362,12 +370,12 @@ export default function StudentWebinarPage() {
                           url: webinar.prepVideoUrl!,
                         })
                       }
-                      className="w-full inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs py-3 px-4 rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-stone-100 hover:bg-slate-700 text-stone-900 font-bold text-xs py-3 px-4 rounded-xl border border-stone-300 transition-colors cursor-pointer"
                     >
-                      <PlayCircle size={15} className="text-orange-400" /> Watch Workshop Video
+                      <PlayCircle size={15} className="text-[#942008]" /> Watch Workshop Video
                     </button>
                   ) : (
-                    <div className="text-center py-2 text-xs text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                    <div className="text-center py-2 text-xs text-stone-400 border border-dashed border-stone-200 rounded-xl">
                       Masterclass Concluded
                     </div>
                   )}
@@ -378,22 +386,22 @@ export default function StudentWebinarPage() {
         )}
 
         {/* Fast-Track Upgrade Card */}
-        <div className="rounded-3xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 p-6 md:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="rounded-3xl border border-[#ecdccb] bg-white/95 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-6 md:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full">
               <Zap size={12} className="text-amber-400" /> Fast-Track Option
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-white">
+            <h3 className="text-xl md:text-2xl font-black text-stone-900">
               Don't Want to Wait for the Live Webinar?
             </h3>
-            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-xs text-stone-600 max-w-xl leading-relaxed">
               Unlock the entire **Level 0 Fast Track (₹499)** or **Silver Membership (₹4,999)** right now! Get immediate access to video modules, formula calculators, and starter kits.
             </p>
           </div>
 
           <button
             onClick={() => setPurchaseModal(true)}
-            className="shrink-0 py-3.5 px-6 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-xs rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer self-start md:self-auto"
+            className="shrink-0 py-3.5 px-6 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-2xl shadow-md shadow-[#c4431d]/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer self-start md:self-auto"
           >
             <Zap size={16} /> Instant Fast Track Upgrade (from ₹499)
             <ArrowRight size={16} />
@@ -402,21 +410,21 @@ export default function StudentWebinarPage() {
 
         {/* Video Modal */}
         {activePrepVideo.isOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative animate-scale-up">
-              <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
-                <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <PlayCircle className="text-orange-400" size={18} /> {activePrepVideo.title}
+          <div className="fixed inset-0 z-50 bg-[#faf8f5]/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative animate-scale-up">
+              <div className="flex justify-between items-center mb-4 pb-2 border-b border-stone-200">
+                <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
+                  <PlayCircle className="text-[#942008]" size={18} /> {activePrepVideo.title}
                 </h3>
                 <button
                   onClick={() => setActivePrepVideo({ isOpen: false, title: "", url: "" })}
-                  className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-stone-100 text-stone-500 hover:text-stone-900 flex items-center justify-center cursor-pointer"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-[#faf8f5] border border-stone-200">
                 <iframe
                   className="w-full h-full"
                   src={toYouTubeEmbed(activePrepVideo.url)}

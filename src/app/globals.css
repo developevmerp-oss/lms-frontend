@@ -5742,6 +5742,7 @@ section#real-transformations,
 
 /* ─── Webinar Page Mobile & Tablet: Cohesive Dotted Style Behind Navbar & Announcement Line ─── */
 @media (max-width: 1023px) {
+
   .webinar-page,
   .webinar-page .site-navbar {
     background-color: #ffffff !important;
@@ -5749,4 +5750,61 @@ section#real-transformations,
     background-size: 24px 24px !important;
     background-attachment: fixed !important;
   }
+}
+
+/* =========================================================================
+   ADMIN & STUDENT PANEL: RESPONSIVE & MACSCREEN ENGINE
+   - Mobile: Default (0px - 639px)
+   - Tablet: sm (640px - 1023px)
+   - All Desktop screens: lg (1024px+ including MacBook 13", 14", 15", 16" & 1080p+ Desktops)
+   ========================================================================= */
+
+/* Mac Screen & Laptop Fluid Scaling for Admin & Student Panels */
+@media (min-width: 1024px) and (max-width: 1535px) {
+
+  html:has(.admin-panel),
+  html:has(.student-panel) {
+    /* Fluid scaling on Mac screens so UI elements & font sizes match desktop proportions */
+    font-size: clamp(14px, 0.45vw + 9.5px, 16px);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+
+  html:has(.admin-panel),
+  html:has(.student-panel) {
+    font-size: 15px;
+  }
+}
+
+/* Base typography & responsive rendering for admin & student panels */
+.admin-panel,
+.student-panel {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  width: 100%;
+}
+
+/* Ensure smooth responsive headers and prevent text wrapping awkwardness on Mac screens */
+@media (min-width: 1024px) {
+
+  .admin-panel h1,
+  .student-panel h1 {
+    letter-spacing: -0.025em;
+  }
+
+  .admin-panel main,
+  .student-panel main {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Table container horizontal scrolling safety on all desktop/Mac/mobile views */
+.admin-panel .table-responsive,
+.student-panel .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
