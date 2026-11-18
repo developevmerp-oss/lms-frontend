@@ -291,7 +291,7 @@ export default function StudentCourses() {
   const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
 
   const fetchStudentData = () => {
-    fetch(`${API_BASE_URL}/dashboard/levels`)
+    fetch(`${API_BASE_URL}/dashboard/levels`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) setLevelTiers(data);
@@ -653,7 +653,11 @@ export default function StudentCourses() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {(["L0", "L1", "L2", "L3"] as const).filter((lvl) => {
                 const isUnlocked = isLevelUnlocked(lvl);
-                const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
+                const liveLevel = levelTiers.find((t: any) => {
+                  const c = (t.code || t.levelCode || "").toUpperCase();
+                  const target = lvl.toUpperCase();
+                  return c === target || c.startsWith(target) || c.includes(target);
+                });
                 // If level is disabled by admin and student hasn't unlocked it, hide from purchase
                 if (liveLevel && liveLevel.isPublished === false && !isUnlocked) {
                   return false;
@@ -665,7 +669,11 @@ export default function StudentCourses() {
                 const isUnlocked = isLevelUnlocked(lvl);
                 const isCurrent = studentLevelCode === lvl;
                 const courseCount = courses.filter((c) => (c.levelCode || "L0").toUpperCase() === lvl).length;
-                const liveLevel = levelTiers.find((t: any) => (t.code || t.levelCode || "").toUpperCase() === lvl.toUpperCase());
+                const liveLevel = levelTiers.find((t: any) => {
+                  const c = (t.code || t.levelCode || "").toUpperCase();
+                  const target = lvl.toUpperCase();
+                  return c === target || c.startsWith(target) || c.includes(target);
+                });
                 
                 const defaultName = lvl === "L0" ? "Fast Track" : lvl === "L1" ? "Explore Membership" : lvl === "L2" ? "Master Membership" : "Renaissance Certification";
                 const levelDisplayName = tierPricing.name || liveLevel?.name || cfg.name || defaultName;
@@ -683,13 +691,9 @@ export default function StudentCourses() {
                   L3: "/images/hero/hero-img-8.jpg",
                 };
 
-                const isOldScreenshot = liveLevel?.thumbnail && (
-                  liveLevel.thumbnail.toLowerCase().includes("screenshot") || 
-                  liveLevel.thumbnail.includes("page-preview")
-                );
-
-                const cardImage = (liveLevel?.thumbnail && !isOldScreenshot && lvl !== "L0")
-                  ? getImageUrl(liveLevel.thumbnail) 
+                const liveThumb = liveLevel?.thumbnail || liveLevel?.image || liveLevel?.bannerImage;
+                const cardImage = liveThumb
+                  ? getImageUrl(liveThumb) 
                   : (curatedLevelThumbnails[lvl] || "/images/journey/level-0.jpg");
 
                 const moduleCount = courseCount || (lvl === "L0" ? 4 : lvl === "L1" ? 5 : lvl === "L2" ? 4 : 18);
