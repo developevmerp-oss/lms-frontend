@@ -125,16 +125,24 @@ export default function AdminMilestones() {
   const pending = total - done;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <Target className="text-orange-500" /> Milestone Management
+            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+              <Target className="text-[#c4431d]" /> Milestone Management
             </h1>
-            <p className="text-slate-400 mt-2">
+            <p className="text-stone-500 mt-2 font-medium">
               Create, rename, complete, and customize Business Milestones across all student journeys.
             </p>
           </div>
@@ -148,21 +156,21 @@ export default function AdminMilestones() {
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
-            { label: "Total Milestones", value: total, color: "text-white" },
+            { label: "Total Milestones", value: total, color: "text-stone-900" },
             { label: "Completed", value: done, color: "text-green-400" },
-            { label: "Pending", value: pending, color: "text-orange-400" },
+            { label: "Pending", value: pending, color: "text-[#c4431d]" },
           ].map(stat => (
-            <div key={stat.label} className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl">
-              <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
+            <div key={stat.label} className="bg-white/95 border border-[#ecdccb] rounded-3xl p-5 shadow-[0_4px_16px_-4px_rgba(45,30,15,0.06)]">
+              <p className="text-stone-500 text-sm mb-1 font-bold">{stat.label}</p>
               <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
             </div>
           ))}
         </div>
 
         {/* Add Milestone */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 mb-8 shadow-xl">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Plus size={18} className="text-orange-500" /> Add New Milestone
+        <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 mb-8 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+          <h2 className="text-lg font-bold text-stone-900 mb-4 flex items-center gap-2">
+            <Plus size={18} className="text-[#c4431d]" /> Add New Milestone
           </h2>
           <div className="flex gap-3 flex-wrap items-center">
             <select
@@ -171,7 +179,7 @@ export default function AdminMilestones() {
                 setSelectedStudentId(e.target.value);
                 if (e.target.value === "all") setApplyToAll(true);
               }}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors min-w-[200px]"
+              className="bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors min-w-[200px]"
             >
               <option value="all">-- All Students (Global) --</option>
               {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -182,21 +190,21 @@ export default function AdminMilestones() {
               value={newMilestone.name}
               onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
               onKeyDown={e => e.key === 'Enter' && addMilestone()}
-              className="flex-1 min-w-[240px] bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white outline-none focus:border-orange-500 transition-colors"
+              className="flex-1 min-w-[240px] bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
             />
-            <label className="flex items-center gap-2 text-sm text-slate-400 px-3 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-sm text-stone-600 px-3 cursor-pointer select-none font-medium">
               <input
                 type="checkbox"
                 checked={newMilestone.completed}
                 onChange={e => setNewMilestone({ ...newMilestone, completed: e.target.checked })}
-                className="accent-orange-500 w-4 h-4 rounded"
+                className="accent-[#c4431d] w-4 h-4 rounded"
               />
               Mark Completed
             </label>
             <button
               onClick={addMilestone}
               disabled={!newMilestone.name.trim()}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-all shadow-md cursor-pointer"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
             >
               <Plus size={16} /> Save Milestone
             </button>
@@ -206,13 +214,13 @@ export default function AdminMilestones() {
         {/* Filters & Search */}
         <div className="flex gap-3 mb-6 items-center justify-between flex-wrap">
           <div className="flex items-center gap-2">
-            <Filter size={16} className="text-slate-500" />
+            <Filter size={16} className="text-stone-400" />
             {(['all', 'completed', 'pending'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilterStatus(f)}
                 className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors capitalize cursor-pointer ${
-                  filterStatus === f ? 'bg-orange-500 text-slate-950 font-black' : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  filterStatus === f ? 'bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-xs' : 'bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50'
                 }`}
               >
                 {f}
@@ -226,12 +234,12 @@ export default function AdminMilestones() {
               placeholder="Search milestone or student..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-orange-500"
+              className="bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
             />
             <select
               value={selectedStudentId}
               onChange={e => setSelectedStudentId(e.target.value)}
-              className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white outline-none focus:border-orange-500"
+              className="bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
             >
               <option value="all">All Students ({students.length})</option>
               {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -240,8 +248,8 @@ export default function AdminMilestones() {
         </div>
 
         {/* Milestones List */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-          <div className="grid grid-cols-12 gap-4 px-6 py-3.5 bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="bg-white/95 border border-[#ecdccb] rounded-3xl overflow-hidden shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+          <div className="grid grid-cols-12 gap-4 px-6 py-3.5 bg-[#fcfaf7] border-b border-stone-200 text-xs font-bold text-stone-600 uppercase tracking-wider">
             <div className="col-span-1">Status</div>
             <div className="col-span-6">Milestone Title (Click Pencil to Edit)</div>
             <div className="col-span-3">Student</div>
@@ -249,16 +257,16 @@ export default function AdminMilestones() {
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-slate-500">Loading milestones...</div>
+            <div className="p-12 text-center text-stone-400 font-medium">Loading milestones...</div>
           ) : displayedMilestones.length === 0 ? (
-            <div className="p-12 text-center text-slate-500">No milestones found.</div>
+            <div className="p-12 text-center text-stone-400 font-medium">No milestones found.</div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-stone-100">
               {displayedMilestones.map(m => (
                 <div
                   key={m.id}
-                  className={`grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-slate-800/30 transition-colors ${
-                    m.completed ? 'bg-slate-900/40' : ''
+                  className={`grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-[#fff5ee]/60 transition-colors ${
+                    m.completed ? 'bg-emerald-50/30' : ''
                   }`}
                 >
                   {/* Checkbox Status */}
@@ -270,7 +278,7 @@ export default function AdminMilestones() {
                     >
                       {m.completed
                         ? <CheckCircle2 size={22} className="text-emerald-400 hover:scale-110 transition-transform" />
-                        : <Circle size={22} className="text-slate-600 hover:text-orange-500 transition-colors" />
+                        : <Circle size={22} className="text-stone-400 hover:text-[#c4431d] transition-colors" />
                       }
                     </button>
                   </div>
@@ -288,18 +296,18 @@ export default function AdminMilestones() {
                             if (e.key === 'Escape') setEditingMilestoneId(null);
                           }}
                           autoFocus
-                          className="flex-1 bg-slate-950 border border-orange-500 rounded-xl px-3 py-1.5 text-sm text-white focus:outline-none"
+                          className="flex-1 bg-white border border-[#c4431d] rounded-xl px-3 py-1.5 text-sm text-stone-900 focus:outline-none"
                         />
                         <button
                           onClick={() => saveMilestoneName(m.id)}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 p-1.5 rounded-lg cursor-pointer"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg cursor-pointer"
                           title="Save Changes"
                         >
                           <Check size={16} />
                         </button>
                         <button
                           onClick={() => setEditingMilestoneId(null)}
-                          className="bg-slate-800 hover:bg-slate-700 text-slate-300 p-1.5 rounded-lg cursor-pointer"
+                          className="bg-stone-200 hover:bg-stone-300 text-stone-700 p-1.5 rounded-lg cursor-pointer"
                           title="Cancel"
                         >
                           <X size={16} />
@@ -307,12 +315,12 @@ export default function AdminMilestones() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 group">
-                        <p className={`font-semibold text-sm ${m.completed ? 'text-slate-300' : 'text-white'}`}>
+                        <p className={`font-semibold text-sm ${m.completed ? 'text-stone-500 line-through' : 'text-stone-900 font-bold'}`}>
                           {m.name}
                         </p>
                         <button
                           onClick={() => startEditing(m)}
-                          className="text-slate-500 hover:text-orange-400 p-1 transition-colors cursor-pointer"
+                          className="text-stone-400 hover:text-[#c4431d] p-1 transition-colors cursor-pointer"
                           title="Edit Milestone Name"
                         >
                           <Edit2 size={13} />
@@ -329,10 +337,10 @@ export default function AdminMilestones() {
                   {/* Student Name */}
                   <div className="col-span-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-orange-400">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center text-xs font-bold text-white shadow-xs">
                         {m.studentName?.charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-slate-300 text-xs font-medium">{m.studentName}</span>
+                      <span className="text-stone-700 text-xs font-medium">{m.studentName}</span>
                     </div>
                   </div>
 
@@ -340,14 +348,14 @@ export default function AdminMilestones() {
                   <div className="col-span-2 flex items-center justify-end gap-2">
                     <button
                       onClick={() => startEditing(m)}
-                      className="text-slate-400 hover:text-orange-400 p-1.5 bg-slate-800/80 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                      className="text-stone-400 hover:text-[#c4431d] p-1.5 bg-stone-100 hover:bg-[#fff5ee] rounded-lg transition-colors cursor-pointer"
                       title="Edit Milestone"
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => deleteMilestone(m.id)}
-                      className="text-slate-400 hover:text-red-400 p-1.5 bg-slate-800/80 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                      className="text-stone-400 hover:text-rose-600 p-1.5 bg-stone-100 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                       title="Delete Milestone"
                     >
                       <Trash2 size={14} />

@@ -23,9 +23,9 @@ import {
 import { API_BASE_URL } from "@/config/api";
 
 const TARGET_AUDIENCE_OPTIONS = [
-  { id: "all", label: "All Students (Global Broadcast)", icon: "👥", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/30" },
+  { id: "all", label: "All Students (Global Broadcast)", icon: "👥", color: "text-[#942008]", bg: "bg-[#fde5d6]", border: "border-[#f5ded0]" },
   { id: "L0", label: "Level 0: Fast Track Students", icon: "🌱", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
-  { id: "L1", label: "Level 1: Silver Members", icon: "🥈", color: "text-slate-300", bg: "bg-slate-500/10", border: "border-slate-500/30" },
+  { id: "L1", label: "Level 1: Silver Members", icon: "🥈", color: "text-stone-700", bg: "bg-stone-100", border: "border-stone-200" },
   { id: "L2", label: "Level 2: Gold Members", icon: "🥇", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
   { id: "L3", label: "Level 3: Diamond Club", icon: "💎", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
   { id: "general", label: "General Members (No Level)", icon: "👤", color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/30" },
@@ -127,15 +127,15 @@ export default function AdminNotifications() {
   }, [token]);
 
   const targetAudienceOptions = [
-    { id: "all", label: "All Students (Global Broadcast)", icon: "👥", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/30" },
+    { id: "all", label: "All Students (Global Broadcast)", icon: "👥", color: "text-[#942008]", bg: "bg-[#fde5d6]", border: "border-[#f5ded0]" },
     ...(liveLevels.length > 0
       ? liveLevels.map((l: any) => ({
           id: l.code,
           label: `${l.code}: ${l.name} (${l.price || '₹499'})`,
           icon: l.icon || "⚡",
           color: "text-amber-400",
-          bg: "bg-slate-500/10",
-          border: "border-slate-500/30",
+          bg: "bg-stone-100",
+          border: "border-stone-200",
         }))
       : TARGET_AUDIENCE_OPTIONS.slice(1, 5)
     ),
@@ -195,22 +195,30 @@ export default function AdminNotifications() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         
         {/* Header */}
-        <header className="mb-8">
+        <header className="mb-6 md:mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-black uppercase tracking-wider mb-2">
-                <Bell size={13} /> Targeted Broadcast Center
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdeee2] border border-[#f5ded0] text-[#c4431d] text-xs md:text-sm lg:text-xs font-black uppercase tracking-wider mb-2.5">
+                <Bell size={14} className="shrink-0" /> Targeted Broadcast Center
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              <h1 className="text-2xl md:text-4xl lg:text-3xl font-black text-stone-900 tracking-tight leading-tight">
                 Send Notifications to L0, L1, L2, L3 &amp; Webinar Leads
               </h1>
-              <p className="text-slate-400 text-sm mt-1">
+              <p className="text-stone-500 text-sm md:text-base lg:text-sm mt-1.5 font-medium leading-relaxed">
                 Push instant announcements, limited-time discount offers, and class reminders directly to student notification bells.
               </p>
             </div>
@@ -218,158 +226,166 @@ export default function AdminNotifications() {
         </header>
 
         {successMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
-            <CheckCircle2 size={18} /> {successMsg}
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm md:text-base lg:text-sm font-bold flex items-center gap-2">
+            <CheckCircle2 size={18} className="shrink-0" /> {successMsg}
           </div>
         )}
 
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold flex items-center gap-2">
-            <AlertTriangle size={18} /> {errorMsg}
+          <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm md:text-base lg:text-sm font-bold flex items-center gap-2">
+            <AlertTriangle size={18} className="shrink-0" /> {errorMsg}
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Left Form: Broadcast Composer */}
-          <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
-            <h2 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-              <Send size={18} className="text-orange-500" /> Compose Broadcast Notification
+        <div className="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1.5fr)_minmax(0,1.15fr)] gap-5 xl:gap-6 items-start">
+
+          {/* Left Column: Audience & Presets */}
+          <div className="md:col-span-5 xl:col-span-1 bg-white/95 border border-[#ecdccb] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] space-y-6">
+            <h2 className="text-base md:text-xl lg:text-lg font-black text-stone-900 flex items-center gap-2">
+              <Users size={18} className="text-[#c4431d] shrink-0" /> Audience &amp; Presets
             </h2>
 
             {/* Quick Templates */}
-            <div className="mb-6">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+            <div>
+              <span className="text-xs md:text-sm lg:text-xs font-bold text-stone-700 flex items-center gap-1.5 mb-2.5">
                 ⚡ Quick Presets / Templates:
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {QUICK_TEMPLATES.map((tpl, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => applyTemplate(tpl)}
-                    className="text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-orange-500/40 transition-all cursor-pointer group"
+                    className="w-full text-left px-3 py-2.5 rounded-xl bg-[#fcfaf7] border border-stone-200 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/60 transition-all cursor-pointer group"
                   >
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 group-hover:text-orange-400 truncate">
+                    <div className="flex items-center justify-between gap-2 text-xs md:text-sm lg:text-xs font-bold text-stone-800 group-hover:text-[#942008]">
                       <span className="truncate">{tpl.title}</span>
-                      <ArrowRight size={12} className="shrink-0 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ArrowRight size={13} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <form onSubmit={handleSendBroadcast} className="space-y-5">
-              
-              {/* 1. Target Audience Segment */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
-                  <Users size={14} className="text-orange-500" /> Select Target Student Segment:
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {targetAudienceOptions.map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setForm({ ...form, targetAudience: opt.id })}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                        form.targetAudience === opt.id
-                          ? "bg-orange-500/15 border-orange-500 shadow-md"
-                          : "bg-slate-950 border-slate-800 hover:border-slate-700"
-                      }`}
-                    >
-                      <span className="text-lg mb-1">{opt.icon}</span>
-                      <span className={`text-xs font-black leading-tight ${form.targetAudience === opt.id ? "text-orange-400" : "text-slate-300"}`}>
-                        {opt.id.toUpperCase()}
-                      </span>
-                      <span className="text-[10px] text-slate-400 truncate mt-0.5">{opt.label.split(":")[0]}</span>
-                    </button>
-                  ))}
-                </div>
+            {/* 1. Target Audience Segment */}
+            <div>
+              <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-2.5 flex items-center gap-1.5">
+                <Users size={14} className="text-[#c4431d] shrink-0" /> Select Target Student Segment:
+              </label>
+              <div className="grid grid-cols-2 gap-2.5">
+                {targetAudienceOptions.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setForm({ ...form, targetAudience: opt.id })}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-start min-w-0 ${
+                      form.targetAudience === opt.id
+                        ? "bg-[#fff5ee] border-[#c4431d] shadow-xs"
+                        : "bg-[#fcfaf7] border-stone-200 hover:border-stone-300"
+                    }`}
+                  >
+                    <span className="text-lg md:text-xl lg:text-lg mb-1 leading-none">{opt.icon}</span>
+                    <span className={`text-xs md:text-sm lg:text-xs font-black leading-tight ${form.targetAudience === opt.id ? "text-[#942008]" : "text-stone-900"}`}>
+                      {opt.id.toUpperCase()}
+                    </span>
+                    <span className="text-xs md:text-sm lg:text-xs text-stone-500 line-clamp-2 mt-0.5 font-medium leading-snug break-words">
+                      {opt.label.split(":")[0]}
+                    </span>
+                  </button>
+                ))}
               </div>
+            </div>
 
-              {/* 2. Notification Type */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-2 flex items-center gap-1.5">
-                  <Tag size={14} className="text-orange-500" /> Notification Category:
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {NOTIFICATION_TYPES.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => setForm({ ...form, type: t.id })}
-                      className={`p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 justify-center ${
-                        form.type === t.id
-                          ? "bg-slate-950 border-orange-500 text-orange-400 font-black shadow-sm"
-                          : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      {t.icon}
-                      <span className="truncate">{t.label.split("/")[0]}</span>
-                    </button>
-                  ))}
-                </div>
+            {/* 2. Notification Type */}
+            <div>
+              <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-2.5 flex items-center gap-1.5">
+                <Tag size={14} className="text-[#c4431d] shrink-0" /> Notification Category:
+              </label>
+              <div className="flex flex-col gap-2">
+                {NOTIFICATION_TYPES.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setForm({ ...form, type: t.id })}
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-xs md:text-sm lg:text-xs font-bold transition-all cursor-pointer flex items-center gap-2.5 text-left ${
+                      form.type === t.id
+                        ? "bg-[#fff5ee] border-[#c4431d] text-[#942008] font-black shadow-xs"
+                        : "bg-[#fcfaf7] border-stone-200 text-stone-700 hover:text-stone-900 hover:border-stone-300"
+                    }`}
+                  >
+                    <span className="shrink-0">{t.icon}</span>
+                    <span className="truncate">{t.label.split("/")[0]}</span>
+                  </button>
+                ))}
               </div>
+            </div>
+          </div>
 
+          {/* Center Column: Broadcast Composer */}
+          <div className="md:col-span-7 xl:col-span-1 bg-white/95 border border-[#ecdccb] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col">
+            <h2 className="text-base md:text-xl lg:text-lg font-black text-stone-900 mb-5 flex items-center gap-2">
+              <Send size={18} className="text-[#c4431d] shrink-0" /> Compose Broadcast Notification
+            </h2>
+
+            <form onSubmit={handleSendBroadcast} className="space-y-5 flex-1 flex flex-col">
               {/* 3. Title */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Notification Title</label>
+                <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-1.5">Notification Title</label>
                 <input
                   type="text"
                   required
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-sm md:text-base lg:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-[#c4431d] focus:ring-2 focus:ring-[#c4431d]/15 transition-all"
                   placeholder="e.g. 🔥 Special 20% OFF Offer on Resin Art Clocks!"
                 />
               </div>
 
               {/* 4. Message Content */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Message / Details</label>
+              <div className="flex-1 flex flex-col">
+                <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-1.5">Message / Details</label>
                 <textarea
-                  rows={4}
+                  rows={8}
                   required
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
+                  className="w-full min-h-[11rem] flex-1 bg-[#fcfaf7] border border-stone-300 rounded-xl p-3.5 text-sm md:text-base lg:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-[#c4431d] focus:ring-2 focus:ring-[#c4431d]/15 resize-y leading-relaxed transition-all"
                   placeholder="Write clear instructions, offer details, Zoom links, or deadlines..."
                 />
               </div>
 
               {/* 5. Destination Link */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1">
-                  <LinkIcon size={12} className="text-orange-400" /> Redirect Action Link (Optional)
+                <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
+                  <LinkIcon size={13} className="text-[#c4431d] shrink-0" /> Redirect Action Link (Optional)
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <input
                     type="text"
                     value={form.link}
                     onChange={(e) => setForm({ ...form, link: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-mono"
+                    className="flex-1 min-w-[11rem] bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm lg:text-xs text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-[#c4431d] focus:ring-2 focus:ring-[#c4431d]/15 font-mono transition-all"
                     placeholder="/student/courses or https://..."
                   />
-                  <div className="flex gap-1 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => setForm({ ...form, link: "/student/courses" })}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+                      className="px-2.5 py-1.5 text-xs md:text-sm lg:text-xs font-bold rounded-lg bg-stone-100 text-stone-700 hover:bg-[#fff5ee] hover:text-[#942008] border border-stone-200 transition-colors cursor-pointer whitespace-nowrap"
                     >
                       Courses
                     </button>
                     <button
                       type="button"
                       onClick={() => setForm({ ...form, link: "/student/classes" })}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+                      className="px-2.5 py-1.5 text-xs md:text-sm lg:text-xs font-bold rounded-lg bg-stone-100 text-stone-700 hover:bg-[#fff5ee] hover:text-[#942008] border border-stone-200 transition-colors cursor-pointer whitespace-nowrap"
                     >
                       Live Classes
                     </button>
                     <button
                       type="button"
                       onClick={() => setForm({ ...form, link: "/student/webinar" })}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+                      className="px-2.5 py-1.5 text-xs md:text-sm lg:text-xs font-bold rounded-lg bg-stone-100 text-stone-700 hover:bg-[#fff5ee] hover:text-[#942008] border border-stone-200 transition-colors cursor-pointer whitespace-nowrap"
                     >
                       Webinar
                     </button>
@@ -381,45 +397,45 @@ export default function AdminNotifications() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm transition-all shadow-xl shadow-orange-500/20 hover:scale-[1.01] cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 md:py-4 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-60 text-white font-black text-sm md:text-base lg:text-sm transition-all shadow-md shadow-[#c4431d]/25 hover:scale-[1.01] cursor-pointer flex items-center justify-center gap-2"
               >
-                <Send size={16} />
+                <Send size={16} className="shrink-0" />
                 <span>{isSubmitting ? "Broadcasting to Students..." : `🚀 Broadcast to ${form.targetAudience.toUpperCase()} Students`}</span>
               </button>
             </form>
           </div>
 
           {/* Right Column: Live Student Notification Preview & History */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="md:col-span-12 xl:col-span-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-5 xl:gap-6">
             
             {/* Live Student Preview Card */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-3 flex items-center gap-1.5">
-                <Bell size={13} className="text-orange-400" /> Live Student View Preview:
-              </span>
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h3 className="text-sm md:text-lg lg:text-base font-black text-stone-900 mb-3.5 flex items-center gap-2">
+                <Bell size={16} className="text-[#c4431d] shrink-0" /> Live Student View Preview:
+              </h3>
 
-              <div className="bg-slate-950 border border-orange-500/30 rounded-2xl p-4 shadow-lg">
+              <div className="bg-[#fcfaf7] border border-[#f5ded0] rounded-2xl p-4 shadow-xs">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
                     <Bell size={16} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">
+                    <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                      <span className="text-xs md:text-sm lg:text-xs font-bold text-[#942008] bg-[#fde5d6] px-2 py-0.5 rounded-md uppercase tracking-wider">
                         {form.type.toUpperCase()} • {form.targetAudience.toUpperCase()}
                       </span>
-                      <span className="text-[10px] text-slate-500">Just Now</span>
+                      <span className="text-xs md:text-sm lg:text-xs text-stone-400 font-medium">Just Now</span>
                     </div>
-                    <h4 className="text-sm font-black text-white leading-tight">
+                    <h4 className="text-sm md:text-base lg:text-sm font-black text-stone-900 leading-snug break-words">
                       {form.title || "Notification Title Here..."}
                     </h4>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                    <p className="text-xs md:text-sm lg:text-xs text-stone-600 mt-1 leading-relaxed break-words">
                       {form.message || "Your message preview will render here for students on mobile and desktop."}
                     </p>
                     {form.link && (
-                      <div className="mt-2 text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                      <div className="mt-2.5 text-xs md:text-sm lg:text-xs font-bold text-[#c4431d] flex items-center gap-1 break-all">
                         <span>Click to Open: {form.link}</span>
-                        <ArrowRight size={11} />
+                        <ArrowRight size={12} className="shrink-0" />
                       </div>
                     )}
                   </div>
@@ -428,42 +444,43 @@ export default function AdminNotifications() {
             </div>
 
             {/* Broadcast History */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black text-white flex items-center gap-2">
-                  <Clock size={15} className="text-slate-400" /> Recent Broadcasts
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <h3 className="text-sm md:text-lg lg:text-base font-black text-stone-900 flex items-center gap-2">
+                  <Clock size={16} className="text-stone-400 shrink-0" /> Recent Broadcasts
                 </h3>
                 <button
+                  type="button"
                   onClick={fetchHistory}
-                  className="text-xs text-orange-400 hover:underline font-bold cursor-pointer"
+                  className="text-xs md:text-sm lg:text-xs text-[#c4431d] hover:underline font-bold cursor-pointer shrink-0"
                 >
                   Refresh
                 </button>
               </div>
 
               {isLoadingHistory ? (
-                <div className="py-8 text-center text-xs text-slate-500">Loading history...</div>
+                <div className="py-8 text-center text-xs md:text-sm lg:text-xs text-stone-400 font-medium">Loading history...</div>
               ) : history.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-2xl">
+                <div className="py-8 text-center text-xs md:text-sm lg:text-xs text-stone-400 font-medium border border-dashed border-stone-200 rounded-2xl">
                   No notifications broadcasted yet.
                 </div>
               ) : (
-                <div className="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+                <div className="space-y-2.5 max-h-[26rem] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:#a8a29e_transparent]">
                   {history.slice(0, 15).map((n) => (
                     <div
                       key={n.id}
-                      className="p-3 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 transition-colors"
+                      className="p-3.5 bg-[#fcfaf7] border border-stone-200/90 rounded-2xl hover:border-[#c4431d]/30 transition-colors"
                     >
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-slate-800 text-orange-400 border border-slate-700">
+                        <span className="px-2 py-0.5 rounded-md text-xs md:text-sm lg:text-xs font-black bg-[#fde5d6] text-[#942008] border border-[#f5ded0]">
                           {n.targetAudience?.toUpperCase() || "ALL"}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
+                        <span className="text-xs md:text-sm lg:text-xs text-stone-400 font-mono">
                           {new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
                         </span>
                       </div>
-                      <h5 className="text-xs font-bold text-white truncate">{n.title}</h5>
-                      <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{n.message}</p>
+                      <h5 className="text-sm md:text-base lg:text-sm font-bold text-stone-900 truncate">{n.title}</h5>
+                      <p className="text-xs md:text-sm lg:text-xs text-stone-500 line-clamp-1 mt-0.5">{n.message}</p>
                     </div>
                   ))}
                 </div>

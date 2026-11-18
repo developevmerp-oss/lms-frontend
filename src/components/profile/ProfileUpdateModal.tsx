@@ -39,7 +39,7 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess }: ProfileUpdate
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    name: user?.name || "",
+    name: (user?.name && user.name !== "Admin") ? user.name : (user?.name === "Admin" ? "Yug" : "Yug"),
     avatarUrl: user?.avatarUrl || "",
     city: user?.city || "",
     phone: user?.phone || "",
@@ -56,7 +56,7 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess }: ProfileUpdate
   React.useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || "",
+        name: (user.name && user.name !== "Admin") ? user.name : "Yug",
         avatarUrl: user.avatarUrl || "",
         city: user.city || "",
         phone: user.phone || "",
@@ -148,224 +148,223 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess }: ProfileUpdate
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative my-8 animate-scale-up">
-        
-        {/* Header */}
-        <div className="flex justify-between items-center pb-4 mb-6 border-b border-slate-800">
-          <div>
-            <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-              <User className="text-orange-500" size={22} />
-              Edit Profile & Photo
-            </h2>
-            <p className="text-slate-400 text-xs mt-0.5">
-              Update your personal details, profile picture, and account settings
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative my-8 animate-scale-up">
 
-        {/* Alerts */}
-        {successMsg && (
-          <div className="p-3.5 mb-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-2xl flex items-center gap-2">
-            <CheckCircle2 size={16} /> {successMsg}
-          </div>
-        )}
-        {errorMsg && (
-          <div className="p-3.5 mb-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold rounded-2xl flex items-center gap-2">
-            <AlertCircle size={16} /> {errorMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          
-          {/* Avatar Upload Section */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-slate-950/70 border border-slate-800 rounded-2xl">
-            
-            {/* Avatar Preview + Upload Trigger */}
-            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-orange-500 shadow-xl shadow-orange-500/20 bg-slate-800 flex items-center justify-center text-3xl font-black text-white">
-                {previewAvatar ? (
-                  <img src={previewAvatar} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{user?.name?.charAt(0).toUpperCase() || "A"}</span>
-                )}
-              </div>
-              
-              {/* Camera Overlay */}
-              <div className="absolute inset-0 rounded-full bg-slate-950/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity backdrop-blur-xs">
-                <Camera size={20} className="text-white mb-0.5" />
-                <span className="text-[10px] text-white font-bold">Change</span>
-              </div>
-            </div>
-
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-
-            {/* Buttons & Presets */}
-            <div className="flex-1 space-y-2 text-center sm:text-left">
-              <div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs rounded-xl transition-all shadow-md shadow-orange-500/20 inline-flex items-center gap-1.5"
-                >
-                  <Upload size={14} className="stroke-[2.5]" /> Upload Photo from Computer
-                </button>
-                <p className="text-[11px] text-slate-500 mt-1">PNG, JPG, WEBP up to 4MB</p>
-              </div>
-
-              {/* Quick Preset Avatars */}
-              <div>
-                <span className="text-[11px] text-slate-400 font-bold block mb-1.5">Or choose an artistic avatar:</span>
-                <div className="flex gap-2 justify-center sm:justify-start flex-wrap">
-                  {AVATAR_PRESETS.map((preset, idx) => (
+            {/* Header */}
+              <div className="flex justify-between items-center pb-4 mb-6 border-b border-stone-200">
+                <div>
+                    <h2 className="text-xl font-black text-stone-900 flex items-center gap-2">
+                      <User className="text-[#c4431d]" size={22} />
+                      Edit Profile & Photo
+                    </h2>
+                      <p className="text-stone-500 text-xs mt-0.5 font-medium">
+                        Update your personal details, profile picture, and account settings
+                      </p>
+                    </div>
                     <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handlePresetSelect(preset)}
-                      className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all hover:scale-110 ${
-                        previewAvatar === preset ? "border-orange-500 scale-110 shadow-md" : "border-slate-700 opacity-70 hover:opacity-100"
-                      }`}
+                      onClick={onClose}
+                      className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors"
                     >
-                      <img src={preset} alt={`preset-${idx}`} className="w-full h-full object-cover" />
+                      <X size={16} />
                     </button>
-                  ))}
                 </div>
-              </div>
-            </div>
 
-          </div>
+                {/* Alerts */}
+                {successMsg && (
+                    <div className="p-3.5 mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-2xl flex items-center gap-2">
+                      <CheckCircle2 size={16} /> {successMsg}
+                    </div>
+        )}
+                    {errorMsg && (
+                        <div className="p-3.5 mb-4 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold rounded-2xl flex items-center gap-2">
+                          <AlertCircle size={16} /> {errorMsg}
+                        </div>
+        )}
 
-          {/* Form Fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            {/* Full Name */}
-            <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">Full Name *</label>
-              <div className="relative">
-                <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Your Name"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:border-orange-500 transition-colors"
-                  required
-                />
-              </div>
-            </div>
+                        <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Email (Read only) */}
-            <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">Email Address</label>
-              <div className="relative">
-                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="email"
-                  value={user?.email || ""}
-                  disabled
-                  className="w-full bg-slate-950/50 border border-slate-800/80 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-slate-500 font-medium cursor-not-allowed"
-                />
-              </div>
-            </div>
+                          {/* Avatar Upload Section */}
+                            <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-[#fcfaf7] border border-stone-200 rounded-2xl">
 
-            {/* City */}
-            <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">City / Location</label>
-              <div className="relative">
-                <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="e.g. Mumbai, Delhi"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:border-orange-500 transition-colors"
-                />
-              </div>
-            </div>
+                              {/* Avatar Preview + Upload Trigger */}
+                              <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#f5ded0] shadow-md bg-[#fde5d6] flex items-center justify-center text-3xl font-black text-[#942008]">
+                                    {previewAvatar ? (
+                                      <img src={previewAvatar} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                      <span>{((formData.name || user?.name || "Y").trim().charAt(0) || "Y").toUpperCase()}</span>
+                                    )}
+                                  </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-xs font-bold text-slate-400 mb-1.5">Phone Number</label>
-              <div className="relative">
-                <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="text"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="e.g. +91 9876543210"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:border-orange-500 transition-colors"
-                />
-              </div>
-            </div>
+                                  {/* Camera Overlay */}
+                                    <div className="absolute inset-0 rounded-full bg-stone-900/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity backdrop-blur-xs">
+                                      <Camera size={20} className="text-white mb-0.5" />
+                                      <span className="text-[10px] text-white font-bold">Change</span>
+                                    </div>
+                                  </div>
 
-          </div>
+                                  {/* Hidden File Input */}
+                                  <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                    className="hidden"
+                                  />
 
-          {/* Bio */}
-          <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1.5">Bio / Artist Statement</label>
-            <div className="relative">
-              <FileText size={15} className="absolute left-3.5 top-3 text-slate-500" />
-              <textarea
-                rows={2}
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                placeholder="Share your resin art journey, business goals, or artistic specialty..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:border-orange-500 transition-colors resize-none"
-              />
-            </div>
-          </div>
+                                  {/* Buttons & Presets */}
+                                  <div className="flex-1 space-y-2 text-center sm:text-left">
+                                    <div>
+                                      <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="px-4 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-[#c4431d]/20 inline-flex items-center gap-1.5 cursor-pointer"
+                                      >
+                                        <Upload size={14} className="stroke-[2.5]" /> Upload Photo from Computer
+                                      </button>
+                                      <p className="text-[11px] text-stone-500 mt-1">PNG, JPG, WEBP up to 4MB</p>
+                                    </div>
 
-          {/* Change Password (Optional) */}
-          <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1.5">
-              Change Password <span className="text-slate-500 font-normal">(Leave blank to keep current)</span>
-            </label>
-            <div className="relative">
-              <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="New password (min 6 chars)"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:border-orange-500 transition-colors"
-              />
-            </div>
-          </div>
+                                    {/* Quick Preset Avatars */}
+                                    <div>
+                                      <span className="text-[11px] text-stone-600 font-bold block mb-1.5">Or choose an artistic avatar:</span>
+                                      <div className="flex gap-2 justify-center sm:justify-start flex-wrap">
+                                        {AVATAR_PRESETS.map((preset, idx) => (
+                                          <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => handlePresetSelect(preset)}
+                      className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all hover:scale-110 cursor-pointer ${previewAvatar === preset ? "border-[#c4431d] scale-110 shadow-md" : "border-stone-300 opacity-70 hover:opacity-100"
+                                              }`}
+                                          >
+                                            <img src={preset} alt={`preset-${idx}`} className="w-full h-full object-cover" />
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
 
-          {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50 flex items-center gap-1.5"
-            >
-              {isSaving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
+                                </div>
 
-        </form>
+                                {/* Form Fields */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-      </div>
-    </div>
-  );
+                                  {/* Full Name */}
+                                  <div>
+                                    <label className="block text-xs font-bold text-stone-700 mb-1.5">Full Name *</label>
+                                    <div className="relative">
+                                      <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                                      <input
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        placeholder="Your Name"
+                                        className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-stone-900 font-medium focus:outline-none focus:border-[#c4431d] transition-colors"
+                                        required
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Email (Read only) */}
+                                  <div>
+                                    <label className="block text-xs font-bold text-stone-700 mb-1.5">Email Address</label>
+                                    <div className="relative">
+                                      <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                                      <input
+                                        type="email"
+                                        value={user?.email || ""}
+                                        disabled
+                                        className="w-full bg-stone-100 border border-stone-200 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-stone-500 font-medium cursor-not-allowed"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* City */}
+                                  <div>
+                                    <label className="block text-xs font-bold text-stone-700 mb-1.5">City / Location</label>
+                                    <div className="relative">
+                                      <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                                      <input
+                                        type="text"
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        placeholder="e.g. Mumbai, Delhi"
+                                        className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-stone-900 font-medium focus:outline-none focus:border-[#c4431d] transition-colors"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Phone */}
+                                  <div>
+                                    <label className="block text-xs font-bold text-stone-700 mb-1.5">Phone Number</label>
+                                    <div className="relative">
+                                      <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                                      <input
+                                        type="text"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="e.g. +91 9876543210"
+                                        className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-stone-900 font-medium focus:outline-none focus:border-[#c4431d] transition-colors"
+                                      />
+                                    </div>
+                                  </div>
+
+                                </div>
+
+                                {/* Bio */}
+                                <div>
+                                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Bio / Artist Statement</label>
+                                  <div className="relative">
+                                    <FileText size={15} className="absolute left-3.5 top-3 text-stone-400" />
+                                    <textarea
+                                      rows={2}
+                                      value={formData.bio}
+                                      onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                                      placeholder="Share your resin art journey, business goals, or artistic specialty..."
+                                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-stone-900 font-medium focus:outline-none focus:border-[#c4431d] transition-colors resize-none"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Change Password (Optional) */}
+                                <div>
+                                    <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                                      Change Password <span className="text-stone-400 font-normal">(Leave blank to keep current)</span>
+                                    </label>
+                                    <div className="relative">
+                                      <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                                      <input
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        placeholder="New password (min 6 chars)"
+                                        className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-stone-900 font-medium focus:outline-none focus:border-[#c4431d] transition-colors"
+                                      />
+                                    </div>
+                                </div>
+
+                                {/* Footer Actions */}
+                                  <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+                                    <button
+                                      type="button"
+                                      onClick={onClose}
+                                      className="px-5 py-2.5 text-xs font-bold text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      type="submit"
+                                      disabled={isSaving}
+                                      className="px-6 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-[#c4431d]/20 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                                    >
+                                      {isSaving ? "Saving..." : "Save Changes"}
+                                    </button>
+                                  </div>
+
+                                </form>
+
+                              </div>
+                            </div>
+                            );
 };

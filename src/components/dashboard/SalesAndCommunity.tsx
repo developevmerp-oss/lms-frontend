@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { TrendingUp, Users, Trophy, Heart, ArrowUpRight, MessageSquare, ThumbsUp, Send } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { motion } from 'framer-motion';
-import { useAuth } from '@/context/AuthContext';
-import { API_BASE_URL } from "@/config/api";
+import React from "react";
+import { motion } from "framer-motion";
+import { TrendingUp } from "lucide-react";
+import { ResponsiveContainer, AreaChart, Area, Tooltip, XAxis } from "recharts";
 
 interface SalesRecord {
   id?: string;
@@ -14,84 +12,25 @@ interface SalesRecord {
   date?: string;
 }
 
+interface MonthlySalesPoint {
+  month: string;
+  sales: number;
+}
+
 interface SalesAndCommunityProps {
   sales?: SalesRecord[];
-  communityWins?: any[];
+  communityWins?: unknown[];
   onInteract?: () => void;
 }
 
-export const SalesAndCommunity = ({ sales, communityWins, onInteract }: SalesAndCommunityProps) => {
-  const { token } = useAuth();
+export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
   const activeSales = sales || [];
-  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [isSharingWin, setIsSharingWin] = useState(false);
-  const [newWinText, setNewWinText] = useState("");
-  const [isPostingWin, setIsPostingWin] = useState(false);
-
-  const displayWins = communityWins && communityWins.length > 0 ? communityWins : [
-    { id: '1', studentName: 'Priya S.', achievement: 'Sold 5 custom geode coasters!', likes: 24, comments: [], timeAgo: '2h ago' },
-    { id: '2', studentName: 'Amit P.', achievement: 'Finished the Explore Bootcamp.', likes: 12, comments: [], timeAgo: '5h ago' },
-    { id: '3', studentName: 'Neha G.', achievement: 'First corporate order for 50 clocks.', likes: 89, comments: [], timeAgo: '1d ago' },
-  ];
-
-  const handleLike = async (winId: string) => {
-    if (!token || !winId || winId.length < 10) return; // ignore mock data
-    try {
-      await fetch(`${API_BASE_URL}/dashboard/community-wins/${winId}/like`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (onInteract) onInteract();
-    } catch (err) {
-      console.error('Error liking:', err);
-    }
-  };
-
-  const submitReply = async (winId: string) => {
-    if (!token || !winId || winId.length < 10 || !replyText.trim()) return;
-    setIsSubmitting(true);
-    try {
-      await fetch(`${API_BASE_URL}/dashboard/community-wins/${winId}/comment`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: replyText })
-      });
-      setReplyText("");
-      setActiveReplyId(null);
-      if (onInteract) onInteract();
-    } catch (err) {
-      console.error('Error commenting:', err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const submitNewWin = async () => {
-    if (!token || !newWinText.trim()) return;
-    setIsPostingWin(true);
-    try {
-      await fetch(`${API_BASE_URL}/dashboard/community-wins`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ achievement: newWinText })
-      });
-      setNewWinText("");
-      setIsSharingWin(false);
-      if (onInteract) onInteract();
-    } catch (err) {
-      console.error('Error posting win:', err);
-    } finally {
-      setIsPostingWin(false);
-    }
-  };
-
-  // Prepare chart data grouping by month
-  const chartData = activeSales.reduce((acc: any[], s) => {
-    const month = s.date ? new Date(s.date).toLocaleString('default', { month: 'short' }) : 'Now';
-    const existing = acc.find(e => e.month === month);
+  const chartData = activeSales.reduce((acc: MonthlySalesPoint[], s: SalesRecord) => {
+    const month = s.date
+      ? new Date(s.date).toLocaleString("default", { month: "short" })
+      : "Now";
+    const existing = acc.find((e) => e.month === month);
     if (existing) {
       existing.sales += s.amount;
     } else {
@@ -100,72 +39,81 @@ export const SalesAndCommunity = ({ sales, communityWins, onInteract }: SalesAnd
     return acc;
   }, []);
 
-  const totalRevenue = activeSales.reduce((sum, s) => sum + s.amount, 0);
+  const totalRevenue = activeSales.reduce(
+    (sum, s) => sum + (Number(s.amount) || 0),
+    0
+  );
 
   return (
-    <div className="w-full">
-      {/* Sales Chart */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col shadow-xl"
-      >
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="text-green-500" />
-            <h2 className="text-lg md:text-xl font-bold text-white">Sales & Income</h2>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
+            <TrendingUp size={16} />
           </div>
-          <div className="text-right">
-            <p className="text-xs text-slate-400">Total Revenue</p>
-            <p className="text-xl md:text-2xl font-black text-white">₹{totalRevenue.toLocaleString('en-IN')}</p>
-          </div>
+          <h2 className="text-sm sm:text-base font-bold text-stone-900">Sales & Income</h2>
         </div>
 
-        {chartData.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center min-h-[200px]">
-            <TrendingUp size={40} className="text-slate-700 mb-3" />
-            <p className="text-slate-400 font-medium">No sales recorded yet</p>
-            <p className="text-slate-600 text-sm mt-1">Complete your first sale to see your revenue chart!</p>
+        <div className="text-right shrink-0">
+          <span className="text-[9px] uppercase tracking-wider text-stone-400 font-semibold block">
+            TOTAL REVENUE
+          </span>
+          <span className="text-sm sm:text-base font-black text-stone-900 leading-tight">
+            ₹{totalRevenue.toLocaleString("en-IN")}
+          </span>
+        </div>
+      </div>
+
+      {/* Content: Empty state matching Portfolio Projects when no sales, dynamic chart when sales exist */}
+      <div className="flex-1 flex flex-col justify-center py-2 sm:py-3">
+        {totalRevenue === 0 || chartData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center">
+            <TrendingUp size={34} className="text-[#e86034] mb-2" />
+            <p className="text-stone-600 text-xs font-medium">No sales recorded yet.</p>
+            <p className="text-stone-400 text-[11px] mt-0.5">
+              Complete your first sale to see your revenue chart!
+            </p>
           </div>
         ) : (
-          <div className="flex-1 min-h-[250px]">
+          <div className="h-24 sm:h-28 w-full pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                  <linearGradient id="colorSalesOrange" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#e86034" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#e86034" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="month" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value/1000}k`} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '12px' }}
-                  itemStyle={{ color: '#22c55e' }}
-                  formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Sales']}
+                <XAxis dataKey="month" hide />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    borderColor: "#ecdccb",
+                    borderRadius: "12px",
+                    fontSize: "11px",
+                  }}
+                  itemStyle={{ color: "#c4431d", fontWeight: "bold" }}
+                  formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`, "Sales"]}
                 />
-                <Area type="monotone" dataKey="sales" stroke="#22c55e" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#e86034"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorSalesOrange)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         )}
-
-        {/* Recent transactions */}
-        {activeSales.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-slate-800">
-            <h3 className="text-sm font-semibold text-slate-400 mb-3">Recent Transactions</h3>
-            <div className="space-y-2">
-              {activeSales.slice(-3).reverse().map((s, i) => (
-                <div key={s.id || i} className="flex items-center justify-between">
-                  <span className="text-sm text-slate-300">{s.productName || 'Product'}</span>
-                  <span className="text-sm font-bold text-green-400">+₹{s.amount.toLocaleString('en-IN')}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 };

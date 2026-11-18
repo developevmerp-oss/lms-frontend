@@ -446,25 +446,25 @@ export const TierPurchaseModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 font-sans">
-      <div className="relative w-full max-w-2xl rounded-3xl border border-orange-500/40 bg-slate-900 p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
+      <div className="relative w-full max-w-2xl rounded-3xl border border-[#ecdccb] bg-white p-6 sm:p-8 shadow-2xl text-stone-900 max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex justify-between items-start pb-4 border-b border-slate-800 shrink-0">
+        <div className="flex justify-between items-start pb-4 border-b border-stone-200 shrink-0">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-orange-400 mb-1.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-[#942008] mb-1.5">
               <Trophy size={13} /> Razorpay Secure Checkout
             </span>
             <h2 className="text-2xl font-black text-white">
               Unlock Next-Level Curriculum &amp; Masterclasses
             </h2>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               Directly purchase any level with UPI, Cards, Netbanking via Razorpay — no prerequisite completion needed!
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="p-2 hover:bg-stone-100 rounded-full text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -492,24 +492,24 @@ export const TierPurchaseModal = ({
                   }}
                   className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
                     isSelected
-                      ? "bg-orange-500/10 border-orange-500 ring-2 ring-orange-500/30"
-                      : "bg-slate-950/80 border-slate-800 hover:border-slate-700"
+                      ? "bg-[#fde5d6]/50 border-[#c4431d] ring-2 ring-[#c4431d]/30"
+                      : "bg-[#faf8f5] border-stone-200 hover:border-stone-300"
                   }`}
                 >
                   {liveMatch?.thumbnail && (
-                    <div className="w-full h-12 -mt-3 -mx-3 mb-2 rounded-t-xl overflow-hidden relative group/thumb border-b border-slate-800 shrink-0">
+                    <div className="w-full h-12 -mt-3 -mx-3 mb-2 rounded-t-xl overflow-hidden relative group/thumb border-b border-stone-200 shrink-0">
                       <img
                         src={getImageUrl(liveMatch.thumbnail)}
                         alt={pricing.name}
                         className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent" />
                     </div>
                   )}
                   <div>
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <span className="text-lg">{liveMatch?.icon || tier.icon}</span>
-                      <span className="text-[11px] font-black text-orange-400 uppercase">
+                      <span className="text-[11px] font-black text-[#942008] uppercase">
                         {tier.code}
                       </span>
                     </div>
@@ -537,8 +537,8 @@ export const TierPurchaseModal = ({
 
           {/* Multi-Offer Campaign Selector (When admin creates multiple offers for the same level) */}
           {matchingOffers.length > 1 && (
-            <div className="mb-3 p-3 bg-slate-900 border border-slate-800 rounded-2xl">
-              <span className="text-[11px] font-bold text-slate-400 block mb-2">
+            <div className="mb-3 p-3 bg-[#faf8f5] border border-stone-200 rounded-2xl">
+              <span className="text-[11px] font-bold text-stone-500 block mb-2">
                 🎉 {matchingOffers.length} Active Offers Available for {selectedCode} (Click to Switch):
               </span>
               <div className="flex flex-wrap gap-2">
@@ -553,7 +553,7 @@ export const TierPurchaseModal = ({
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSel
                           ? "bg-gradient-to-r from-red-500 to-rose-600 text-white font-black shadow-md border border-red-400"
-                          : "bg-slate-950 border border-slate-800 text-slate-300 hover:text-white"
+                          : "bg-white border border-stone-200 text-stone-700 hover:text-stone-900"
                       }`}
                     >
                       <Tag size={12} /> {off.title} ({bdg})
@@ -566,14 +566,14 @@ export const TierPurchaseModal = ({
 
           {/* Installment Payment Mode Toggle (When Admin enables installments on this level) */}
           {hasInstallmentOption && (
-            <div className="p-1.5 bg-slate-950 border border-slate-800 rounded-2xl flex items-center gap-1.5">
+            <div className="p-1.5 bg-[#faf8f5] border border-stone-200 rounded-2xl flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setPaymentMode("full")}
                 className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   paymentMode === "full"
-                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-md"
-                    : "text-slate-400 hover:text-white hover:bg-slate-900"
+                    ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-bold shadow-md"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-stone-100"
                 }`}
               >
                 <Tag size={13} /> Pay in Full ({offerBadge ? `₹${finalNumericPrice.toLocaleString("en-IN")}` : mergedTier.price})
@@ -583,8 +583,8 @@ export const TierPurchaseModal = ({
                 onClick={() => setPaymentMode("installment")}
                 className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   paymentMode === "installment"
-                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md"
-                    : "text-slate-400 hover:text-white hover:bg-slate-900"
+                    ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-bold shadow-md"
+                    : "text-stone-600 hover:text-stone-900 hover:bg-stone-100"
                 }`}
               >
                 <CreditCard size={13} /> Pay in Installments
@@ -597,8 +597,8 @@ export const TierPurchaseModal = ({
 
           {/* Fixed Admin-Configured Installment Plan Display */}
           {isPayingInstallment && (
-            <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-xl animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="p-5 rounded-3xl bg-[#faf8f5] border border-stone-200 space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between pb-2 border-b border-stone-200">
                 <span className="text-xs font-black text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
                   <CreditCard size={15} /> Official Installment Structure
                 </span>
@@ -608,26 +608,26 @@ export const TierPurchaseModal = ({
               </div>
 
               {/* Fixed Total Instalments (Admin-Defined) */}
-              <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 flex items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-200">
+                    <span className="text-xs font-bold text-stone-800">
                       Total Instalments
                     </span>
                     <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       Configured by Academy
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-stone-500 mt-1">
                     Divided into <strong className="text-white">{adminTotalInstallments} equal instalments</strong> of{" "}
                     <strong className="text-emerald-400 font-mono">₹{autoInstallmentRounded.toLocaleString("en-IN")}</strong> each
                   </p>
                 </div>
-                <div className="text-right shrink-0 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800">
+                <div className="text-right shrink-0 px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200">
                   <span className="text-xl font-black font-mono text-cyan-400">
                     {adminTotalInstallments}
                   </span>
-                  <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">
+                  <span className="text-[9px] text-stone-500 block font-bold uppercase tracking-wider">
                     Instalments
                   </span>
                 </div>
@@ -635,14 +635,14 @@ export const TierPurchaseModal = ({
 
               {/* Instalment Period Dropdown */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
                   <span>Select Payment Frequency</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Available Cycles</span>
+                  <span className="text-[10px] text-stone-500 font-normal">Available Cycles</span>
                 </label>
                 <select
                   value={customPeriod}
                   onChange={(e) => setCustomPeriod(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-cyan-500 transition-all cursor-pointer"
+                  className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] transition-all cursor-pointer"
                 >
                   {enabledFrequencies.map((f) => (
                     <option key={f.frequency} value={f.frequency}>
@@ -650,7 +650,7 @@ export const TierPurchaseModal = ({
                     </option>
                   ))}
                 </select>
-                <span className="text-[10px] text-slate-400 mt-1 block">
+                <span className="text-[10px] text-stone-500 mt-1 block">
                   Select payment cycle interval allowed by instructor.
                 </span>
               </div>
@@ -660,17 +660,17 @@ export const TierPurchaseModal = ({
                 {Array.from({ length: adminTotalInstallments }).map((_, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/90 border border-slate-800/80 transition-all hover:border-slate-700"
+                    className="flex items-center justify-between p-3 rounded-2xl bg-white border border-stone-200 transition-all hover:border-stone-300"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shrink-0 shadow-md">
+                      <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
                         {idx + 1}
                       </div>
                       <div>
                         <span className="font-black text-white text-xs block">
                           {getOrdinal(idx + 1)} Instalment
                         </span>
-                        <span className="text-[11px] text-slate-400 font-medium">
+                        <span className="text-[11px] text-stone-600 font-medium">
                           {getPeriodOffsetLabel(idx, customPeriod)}
                         </span>
                       </div>
@@ -690,11 +690,11 @@ export const TierPurchaseModal = ({
               </div>
 
               {/* Important Information */}
-              <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-1.5 text-xs">
-                <h5 className="font-black text-slate-300 text-xs flex items-center gap-1.5">
-                  <Info size={13} className="text-orange-400" /> Important Information
+              <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 space-y-1.5 text-xs">
+                <h5 className="font-black text-stone-800 text-xs flex items-center gap-1.5">
+                  <Info size={13} className="text-[#c4431d]" /> Important Information
                 </h5>
-                <ul className="space-y-1 text-[11px] text-slate-400 list-disc list-inside">
+                <ul className="space-y-1 text-[11px] text-stone-600 list-disc list-inside">
                   <li>
                     Please note that if the student fails to pay his instalments on time, access to upcoming curriculum may be temporarily placed on hold until renewed.
                   </li>
@@ -706,9 +706,9 @@ export const TierPurchaseModal = ({
               </div>
 
               {/* Bottom Price Summary & Create Action */}
-              <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-800">
+              <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-stone-200">
                 <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">
+                  <span className="text-[11px] text-stone-600 block font-medium">
                     {adminTotalInstallments} instalments · ₹{autoInstallmentRounded.toLocaleString("en-IN")} each
                   </span>
                   <span className="text-sm md:text-base font-black text-white font-mono">
@@ -723,7 +723,7 @@ export const TierPurchaseModal = ({
                   type="button"
                   onClick={handleRazorpayPayment}
                   disabled={isProcessing}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-slate-950 font-black text-xs md:text-sm shadow-lg shadow-cyan-500/20 transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs md:text-sm shadow-md shadow-[#c4431d]/25 transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Zap size={14} />
                   {isProcessing ? "Processing..." : "Create Instalment"}
@@ -733,18 +733,18 @@ export const TierPurchaseModal = ({
           )}
 
           {/* Selected Tier Detail Card */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/90 overflow-hidden shadow-inner">
+          <div className="rounded-3xl border border-stone-200 bg-[#faf8f5] overflow-hidden shadow-xs">
             {/* Level Banner Image / Thumbnail (if available) */}
             {mergedTier.thumbnail && (
-              <div className="w-full h-36 sm:h-44 relative overflow-hidden border-b border-slate-800/80 group/banner">
+              <div className="w-full h-36 sm:h-44 relative overflow-hidden border-b border-stone-200 group/banner">
                 <img
                   src={getImageUrl(mergedTier.thumbnail)}
                   alt={mergedTier.name}
                   className="w-full h-full object-cover group-hover/banner:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-stone-900/20 to-transparent" />
                 <div className="absolute top-3 left-3 flex items-center gap-2">
-                  <span className="bg-slate-950/80 backdrop-blur-md text-orange-400 text-xs font-black px-3 py-1 rounded-full border border-orange-500/30 uppercase tracking-wider shadow-lg">
+                  <span className="bg-white/90 backdrop-blur-md text-[#942008] text-xs font-black px-3 py-1 rounded-full border border-[#f5ded0] uppercase tracking-wider shadow-xs">
                     {mergedTier.code} Tier Banner
                   </span>
                 </div>
@@ -753,8 +753,8 @@ export const TierPurchaseModal = ({
 
             <div className="p-5 sm:p-6">
             {offerBadge && mergedTier.offerTitle && !isPayingInstallment && (
-              <div className="mb-4 p-2.5 rounded-2xl bg-gradient-to-r from-red-500/10 via-rose-500/10 to-orange-500/10 border border-red-500/30 flex items-center justify-between gap-2">
-                <span className="text-xs font-black text-red-400 flex items-center gap-1.5">
+              <div className="mb-4 p-2.5 rounded-2xl bg-[#fde5d6]/70 border border-[#f5ded0] flex items-center justify-between gap-2">
+                <span className="text-xs font-black text-[#942008] flex items-center gap-1.5">
                   🎁 {mergedTier.offerTitle}
                 </span>
                 <span className="text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 px-2.5 py-0.5 rounded-lg shadow-md animate-pulse flex items-center gap-1">
@@ -763,14 +763,14 @@ export const TierPurchaseModal = ({
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-2xl shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-2xl shrink-0">
                   {mergedTier.icon}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-orange-400 uppercase tracking-wider block">
+                    <span className="text-xs font-black text-[#942008] uppercase tracking-wider block">
                       {mergedTier.code} Tier Enrollment
                     </span>
                     {(() => {
@@ -801,13 +801,13 @@ export const TierPurchaseModal = ({
                       <span className="text-2xl font-black text-amber-400 font-mono">
                         ₹{autoInstallmentRounded.toLocaleString("en-IN")}
                       </span>
-                      <span className="text-xs text-slate-400 font-sans font-bold">
+                      <span className="text-xs text-stone-500 font-sans font-bold">
                         (Installment 1 of {adminTotalInstallments})
                       </span>
                     </>
                   ) : offerBadge ? (
                     <>
-                      <span className="text-xs text-slate-500 line-through font-mono">
+                      <span className="text-xs text-stone-400 line-through font-mono">
                         {mergedTier.price}
                       </span>
                       <span className="text-2xl font-black text-amber-400 font-mono">
@@ -823,7 +823,7 @@ export const TierPurchaseModal = ({
                         {mergedTier.price}
                       </span>
                       {mergedTier.originalPrice && mergedTier.originalPrice !== mergedTier.price && (
-                        <span className="text-xs text-slate-500 line-through font-mono">
+                        <span className="text-xs text-stone-400 line-through font-mono">
                           {mergedTier.originalPrice}
                         </span>
                       )}
@@ -836,17 +836,17 @@ export const TierPurchaseModal = ({
               </div>
             </div>
 
-            <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+            <p className="text-xs text-stone-600 mt-3 leading-relaxed">
               {mergedTier.description}
             </p>
 
             {/* Benefits Checklist */}
-            <div className="mt-4 pt-4 border-t border-slate-800/80 space-y-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+            <div className="mt-4 pt-4 border-t border-stone-200 space-y-2">
+              <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">
                 Included in this Membership:
               </span>
               {mergedTier.benefits.map((b, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs text-slate-200">
+                <div key={i} className="flex items-start gap-2 text-xs text-stone-700">
                   <CheckCircle2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                   <span>{b}</span>
                 </div>
@@ -863,12 +863,12 @@ export const TierPurchaseModal = ({
         </div>
 
         {/* Footer Actions with Razorpay Checkout */}
-        <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center gap-3 shrink-0">
+        <div className="pt-4 border-t border-stone-200 flex flex-col sm:flex-row items-center gap-3 shrink-0">
           <button
             type="button"
             onClick={handleRazorpayPayment}
             disabled={isProcessing}
-            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm rounded-xl shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
           >
             <CreditCard size={17} />
             {isProcessing
@@ -881,7 +881,7 @@ export const TierPurchaseModal = ({
           <button
             type="button"
             onClick={handleWhatsAppHelp}
-            className="w-full sm:w-auto py-3 px-4 border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="w-full sm:w-auto py-3 px-4 border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
             <MessageCircle size={15} className="text-emerald-400" /> WhatsApp Support
           </button>

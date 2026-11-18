@@ -5,9 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { Image as ImageIcon, Send, X, ArrowLeft } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { StudentNav } from "@/components/layout/StudentNav";
 
 export default function StudentPortfolio() {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ title: '', technique: '', imageUrl: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,46 +44,56 @@ export default function StudentPortfolio() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-white p-4 md:p-8">
-      <div className="max-w-[1400px] mx-auto">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <StudentNav user={user} level={user?.membershipLevel || "General"} points={user?.points || 0} logout={logout} />
+
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/student/dashboard" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors">
+          <Link href="/student/dashboard" className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-full transition-colors">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+          <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
             My Portfolio
           </h1>
         </div>
 
-        <div className="bg-black/30 backdrop-blur-xl border border-white/20 p-8 rounded-3xl min-h-[60vh] flex flex-col items-center justify-center text-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-purple-500/10 border border-purple-500/30">
+        <div className="bg-white/95 backdrop-blur-xl border border-[#ecdccb] p-8 rounded-3xl min-h-[60vh] flex flex-col items-center justify-center text-center shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+          <div className="w-24 h-24 bg-[#fde5d6] rounded-full flex items-center justify-center mb-6 shadow-md shadow-[#c4431d]/20 border border-[#f5ded0] text-[#942008]">
             <ImageIcon size={40} className="text-purple-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Showcase Your Journey</h2>
-          <p className="text-gray-400 max-w-md mb-8">
+          <h2 className="text-2xl font-bold text-stone-900 mb-2">Showcase Your Journey</h2>
+          <p className="text-stone-600 max-w-md mb-8">
             Upload your finished resin pieces here. Our Diamond Mentors will review your work, provide feedback, and update your Skill Mastery scores!
           </p>
           
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-purple-500/25 transition-all transform hover:scale-105 flex items-center gap-2"
+            className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold py-3 px-8 rounded-full shadow-md shadow-[#c4431d]/25 transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer"
           >
             <Send size={18} /> Submit New Artwork
           </button>
         </div>
-      </div>
+      </main>
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-gray-900 border border-white/20 rounded-3xl p-8 max-w-md w-full relative">
+          <div className="bg-gray-900 border border-stone-200 rounded-3xl p-8 max-w-md w-full relative">
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-stone-900 transition-colors"
             >
               <X size={24} />
             </button>
             
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
               <ImageIcon className="text-pink-400" /> Upload Artwork
             </h2>
             
@@ -94,7 +105,7 @@ export default function StudentPortfolio() {
                   required
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-stone-900 placeholder-gray-500 focus:outline-none focus:border-pink-500 transition-colors"
                   placeholder="e.g. Ocean Wave Coaster"
                 />
               </div>
@@ -105,7 +116,7 @@ export default function StudentPortfolio() {
                   required
                   value={formData.technique}
                   onChange={e => setFormData({...formData, technique: e.target.value})}
-                  className="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-stone-900 focus:outline-none focus:border-pink-500 transition-colors"
                 >
                   <option value="">Select a technique...</option>
                   <option value="Resin Basics">Resin Basics</option>
@@ -123,7 +134,7 @@ export default function StudentPortfolio() {
                   required
                   value={formData.imageUrl}
                   onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-stone-900 placeholder-gray-500 focus:outline-none focus:border-pink-500 transition-colors"
                   placeholder="https://imgur.com/... or similar"
                 />
               </div>
@@ -131,7 +142,7 @@ export default function StudentPortfolio() {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-500/25 disabled:opacity-50"
+                className="w-full mt-4 bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-stone-900 font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-500/25 disabled:opacity-50"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit to Mentor'}
               </button>

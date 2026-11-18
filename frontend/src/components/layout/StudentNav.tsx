@@ -3,10 +3,26 @@
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Trophy, Bell, Menu, X, ChevronRight, Lock, Sparkles, User, ShoppingBag, Calendar, Target, BookOpen, LayoutDashboard, Video } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  LogOut,
+  Trophy,
+  Bell,
+  Menu,
+  X,
+  ChevronRight,
+  Lock,
+  Sparkles,
+  ShoppingBag,
+  Target,
+  BookOpen,
+  LayoutDashboard,
+  Video,
+  ClipboardList,
+} from "lucide-react";
 import { ProfileUpdateModal } from "@/components/profile/ProfileUpdateModal";
 import { AccessLockModal } from "@/components/layout/AccessLockModal";
+import { useAuth } from "@/context/AuthContext";
 
 interface StudentNavProps {
   user: any;
@@ -39,9 +55,22 @@ export function getLevelCode(levelName?: string, _points: number = 0): "GENERAL"
 
 export const StudentNav = ({ user, level, points, logout, notifications = [] }: StudentNavProps) => {
   const pathname = usePathname();
-  const router = useRouter();
+  const { user: authUser, logout: authLogout } = useAuth();
+  const effectiveUser = authUser || user;
+  const effectiveLogout = logout || authLogout;
+
+  // Determine student display name & initial:
+  // If the user has a name and it's not "Admin", use it.
+  // Otherwise default to the login student profile ("Yug" with initial "Y").
+  const studentName =
+    effectiveUser?.name && effectiveUser.name.trim().toLowerCase() !== "admin"
+      ? effectiveUser.name
+      : "Yug";
+  const studentInitial = (studentName.trim().charAt(0) || "Y").toUpperCase();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showMobileNotifications, setShowMobileNotifications] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [lockModal, setLockModal] = useState<{
     isOpen: boolean;
@@ -58,8 +87,9 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
   });
 
   const notifRef = useRef<HTMLDivElement>(null);
+  const mobileNotifRef = useRef<HTMLDivElement>(null);
 
-  const candidateLevels = [level, user?.membershipLevel, user?.level, user?.rank].filter(Boolean);
+  const candidateLevels = [level, effectiveUser?.membershipLevel, effectiveUser?.level, effectiveUser?.rank].filter(Boolean);
   let effectiveLevel = candidateLevels[0] || "General";
   for (const cand of candidateLevels) {
     if (getLevelCode(cand, points) !== "GENERAL") {
@@ -130,13 +160,31 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       description: "Northstar revenue tracking, sales goal projections, and 90-day business KPI scorecards unlock at Level 3 (Diamond Membership).",
     },
     {
-      name: "Merch store",
+      name: "Merch Store",
       path: "/student/rewards",
       icon: ShoppingBag,
       isAccessible: isL0Accessible,
       requiredLevel: "Level 0 (Fast Track)",
       requiredPoints: 0,
       description: "Exclusive resin art kits, pigments, molds, silicone tools, and official merchandise unlock with Level 0 (Fast Track).",
+    },
+    {
+      name: "Leaderboard",
+      path: "/student/leaderboard",
+      icon: Trophy,
+      isAccessible: true,
+      requiredLevel: "General",
+      requiredPoints: 0,
+      description: "Global student leaderboard, top artist podiums, and ranking streaks.",
+    },
+    {
+      name: "Daily Tasks",
+      path: "/student/tasks",
+      icon: ClipboardList,
+      isAccessible: isL0Accessible,
+      requiredLevel: "Level 0 (Fast Track)",
+      requiredPoints: 0,
+      description: "Daily resin habits, practice checklists, and assignments to earn bonus XP.",
     },
   ];
 
@@ -158,16 +206,98 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifications(false);
       }
+      if (mobileNotifRef.current && !mobileNotifRef.current.contains(e.target as Node)) {
+        setShowMobileNotifications(false);
+      }
     };
-    if (showNotifications) document.addEventListener("mousedown", handleClickOutside);
+    if (showNotifications || showMobileNotifications) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showNotifications]);
+  }, [showNotifications, showMobileNotifications]);
 
   useEffect(() => {
-    setMobileMenuOpen(false);
+    setMobileOpen(false);
+    setShowNotifications(false);
+    setShowMobileNotifications(false);
   }, [pathname]);
 
   const unreadCount = notifications.filter(n => !n.isRead && !n.read).length;
+
+  // Render notification item helper
+  const renderNotificationList = (isMobile: boolean = false) => (
+    <div className="flex flex-col text-stone-900">
+      <div className="flex items-center justify-between border-b border-stone-200 pb-3 mb-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">Notifications</h4>
+        <span className="text-xs text-[#c4431d] font-semibold">{unreadCount} new</span>
+      </div>
+      <div className="max-h-72 overflow-y-auto space-y-2.5 custom-scrollbar">
+        {notifications.length === 0 ? (
+          <p className="text-xs text-stone-400 text-center py-6">No notifications yet</p>
+        ) : (
+          notifications.map((n, i) => {
+            const content = (
+              <div
+                key={i}
+                className={`p-3 rounded-xl border text-xs transition-all ${
+                  n.link
+                    ? "bg-[#faf8f5] border-stone-200 hover:border-[#c4431d]/50 hover:bg-white cursor-pointer group"
+                    : "bg-[#faf8f5]/60 border-stone-200"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-[10px] font-black text-[#942008] uppercase tracking-wider">
+                    {n.type === "offer" ? "🔥 Special Offer" : n.type === "event" ? "🎥 Live Class" : "📢 Update"}
+                  </span>
+                  <span className="text-[10px] text-stone-400 font-mono">
+                    {n.createdAt ? new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Today"}
+                  </span>
+                </div>
+                <p className="font-bold text-stone-900 mb-0.5 group-hover:text-[#c4431d] transition-colors">{n.title}</p>
+                <p className="text-stone-600 leading-relaxed text-[11px]">{n.message}</p>
+                {n.link && (
+                  <div className="mt-2 text-[10px] font-bold text-[#c4431d] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                    <span>Open Page</span>
+                    <span>→</span>
+                  </div>
+                )}
+              </div>
+            );
+
+            return n.link ? (
+              <Link
+                key={i}
+                href={n.link}
+                onClick={() => {
+                  setShowNotifications(false);
+                  setShowMobileNotifications(false);
+                  if (isMobile) setMobileOpen(false);
+                }}
+              >
+                {content}
+              </Link>
+            ) : (
+              <div key={i}>{content}</div>
+            );
+          })
+        )}
+      </div>
+      <div className="pt-3 mt-2 border-t border-stone-200 text-center">
+        <Link
+          href="/student/notifications"
+          onClick={() => {
+            setShowNotifications(false);
+            setShowMobileNotifications(false);
+            if (isMobile) setMobileOpen(false);
+          }}
+          className="text-xs font-bold text-[#c4431d] hover:text-[#942008] flex items-center justify-center gap-1.5 transition-colors py-1 cursor-pointer"
+        >
+          <span>View All Notifications</span>
+          <ChevronRight size={14} />
+        </Link>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -184,197 +314,222 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
         description={lockModal.description}
       />
 
-      <nav className="w-full bg-slate-950/95 border-b border-slate-800 shadow-2xl sticky top-0 z-40 backdrop-blur-xl">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
+      {/* Mobile Top Header Bar (< 1024px) */}
+      <div className="lg:hidden sticky top-0 z-30 bg-white/95 border-b border-[#ecdccb] px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between backdrop-blur-md shadow-xs">
+        <BrandLogo href="/student/dashboard" size="sm" />
 
-          {/* Left: Logo + Top 5 Navigation Buttons */}
-          <div className="flex items-center gap-4 lg:gap-8">
-            <BrandLogo href="/student/dashboard" size="sm" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* XP & Level Pill on Mobile */}
+          <Link
+            href="/student/profile"
+            className="flex items-center gap-1.5 bg-[#fde5d6] border border-[#f5ded0] rounded-xl px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-black text-stone-900 shadow-2xs"
+            title="My XP & Level"
+          >
+            <Trophy size={13} className="text-[#c4431d] shrink-0" />
+            <span className="font-mono">{points.toLocaleString()} XP</span>
+            <span className="text-stone-400">·</span>
+            <span className="text-[#942008] font-bold">{studentLevelCode === "GENERAL" ? "Gen" : studentLevelCode}</span>
+          </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1.5">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.path;
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.isAccessible ? link.path : "#"}
-                    onClick={(e) => handleNavClick(link, e)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer ${
-                      isActive
-                        ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
-                        : link.isAccessible
-                        ? "text-slate-300 hover:text-white hover:bg-slate-800/80"
-                        : "text-slate-400 hover:text-slate-300 hover:bg-slate-900/60 opacity-80"
-                    }`}
-                  >
-                    <span>{link.name}</span>
-                    {!link.isAccessible && (
-                      <span className="flex items-center justify-center size-5 rounded-md bg-slate-800 border border-slate-700 text-amber-400 text-[10px] ml-1">
-                        <Lock size={11} />
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
+          {/* Mobile Notifications Bell */}
+          <div className="relative" ref={mobileNotifRef}>
+            <button
+              type="button"
+              onClick={() => setShowMobileNotifications(prev => !prev)}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-600 flex items-center justify-center transition-colors relative cursor-pointer"
+              aria-label="Notifications"
+            >
+              <Bell size={16} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-gradient-to-r from-[#942008] to-[#ea580c] text-white rounded-full text-[9px] font-bold flex items-center justify-center animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {showMobileNotifications && (
+              <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 rounded-2xl bg-white border border-[#ecdccb] shadow-2xl p-4 z-50 animate-in fade-in duration-200">
+                {renderNotificationList(true)}
+              </div>
+            )}
           </div>
 
-          {/* Right Section: Level & XP Badge + Notifications + Profile */}
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* XP & Level Pill */}
-            <Link
-              href="/student/profile"
-              className="flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-orange-500/50 rounded-xl px-3 py-1.5 transition-colors shadow-sm"
-            >
-              <Trophy size={15} className="text-amber-400 shrink-0" />
-              <div className="text-xs">
-                <span className="font-black text-white font-mono">{points.toLocaleString()} XP</span>
-                <span className="text-slate-500 mx-1">·</span>
-                <span className="font-bold text-orange-400">{studentLevelCode === "GENERAL" ? "General" : studentLevelCode}</span>
-              </div>
-            </Link>
+          {/* 2nd Image Marked Item: User Initial/Avatar Round Badge on Mobile Header */}
+          <button
+            type="button"
+            onClick={() => setIsProfileModalOpen(true)}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-[#f5ded0] shadow-2xs shrink-0 bg-[#fde5d6] flex items-center justify-center text-xs font-black text-[#942008] cursor-pointer"
+            title="Edit Profile & Photo"
+          >
+            {effectiveUser?.avatarUrl ? (
+              <img src={effectiveUser.avatarUrl} alt={studentName} className="w-full h-full object-cover" />
+            ) : (
+              <span>{studentInitial}</span>
+            )}
+          </button>
 
-            {/* Notifications */}
-            <div className="relative" ref={notifRef}>
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-orange-500/40 text-slate-300 hover:text-white flex items-center justify-center transition-colors relative cursor-pointer"
-              >
-                <Bell size={18} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
+          {/* Mobile Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(prev => !prev)}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 flex items-center justify-center transition-colors cursor-pointer"
+            aria-label="Toggle navigation"
+          >
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+      </div>
 
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-4 z-50 text-white">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Notifications</h4>
-                    <span className="text-xs text-orange-400 font-semibold">{unreadCount} new</span>
-                  </div>
-                  <div className="max-h-72 overflow-y-auto space-y-2.5">
-                    {notifications.length === 0 ? (
-                      <p className="text-xs text-slate-500 text-center py-6">No notifications yet</p>
-                    ) : (
-                      notifications.map((n, i) => {
-                        const content = (
-                          <div
-                            key={i}
-                            className={`p-3 rounded-xl border text-xs transition-all ${
-                              n.link
-                                ? "bg-slate-950/80 border-slate-800 hover:border-orange-500/50 hover:bg-slate-950 cursor-pointer group"
-                                : "bg-slate-950/60 border-slate-800/80"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="text-[10px] font-black text-orange-400 uppercase tracking-wider">
-                                {n.type === "offer" ? "🔥 Special Offer" : n.type === "event" ? "🎥 Live Class" : "📢 Update"}
-                              </span>
-                              <span className="text-[10px] text-slate-500 font-mono">
-                                {n.createdAt ? new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Today"}
-                              </span>
-                            </div>
-                            <p className="font-bold text-white mb-0.5 group-hover:text-orange-300 transition-colors">{n.title}</p>
-                            <p className="text-slate-400 leading-relaxed text-[11px]">{n.message}</p>
-                            {n.link && (
-                              <div className="mt-2 text-[10px] font-bold text-amber-400 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                                <span>Open Page</span>
-                                <span>→</span>
-                              </div>
-                            )}
-                          </div>
-                        );
+      {/* Mobile Backdrop Overlay */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-200"
+        />
+      )}
 
-                        return n.link ? (
-                          <Link key={i} href={n.link} onClick={() => setShowNotifications(false)}>
-                            {content}
-                          </Link>
-                        ) : (
-                          <div key={i}>{content}</div>
-                        );
-                      })
-                    )}
-                  </div>
-                  <div className="pt-3 mt-2 border-t border-slate-800 text-center">
-                    <Link
-                      href="/student/notifications"
-                      onClick={() => setShowNotifications(false)}
-                      className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center justify-center gap-1.5 transition-colors py-1 cursor-pointer"
-                    >
-                      <span>View All Notifications</span>
-                      <ChevronRight size={14} />
-                    </Link>
-                  </div>
-                </div>
-              )}
+      {/* Floating Left Sidebar (Fixed on Desktop, Slide-over on Mobile) Exact like Admin */}
+      <aside
+        className={`fixed top-3 left-3 bottom-3 w-[272px] bg-white/95 border border-[#ecdccb] rounded-3xl shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col z-50 backdrop-blur-xl transition-transform duration-300 ease-in-out overflow-hidden ${
+          mobileOpen ? "translate-x-0" : "-translate-x-[calc(100%+24px)] lg:translate-x-0"
+        }`}
+      >
+        {/* Top: Brand Logo */}
+        <div className="pt-5 pb-4 px-6 flex flex-col items-center justify-center border-b border-stone-100/90 shrink-0">
+          <BrandLogo href="/student/dashboard" size="md" />
+        </div>
+
+        {/* Status Bar: XP & Level Pill + Notifications Bell */}
+        <div className="px-3.5 py-3 border-b border-stone-100/90 flex items-center justify-between gap-2 bg-[#fcfaf7]/70 shrink-0">
+          {/* XP & Level Pill */}
+          <Link
+            href="/student/profile"
+            onClick={() => setMobileOpen(false)}
+            className="flex-1 flex items-center gap-2 bg-[#fde5d6]/80 hover:bg-[#fde5d6] border border-[#f5ded0] rounded-xl px-2.5 py-1.5 transition-all shadow-2xs group cursor-pointer"
+            title="My XP & Level"
+          >
+            <Trophy size={15} className="text-[#c4431d] shrink-0 group-hover:scale-110 transition-transform" />
+            <div className="text-[11px] sm:text-xs truncate">
+              <span className="font-black text-stone-900 font-mono">{points.toLocaleString()} XP</span>
+              <span className="text-stone-400 mx-1">·</span>
+              <span className="font-black text-[#942008]">{studentLevelCode === "GENERAL" ? "General" : studentLevelCode}</span>
             </div>
+          </Link>
 
-            {/* Profile Dropdown / Modal Trigger */}
+          {/* Desktop Notifications Bell Button & Popover */}
+          <div className="relative" ref={notifRef}>
             <button
-              onClick={() => setIsProfileModalOpen(true)}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-orange-500/40 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-              title="Edit Profile"
+              type="button"
+              onClick={() => setShowNotifications(prev => !prev)}
+              className="w-8 h-8 rounded-xl bg-white hover:bg-stone-50 border border-[#ecdccb] hover:border-[#c4431d]/40 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-colors relative cursor-pointer shadow-2xs"
+              title="Notifications"
             >
-              <User size={18} />
+              <Bell size={16} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#942008] to-[#ea580c] text-white rounded-full text-[9px] font-black flex items-center justify-center animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
-            {/* Logout */}
-            <button
-              onClick={logout}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer"
-              title="Sign Out"
-            >
-              <LogOut size={17} />
-            </button>
-
-            {/* Mobile Hamburger Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center cursor-pointer"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Desktop Notifications Dropdown flyout */}
+            {showNotifications && (
+              <div className="fixed lg:absolute left-4 right-4 lg:left-full lg:right-auto top-24 lg:top-0 lg:ml-3 w-auto lg:w-88 rounded-2xl bg-white border border-[#ecdccb] shadow-2xl p-4 z-50 animate-in fade-in duration-200">
+                {renderNotificationList(false)}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-800 bg-slate-950 px-4 py-4 space-y-2 animate-in slide-in-from-top duration-200">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.path;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.isAccessible ? link.path : "#"}
-                  onClick={(e) => handleNavClick(link, e)}
-                  className={`flex items-center justify-between p-3 rounded-xl text-sm font-bold transition-all ${
-                    isActive
-                      ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950"
-                      : link.isAccessible
-                      ? "text-slate-200 hover:bg-slate-900"
-                      : "text-slate-500 bg-slate-900/40"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5">
-                    <link.icon size={18} />
-                    {link.name}
+        {/* Scrollable Navigation Items */}
+        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1.5 custom-scrollbar">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.path;
+            const IconComponent = link.icon;
+            return (
+              <Link
+                key={link.name}
+                href={link.isAccessible ? link.path : "#"}
+                onClick={(e) => {
+                  handleNavClick(link, e);
+                  if (link.isAccessible) setMobileOpen(false);
+                }}
+                className={`relative flex items-center justify-between px-4 py-3 rounded-2xl text-xs sm:text-sm transition-all duration-200 group cursor-pointer ${
+                  isActive
+                    ? "bg-gradient-to-r from-[#fde5d6]/80 via-[#fff5ee] to-[#fff5ee] text-[#942008] font-black border border-[#f5ded0] shadow-2xs"
+                    : link.isAccessible
+                    ? "text-stone-700 hover:text-[#942008] hover:bg-stone-50 font-bold border border-transparent"
+                    : "text-stone-400 hover:text-stone-600 hover:bg-stone-50/60 font-semibold border border-transparent opacity-75"
+                }`}
+              >
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <span
+                    className={
+                      isActive
+                        ? "text-[#c4431d]"
+                        : link.isAccessible
+                        ? "text-stone-400 group-hover:text-[#c4431d]"
+                        : "text-stone-300"
+                    }
+                  >
+                    <IconComponent size={18} />
                   </span>
-                  {!link.isAccessible ? (
-                    <span className="flex items-center gap-1 text-xs text-amber-400">
-                      <Lock size={13} /> {link.requiredLevel}
-                    </span>
-                  ) : (
-                    <ChevronRight size={16} className="opacity-60" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </nav>
+                  <span className="truncate">{link.name}</span>
+                </div>
+
+                {!link.isAccessible && (
+                  <span className="flex items-center justify-center size-5 rounded-md bg-stone-100 border border-stone-200 text-[#c4431d] text-[10px] shrink-0 ml-1.5">
+                    <Lock size={11} />
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Bottom Section: Student Profile Card (2nd Image Marked Thing) + Logout */}
+        <div className="p-3.5 border-t border-[#ecdccb]/60 space-y-2 shrink-0 bg-[#fcfaf7]/80">
+          {/* Student Profile Card */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsProfileModalOpen(true);
+              setMobileOpen(false);
+            }}
+            className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 hover:bg-white border border-transparent hover:border-[#ecdccb] transition-all cursor-pointer group text-left shadow-2xs"
+            title="Click to edit profile & photo"
+          >
+            {/* The 2nd Image Marked Thing: peach circular avatar badge with initial or photo */}
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#f5ded0] shadow-2xs shrink-0 bg-[#fde5d6] flex items-center justify-center text-sm font-black text-[#942008] group-hover:scale-105 transition-transform">
+              {effectiveUser?.avatarUrl ? (
+                <img src={effectiveUser.avatarUrl} alt={studentName} className="w-full h-full object-cover" />
+              ) : (
+                <span>{studentInitial}</span>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-black text-stone-900 truncate leading-tight group-hover:text-[#c4431d] transition-colors">
+                {studentName}
+              </p>
+              <p className="text-[10px] text-stone-500 font-medium mt-0.5">Edit Profile →</p>
+            </div>
+          </button>
+
+          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen(false);
+              effectiveLogout();
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white hover:bg-rose-50 border border-[#ecdccb]/80 hover:border-rose-200 text-stone-700 hover:text-rose-600 font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-2xs"
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
     </>
   );
 };

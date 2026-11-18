@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import {
@@ -9,16 +9,14 @@ import {
   Trash2,
   Edit2,
   CheckCircle2,
-  Sparkles,
   Upload,
   Image as ImageIcon,
-  Tag,
   Gift,
   Star,
   Search,
   X,
   AlertTriangle,
-  ExternalLink,
+  ChevronDown,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -31,13 +29,13 @@ interface RewardItem {
   createdAt?: string;
 }
 
-const CATEGORY_PRESETS = [
+const CATEGORY_OPTIONS = [
+  "All Rewards",
   "Physical Merch Kit",
   "Stationery & Journals",
   "Mentoring Call",
   "Discount Vouchers",
   "Live Event & Certificates",
-  "Art Supplies",
 ];
 
 export default function AdminRewardsManager() {
@@ -45,6 +43,9 @@ export default function AdminRewardsManager() {
   const [rewards, setRewards] = useState<RewardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Rewards");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -95,6 +96,16 @@ export default function AdminRewardsManager() {
   useEffect(() => {
     if (token) fetchRewards();
   }, [token]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Handle File Upload (Convert & Compress Image to Base64 Data URL)
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,197 +233,339 @@ export default function AdminRewardsManager() {
     }
   };
 
-  const filteredRewards = rewards.filter(
-    (r) =>
+  const filteredRewards = rewards.filter((r) => {
+    const matchesSearch =
       r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.id.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (selectedCategory === "All Rewards") return matchesSearch;
+    return (
+      matchesSearch &&
+      (r.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+        r.description.toLowerCase().includes(selectedCategory.toLowerCase()))
+    );
+  });
+
+  const xpCosts = rewards.map((r) => r.pointCost);
+  const minXP = xpCosts.length > 0 ? Math.min(...xpCosts).toLocaleString() : "0";
+  const maxXP = xpCosts.length > 0 ? Math.max(...xpCosts).toLocaleString() : "0";
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
-        {/* Header */}
-        <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-6 md:p-8 rounded-3xl shadow-2xl">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+        {/* Header Section matching reference image */}
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5 sm:mb-6">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                Official Merch & XP Store
+            {/* Top pill badge + breadcrumb */}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="bg-[#feeae2] border border-[#fcd7c7] text-[#c2410c] text-xs font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 uppercase tracking-wide">
+                <Gift className="w-3.5 h-3.5" /> OFFICIAL MERCH &amp; XP STORE
               </span>
-              <span className="text-slate-400 text-xs font-bold">
-                {rewards.length} Items Listed
+              <span className="text-stone-300 font-light">|</span>
+              <span className="text-stone-500 font-medium text-xs sm:text-sm">
+                Merch Store Manager
               </span>
             </div>
-            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-              <ShoppingBag className="text-orange-500 shrink-0" size={32} /> Merch Store Manager
+
+            {/* Title (No vertical red bar, clean serif title) */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-stone-900 tracking-tight mt-1 mb-1">
+              Merch Store Manager
             </h1>
-            <p className="text-slate-400 text-sm mt-1 max-w-2xl">
-              Add physical merchandise bundles, journals, mentoring vouchers, and tickets that students redeem with their XP points. Any uploaded image or price update instantly reflects in the student panel!
+
+            {/* Subtitle */}
+            <p className="text-stone-500 text-xs sm:text-sm font-normal max-w-3xl leading-relaxed">
+              Manage physical merchandise bundles, journals, mentoring vouchers, and tickets that students can redeem with their XP points.
             </p>
           </div>
 
+          {/* Top CTA Button */}
           <button
             onClick={openCreateModal}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black px-6 py-3.5 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 shrink-0 cursor-pointer"
+            className="bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0 self-start md:self-auto cursor-pointer"
           >
-            <Plus size={20} /> Add New Merch Item
+            <Plus size={16} /> Add New Merch Item
           </button>
-        </header>
+        </div>
 
         {/* Alerts */}
         {successMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
+          <div className="mb-5 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs sm:text-sm font-bold flex items-center gap-2">
             <CheckCircle2 size={18} /> {successMsg}
           </div>
         )}
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold flex items-center gap-2">
+          <div className="mb-5 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-600 text-xs sm:text-sm font-bold flex items-center gap-2">
             <AlertTriangle size={18} /> {errorMsg}
           </div>
         )}
 
-        {/* Search & Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="md:col-span-2 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search merch title, description, or kit details..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-colors"
-            />
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center font-black">
-              <Gift size={20} />
-            </div>
-            <div>
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Merch</div>
-              <div className="text-lg font-black text-white">{rewards.length} Store Items</div>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-black">
-              <Star size={20} />
-            </div>
-            <div>
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">XP Range</div>
-              <div className="text-lg font-black text-white">
-                {rewards.length > 0
-                  ? `${Math.min(...rewards.map((r) => r.pointCost))} - ${Math.max(...rewards.map((r) => r.pointCost))} XP`
-                  : "0 XP"}
+        {/* Search, Filter & Overview Stat Pills Bar (Balanced across full width) */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-5 sm:mb-6">
+          {/* Left Group: Search Box + Category Dropdown */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 flex-1 max-w-2xl">
+            <div className="relative flex-1 min-w-[220px]">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                <Search size={16} />
               </div>
+              <input
+                type="text"
+                placeholder="Search merch item, ID, or keyword..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white border border-stone-200/90 rounded-2xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c2410c] focus:ring-1 focus:ring-[#c2410c]/20 transition-all shadow-2xs"
+              />
+            </div>
+
+            {/* <div className="relative shrink-0" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="bg-white border border-stone-200/90 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-medium text-stone-800 flex items-center justify-between gap-3 shadow-2xs hover:border-stone-300 transition-colors cursor-pointer min-w-[145px]"
+              >
+                <span>{selectedCategory}</span>
+                <ChevronDown
+                  size={15}
+                  className={`text-stone-500 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-56 bg-white border border-stone-200 rounded-2xl shadow-lg py-1.5 z-30">
+                  {CATEGORY_OPTIONS.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-xs sm:text-sm transition-colors cursor-pointer ${
+                        selectedCategory === cat
+                          ? "bg-[#fff5ee] text-[#c2410c] font-bold"
+                          : "text-stone-700 hover:bg-stone-50 font-normal"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div> */}
+          </div>
+
+          {/* Right Group: Stat Pills */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 self-start md:self-auto">
+            {/* Stat Pill 1: Total Store Items */}
+            <div className="bg-white border border-stone-200/90 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2 shadow-2xs shrink-0 whitespace-nowrap">
+              <Gift size={16} className="text-[#c2410c]" />
+              <span>{rewards.length} Store Items</span>
+            </div>
+
+            {/* Stat Pill 2: XP Range */}
+            <div className="bg-white border border-stone-200/90 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2 shadow-2xs shrink-0 whitespace-nowrap">
+              <Star size={16} className="text-amber-500" />
+              <span>{rewards.length > 0 ? `${minXP} – ${maxXP} XP` : "0 XP"}</span>
             </div>
           </div>
         </div>
 
-        {/* Merch Items Grid */}
+        {/* Main Rewards Table Container matching Reference Image */}
         {isLoading ? (
-          <div className="text-center py-16 bg-slate-900/50 rounded-3xl border border-slate-800">
-            <div className="inline-block animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mb-3"></div>
-            <p className="text-slate-400 text-sm font-bold">Loading merchandise catalog...</p>
+          <div className="text-center py-16 bg-white rounded-3xl border border-stone-200/80 shadow-xs">
+            <div className="inline-block animate-spin w-8 h-8 border-4 border-[#c2410c] border-t-transparent rounded-full mb-3"></div>
+            <p className="text-stone-500 text-xs sm:text-sm font-bold">Loading merchandise catalog...</p>
           </div>
         ) : filteredRewards.length === 0 ? (
-          <div className="text-center py-16 bg-slate-900/50 rounded-3xl border border-slate-800">
-            <ShoppingBag size={48} className="mx-auto text-slate-600 mb-3" />
-            <p className="text-slate-300 font-bold text-lg mb-1">No merchandise items found</p>
-            <p className="text-slate-500 text-sm mb-4">Click "Add New Merch Item" to create your first merchandise offering.</p>
+          <div className="text-center py-16 bg-white rounded-3xl border border-stone-200/80 shadow-xs">
+            <ShoppingBag size={48} className="mx-auto text-stone-300 mb-3" />
+            <p className="text-stone-900 font-bold text-base sm:text-lg mb-1">No merchandise items found</p>
+            <p className="text-stone-500 text-xs sm:text-sm mb-4">Click "Add New Merch Item" to create your first merchandise offering.</p>
             <button
               onClick={openCreateModal}
-              className="bg-orange-500 hover:bg-orange-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs"
+              className="bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-xs cursor-pointer inline-flex items-center gap-1.5"
             >
-              Add First Item
+              <Plus size={16} /> Add First Item
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRewards.map((item) => (
-              <div
-                key={item.id}
-                className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden hover:border-orange-500/40 transition-all duration-300 flex flex-col justify-between group shadow-xl"
-              >
-                <div>
-                  {/* Image Container */}
-                  <div className="relative h-48 w-full bg-slate-950 overflow-hidden">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-900">
-                        <ImageIcon size={48} />
+          <div className="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+            {/* Table Header (Desktop & Tablet) */}
+            <div className="hidden md:flex items-center px-5 sm:px-6 py-3.5 bg-[#faf6f3] border-b border-stone-100 text-xs sm:text-sm font-bold text-stone-700">
+              <div className="flex-1 min-w-0 pr-4">Reward Item</div>
+              <div className="w-44 text-center shrink-0">XP Cost</div>
+              <div className="w-40 text-center shrink-0">Item ID</div>
+              <div className="w-28 text-right shrink-0">Actions</div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-stone-100">
+              {filteredRewards.map((item) => (
+                <div
+                  key={item.id}
+                  className="hover:bg-[#faf8f5]/60 transition-colors"
+                >
+                  {/* Desktop & Tablet Row (md+) */}
+                  <div className="hidden md:flex items-center px-5 sm:px-6 py-4">
+                    {/* Column 1: Reward Item (Thumbnail + Title + Description) */}
+                    <div className="flex-1 min-w-0 flex items-center gap-4 pr-4">
+                      <div className="w-24 h-16 sm:w-28 sm:h-18 rounded-2xl overflow-hidden shrink-0 border border-stone-100 bg-stone-100 relative">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-stone-300">
+                            <ImageIcon size={28} />
+                          </div>
+                        )}
                       </div>
-                    )}
-                    <span className="absolute top-3 right-3 bg-amber-500/90 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-lg backdrop-blur-md flex items-center gap-1">
-                      <Star size={12} fill="currentColor" /> {item.pointCost} XP
-                    </span>
+                      <div className="min-w-0 flex-1">
+                        <h3
+                          onClick={() => openEditModal(item)}
+                          className="font-bold text-sm sm:text-base text-stone-900 leading-snug line-clamp-1 hover:text-[#c2410c] transition-colors cursor-pointer"
+                        >
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-stone-500 font-normal line-clamp-2 mt-1 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Column 2: XP Cost */}
+                    <div className="w-44 shrink-0 flex justify-center">
+                      <span className="bg-[#fff5ee] border border-[#fde5d6] text-[#c2410c] text-xs sm:text-sm font-bold px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 whitespace-nowrap">
+                        <Star size={13} className="text-[#c2410c] fill-[#c2410c]/20" />
+                        {item.pointCost.toLocaleString()} XP
+                      </span>
+                    </div>
+
+                    {/* Column 3: Item ID */}
+                    <div className="w-40 shrink-0 text-center">
+                      <span className="text-xs font-mono text-stone-400 whitespace-nowrap">
+                        ID: {item.id.slice(0, 8)}...
+                      </span>
+                    </div>
+
+                    {/* Column 4: Actions (Edit & Delete) */}
+                    <div className="w-28 shrink-0 flex items-center justify-end gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(item)}
+                        className="w-8 h-8 rounded-full border border-stone-200 bg-white hover:bg-stone-50 hover:border-stone-300 flex items-center justify-center text-stone-400 hover:text-stone-700 transition-colors cursor-pointer shadow-2xs shrink-0"
+                        title="Edit Item"
+                      >
+                        <Edit2 size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteItem(item.id, item.title)}
+                        className="w-8 h-8 rounded-full border border-stone-200 bg-white hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center text-rose-500 hover:text-rose-600 transition-colors cursor-pointer shadow-2xs shrink-0"
+                        title="Delete Item"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Body Content */}
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-white mb-2 leading-snug group-hover:text-orange-400 transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs text-slate-300 leading-relaxed line-clamp-3 mb-4">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
+                  {/* Mobile Stacked View (< md) */}
+                  <div className="p-4 md:hidden flex flex-col gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-20 h-16 rounded-xl overflow-hidden shrink-0 border border-stone-100 bg-stone-100 relative">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-stone-300">
+                            <ImageIcon size={22} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3
+                          onClick={() => openEditModal(item)}
+                          className="font-bold text-sm text-stone-900 leading-snug line-clamp-1 hover:text-[#c2410c] transition-colors cursor-pointer"
+                        >
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-stone-500 font-normal line-clamp-2 mt-0.5 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
 
-                {/* Footer Controls */}
-                <div className="px-6 pb-6 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                  <div className="text-[11px] font-bold text-slate-500">
-                    ID: {item.id.slice(0, 8)}...
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => openEditModal(item)}
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-orange-500/20 text-slate-300 hover:text-orange-400 border border-slate-700 transition-all"
-                      title="Edit Item"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteItem(item.id, item.title)}
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border border-slate-700 transition-all"
-                      title="Delete Item"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-50">
+                      <span className="bg-[#fff5ee] border border-[#fde5d6] text-[#c2410c] text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1.5 whitespace-nowrap">
+                        <Star size={12} className="text-[#c2410c] fill-[#c2410c]/20" />
+                        {item.pointCost.toLocaleString()} XP
+                      </span>
+
+                      <span className="text-xs font-mono text-stone-400">
+                        ID: {item.id.slice(0, 8)}...
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(item)}
+                          className="w-8 h-8 rounded-full border border-stone-200 bg-white hover:bg-stone-50 flex items-center justify-center text-stone-400 hover:text-stone-700 transition-colors shadow-2xs"
+                          title="Edit Item"
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteItem(item.id, item.title)}
+                          className="w-8 h-8 rounded-full border border-stone-200 bg-white hover:bg-rose-50 flex items-center justify-center text-rose-500 transition-colors shadow-2xs"
+                          title="Delete Item"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </main>
 
       {/* Modal: Create / Edit Merch Item */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative text-stone-900 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-colors"
+              className="absolute top-6 right-6 text-stone-400 hover:text-stone-700 p-2 rounded-xl hover:bg-stone-100 transition-colors cursor-pointer"
             >
               <X size={20} />
             </button>
 
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-black">
+              <div className="w-12 h-12 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] font-black">
                 <ShoppingBag size={24} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-white">
+                <h2 className="text-xl font-black text-stone-900">
                   {editingItem ? "Edit Merch Item" : "Add New Merch Item"}
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-stone-500">
                   {editingItem
                     ? "Update item details, XP cost, and featured image"
                     : "Create a new physical merchandise product or reward"}
@@ -423,7 +576,7 @@ export default function AdminRewardsManager() {
             <form onSubmit={handleSaveItem} className="space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-stone-700 mb-1">
                   Item Title / Merch Name *
                 </label>
                 <input
@@ -432,13 +585,13 @@ export default function AdminRewardsManager() {
                   placeholder="e.g. Custom Hardcover Artistry Journal with Pen"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                 />
               </div>
 
               {/* Point Cost */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-stone-700 mb-1">
                   Redemption XP Cost (Points) *
                 </label>
                 <div className="relative">
@@ -450,7 +603,7 @@ export default function AdminRewardsManager() {
                     placeholder="1500"
                     value={formData.pointCost}
                     onChange={(e) => setFormData({ ...formData, pointCost: Number(e.target.value) })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-12 py-3 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-4 pr-12 py-3 text-sm text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-amber-400">
                     XP
@@ -460,7 +613,7 @@ export default function AdminRewardsManager() {
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-stone-700 mb-1">
                   Full Inclusions & Description *
                 </label>
                 <textarea
@@ -469,25 +622,25 @@ export default function AdminRewardsManager() {
                   placeholder="List all contents, specifications, and inclusions (e.g. 9-Piece Merch Bundle: Badge, Magnet, Goal Card, Lanyard, Notebook, Pen, Voucher...)"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500 leading-relaxed"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 leading-relaxed transition-colors"
                 />
               </div>
 
               {/* Featured Image & File Upload */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-stone-700 mb-1">
                   Featured Merch Image (Upload File or Enter Image URL)
                 </label>
 
                 {/* Live Preview Box */}
                 {formData.imageUrl && (
-                  <div className="mb-3 relative rounded-2xl overflow-hidden border border-slate-800 h-40 bg-slate-950 flex items-center justify-center">
+                  <div className="mb-3 relative rounded-2xl overflow-hidden border border-stone-200 h-40 bg-stone-100 flex items-center justify-center">
                     <img
                       src={formData.imageUrl}
                       alt="Merch Preview"
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute bottom-2 right-2 bg-slate-950/80 text-xs font-bold px-2.5 py-1 rounded-lg text-emerald-400 border border-emerald-500/30">
+                    <span className="absolute bottom-2 right-2 bg-white/95 text-xs font-bold px-2.5 py-1 rounded-lg text-emerald-700 border border-emerald-200 shadow-xs">
                       Live Preview
                     </span>
                   </div>
@@ -495,7 +648,7 @@ export default function AdminRewardsManager() {
 
                 {/* Upload File Input */}
                 <div className="flex flex-col sm:flex-row gap-2 mb-2">
-                  <label className="flex-1 cursor-pointer bg-slate-950 hover:bg-slate-800 border border-dashed border-orange-500/40 hover:border-orange-500 rounded-xl p-3 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-orange-400">
+                  <label className="flex-1 cursor-pointer bg-[#fff5ee] hover:bg-[#fde5d6] border border-dashed border-[#f5ded0] rounded-xl p-3 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#c2410c]">
                     <Upload size={16} /> Upload Image File From Device
                     <input
                       type="file"
@@ -512,29 +665,29 @@ export default function AdminRewardsManager() {
                   placeholder="Or paste external Unsplash/CDN image URL (e.g. https://...)"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c2410c] focus:ring-1 focus:ring-[#c2410c]/30 transition-colors"
                 />
               </div>
 
               {/* Submit Buttons */}
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-stone-200">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-colors cursor-pointer border border-stone-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold text-xs sm:text-sm transition-all shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting
                     ? "Saving..."
                     : editingItem
-                    ? "Update Item"
-                    : "Publish Merch Item"}
+                      ? "Update Item"
+                      : "Publish Merch Item"}
                 </button>
               </div>
             </form>

@@ -1,23 +1,27 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Sparkles, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-export const AiMentor = ({ skills }: { skills?: any }) => {
-  // Logic to find lowest skill for AI recommendation
-  let lowestSkill = "Finishing";
+interface AiMentorProps {
+  skills?: Record<string, number | undefined> | null;
+}
+
+export const AiMentor = ({ skills }: AiMentorProps) => {
+  // Logic to find lowest skill for recommendation (exact previous logic)
+  let lowestSkill = "Resin Basics";
   if (skills) {
-    const skillMap: any = {
-      "Resin Basics": skills.resinBasics || 0,
-      "Mixing": skills.mixing || 0,
-      "Colour Theory": skills.colourTheory || 0,
-      "Finishing": skills.finishing || 0,
-      "Creativity": skills.creativity || 0,
-      "Professional Quality": skills.professionalQuality || 0,
+    const skillMap: Record<string, number> = {
+      "Resin Basics": skills.resinBasics ?? skills.skillMastery ?? 75,
+      "Mixing": skills.mixing ?? skills.consistency ?? 80,
+      "Colour Theory": skills.colourTheory ?? skills.creativeExcellence ?? 85,
+      "Finishing": skills.finishing ?? skills.growthAction ?? 70,
+      "Creativity": skills.creativity ?? skills.businessProgress ?? 65,
+      "Professional Quality": skills.professionalQuality ?? skills.leadership ?? 70,
     };
-    
-    // Find the skill with the lowest score
+
     let minScore = 101;
     for (const [key, value] of Object.entries(skillMap)) {
       if ((value as number) < minScore) {
@@ -28,33 +32,51 @@ export const AiMentor = ({ skills }: { skills?: any }) => {
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.9 }}
-      className="bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 p-6 md:p-8 rounded-3xl relative overflow-hidden"
+      transition={{ delay: 0.55 }}
+      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl relative overflow-hidden shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6"
     >
-      <div className="absolute -top-10 -right-10 text-orange-500/10 rotate-12 pointer-events-none">
-        <Sparkles size={120} />
+      {/* Subtle background star decoration */}
+      <div className="absolute -right-4 -bottom-4 text-[#c4431d]/5 rotate-12 pointer-events-none select-none">
+        <Sparkles size={110} />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-        <div className="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/30">
-          <Sparkles size={32} className="text-white" />
-        </div>
-        
-        <div className="flex-1 text-center md:text-left">
-          <h3 className="text-sm font-bold text-orange-400 uppercase tracking-widest mb-1">Next Recommended Mission</h3>
-          <h2 className="text-2xl font-bold text-white mb-2">Focus on {lowestSkill}</h2>
-          <p className="text-slate-300 max-w-2xl">
-            Based on your recent portfolio reviews, your {lowestSkill} score is currently your biggest opportunity for growth. 
-            I recommend starting the dedicated mission to level this up and balance your Skill Mastery Radar!
-          </p>
+      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4 flex-1">
+        {/* Rounded square icon */}
+        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center shrink-0 shadow-md shadow-[#c4431d]/20 text-white">
+          <Sparkles size={22} />
         </div>
 
-        <button className="bg-white text-slate-900 font-bold px-8 py-3 rounded-xl hover:bg-slate-200 transition-colors flex items-center gap-2 shrink-0 group shadow-lg">
-          Start Mission <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-        </button>
+        {/* Title block */}
+        <div className="shrink-0">
+          <p className="text-[10px] sm:text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-0.5">
+            NEXT RECOMMENDED MISSION
+          </p>
+          <h2 className="text-base sm:text-lg font-black text-stone-900 leading-tight">
+            Focus on {lowestSkill}
+          </h2>
+        </div>
+
+        {/* Divider for desktop */}
+        <div className="hidden xl:block w-px h-10 bg-stone-200/80 mx-2 shrink-0" />
+
+        {/* Description */}
+        <p className="text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed flex-1">
+          Based on your recent portfolio reviews, your {lowestSkill} score is currently your biggest opportunity for growth. I recommend starting the dedicated mission to level this up and balance your Skill Mastery Radar!
+        </p>
+      </div>
+
+      {/* Action Button */}
+      <div className="relative z-10 w-full md:w-auto shrink-0">
+        <Link
+          href="/student/courses"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-1.5 transition-all hover:scale-[1.02] cursor-pointer"
+        >
+          <span>Start Mission</span>
+          <ArrowRight size={14} />
+        </Link>
       </div>
     </motion.div>
   );

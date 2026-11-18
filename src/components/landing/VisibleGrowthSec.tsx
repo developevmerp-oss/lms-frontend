@@ -153,7 +153,7 @@ export default function VisibleGrowthSec() {
   // ─── GEOMETRY FOR THE HALF-CIRCLE ROTATING ARC (ANCHORED TO SCREEN LEFT EDGE) ───
   // Center is off-screen to the left (-220px) so only the right crescent (half-circle) is visible on screen!
   // At angle 0, apex is at x = -220 + 420 = 200px from the left edge.
-  const cx = -295;
+  const cx = -250;
   const cy = 290;
   const radius = 420;
   const angleStepDeg = 24; // spacing between node centers in degrees

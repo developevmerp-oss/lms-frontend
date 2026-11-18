@@ -139,7 +139,7 @@ export default function StudentProfile() {
 
   const colorClasses: Record<string, { bg: string; text: string; border: string; glow: string }> = {
     emerald: { bg: 'bg-emerald-500', text: 'text-emerald-400', border: 'border-emerald-500/40', glow: 'shadow-emerald-500/20' },
-    slate: { bg: 'bg-slate-400', text: 'text-slate-300', border: 'border-slate-400/40', glow: 'shadow-slate-400/20' },
+    slate: { bg: 'bg-slate-400', text: 'text-stone-600', border: 'border-slate-400/40', glow: 'shadow-slate-400/20' },
     amber: { bg: 'bg-amber-500', text: 'text-amber-400', border: 'border-amber-500/40', glow: 'shadow-amber-500/20' },
     cyan: { bg: 'bg-cyan-500', text: 'text-cyan-400', border: 'border-cyan-500/40', glow: 'shadow-cyan-500/20' },
     purple: { bg: 'bg-purple-500', text: 'text-purple-400', border: 'border-purple-500/40', glow: 'shadow-purple-500/20' },
@@ -148,7 +148,15 @@ export default function StudentProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <ProfileUpdateModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
@@ -163,11 +171,11 @@ export default function StudentProfile() {
         notifications={stats.notifications}
       />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
         
         {/* Profile Banner */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#fde5d6] rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             
@@ -175,7 +183,7 @@ export default function StudentProfile() {
             <div className="flex items-center gap-5">
               <div
                 onClick={() => setIsProfileModalOpen(true)}
-                className="w-20 h-20 md:w-24 md:h-24 rounded-3xl overflow-hidden border-2 border-orange-500/60 shadow-xl shadow-orange-500/20 shrink-0 bg-slate-800 flex items-center justify-center text-4xl cursor-pointer group relative"
+                className="w-20 h-20 md:w-24 md:h-24 rounded-3xl overflow-hidden border-2 border-[#c4431d]/60 shadow-md shadow-[#c4431d]/20 shrink-0 bg-stone-100 flex items-center justify-center text-4xl cursor-pointer group relative"
                 title="Click to change profile picture"
               >
                 {user?.avatarUrl ? (
@@ -183,41 +191,41 @@ export default function StudentProfile() {
                 ) : (
                   <span>{isGeneral ? '🌱' : (currentTier?.icon || '🎨')}</span>
                 )}
-                <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold text-white">
+                <div className="absolute inset-0 bg-[#faf8f5]/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold text-stone-900">
                   Change 📷
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center gap-3 flex-wrap mb-1">
-                  <h1 className="text-2xl md:text-3xl font-extrabold text-white">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-stone-900">
                     {user?.name || "Student Artist"}
                   </h1>
                   {isGeneral ? (
-                    <span className="px-3 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-xs font-black flex items-center gap-1.5 shadow-sm">
+                    <span className="px-3 py-1 rounded-xl bg-stone-100 border border-stone-300 text-stone-600 text-xs font-black flex items-center gap-1.5 shadow-sm">
                       <span>🌱</span>
                       General Member
                     </span>
                   ) : (
-                    <span className="px-3 py-1 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-black flex items-center gap-1.5 shadow-sm">
+                    <span className="px-3 py-1 rounded-xl bg-[#fde5d6] border border-[#ecdccb] text-[#942008] text-xs font-black flex items-center gap-1.5 shadow-sm">
                       <span>{currentTier?.icon || '⚡'}</span>
                       {currentTier?.name} ({currentTier?.code})
                     </span>
                   )}
                 </div>
-                <p className="text-slate-400 text-sm">{user?.email}</p>
+                <p className="text-stone-500 text-sm">{user?.email}</p>
                 <div className="flex items-center gap-3 mt-2 flex-wrap">
                   <button
                     onClick={() => setIsProfileModalOpen(true)}
-                    className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs rounded-xl transition-all shadow-md shadow-orange-500/20 flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-[#c4431d]/20 flex items-center gap-1.5 cursor-pointer"
                   >
                     Edit Profile & Photo ⚙️
                   </button>
                   {user?.city && (
-                    <span className="text-xs text-slate-400">📍 {user.city}</span>
+                    <span className="text-xs text-stone-500">📍 {user.city}</span>
                   )}
                   {user?.phone && (
-                    <span className="text-xs text-slate-400">📞 {user.phone}</span>
+                    <span className="text-xs text-stone-500">📞 {user.phone}</span>
                   )}
                 </div>
               </div>
@@ -225,8 +233,8 @@ export default function StudentProfile() {
 
             {/* Right: Quick Stats Cards */}
             <div className="flex flex-wrap gap-3 w-full md:w-auto">
-              <div className="bg-slate-950/80 border border-slate-800 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
-                <span className="text-xs text-slate-400 font-bold block mb-0.5">Total XP</span>
+              <div className="bg-[#faf8f5] border border-stone-200 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
+                <span className="text-xs text-stone-500 font-bold block mb-0.5">Total XP</span>
                 <span className="text-xl font-black text-amber-400 font-mono flex items-center justify-center gap-1">
                   <Star size={16} className="text-amber-400 fill-amber-400" />
                   {currentPoints.toLocaleString()}
@@ -234,24 +242,24 @@ export default function StudentProfile() {
               </div>
 
 
-              <div className="bg-slate-950/80 border border-slate-800 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
-                <span className="text-xs text-slate-400 font-bold block mb-0.5">Login Streak</span>
-                <span className="text-xl font-black text-orange-400 flex items-center justify-center gap-1">
-                  <Flame size={16} className="text-orange-500 fill-orange-500" />
+              <div className="bg-[#faf8f5] border border-stone-200 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
+                <span className="text-xs text-stone-500 font-bold block mb-0.5">Login Streak</span>
+                <span className="text-xl font-black text-[#942008] flex items-center justify-center gap-1">
+                  <Flame size={16} className="text-[#c4431d] fill-[#c4431d]" />
                   {stats.streak || 0}d
                 </span>
               </div>
 
-              <div className="bg-slate-950/80 border border-slate-800 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
-                <span className="text-xs text-slate-400 font-bold block mb-0.5">Badges</span>
-                <span className="text-xl font-black text-white flex items-center justify-center gap-1">
+              <div className="bg-[#faf8f5] border border-stone-200 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
+                <span className="text-xs text-stone-500 font-bold block mb-0.5">Badges</span>
+                <span className="text-xl font-black text-stone-900 flex items-center justify-center gap-1">
                   <Medal size={16} className="text-yellow-400" />
                   {(stats.badges || []).length}
                 </span>
               </div>
 
-              <div className="bg-slate-950/80 border border-slate-800 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
-                <span className="text-xs text-slate-400 font-bold block mb-0.5">Levels Cleared</span>
+              <div className="bg-[#faf8f5] border border-stone-200 px-5 py-3.5 rounded-2xl min-w-[110px] text-center flex-1 md:flex-initial">
+                <span className="text-xs text-stone-500 font-bold block mb-0.5">Levels Cleared</span>
                 <span className="text-xl font-black text-emerald-400 flex items-center justify-center gap-1">
                   <CheckCircle2 size={16} className="text-emerald-400" />
                   {completedLevelsCount} / {levelTiers.length}
@@ -265,18 +273,18 @@ export default function StudentProfile() {
         {/* ======================================================== */}
         {/* SECTION 1: ALL COMPLETED & UPCOMING LEVELS ROADMAP       */}
         {/* ======================================================== */}
-        <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6 pb-4 border-b border-slate-800">
+        <section className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 md:p-8 shadow-xl">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6 pb-4 border-b border-stone-200">
             <div>
-              <h2 className="text-xl md:text-2xl font-black text-white flex items-center gap-2.5">
-                <Trophy className="text-orange-400" size={24} />
+              <h2 className="text-xl md:text-2xl font-black text-stone-900 flex items-center gap-2.5">
+                <Trophy className="text-[#942008]" size={24} />
                 Artpreneur Career Levels & Progress
               </h2>
-              <p className="text-xs md:text-sm text-slate-400 mt-1">
+              <p className="text-xs md:text-sm text-stone-500 mt-1">
                 Track all completed tiers, your active level milestone, and the upcoming tiers to unlock.
               </p>
             </div>
-            <span className="px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300">
+            <span className="px-3.5 py-1.5 rounded-xl bg-[#faf8f5] border border-stone-200 text-xs font-bold text-stone-600">
               {completedLevelsCount} of {levelTiers.length} Levels Completed
             </span>
           </div>
@@ -303,8 +311,8 @@ export default function StudentProfile() {
                     status === 'completed'
                       ? 'bg-emerald-950/20 border-emerald-500/30'
                       : status === 'current'
-                      ? 'bg-orange-500/10 border-orange-500/40 shadow-lg shadow-orange-500/5 ring-1 ring-orange-500/20'
-                      : 'bg-slate-950/50 border-slate-800/80 opacity-60'
+                      ? 'bg-[#fde5d6] border-[#f5ded0] shadow-md shadow-[#c4431d]/5 ring-1 ring-[#c4431d]/20'
+                      : 'bg-[#faf8f5]/50 border-stone-200/80 opacity-60'
                   }`}
                 >
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -313,40 +321,40 @@ export default function StudentProfile() {
                     <div className="flex items-center gap-4 min-w-0">
                       <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center text-2xl shadow-inner shrink-0 ${
                         status === 'completed'
-                          ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                          ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-700'
                           : status === 'current'
-                          ? 'bg-orange-500/20 border-orange-500/40 text-orange-300 scale-105'
-                          : 'bg-slate-900 border-slate-800 text-slate-500'
+                          ? 'bg-[#fde5d6] border-[#f5ded0] text-[#942008] scale-105'
+                          : 'bg-white/95 border-stone-200 text-stone-400'
                       }`}>
                         {tier.icon}
                       </div>
 
                       <div>
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="text-xs font-black px-2.5 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-white font-mono">
+                          <span className="text-xs font-black px-2.5 py-0.5 rounded-md bg-[#faf8f5] border border-stone-200 text-stone-900 font-mono">
                             {tier.code}
                           </span>
-                          <h3 className="text-lg font-black text-white">{tier.name}</h3>
+                          <h3 className="text-lg font-black text-stone-900">{tier.name}</h3>
                           
                           {/* Status Badge */}
                           {status === 'completed' && (
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black flex items-center gap-1">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-black flex items-center gap-1">
                               <CheckCircle2 size={12} /> COMPLETED
                             </span>
                           )}
                           {status === 'current' && (
-                            <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-black flex items-center gap-1 animate-pulse">
+                            <span className="px-2.5 py-0.5 rounded-full bg-[#fde5d6] text-[#942008] border border-[#f5ded0] text-xs font-black flex items-center gap-1 animate-pulse">
                               <Zap size={12} /> CURRENT LEVEL ({progressPercent}%)
                             </span>
                           )}
                           {status === 'locked' && (
-                            <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center gap-1">
+                            <span className="px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-500 text-xs font-bold flex items-center gap-1">
                               <Lock size={12} /> LOCKED
                             </span>
                           )}
                         </div>
 
-                        <p className="text-xs text-slate-400 mt-1 max-w-xl">
+                        <p className="text-xs text-stone-500 mt-1 max-w-xl">
                           {tier.description || `Required XP: ${tier.minPoints.toLocaleString()} XP`}
                         </p>
                       </div>
@@ -355,28 +363,28 @@ export default function StudentProfile() {
                     {/* Right: XP Requirements & Progress Bar */}
                     <div className="w-full md:w-64 shrink-0 text-left md:text-right">
                       <div className="flex justify-between md:justify-end gap-2 items-baseline text-xs mb-1.5">
-                        <span className="text-slate-400 font-medium">XP Target:</span>
-                        <span className="font-mono font-bold text-white">
+                        <span className="text-stone-500 font-medium">XP Target:</span>
+                        <span className="font-mono font-bold text-stone-900">
                           {tier.minPoints.toLocaleString()} {tier.maxPoints ? `→ ${tier.maxPoints.toLocaleString()} XP` : '+ XP'}
                         </span>
                       </div>
 
                       {/* Progress Bar */}
-                      <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
                             status === 'completed'
-                              ? 'bg-emerald-400'
+                              ? 'bg-emerald-500'
                               : status === 'current'
-                              ? 'bg-gradient-to-r from-orange-500 to-amber-400'
-                              : 'bg-slate-700'
+                              ? 'bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c]'
+                              : 'bg-stone-300'
                           }`}
                           style={{ width: `${progressPercent}%` }}
                         />
                       </div>
 
                       {status === 'current' && tier.maxPoints && (
-                        <span className="text-[11px] text-orange-400/90 font-mono mt-1 block">
+                        <span className="text-[11px] text-[#942008]/90 font-mono mt-1 block">
                           {(tier.maxPoints - currentPoints + 1).toLocaleString()} XP needed for next tier
                         </span>
                       )}
@@ -392,26 +400,26 @@ export default function StudentProfile() {
         {/* ======================================================== */}
         {/* SECTION 2: ALL BADGES & ACHIEVEMENTS EARNED              */}
         {/* ======================================================== */}
-        <section className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
+        <section className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 md:p-8 shadow-xl">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-stone-200">
             <div>
-              <h2 className="text-xl md:text-2xl font-black text-white flex items-center gap-2.5">
+              <h2 className="text-xl md:text-2xl font-black text-stone-900 flex items-center gap-2.5">
                 <Medal className="text-yellow-400" size={24} />
                 Badges & Awards Collection
               </h2>
-              <p className="text-xs md:text-sm text-slate-400 mt-1">
+              <p className="text-xs md:text-sm text-stone-500 mt-1">
                 Official achievement badges awarded for master projects, milestones, and streak records.
               </p>
             </div>
-            <span className="px-3.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs font-black text-orange-400">
+            <span className="px-3.5 py-1.5 rounded-xl bg-[#fde5d6] border border-[#f5ded0] text-xs font-black text-[#942008]">
               {(stats.badges || []).length} Badges Earned
             </span>
           </div>
 
           {(stats.badges || []).length === 0 ? (
-            <div className="p-12 bg-slate-950/50 border border-slate-800 rounded-2xl text-center">
+            <div className="p-12 bg-[#faf8f5]/50 border border-stone-200 rounded-2xl text-center">
               <Trophy size={40} className="text-slate-700 mx-auto mb-3" />
-              <p className="text-slate-400 font-bold">No badges unlocked yet</p>
+              <p className="text-stone-500 font-bold">No badges unlocked yet</p>
               <p className="text-slate-600 text-xs mt-1">Complete workshop assignments and milestone sales to earn verified badges!</p>
             </div>
           ) : (
@@ -419,15 +427,15 @@ export default function StudentProfile() {
               {(stats.badges || []).map((badge: any, i: number) => (
                 <div
                   key={badge.id || i}
-                  className="bg-gradient-to-b from-orange-500/10 to-amber-500/5 border border-orange-500/30 rounded-2xl p-4 text-center hover:scale-105 transition-all shadow-lg flex flex-col items-center justify-between"
+                  className="bg-gradient-to-b from-[#fde5d6]/40 to-[#fff5ee]/30 border border-[#f5ded0] rounded-2xl p-4 text-center hover:scale-105 transition-all shadow-md flex flex-col items-center justify-between"
                 >
                   <div>
-                    <div className="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+                    <div className="w-14 h-14 rounded-2xl bg-[#faf8f5] border border-stone-200 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
                       {badge.icon || '🏅'}
                     </div>
-                    <h4 className="text-sm font-black text-white leading-tight mb-1">{badge.name}</h4>
+                    <h4 className="text-sm font-black text-stone-900 leading-tight mb-1">{badge.name}</h4>
                     {badge.description && (
-                      <p className="text-[11px] text-slate-400 leading-snug line-clamp-2">{badge.description}</p>
+                      <p className="text-[11px] text-stone-500 leading-snug line-clamp-2">{badge.description}</p>
                     )}
                   </div>
                   <span className="mt-3 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -445,15 +453,15 @@ export default function StudentProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           {/* Milestones Card */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-            <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2">
-              <Target className="text-orange-400" size={20} />
+          <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 shadow-xl">
+            <h3 className="text-lg font-black text-stone-900 mb-4 flex items-center gap-2">
+              <Target className="text-[#942008]" size={20} />
               Career Milestones Checklist
             </h3>
             
             <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
               {(stats.milestones || []).length === 0 ? (
-                <p className="text-xs text-slate-500">No milestones assigned yet.</p>
+                <p className="text-xs text-stone-400">No milestones assigned yet.</p>
               ) : (
                 stats.milestones.map((m: any, i: number) => (
                   <div
@@ -461,14 +469,14 @@ export default function StudentProfile() {
                     className={`p-3 rounded-xl border flex items-center justify-between text-xs font-bold ${
                       m.completed
                         ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                        : 'bg-slate-950 border-slate-800 text-slate-400'
+                        : 'bg-[#faf8f5] border-stone-200 text-stone-500'
                     }`}
                   >
                     <span className="flex items-center gap-2">
                       {m.completed ? <CheckCircle2 size={15} className="text-emerald-400" /> : <Lock size={14} className="text-slate-600" />}
                       {m.name}
                     </span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${m.completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-500'}`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${m.completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-stone-100 text-stone-400'}`}>
                       {m.completed ? 'Achieved' : 'In Progress'}
                     </span>
                   </div>
@@ -478,8 +486,8 @@ export default function StudentProfile() {
           </div>
 
           {/* Skills Mastery Card */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-            <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2">
+          <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 shadow-xl">
+            <h3 className="text-lg font-black text-stone-900 mb-4 flex items-center gap-2">
               <Sparkles className="text-amber-400" size={20} />
               Technical Skill Scores
             </h3>
@@ -494,12 +502,12 @@ export default function StudentProfile() {
               ].map((skill, i) => (
                 <div key={i}>
                   <div className="flex justify-between text-xs font-bold mb-1">
-                    <span className="text-slate-300">{skill.name}</span>
+                    <span className="text-stone-600">{skill.name}</span>
                     <span className="text-amber-400 font-mono">{skill.score}%</span>
                   </div>
-                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full"
+                      className="h-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] rounded-full"
                       style={{ width: `${skill.score}%` }}
                     />
                   </div>

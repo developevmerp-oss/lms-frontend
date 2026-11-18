@@ -103,7 +103,7 @@ const EVENT_DEFINITIONS = [
     label: "Initiate Checkout (InitiateCheckout)",
     description: "Fires whenever a student clicks 'Upgrade / Subscribe' and opens the checkout dialog.",
     badge: "Funnel",
-    badgeColor: "bg-orange-50 text-orange-700 border-orange-200",
+    badgeColor: "bg-[#fde5d6] text-[#942008] border-[#f5ded0]",
   },
   {
     key: "purchase" as keyof MetaEventsState,
@@ -275,10 +275,18 @@ export default function AdminMarketingPage() {
   const isNumericOnly = /^\d+$/.test(pixelId.trim());
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
@@ -287,10 +295,10 @@ export default function AdminMarketingPage() {
                 <Megaphone size={26} />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
                   Marketing & Tracking Manager
                 </h1>
-                <p className="text-sm text-slate-500 font-medium">
+                <p className="text-sm text-stone-500 font-medium">
                   Dynamic Meta (Facebook) Pixel integration with zero code changes and fail-safe operation.
                 </p>
               </div>
@@ -301,7 +309,7 @@ export default function AdminMarketingPage() {
             <button
               onClick={() => fetchSettings()}
               disabled={isLoading}
-              className="px-3.5 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition-all flex items-center gap-1.5 shadow-sm"
+              className="px-3.5 py-2 text-xs font-bold text-stone-600 bg-white border border-[#ecdccb] rounded-xl hover:bg-stone-100 transition-all flex items-center gap-1.5 shadow-sm"
             >
               <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
               Refresh
@@ -309,7 +317,7 @@ export default function AdminMarketingPage() {
             <button
               onClick={() => handleSave()}
               disabled={isSaving || isLoading}
-              className="px-5 py-2 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
+              className="px-5 py-2 text-sm font-bold text-white bg-[#c4431d] hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
             >
               <Save size={15} />
               {isSaving ? "Saving..." : "Save Settings"}
@@ -332,13 +340,13 @@ export default function AdminMarketingPage() {
         )}
 
         {/* Platform Selection Tabs */}
-        <div className="flex gap-2 p-1.5 bg-white border border-slate-200 rounded-2xl mb-8 shadow-sm overflow-x-auto">
+        <div className="flex gap-2 p-1.5 bg-white border border-[#ecdccb] rounded-2xl mb-8 shadow-sm overflow-x-auto">
           <button
             onClick={() => setActiveTab("meta")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === "meta"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-xs"
+                : "text-stone-600 hover:text-stone-900 hover:bg-[#fcfaf7]"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
@@ -354,13 +362,13 @@ export default function AdminMarketingPage() {
             onClick={() => setActiveTab("ga4")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === "ga4"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-xs"
+                : "text-stone-400 hover:text-stone-600 hover:bg-[#fcfaf7]"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
             Google Analytics 4
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 rounded-full border border-slate-200">
+            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
               Soon
             </span>
           </button>
@@ -369,13 +377,13 @@ export default function AdminMarketingPage() {
             onClick={() => setActiveTab("google_ads")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === "google_ads"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-xs"
+                : "text-stone-400 hover:text-stone-600 hover:bg-[#fcfaf7]"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             Google Ads Conversion
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 rounded-full border border-slate-200">
+            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
               Soon
             </span>
           </button>
@@ -384,31 +392,31 @@ export default function AdminMarketingPage() {
             onClick={() => setActiveTab("tiktok")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === "tiktok"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-xs"
+                : "text-stone-400 hover:text-stone-600 hover:bg-[#fcfaf7]"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
             TikTok Pixel
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 rounded-full border border-slate-200">
+            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
               Soon
             </span>
           </button>
         </div>
 
         {activeTab !== "meta" ? (
-          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
-            <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-3xl flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-3xl border border-[#ecdccb] p-12 text-center shadow-sm">
+            <div className="w-16 h-16 bg-stone-100 text-stone-400 rounded-3xl flex items-center justify-center mx-auto mb-4">
               <Layers size={28} />
             </div>
-            <h3 className="text-lg font-black text-slate-900 mb-1">Integration Coming Soon</h3>
-            <p className="text-sm text-slate-500 max-w-md mx-auto mb-6">
+            <h3 className="text-lg font-black text-stone-900 mb-1">Integration Coming Soon</h3>
+            <p className="text-sm text-stone-500 max-w-md mx-auto mb-6">
               This marketing channel integration is pre-architected in our system. Once you provide the account ID,
               it can be activated with a single toggle.
             </p>
             <button
               onClick={() => setActiveTab("meta")}
-              className="px-5 py-2 text-xs font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all"
+              className="px-5 py-2 text-xs font-bold bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white rounded-xl hover:opacity-95 transition-all shadow-xs cursor-pointer"
             >
               Back to Meta Pixel
             </button>
@@ -416,32 +424,32 @@ export default function AdminMarketingPage() {
         ) : (
           <div className="space-y-8">
             {/* Status Overview Card */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+            <div className="bg-white rounded-3xl border border-[#ecdccb] p-6 sm:p-8 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-stone-200/80">
                 <div className="flex items-start gap-4">
                   <div
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
                       enabled && pixelId.trim()
                         ? "bg-emerald-100 text-emerald-600"
-                        : "bg-slate-100 text-slate-400"
+                        : "bg-stone-100 text-stone-400"
                     }`}
                   >
                     <Power size={24} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2.5">
-                      <h2 className="text-lg font-black text-slate-900">Meta Pixel Master Status</h2>
+                      <h2 className="text-lg font-black text-stone-900">Meta Pixel Master Status</h2>
                       {enabled && pixelId.trim() ? (
                         <span className="px-2.5 py-0.5 text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 rounded-full border border-emerald-200">
                           Active & Tracking
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 text-xs font-black uppercase tracking-wider bg-slate-100 text-slate-600 rounded-full border border-slate-200">
+                        <span className="px-2.5 py-0.5 text-xs font-black uppercase tracking-wider bg-stone-100 text-stone-600 rounded-full border border-[#ecdccb]">
                           Inactive / Standby
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-slate-500 mt-1">
+                    <p className="text-sm text-stone-500 mt-1">
                       {enabled && pixelId.trim()
                         ? "Meta Pixel is actively firing conversion events on your live domain."
                         : "Tracking is turned off. No tracking scripts or network requests will be loaded."}
@@ -450,14 +458,14 @@ export default function AdminMarketingPage() {
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs font-bold text-slate-500">
+                  <span className="text-xs font-bold text-stone-500">
                     {enabled ? "ENABLED" : "DISABLED"}
                   </span>
                   <button
                     type="button"
                     onClick={() => setEnabled(!enabled)}
                     className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      enabled ? "bg-emerald-500" : "bg-slate-300"
+                      enabled ? "bg-emerald-500" : "bg-stone-300"
                     }`}
                   >
                     <span
@@ -471,7 +479,7 @@ export default function AdminMarketingPage() {
 
               {/* Pixel ID Input Section */}
               <div className="pt-6">
-                <label className="block text-sm font-black text-slate-900 mb-1.5">
+                <label className="block text-sm font-black text-stone-900 mb-1.5">
                   Meta Pixel ID (Dataset ID)
                 </label>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -481,13 +489,13 @@ export default function AdminMarketingPage() {
                       value={pixelId}
                       onChange={(e) => setPixelId(e.target.value.trim())}
                       placeholder="e.g. 123456789012345"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-mono text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                      className="w-full px-4 py-3 bg-[#fcfaf7] border border-[#ecdccb] rounded-2xl text-stone-900 font-mono text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c4431d]/20 focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-all"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={handleTestPixel}
-                    className="px-4 py-3 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-2xl transition-all whitespace-nowrap flex items-center justify-center gap-1.5"
+                    className="px-4 py-3 text-xs font-bold text-stone-700 bg-stone-100 hover:bg-stone-200 active:scale-95 rounded-2xl transition-all whitespace-nowrap flex items-center justify-center gap-1.5"
                   >
                     <Zap size={14} className="text-amber-500" />
                     Test Pixel
@@ -501,7 +509,7 @@ export default function AdminMarketingPage() {
                   </p>
                 )}
 
-                <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+                <p className="text-xs text-stone-400 mt-2 flex items-center gap-1.5">
                   <Info size={13} />
                   You can get this ID from <strong>Meta Events Manager → Data Sources → Pixel / Dataset ID</strong>.
                 </p>
@@ -509,15 +517,15 @@ export default function AdminMarketingPage() {
             </div>
 
             {/* Granular Event Switches */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-              <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
+            <div className="bg-white rounded-3xl border border-[#ecdccb] p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center justify-between pb-6 border-b border-stone-200/80 mb-6">
                 <div>
-                  <h2 className="text-lg font-black text-slate-900">Conversion Event Triggers</h2>
-                  <p className="text-sm text-slate-500 mt-0.5">
+                  <h2 className="text-lg font-black text-stone-900">Conversion Event Triggers</h2>
+                  <p className="text-sm text-stone-500 mt-0.5">
                     Toggle individual standard marketing events on or off without affecting your site functionality.
                   </p>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-500">
+                <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-stone-500">
                   <ShieldCheck size={14} className="text-emerald-500" />
                   Independent & Non-Blocking
                 </div>
@@ -532,20 +540,20 @@ export default function AdminMarketingPage() {
                       onClick={() => handleToggleEvent(evt.key)}
                       className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-4 select-none ${
                         isChecked
-                          ? "bg-slate-50/70 border-slate-300 hover:border-slate-400"
-                          : "bg-white border-slate-200 opacity-60 hover:opacity-80"
+                          ? "bg-[#fcfaf7]/70 border-stone-300 hover:border-stone-400"
+                          : "bg-white border-[#ecdccb] opacity-60 hover:opacity-80"
                       }`}
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-black text-slate-900">{evt.label}</span>
+                          <span className="text-sm font-black text-stone-900">{evt.label}</span>
                           <span
                             className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${evt.badgeColor}`}
                           >
                             {evt.badge}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 leading-relaxed">{evt.description}</p>
+                        <p className="text-xs text-stone-500 leading-relaxed">{evt.description}</p>
                       </div>
 
                       <div className="shrink-0 pt-0.5">
@@ -556,7 +564,7 @@ export default function AdminMarketingPage() {
                             handleToggleEvent(evt.key);
                           }}
                           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            isChecked ? "bg-rose-600" : "bg-slate-300"
+                            isChecked ? "bg-[#c4431d]" : "bg-stone-300"
                           }`}
                         >
                           <span
@@ -646,15 +654,15 @@ export default function AdminMarketingPage() {
             </div>
 
             {/* Bottom Save Bar */}
-            <div className="sticky bottom-6 p-4 bg-white/90 backdrop-blur-md border border-slate-200 rounded-2xl shadow-xl flex items-center justify-between gap-4">
-              <div className="text-xs text-slate-500 hidden sm:block">
+            <div className="sticky bottom-6 p-4 bg-white/90 backdrop-blur-md border border-[#ecdccb] rounded-2xl shadow-xl flex items-center justify-between gap-4">
+              <div className="text-xs text-stone-500 hidden sm:block">
                 All changes take effect immediately across all marketing pages upon saving.
               </div>
               <div className="flex items-center gap-3 ml-auto">
                 <button
                   type="button"
                   onClick={() => fetchSettings()}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900"
+                  className="px-4 py-2 text-xs font-bold text-stone-600 hover:text-stone-900"
                 >
                   Discard Changes
                 </button>
@@ -662,7 +670,7 @@ export default function AdminMarketingPage() {
                   type="button"
                   onClick={() => handleSave()}
                   disabled={isSaving || isLoading}
-                  className="px-6 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
+                  className="px-6 py-2.5 text-sm font-bold text-white bg-[#c4431d] hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
                 >
                   <Save size={15} />
                   {isSaving ? "Saving Settings..." : "Save Marketing Settings"}

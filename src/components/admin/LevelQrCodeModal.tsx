@@ -121,12 +121,12 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
     ctx.fillRect(0, 0, 900, 1200);
 
     // Decorative Orange Accent border
-    ctx.strokeStyle = "#f97316";
+    ctx.strokeStyle = "#c4431d";
     ctx.lineWidth = 4;
     ctx.strokeRect(30, 30, 840, 1140);
 
     // Header Badge: Brand Name
-    ctx.fillStyle = "#f97316";
+    ctx.fillStyle = "#c4431d";
     ctx.font = "bold 26px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("RAVISHING ART HUB", 450, 95);
@@ -194,7 +194,7 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
       ctx.stroke();
 
       // Website URL
-      ctx.fillStyle = "#f97316";
+      ctx.fillStyle = "#c4431d";
       ctx.font = "bold 22px sans-serif";
       ctx.fillText("www.ravishingarthub.com", 450, 1050);
 
@@ -215,49 +215,49 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative overflow-hidden animate-scale-up">
+    <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative overflow-hidden animate-scale-up text-stone-900">
         {/* Glow Effects */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#c4431d]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#ea580c]/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800 relative z-10">
+        <div className="flex items-center justify-between pb-4 border-b border-stone-200 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+            <div className="w-10 h-10 rounded-2xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008]">
               <QrIcon size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-black text-white flex items-center gap-2">
+              <h3 className="text-lg font-black text-[#942008] flex items-center gap-2">
                 Level QR Code ({tier.code})
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-stone-500">
                 Direct subscription QR code for offline distribution
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Level Overview Pill */}
-        <div className="my-5 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+        <div className="my-5 p-3.5 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">{tier.icon || "⭐"}</span>
             <div>
-              <div className="text-[10px] font-black uppercase text-orange-400 tracking-wider">
+              <div className="text-[10px] font-black uppercase text-[#942008] tracking-wider">
                 {tier.code} Tier
               </div>
-              <div className="text-sm font-black text-white">{tier.name}</div>
+              <div className="text-sm font-black text-stone-900">{tier.name}</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] font-bold text-slate-400">Price</div>
-            <div className="text-sm font-black text-amber-400 font-mono">
+            <div className="text-[10px] font-bold text-stone-500">Price</div>
+            <div className="text-sm font-black text-[#942008] font-mono">
               {displayPrice}
             </div>
           </div>
@@ -265,10 +265,10 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
 
         {/* QR Code Display Container */}
         <div className="flex flex-col items-center justify-center my-4">
-          <div className="p-4 bg-white rounded-3xl shadow-2xl border-4 border-orange-500/20 relative group">
+          <div className="p-4 bg-white rounded-3xl shadow-xl border-4 border-[#ecdccb] relative group">
             {isGenerating || !qrDataUrl ? (
-              <div className="w-56 h-56 flex flex-col items-center justify-center text-slate-500 text-xs">
-                <Smartphone className="animate-bounce mb-2 text-orange-500" size={32} />
+              <div className="w-56 h-56 flex flex-col items-center justify-center text-stone-400 text-xs">
+                <Smartphone className="animate-bounce mb-2 text-[#c4431d]" size={32} />
                 Generating high-res QR...
               </div>
             ) : (
@@ -280,45 +280,45 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
             )}
           </div>
           <div className="text-center mt-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[11px] font-bold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-[11px] font-bold">
               <Smartphone size={12} /> Scan with any Camera / Google Lens
             </span>
           </div>
         </div>
 
         {/* Redirect Behavior Explanation */}
-        <div className="my-4 p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 text-[11px] space-y-1.5 text-slate-300">
-          <div className="font-bold text-white flex items-center gap-1.5">
+        <div className="my-4 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-[11px] space-y-1.5 text-stone-600">
+          <div className="font-bold text-stone-900 flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-emerald-400" />
             Seamless Student Flow:
           </div>
-          <div className="flex items-start gap-1.5 text-slate-400">
+          <div className="flex items-start gap-1.5 text-stone-600">
             <span className="text-emerald-400">✓</span>
             <span>
-              <strong className="text-slate-200">Already Logged In:</strong> Student scans and is directly redirected to the checkout modal for <strong>{tier.name} ({tier.code})</strong>.
+              <strong className="text-stone-900">Already Logged In:</strong> Student scans and is directly redirected to the checkout modal for <strong>{tier.name} ({tier.code})</strong>.
             </span>
           </div>
-          <div className="flex items-start gap-1.5 text-slate-400">
+          <div className="flex items-start gap-1.5 text-stone-600">
             <span className="text-amber-400">✓</span>
             <span>
-              <strong className="text-slate-200">Not Logged In:</strong> Student is redirected to Login page first, and immediately forward-redirected to {tier.code} subscription after logging in.
+              <strong className="text-stone-900">Not Logged In:</strong> Student is redirected to Login page first, and immediately forward-redirected to {tier.code} subscription after logging in.
             </span>
           </div>
         </div>
 
         {/* Direct Link & Copy */}
         <div className="space-y-1.5 mb-5">
-          <label className="text-[11px] font-bold text-slate-400">Direct Link:</label>
-          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs">
+          <label className="text-[11px] font-bold text-stone-600">Direct Link:</label>
+          <div className="flex items-center gap-2 bg-[#faf8f5] border border-stone-200 rounded-xl p-2 text-xs">
             <input
               type="text"
               readOnly
               value={targetUrl}
-              className="bg-transparent border-none text-slate-300 flex-1 font-mono text-[11px] focus:outline-none select-all"
+              className="bg-transparent border-none text-stone-800 flex-1 font-mono text-[11px] focus:outline-none select-all"
             />
             <button
               onClick={handleCopyLink}
-              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+              className="px-2.5 py-1 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shrink-0"
               title="Copy to clipboard"
             >
               {copied ? (
@@ -335,7 +335,7 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
               href={targetUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              className="p-1 bg-stone-200 hover:bg-stone-300 text-stone-600 hover:text-stone-900 rounded-lg transition-colors cursor-pointer"
               title="Test link in new tab"
             >
               <ExternalLink size={14} />
@@ -344,11 +344,11 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
         </div>
 
         {/* Download Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-stone-200">
           <button
             onClick={handleDownloadBrandedFlyer}
             disabled={!qrDataUrl || isGenerating}
-            className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-slate-950 font-black text-xs h-11 px-4 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs h-11 px-4 rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
           >
             <Download size={15} />
             <span>Download Poster / Flyer</span>
@@ -357,7 +357,7 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
           <button
             onClick={handleDownloadRawQr}
             disabled={!qrDataUrl || isGenerating}
-            className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-11 px-4 rounded-xl border border-slate-700 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs h-11 px-4 rounded-xl border border-stone-300 transition-colors cursor-pointer disabled:opacity-50"
           >
             <QrIcon size={15} />
             <span>Download Raw QR (PNG)</span>

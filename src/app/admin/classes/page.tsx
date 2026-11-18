@@ -25,6 +25,8 @@ import {
   FileSpreadsheet,
   History,
   Download,
+  Hourglass,
+  Ellipsis,
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -82,6 +84,28 @@ export default function AdminClassesPage() {
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [historySearch, setHistorySearch] = useState("");
   const [isExporting, setIsExporting] = useState(false);
+  const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!openActionMenuId) return;
+    const handleOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest("[data-class-menu-root]")) {
+        setOpenActionMenuId(null);
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenActionMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [openActionMenuId]);
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
@@ -213,15 +237,15 @@ export default function AdminClassesPage() {
     return new Date(d.getTime() - offset).toISOString().slice(0, 16);
   };
 
-  const availableTiers = liveLevels.length > 0 
-    ? liveLevels 
+  const availableTiers = liveLevels.length > 0
+    ? liveLevels
     : [
-        { code: "L0", name: "Fast Track" },
-        { code: "L1", name: "Silver" },
-        { code: "L2", name: "Gold" },
-        { code: "L3", name: "Diamond" },
-        { code: "L3+", name: "Masters Club" },
-      ];
+      { code: "L0", name: "Fast Track" },
+      { code: "L1", name: "Silver" },
+      { code: "L2", name: "Gold" },
+      { code: "L3", name: "Diamond" },
+      { code: "L3+", name: "Masters Club" },
+    ];
 
   const toggleLevelSelection = (code: string) => {
     if (code === "All") {
@@ -297,8 +321,8 @@ export default function AdminClassesPage() {
     }
 
     try {
-      const targetLevelString = selectedLevels.includes("All") 
-        ? "All" 
+      const targetLevelString = selectedLevels.includes("All")
+        ? "All"
         : selectedLevels.join(", ");
 
       const payload = {
@@ -397,32 +421,40 @@ export default function AdminClassesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">
-              <Video size={13} className="text-orange-400" /> Live Interactive Masterclasses
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+          <div className="min-w-0 flex-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
+              <Video size={13} className="text-[#c4431d]" /> Live Interactive Masterclasses
             </span>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
               Online Class &amp; Attendance Management
             </h1>
-            <p className="text-slate-400 mt-1 text-sm">
+            <p className="text-stone-500 mt-1 text-sm font-medium">
               Schedule live Zoom coaching calls, manage meeting links, track student attendance, and upload video replays.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap self-start md:self-auto">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 lg:gap-2.5 self-start lg:self-auto shrink-0">
             <button
               onClick={handleExportAllAttendance}
               disabled={isExporting}
-              className="inline-flex items-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs h-11 px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105"
+              className="inline-flex items-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs h-11 px-3.5 lg:px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105 whitespace-nowrap shrink-0"
               title="Download complete attendance history across all classes in Excel / CSV format"
             >
-              <FileSpreadsheet size={16} />
+              <FileSpreadsheet size={16} className="shrink-0" />
               {isExporting ? "Exporting..." : "Download Full Sheet (.xlsx / .csv)"}
             </button>
 
@@ -431,16 +463,16 @@ export default function AdminClassesPage() {
                 setIsHistoryModalOpen(true);
                 fetchAttendanceHistory();
               }}
-              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs h-11 px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:border-orange-500/50"
+              className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 font-bold text-xs h-11 px-3.5 lg:px-4 rounded-2xl shadow-xs transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <History size={16} className="text-orange-400" /> Attendance History
+              <History size={16} className="text-[#c4431d] shrink-0" /> Attendance History
             </button>
 
             <button
               onClick={openCreateModal}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-sm h-11 px-5 rounded-2xl shadow-lg shadow-orange-500/20 transition-all hover:scale-105 cursor-pointer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 px-4 lg:px-5 rounded-2xl shadow-md shadow-[#c4431d]/25 transition-all hover:scale-105 cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Plus size={18} /> Schedule Live Class
+              <Plus size={18} className="shrink-0" /> Schedule Live Class
             </button>
           </div>
         </div>
@@ -453,154 +485,222 @@ export default function AdminClassesPage() {
         )}
 
         {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white/95 border border-[#ecdccb] p-4 rounded-2xl shadow-xs">
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
             <input
               type="text"
               placeholder="Search classes by title or level..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+              className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-10 pr-4 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
             />
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-3 text-xs text-stone-500 font-medium">
             <span>
-              Total Live Classes: <strong className="text-white font-mono">{classes.length}</strong>
+              Total Live Classes: <strong className="text-stone-900 font-mono">{classes.length}</strong>
             </span>
           </div>
         </div>
 
         {/* Classes List */}
         {isLoading ? (
-          <div className="p-16 text-center text-slate-500">Loading scheduled classes...</div>
+          <div className="p-16 text-center text-stone-400 font-medium">Loading scheduled classes...</div>
         ) : filteredClasses.length === 0 ? (
-          <div className="text-center py-16 rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 p-8">
-            <Video size={40} className="text-slate-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-white mb-1">No Live Classes Scheduled</h3>
-            <p className="text-sm text-slate-400 mb-4">Schedule online coaching masterclasses for your students.</p>
+          <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/60 p-8">
+            <Video size={40} className="text-stone-300 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-stone-900 mb-1">No Live Classes Scheduled</h3>
+            <p className="text-sm text-stone-500 mb-4 font-medium">Schedule online coaching masterclasses for your students.</p>
             <button
               onClick={openCreateModal}
-              className="bg-orange-500 text-slate-950 font-bold text-xs h-10 px-5 rounded-xl cursor-pointer"
+              className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-xs cursor-pointer"
             >
               + Schedule First Class
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredClasses.map((cls) => {
               const eventDate = new Date(cls.scheduledAt);
               const isPast = eventDate.getTime() < Date.now();
+              const isMenuOpen = openActionMenuId === cls.id;
+
+              const statusStyles =
+                cls.status === "live"
+                  ? { pill: "bg-red-50 text-red-700", dot: "bg-red-500 animate-pulse", label: "Live Now" }
+                  : cls.status === "completed"
+                    ? { pill: "bg-stone-100 text-stone-700", dot: "bg-stone-500", label: "Completed" }
+                    : cls.status === "cancelled"
+                      ? { pill: "bg-rose-50 text-rose-700", dot: "bg-rose-500", label: "Cancelled" }
+                      : { pill: "bg-[#e9f8eb] text-[#15803d]", dot: "bg-[#22c55e]", label: "Upcoming" };
 
               return (
                 <div
                   key={cls.id}
-                  className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 flex flex-col justify-between hover:border-orange-500/40 transition-all shadow-xl"
+                  className={`relative rounded-3xl border border-[#ecdccb] bg-white p-5 sm:p-6 flex flex-col justify-between hover:border-[#c4431d]/40 transition-all shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] ${isMenuOpen ? "z-30" : ""}`}
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-4">
-                      <span className={`px-2.5 py-0.5 rounded-lg text-[11px] font-black uppercase ${
-                        cls.status === "live"
-                          ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"
-                          : cls.status === "completed"
-                          ? "bg-slate-800 text-slate-400 border border-slate-700"
-                          : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                      }`}>
-                        {cls.status === "live" ? "🔴 Live Now" : cls.status}
+                    {/* Top Row: Status & Level Pills */}
+                    <div className="flex items-center justify-between gap-2 mb-3.5">
+                      <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${statusStyles.pill}`}>
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${statusStyles.dot}`} />
+                        <span>{statusStyles.label}</span>
                       </span>
 
-                      <span className="text-xs font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2.5 py-0.5 rounded-lg">
+                      <span className="inline-flex items-center rounded-full bg-[#fdeee2] text-[#7c2d12] px-3.5 py-1 text-xs font-bold">
                         Level: {cls.targetLevel}
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-black text-white leading-snug mb-2">
+                    {/* Title & Subtitle */}
+                    <h3 className="text-lg sm:text-[1.3rem] font-semibold text-stone-900 tracking-wide leading-8 mb-1.5">
                       {cls.title}
                     </h3>
 
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-stone-500 leading-6 mb-4 line-clamp-2">
                       {cls.description || "Interactive live session with feedback and practical resin techniques."}
                     </p>
 
-                    <div className="space-y-2 rounded-2xl bg-slate-950/80 border border-slate-800/80 p-3 mb-4 text-xs text-slate-300">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={13} className="text-orange-400 shrink-0" />
+                    {/* Horizontal Metadata Strip */}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-4 mb-5 text-xs text-stone-700 font-medium">
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        <Calendar size={14} className="text-[#c4431d] shrink-0" />
                         <span>
                           {eventDate.toLocaleDateString("en-IN", {
                             weekday: "short",
                             day: "numeric",
                             month: "short",
                             year: "numeric",
-                          })}{" "}
-                          at{" "}
+                          })}
+                        </span>
+                      </span>
+
+                      <span className="h-3.5 w-px bg-stone-200 shrink-0" aria-hidden="true" />
+
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        <Clock size={14} className="text-[#c4431d] shrink-0" />
+                        <span className="uppercase">
                           {eventDate.toLocaleTimeString("en-IN", {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
                         </span>
-                      </div>
+                      </span>
 
-                      <div className="flex items-center gap-2">
-                        <Clock size={13} className="text-amber-400 shrink-0" />
-                        <span>{cls.durationMinutes} Minutes Duration</span>
-                      </div>
+                      <span className="h-3.5 w-px bg-stone-200 shrink-0" aria-hidden="true" />
 
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-800/80">
-                        <span className="text-slate-400">Total Attendees:</span>
-                        <span className="font-black text-emerald-400 flex items-center gap-1">
-                          <Users size={12} /> {cls.totalAttendees || 0} Students Attended
-                        </span>
-                      </div>
+                      <span
+                        className="inline-flex items-center gap-1 whitespace-nowrap"
+                        title={`${cls.durationMinutes} Minutes Duration`}
+                      >
+                        <Hourglass size={14} className="text-[#c4431d] shrink-0" />
+                        <span>{cls.durationMinutes} Min</span>
+                      </span>
+
+                      <span
+                        title={`${cls.totalAttendees || 0} Students Attended`}
+                        className="inline-flex items-center gap-1 rounded-full bg-[#e9f8eb] text-[#15803d] px-2.5 py-0.5 font-bold whitespace-nowrap"
+                      >
+                        <Users size={13} className="shrink-0" />
+                        <span>{cls.totalAttendees || 0} Attending</span>
+                      </span>
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-3 border-t border-slate-800/80">
+                  {/* Bottom Action Row */}
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 pt-1">
+                    {cls.meetingUrl && (
+                      <a
+                        href={cls.meetingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 min-w-[6.25rem] h-10 px-3.5 rounded-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs shadow-md shadow-[#c4431d]/25 inline-flex items-center justify-center gap-1.5 transition-all hover:scale-[1.02] cursor-pointer whitespace-nowrap"
+                      >
+                        <ExternalLink size={14} className="shrink-0" />
+                        <span>Join Call</span>
+                      </a>
+                    )}
+
                     <button
+                      type="button"
                       onClick={() => {
                         setRosterModal({ isOpen: true, liveClass: cls });
                         setRosterSearch("");
                       }}
-                      className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      title="View Attendance Roster"
+                      className="group flex-1 min-w-[7.25rem] h-10 px-3.5 rounded-full bg-white hover:bg-[#fff5ee] text-stone-800 hover:text-[#942008] font-bold text-xs border border-stone-200 hover:border-[#f5ded0] shadow-xs inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
                     >
-                      <UserCheck size={14} /> View Attendance Roster ({cls.totalAttendees || 0})
+                      <Users size={14} className="text-stone-600 group-hover:text-[#942008] transition-colors shrink-0" />
+                      <span>View Roster ({cls.totalAttendees || 0})</span>
                     </button>
 
-                    <div className="flex items-center gap-2">
-                      {cls.meetingUrl && (
-                        <a
-                          href={cls.meetingUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-1 transition-colors"
+                    <div className="relative shrink-0" data-class-menu-root>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenActionMenuId(isMenuOpen ? null : cls.id);
+                        }}
+                        aria-haspopup="menu"
+                        aria-expanded={isMenuOpen}
+                        title="More class actions"
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer border ${isMenuOpen
+                          ? "bg-[#fff5ee] text-[#942008] border-[#f5ded0] shadow-xs"
+                          : "bg-white text-stone-700 border-stone-200 hover:bg-[#fff5ee] hover:text-[#942008] hover:border-[#f5ded0]"
+                          }`}
+                      >
+                        <Ellipsis size={17} />
+                      </button>
+
+                      {isMenuOpen && (
+                        <div
+                          role="menu"
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute right-0 bottom-full mb-2 w-60 bg-white border border-[#ecdccb] rounded-2xl shadow-[0_14px_34px_-10px_rgba(90,55,20,0.22)] p-1.5 z-40 animate-in fade-in duration-150"
                         >
-                          <ExternalLink size={12} /> Join Call
-                        </a>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              handleExportClassAttendance(cls.id, cls.title);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-stone-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
+                          >
+                            <Download size={15} className="shrink-0" />
+                            <span>Download Attendance Sheet</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              openEditModal(cls);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-stone-700 hover:bg-[#fff5ee] hover:text-[#942008] transition-colors cursor-pointer"
+                          >
+                            <Edit2 size={15} className="shrink-0 text-stone-600" />
+                            <span>Edit Class</span>
+                          </button>
+
+                          <div className="my-1 border-t border-[#f5ded0]/70" />
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              handleDeleteClass(cls.id, cls.title);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          >
+                            <Trash2 size={15} className="shrink-0" />
+                            <span>Delete Class</span>
+                          </button>
+                        </div>
                       )}
-
-                      <button
-                        onClick={() => handleExportClassAttendance(cls.id, cls.title)}
-                        className="p-2 bg-slate-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-slate-400 rounded-xl border border-slate-700 transition-colors cursor-pointer"
-                        title="Download Class Attendance Sheet (.xlsx / .csv)"
-                      >
-                        <Download size={13} />
-                      </button>
-
-                      <button
-                        onClick={() => openEditModal(cls)}
-                        className="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition-colors cursor-pointer"
-                        title="Edit Class"
-                      >
-                        <Edit2 size={13} />
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteClass(cls.id, cls.title)}
-                        className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
-                        title="Delete Class"
-                      >
-                        <Trash2 size={14} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -611,16 +711,16 @@ export default function AdminClassesPage() {
 
         {/* Create / Edit Class Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative animate-scale-up max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-5 pb-3 border-b border-slate-800">
-                <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <Video className="text-orange-400" size={18} />
+          <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative text-stone-900 animate-scale-up max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-5 pb-3 border-b border-stone-200">
+                <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+                  <Video className="text-[#c4431d]" size={18} />
                   {editingClass ? "Edit Live Class" : "Schedule Live Class"}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-900 flex items-center justify-center cursor-pointer"
                 >
                   <X size={16} />
                 </button>
@@ -628,60 +728,59 @@ export default function AdminClassesPage() {
 
               <form onSubmit={handleSaveClass} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Class Title</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Class Title</label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="e.g. Weekly Resin Masterclass & Live Q&A"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Date &amp; Start Time</label>
+                    <label className="block text-xs font-bold text-stone-700 mb-1.5">Date &amp; Start Time</label>
                     <input
                       type="datetime-local"
                       value={formData.scheduledAt}
                       onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5">Duration (Minutes)</label>
+                    <label className="block text-xs font-bold text-stone-700 mb-1.5">Duration (Minutes)</label>
                     <input
                       type="number"
                       value={formData.durationMinutes}
                       onChange={(e) => setFormData({ ...formData, durationMinutes: parseInt(e.target.value) || 60 })}
                       placeholder="60"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-300">
-                      Target Level Access <span className="text-orange-400 font-semibold">(Multi-Select Supported)</span>
+                    <label className="block text-xs font-bold text-stone-700">
+                      Target Level Access <span className="text-[#c4431d] font-semibold">(Multi-Select Supported)</span>
                     </label>
-                    <span className="text-[11px] font-bold text-slate-400">
-                      Target: <span className="text-orange-400 font-bold">{selectedLevels.includes("All") ? "All Membership Levels" : selectedLevels.join(", ")}</span>
+                    <span className="text-[11px] font-bold text-stone-500">
+                      Target: <span className="text-[#c4431d] font-bold">{selectedLevels.includes("All") ? "All Membership Levels" : selectedLevels.join(", ")}</span>
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-slate-950 border border-slate-800 rounded-2xl">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#fcfaf7] border border-stone-300 rounded-2xl">
                     <button
                       type="button"
                       onClick={() => toggleLevelSelection("All")}
-                      className={`col-span-2 sm:col-span-3 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
-                        selectedLevels.includes("All")
-                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black shadow-lg shadow-orange-500/20"
-                          : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
-                      }`}
+                      className={`col-span-2 sm:col-span-3 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${selectedLevels.includes("All")
+                        ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-xs"
+                        : "bg-white border border-stone-200 text-stone-700 hover:border-stone-300"
+                        }`}
                     >
                       <span>🌐 All Membership Levels (Open to All Tiers)</span>
                       {selectedLevels.includes("All") && <Check size={14} className="stroke-[3]" />}
@@ -696,13 +795,12 @@ export default function AdminClassesPage() {
                           key={lvl.code}
                           type="button"
                           onClick={() => toggleLevelSelection(lvl.code)}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
-                            selectedLevels.includes("All")
-                              ? "bg-slate-900/60 border border-slate-800 text-slate-400 opacity-70"
-                              : isExplicit
-                              ? "bg-orange-500 text-slate-950 font-black shadow-md shadow-orange-500/20"
-                              : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
-                          }`}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${selectedLevels.includes("All")
+                            ? "bg-stone-50 border border-stone-200 text-stone-400 opacity-70"
+                            : isExplicit
+                              ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-xs"
+                              : "bg-white border border-stone-200 text-stone-700 hover:border-stone-300"
+                            }`}
                         >
                           <span className="truncate">{lvl.code} · {lvl.name}</span>
                           {isExplicit && <Check size={13} className="stroke-[3] shrink-0" />}
@@ -712,30 +810,30 @@ export default function AdminClassesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 bg-slate-950/80 border border-slate-800/80 rounded-2xl">
+                <div className="flex items-start gap-3 p-3 bg-[#fcfaf7] border border-stone-200 rounded-2xl">
                   <input
                     type="checkbox"
                     id="sendNotification"
                     checked={sendNotification}
                     onChange={(e) => setSendNotification(e.target.checked)}
-                    className="w-4 h-4 mt-0.5 rounded text-orange-500 accent-orange-500 cursor-pointer shrink-0"
+                    className="w-4 h-4 mt-0.5 rounded text-[#c4431d] accent-[#c4431d] cursor-pointer shrink-0"
                   />
-                  <label htmlFor="sendNotification" className="text-xs text-slate-300 cursor-pointer select-none">
-                    <span className="font-bold text-white flex items-center gap-1.5">
+                  <label htmlFor="sendNotification" className="text-xs text-stone-700 cursor-pointer select-none">
+                    <span className="font-bold text-stone-900 flex items-center gap-1.5">
                       🔔 Send In-App Bell Notification to Eligible Students
                     </span>
-                    <span className="text-[11px] text-slate-400 block mt-0.5">
+                    <span className="text-[11px] text-stone-500 block mt-0.5">
                       Eligible students enrolled in {selectedLevels.includes("All") ? "all levels" : selectedLevels.join(", ")} will immediately receive a notification alert with the direct join link.
                     </span>
                   </label>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Class Status</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Class Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-none focus:border-orange-500"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30"
                   >
                     <option value="upcoming">Upcoming</option>
                     <option value="live">🔴 Live Now</option>
@@ -745,49 +843,49 @@ export default function AdminClassesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Live Meeting URL (Zoom / Google Meet)</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Live Meeting URL (Zoom / Google Meet)</label>
                   <input
                     type="url"
                     value={formData.meetingUrl}
                     onChange={(e) => setFormData({ ...formData, meetingUrl: e.target.value })}
                     placeholder="https://zoom.us/j/123456789"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-mono"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-mono transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Recording / Replay Video URL (Optional)</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Recording / Replay Video URL (Optional)</label>
                   <input
                     type="url"
                     value={formData.recordingUrl}
                     onChange={(e) => setFormData({ ...formData, recordingUrl: e.target.value })}
                     placeholder="https://youtube.com/watch?v=xxx or Vimeo URL"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500 font-mono"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-mono transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Description &amp; Agenda</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Description &amp; Agenda</label>
                   <textarea
                     rows={3}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="What will students learn in this live coaching session?"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-orange-500 resize-none"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl p-3 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none transition-colors"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div className="flex items-center gap-3 pt-4 border-t border-stone-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black text-sm h-11 rounded-xl shadow-lg transition-all cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer"
                   >
                     {editingClass ? "Update Live Class" : "Schedule Live Class"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm h-11 px-5 rounded-xl cursor-pointer"
+                    className="border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm h-11 px-5 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -799,55 +897,73 @@ export default function AdminClassesPage() {
 
         {/* Attendance Roster Modal */}
         {rosterModal.isOpen && rosterModal.liveClass && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl relative animate-scale-up max-h-[85vh] flex flex-col">
-              
-              <div className="flex justify-between items-start mb-4 pb-3 border-b border-slate-800 shrink-0">
-                <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
-                    <UserCheck size={13} /> Live Attendance Roster
+          <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-2xl w-full p-5 sm:p-8 shadow-2xl relative overflow-hidden text-stone-900 animate-scale-up max-h-[90vh] my-auto flex flex-col">
+              {/* Subtle top-right peach accent glow */}
+              <div className="pointer-events-none absolute -top-12 -right-8 w-44 h-36 rounded-full bg-[#fde5d6]/85 blur-xl" />
+
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5 relative z-10 shrink-0">
+                <div className="min-w-0">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e9f8eb] px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#15803d] mb-3">
+                    <Users size={13} className="shrink-0" /> Live Attendance Roster
                   </span>
-                  <h3 className="text-xl font-black text-white">{rosterModal.liveClass.title}</h3>
-                  <p className="text-xs text-slate-400">
-                    Total recorded attendees: <strong className="text-emerald-400">{rosterModal.liveClass.totalAttendees} Students</strong>
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <span className="w-1 sm:w-1.5 h-6 sm:h-7 rounded-full bg-gradient-to-b from-[#942008] via-[#c4431d] to-[#ea580c] shrink-0" />
+                    <h3 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight leading-snug break-words">
+                      {rosterModal.liveClass.title}
+                    </h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1 pl-3.5 sm:pl-4">
+                    Total recorded attendees:{" "}
+                    <strong className="font-bold text-[#15803d]">
+                      {rosterModal.liveClass.totalAttendees} Students
+                    </strong>
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+
+                <div className="flex items-center gap-2 self-end sm:self-start shrink-0">
                   <button
                     onClick={() => handleExportClassAttendance(rosterModal.liveClass?.id, rosterModal.liveClass?.title)}
-                    className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-4 sm:px-5 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white rounded-full text-xs sm:text-sm font-bold shadow-md shadow-[#c4431d]/25 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
                     title="Download this class's attendance sheet (.csv)"
                   >
-                    <Download size={13} /> Export Sheet
+                    <Download size={14} className="shrink-0" /> Export Sheet
                   </button>
                   <button
                     onClick={() => setRosterModal({ isOpen: false, liveClass: null })}
-                    className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                    aria-label="Close roster modal"
+                    className="w-10 h-10 rounded-full bg-[#faf5f0] text-stone-700 hover:bg-[#fde5d6]/80 hover:text-[#942008] flex items-center justify-center transition-colors cursor-pointer shrink-0"
                   >
-                    <X size={16} />
+                    <X size={17} />
                   </button>
                 </div>
               </div>
 
               {/* Roster Search */}
-              <div className="mb-4 shrink-0">
-                <input
-                  type="text"
-                  placeholder="Filter attendees by student name or email..."
-                  value={rosterSearch}
-                  onChange={(e) => setRosterSearch(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
-                />
+              <div className="mb-4 relative z-10 shrink-0">
+                <div className="flex items-center gap-2.5 w-full bg-white border border-stone-200 focus-within:border-[#c4431d] focus-within:ring-2 focus-within:ring-[#c4431d]/15 rounded-full px-4 py-2.5 transition-all">
+                  <Search size={16} className="text-stone-400 shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Filter attendees by student name or email..."
+                    value={rosterSearch}
+                    onChange={(e) => setRosterSearch(e.target.value)}
+                    className="w-full bg-transparent text-sm sm:text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none"
+                  />
+                </div>
               </div>
 
               {/* Attendees List */}
-              <div className="overflow-y-auto flex-1 space-y-2 pr-1">
+              <div className="overflow-y-auto flex-1 space-y-2.5 pr-1 relative z-10">
                 {(rosterModal.liveClass.attendees || []).length === 0 ? (
-                  <div className="p-8 text-center bg-slate-950/50 border border-slate-800 rounded-2xl">
-                    <Users size={32} className="text-slate-700 mx-auto mb-2" />
-                    <p className="text-slate-400 text-sm font-bold">No Students Joined Yet</p>
-                    <p className="text-slate-600 text-xs mt-1">
-                      When students click "Join Live Class" on their portal, attendance is automatically recorded here.
+                  <div className="p-8 sm:p-10 text-center bg-[#fcfaf7] border border-[#ecdccb]/70 rounded-2xl">
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#fdeee2] text-[#c4431d] flex items-center justify-center">
+                      <Users size={26} />
+                    </div>
+                    <p className="text-stone-900 text-base sm:text-lg font-black">No Students Joined Yet</p>
+                    <p className="text-stone-500 text-xs sm:text-sm mt-1.5 max-w-md mx-auto leading-relaxed">
+                      When students click &quot;Join Live Class&quot; on their portal, attendance is automatically recorded here.
                     </p>
                   </div>
                 ) : (
@@ -861,26 +977,26 @@ export default function AdminClassesPage() {
                       return (
                         <div
                           key={att.userId}
-                          className="p-3.5 bg-slate-950/80 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-3 hover:border-slate-700 transition-colors"
+                          className="p-3.5 bg-[#fcfaf7] border border-stone-200 rounded-2xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 hover:border-[#c4431d]/30 transition-colors"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center font-bold text-orange-400 text-sm">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center font-bold text-[#942008] text-sm shrink-0">
                               {att.studentName.charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                              <h4 className="font-bold text-white text-xs sm:text-sm">{att.studentName}</h4>
-                              <p className="text-[11px] text-slate-400">{att.studentEmail}</p>
-                              <span className="text-[10px] text-amber-400 font-semibold block mt-0.5">
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-stone-900 text-sm truncate">{att.studentName}</h4>
+                              <p className="text-xs text-stone-500 truncate">{att.studentEmail}</p>
+                              <span className="text-xs text-amber-600 font-semibold block mt-0.5">
                                 {att.membershipLevel}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 shrink-0">
                             {joinDate && (
                               <div className="text-right hidden sm:block">
-                                <span className="text-[10px] text-slate-500 block">Joined At</span>
-                                <span className="text-xs text-slate-300 font-mono">
+                                <span className="text-xs text-stone-400 block">Joined At</span>
+                                <span className="text-xs text-stone-700 font-mono">
                                   {joinDate.toLocaleTimeString("en-IN", {
                                     hour: "2-digit",
                                     minute: "2-digit",
@@ -893,11 +1009,10 @@ export default function AdminClassesPage() {
                               onClick={() =>
                                 handleToggleAttendance(rosterModal.liveClass!.id, att.userId, att.attended)
                               }
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                                att.attended
-                                  ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
-                                  : "bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
-                              }`}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${att.attended
+                                ? "bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
+                                }`}
                             >
                               {att.attended ? (
                                 <>
@@ -921,16 +1036,16 @@ export default function AdminClassesPage() {
 
         {/* Full Attendance History Modal */}
         {isHistoryModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-2xl relative animate-scale-up max-h-[85vh] flex flex-col">
-              
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800 shrink-0">
+          <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative text-stone-900 animate-scale-up max-h-[85vh] flex flex-col">
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-200 shrink-0">
                 <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-orange-400 mb-1">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-[#942008] mb-1">
                     <History size={13} /> Complete Attendance History &amp; Records
                   </span>
-                  <h3 className="text-xl font-black text-white">All Sessions Attendance Ledger</h3>
-                  <p className="text-xs text-slate-400">
+                  <h3 className="text-xl font-black text-stone-900">All Sessions Attendance Ledger</h3>
+                  <p className="text-xs text-stone-500">
                     Showing all historical attendance logs (including sessions concluded or removed from schedule).
                   </p>
                 </div>
@@ -945,7 +1060,7 @@ export default function AdminClassesPage() {
                   </button>
                   <button
                     onClick={() => setIsHistoryModalOpen(false)}
-                    className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-900 flex items-center justify-center cursor-pointer"
                   >
                     <X size={16} />
                   </button>
@@ -959,22 +1074,22 @@ export default function AdminClassesPage() {
                   placeholder="Search by student name, email, level, or class title..."
                   value={historySearch}
                   onChange={(e) => setHistorySearch(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                 />
-                <span className="text-xs text-slate-400 shrink-0 hidden sm:inline">
-                  Total Records: <strong className="text-white font-mono">{historyRecords.length}</strong>
+                <span className="text-xs text-stone-500 shrink-0 hidden sm:inline">
+                  Total Records: <strong className="text-stone-900 font-mono">{historyRecords.length}</strong>
                 </span>
               </div>
 
               {/* History Table / Records */}
               <div className="overflow-y-auto flex-1 space-y-2 pr-1">
                 {isHistoryLoading ? (
-                  <div className="p-12 text-center text-slate-500 text-sm">Loading attendance history ledger...</div>
+                  <div className="p-12 text-center text-stone-400 text-sm font-medium">Loading attendance history ledger...</div>
                 ) : historyRecords.length === 0 ? (
-                  <div className="p-12 text-center bg-slate-950/50 border border-slate-800 rounded-2xl">
-                    <Users size={32} className="text-slate-700 mx-auto mb-2" />
-                    <p className="text-slate-400 text-sm font-bold">No Attendance History Recorded Yet</p>
-                    <p className="text-slate-600 text-xs mt-1">
+                  <div className="p-12 text-center bg-[#fcfaf7] border border-stone-200 rounded-2xl">
+                    <Users size={32} className="text-stone-300 mx-auto mb-2" />
+                    <p className="text-stone-700 text-sm font-bold">No Attendance History Recorded Yet</p>
+                    <p className="text-stone-400 text-xs mt-1">
                       As students join your live classes, their attendance and +100 XP credit logs will accumulate here forever.
                     </p>
                   </div>
@@ -991,38 +1106,38 @@ export default function AdminClassesPage() {
                       return (
                         <div
                           key={rec.id}
-                          className="p-3.5 bg-slate-950/80 border border-slate-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-700 transition-colors"
+                          className="p-3.5 bg-[#fcfaf7] border border-stone-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#c4431d]/30 transition-colors"
                         >
                           <div className="flex items-start sm:items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center font-bold text-orange-400 text-sm shrink-0 mt-0.5 sm:mt-0">
+                            <div className="w-10 h-10 rounded-xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center font-bold text-[#942008] text-sm shrink-0 mt-0.5 sm:mt-0">
                               {rec.studentName?.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="font-bold text-white text-xs sm:text-sm">{rec.studentName}</h4>
+                                <h4 className="font-bold text-stone-900 text-xs sm:text-sm">{rec.studentName}</h4>
                                 <span className="text-[10px] text-amber-400 font-semibold px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-md">
                                   {rec.studentLevel}
                                 </span>
                                 {rec.classStatus && rec.classStatus.includes("Removed") && (
-                                  <span className="text-[10px] text-slate-400 font-medium px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded">
+                                  <span className="text-[10px] text-stone-500 font-medium px-1.5 py-0.5 bg-stone-100 border border-stone-200 rounded">
                                     Concluded Session
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                Class: <strong className="text-slate-200">{rec.classTitle}</strong>
+                              <p className="text-[11px] text-stone-500 mt-0.5">
+                                Class: <strong className="text-stone-900">{rec.classTitle}</strong>
                               </p>
-                              <p className="text-[10px] text-slate-500">
+                              <p className="text-[10px] text-stone-400">
                                 {rec.studentEmail} {rec.studentPhone && rec.studentPhone !== "N/A" ? `· ${rec.studentPhone}` : ""}
                               </p>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-800/60">
+                          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-stone-200">
                             {joinDate && (
                               <div className="text-left sm:text-right">
-                                <span className="text-[10px] text-slate-500 block">Attended On</span>
-                                <span className="text-xs text-slate-300 font-mono">
+                                <span className="text-[10px] text-stone-400 block">Attended On</span>
+                                <span className="text-xs text-stone-700 font-mono">
                                   {joinDate.toLocaleDateString("en-IN", {
                                     day: "numeric",
                                     month: "short",

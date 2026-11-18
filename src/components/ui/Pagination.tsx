@@ -50,17 +50,17 @@ export function Pagination({
 
   const btn =
     "w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed";
-  const activeCls = "bg-orange-500 text-white shadow shadow-orange-500/30";
-  const inactiveCls = "text-slate-400 hover:bg-slate-800 hover:text-white";
+  const activeCls = "bg-[#B84A1A] text-white shadow-xs";
+  const inactiveCls = "text-stone-600 hover:bg-stone-100 hover:text-stone-900";
 
   return (
     <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 px-1 ${className}`}>
       {/* Count info */}
-      <p className="text-xs text-slate-500 whitespace-nowrap">
+      <p className="text-xs text-stone-500 whitespace-nowrap">
         Showing{" "}
-        <span className="text-slate-300 font-bold">{from}–{to}</span>{" "}
+        <span className="text-stone-800 font-bold">{from}–{to}</span>{" "}
         of{" "}
-        <span className="text-slate-300 font-bold">{total}</span>{" "}
+        <span className="text-stone-800 font-bold">{total}</span>{" "}
         {itemLabel}
       </p>
 

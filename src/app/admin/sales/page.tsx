@@ -53,16 +53,24 @@ export default function AdminSalesRecords() {
   const avgSale = displayedSales.length > 0 ? totalRevenue / displayedSales.length : 0;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="max-w-[1400px] mx-auto p-4 md:p-8">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
               <IndianRupee className="text-green-500" /> Student Revenue &amp; Sales Monitor
             </h1>
-            <p className="text-slate-400 mt-2">
+            <p className="text-stone-500 mt-2 font-medium">
               Review live client orders and commercial revenue logged directly by students.
             </p>
           </div>
@@ -74,8 +82,8 @@ export default function AdminSalesRecords() {
         </header>
 
         {/* Info Note: Student Self-Reporting */}
-        <div className="mb-6 p-4 rounded-2xl bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs md:text-sm font-semibold flex items-center gap-3">
-          <Info size={18} className="text-orange-400 shrink-0" />
+        <div className="mb-6 p-4 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] text-[#942008] text-xs md:text-sm font-semibold flex items-center gap-3">
+          <Info size={18} className="text-[#c4431d] shrink-0" />
           <span>
             <strong>Student Self-Reported Sales:</strong> Revenue records are entered directly by students through the <strong>Northstar Tracking System (/student/northstar)</strong> and the <strong>Win Wall</strong>. Admin has read-only oversight with moderation controls.
           </span>
@@ -85,12 +93,12 @@ export default function AdminSalesRecords() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Platform Revenue", value: `₹${totalAll.toLocaleString('en-IN')}`, color: "text-green-400", icon: <TrendingUp size={20} /> },
-            { label: "Filtered Revenue", value: `₹${totalRevenue.toLocaleString('en-IN')}`, color: "text-white", icon: <IndianRupee size={20} /> },
-            { label: "Total Transactions", value: displayedSales.length, color: "text-orange-400", icon: <BarChart2 size={20} /> },
+            { label: "Filtered Revenue", value: `₹${totalRevenue.toLocaleString('en-IN')}`, color: "text-stone-900", icon: <IndianRupee size={20} /> },
+            { label: "Total Transactions", value: displayedSales.length, color: "text-[#c4431d]", icon: <BarChart2 size={20} /> },
             { label: "Avg Sale Value", value: `₹${Math.round(avgSale).toLocaleString('en-IN')}`, color: "text-blue-400", icon: <IndianRupee size={20} /> },
           ].map(stat => (
-            <div key={stat.label} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-              <div className="flex items-center gap-2 text-slate-500 text-sm mb-2">
+            <div key={stat.label} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 shadow-[0_4px_16px_-4px_rgba(45,30,15,0.06)]">
+              <div className="flex items-center gap-2 text-stone-500 text-sm mb-2 font-semibold">
                 {stat.icon} {stat.label}
               </div>
               <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
@@ -100,17 +108,17 @@ export default function AdminSalesRecords() {
 
         {/* Filter */}
         <div className="flex items-center gap-3 mb-4">
-          <span className="text-slate-500 text-sm">Filter by student:</span>
+          <span className="text-stone-600 text-sm font-bold">Filter by student:</span>
           <select value={selectedStudentId} onChange={e => setSelectedStudentId(e.target.value)}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-orange-500">
+            className="bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-2 text-stone-900 text-sm outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors">
             <option value="all">All Students ({allSales.length} total entries)</option>
             {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </div>
 
         {/* Sales Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="bg-white/95 border border-[#ecdccb] rounded-3xl overflow-hidden shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-[#fcfaf7] border-b border-stone-200 text-xs font-bold text-stone-600 uppercase tracking-wider">
             <div className="col-span-4">Product / Commission</div>
             <div className="col-span-3">Student</div>
             <div className="col-span-2 text-right">Amount</div>
@@ -119,28 +127,28 @@ export default function AdminSalesRecords() {
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-slate-500">Loading student records...</div>
+            <div className="p-12 text-center text-stone-400 font-medium">Loading student records...</div>
           ) : displayedSales.length === 0 ? (
-            <div className="p-12 text-center text-slate-500">No sales records found.</div>
+            <div className="p-12 text-center text-stone-400 font-medium">No sales records found.</div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-stone-100">
               {displayedSales.map(s => (
-                <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-slate-800/30 transition-colors">
-                  <div className="col-span-4 font-semibold text-white">{s.productName}</div>
+                <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-[#fff5ee]/60 transition-colors">
+                  <div className="col-span-4 font-semibold text-stone-900">{s.productName}</div>
                   <div className="col-span-3 flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-orange-400">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center text-xs font-bold text-white shadow-xs">
                       {s.studentName?.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-slate-400 text-sm">{s.studentName}</span>
+                    <span className="text-stone-700 text-sm font-semibold">{s.studentName}</span>
                   </div>
                   <div className="col-span-2 text-right font-black text-green-400">₹{(s.amount || 0).toLocaleString('en-IN')}</div>
-                  <div className="col-span-2 text-slate-500 text-sm">
+                  <div className="col-span-2 text-stone-500 text-sm">
                     {s.date ? new Date(s.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                   </div>
                   <div className="col-span-1 flex justify-end">
                     <button
                       onClick={() => deleteSale(s.id)}
-                      className="text-slate-600 hover:text-red-400 transition-colors p-1.5 cursor-pointer"
+                      className="text-stone-400 hover:text-rose-600 transition-colors p-1.5 cursor-pointer"
                       title="Delete entry"
                     >
                       <Trash2 size={16} />
@@ -152,9 +160,9 @@ export default function AdminSalesRecords() {
           )}
 
           {displayedSales.length > 0 && (
-            <div className="px-6 py-4 bg-slate-800/30 border-t border-slate-800 flex justify-between items-center">
-              <span className="text-slate-400 font-medium">{displayedSales.length} transactions</span>
-              <span className="font-black text-white text-lg">Total: ₹{totalRevenue.toLocaleString('en-IN')}</span>
+            <div className="px-6 py-4 bg-[#fcfaf7] border-t border-stone-200 flex justify-between items-center">
+              <span className="text-stone-500 font-bold">{displayedSales.length} transactions</span>
+              <span className="font-black text-stone-900 text-lg">Total: ₹{totalRevenue.toLocaleString('en-IN')}</span>
             </div>
           )}
         </div>

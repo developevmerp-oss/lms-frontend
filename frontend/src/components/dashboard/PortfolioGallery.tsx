@@ -2,68 +2,73 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Image as ImageIcon, MessageSquare, Plus } from 'lucide-react';
+import { Image as ImageIcon, MessageSquare, Plus, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 
 export const PortfolioGallery = ({ portfolios }: { portfolios?: any[] }) => {
-  // Use real portfolios if available, else empty array
   const activePortfolios = portfolios || [];
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.5 }}
-      className="bg-slate-900 border border-slate-800 p-6 rounded-3xl h-full shadow-xl flex flex-col"
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <ImageIcon className="text-orange-500" />
-          <h2 className="text-xl font-bold text-white">Portfolio Projects</h2>
-        </div>
-        <Link href="/student/portfolio" className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-full text-white transition-colors flex items-center gap-1">
-          <Plus size={14} /> Upload New
-        </Link>
-      </div>
-      
-      <div className="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
-        {activePortfolios.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 text-center border-2 border-dashed border-slate-800 rounded-2xl">
-            <p className="text-slate-500 text-sm mb-2">No projects uploaded yet.</p>
-            <Link href="/student/portfolio" className="text-orange-500 hover:text-orange-400 text-sm font-bold">Start your portfolio</Link>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="text-[#c4431d]" size={18} />
+            <h2 className="text-base sm:text-lg font-bold text-stone-900">Portfolio Projects</h2>
           </div>
-        ) : (
-          activePortfolios.map((project, i) => (
-            <div key={project.id || i} className="flex gap-4 p-3 bg-slate-800/50 border border-slate-700 rounded-2xl">
-              <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-black">
-                <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover opacity-90" />
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-white font-bold">{project.title}</h3>
-                  <span className="text-xs text-slate-500">
-                    {new Date(project.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-xs text-orange-400 mb-2">{project.technique}</p>
-                
-                {project.feedback ? (
-                  <div className="bg-slate-950 p-2 rounded-lg border border-slate-800 flex gap-2 items-start mt-2">
-                    <MessageSquare size={14} className="text-slate-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-slate-300 italic">"{project.feedback}"</p>
-                      <p className="text-[10px] text-slate-500 font-bold mt-1">— {project.mentorName || 'Mentor'}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-orange-500/10 p-2 rounded-lg border border-orange-500/20 text-orange-400 text-xs italic">
-                    Awaiting mentor feedback...
-                  </div>
-                )}
-              </div>
+          <Link
+            href="/student/portfolio"
+            className="text-xs bg-stone-100 hover:bg-stone-200 border border-stone-200 px-3 py-1 rounded-full text-stone-900 font-bold transition-colors flex items-center gap-1 cursor-pointer"
+          >
+            <Plus size={13} /> Upload New
+          </Link>
+        </div>
+        
+        <div className="space-y-3">
+          {activePortfolios.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 sm:py-12 text-center">
+              <UploadCloud size={36} className="text-[#c4431d] mb-2" />
+              <p className="text-stone-600 text-xs sm:text-sm font-medium mb-1">No projects uploaded yet.</p>
+              <Link
+                href="/student/portfolio"
+                className="text-[#c4431d] hover:text-[#942008] text-xs sm:text-sm font-bold transition-colors"
+              >
+                Start your portfolio
+              </Link>
             </div>
-          ))
-        )}
+          ) : (
+            activePortfolios.slice(0, 3).map((project, i) => (
+              <div key={project.id || i} className="flex gap-3 p-2.5 bg-[#faf8f5] border border-stone-200/80 rounded-2xl">
+                <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-stone-100">
+                  <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-xs sm:text-sm text-stone-900 font-bold truncate">{project.title}</h3>
+                    <span className="text-[0.65rem] text-stone-400">
+                      {new Date(project.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-[0.7rem] text-[#c4431d] font-semibold mb-1">{project.technique}</p>
+                  
+                  {project.feedback ? (
+                    <div className="bg-white p-1.5 rounded-lg border border-stone-200 flex gap-1.5 items-start">
+                      <MessageSquare size={12} className="text-stone-400 shrink-0 mt-0.5" />
+                      <p className="text-[0.65rem] text-stone-700 italic line-clamp-1">"{project.feedback}"</p>
+                    </div>
+                  ) : (
+                    <p className="text-[0.65rem] text-stone-400 italic">Awaiting feedback...</p>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </motion.div>
   );
