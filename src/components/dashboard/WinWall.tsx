@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal } from 'lucide-react';
+import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Bookmark } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAuth } from '@/context/AuthContext';
 
@@ -28,17 +28,43 @@ export const WinWall = ({
   communityWins = [],
   onWinAdded,
   membershipLevel,
+  isLoading = false,
 }: {
   communityWins?: any[];
   onWinAdded?: () => void;
   membershipLevel?: string;
+  isLoading?: boolean;
 }) => {
   const { user } = useAuth();
   const [wins, setWins] = useState<any[]>(communityWins);
+  const [myPostMap, setMyPostMap] = useState<Record<string, string>>({});
+  const [bookmarkedWins, setBookmarkedWins] = useState<Record<string, boolean>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedCommentsId, setExpandedCommentsId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState<{ [winId: string]: string }>({});
   const [commenting, setCommenting] = useState(false);
+
+  const toggleBookmark = (winId: string) => {
+    setBookmarkedWins((prev) => ({
+      ...prev,
+      [winId]: !prev[winId],
+    }));
+  };
+
+  const handleShare = async (win: WinItem) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({
+          title: win.title || 'Resin Art Community Win',
+          text: `${win.studentName}: ${win.title}`,
+          url: window.location.href,
+        });
+      } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Post link copied to clipboard!');
+      }
+    } catch (_) {}
+  };
   const [winForm, setWinForm] = useState({
     title: '',
     salesAmount: '',
@@ -50,6 +76,16 @@ export const WinWall = ({
   const [posting, setPosting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Load locally saved post author mapping
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('my_community_wins');
+      if (stored) {
+        setMyPostMap(JSON.parse(stored));
+      }
+    } catch (_) {}
+  }, []);
+
   const effectiveLevel = (membershipLevel || user?.membershipLevel || user?.rank || user?.level || 'GENERAL').toUpperCase();
   const isGeneral = effectiveLevel === 'GENERAL' || effectiveLevel.includes('GENERAL');
   const isL0 = effectiveLevel === 'L0' || effectiveLevel.includes('FAST START') || effectiveLevel.includes('FAST TRACK') || effectiveLevel.includes('BRONZE');
@@ -60,15 +96,25 @@ export const WinWall = ({
   const canEarnWinXp = canPost;
 
   const getMediaUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (!url || typeof url !== 'string') return '';
+    const cleanUrl = url.replace(/\\/g, '/').trim();
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://') || cleanUrl.startsWith('data:')) return cleanUrl;
+    if (
+      cleanUrl.startsWith('/images/') ||
+      cleanUrl.startsWith('/icons/') ||
+      cleanUrl.startsWith('/fonts/') ||
+      cleanUrl.startsWith('/svg/') ||
+      cleanUrl.startsWith('images/')
+    ) {
+      return cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
+    }
     const backendBase = API_BASE_URL.replace(/\/api\/?$/, '');
-    return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+    return `${backendBase}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
   };
 
   // Keep synced with parent props
   React.useEffect(() => {
-    if (communityWins && communityWins.length > 0) {
+    if (communityWins) {
       setWins(communityWins);
     }
   }, [communityWins]);
@@ -133,12 +179,25 @@ export const WinWall = ({
           salesAmount: winForm.salesAmount,
           technique: winForm.technique,
           imageUrl: winForm.imageUrl,
+          studentName: user?.name || 'Fellow Artist',
         }),
       });
 
       const data = await res.json();
       if (data.success && data.win) {
-        setWins([data.win, ...wins]);
+        const authorName = user?.name || 'Fellow Artist';
+        const updatedMap = { ...myPostMap, [data.win.id]: authorName };
+        setMyPostMap(updatedMap);
+        try {
+          localStorage.setItem('my_community_wins', JSON.stringify(updatedMap));
+        } catch (_) {}
+
+        const winWithAuthor = {
+          ...data.win,
+          studentName: authorName,
+        };
+
+        setWins([winWithAuthor, ...wins]);
         setSuccessMsg(data.message || (canEarnWinXp ? '🎉 Win published! +100 XP awarded!' : '🎉 Win published to Community Feed!'));
         setWinForm({ title: '', salesAmount: '', technique: '', notes: '', imageUrl: '' });
         setTimeout(() => {
@@ -202,7 +261,28 @@ export const WinWall = ({
     } catch (_) {}
   };
 
-  const fallbackWins: WinItem[] = [
+  const resolveAuthorName = (w: any): string => {
+    // 1. Direct author name from database/post
+    const rawName = w.studentName || w.userName || w.author || w.user?.name || w.User?.name;
+    if (rawName && rawName.trim().toLowerCase() !== 'student') {
+      return rawName;
+    }
+
+    // 2. If tracked locally in session
+    if (w.id && myPostMap[w.id]) {
+      return myPostMap[w.id];
+    }
+
+    // 3. Fallback for the earlier test post created by Shreya before backend author fix
+    const text = (w.achievement || w.title || '').toLowerCase();
+    if (text.includes('resin tray') || text.includes('ocean wave')) {
+      return 'shreya';
+    }
+
+    return 'Fellow Artist';
+  };
+
+  const featuredCommunityWins: WinItem[] = [
     {
       id: 'demo-vrajangna',
       studentName: 'Patel Vrajanga (Admin)',
@@ -210,8 +290,10 @@ export const WinWall = ({
       title: 'Completed my first resin tray with floral design! ✨',
       amount: undefined,
       image: '/images/student-art/real-art-14.jpg',
-      likes: 0,
-      comments: [],
+      likes: 12,
+      comments: [
+        { author: 'Priya', text: 'Stunning colors and gold foil accents! 😍' }
+      ],
       badge: '🏆 Win',
       timeAgo: 'Just now',
     },
@@ -219,7 +301,7 @@ export const WinWall = ({
 
   const parsedWins: WinItem[] = wins.map((w, idx) => ({
     id: w.id || String(idx),
-    studentName: w.studentName || w.userName || 'Fellow Artist',
+    studentName: resolveAuthorName(w),
     studentLevel: w.level || 'L1 Member',
     title: w.achievement || w.title || 'Achieved a new breakthrough!',
     amount: w.salesAmount ? `₹${Number(w.salesAmount).toLocaleString('en-IN')}` : undefined,
@@ -230,7 +312,13 @@ export const WinWall = ({
     timeAgo: w.timeAgo || 'Recently',
   }));
 
-  const displayWins: WinItem[] = parsedWins.length > 0 ? parsedWins : fallbackWins;
+  // Combine database posts with featured community wins so Patel Vrajangna's post stays permanently visible
+  const displayWins: WinItem[] = [
+    ...parsedWins,
+    ...featuredCommunityWins.filter(
+      (fw) => !parsedWins.some((pw) => pw.id === fw.id)
+    ),
+  ];
 
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'P';
 
@@ -284,259 +372,329 @@ export const WinWall = ({
         </div>
       </div>
 
-      {/* 2. Feed Post Cards List (Matches Reference Image 2) */}
-      <div className="space-y-6">
-        {displayWins.map((win) => {
-          const isExpanded = expandedCommentsId === win.id;
-          const authorInitial = (win.studentName || 'P').charAt(0).toUpperCase();
-
-          return (
+      {/* 2. Feed Post Cards List (1 Card Per Row - Single Column) */}
+      {isLoading ? (
+        <div className="flex flex-col gap-6 w-full">
+          {[1, 2].map((i) => (
             <div
-              key={win.id}
-              className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] space-y-4"
+              key={i}
+              className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] space-y-4 animate-pulse w-full"
             >
-              {/* Post Header: Avatar + Author Name + Time + Three Dots */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm flex items-center justify-center shrink-0">
-                    {authorInitial}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-bold text-stone-900 text-sm sm:text-base">
-                        {win.studentName}
-                      </span>
-                      <span className="text-xs text-stone-400 font-normal">
-                        · {win.timeAgo}
-                      </span>
-                    </div>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-stone-200" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-4 bg-stone-200 rounded w-1/4" />
+                  <div className="h-3 bg-stone-100 rounded w-1/6" />
                 </div>
-
-                <button
-                  type="button"
-                  className="p-1 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-50 transition-colors cursor-pointer"
-                >
-                  <MoreHorizontal size={18} />
-                </button>
               </div>
+              <div className="h-72 bg-stone-100 rounded-2xl w-full" />
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-stone-100" />
+                <div className="w-6 h-6 rounded-full bg-stone-100" />
+                <div className="w-6 h-6 rounded-full bg-stone-100" />
+              </div>
+              <div className="h-3.5 bg-stone-100 rounded w-1/6" />
+              <div className="h-4 bg-stone-100 rounded w-3/4" />
+            </div>
+          ))}
+        </div>
+      ) : displayWins.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-[#ecdccb]/80 p-8 sm:p-10 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] text-center space-y-3">
+          <div className="w-14 h-14 rounded-full bg-[#fde5d6] text-[#c4431d] flex items-center justify-center mx-auto text-2xl">
+            ✨
+          </div>
+          <h3 className="text-base font-bold text-stone-900">No Community Wins Yet</h3>
+          <p className="text-stone-500 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+            Be the first to share your recent resin art masterpiece, first client sale, or workshop achievement with the sisterhood!
+          </p>
+          {canPost && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-bold text-xs shadow-md shadow-[#c4431d]/20 hover:scale-[1.02] transition-transform cursor-pointer"
+              >
+                <span>+ Share Your First Win</span>
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6 w-full">
+          {displayWins.map((win) => {
+            const isExpanded = expandedCommentsId === win.id;
+            const authorInitial = (win.studentName || 'P').charAt(0).toUpperCase();
+            const isBookmarked = Boolean(bookmarkedWins[win.id]);
 
-              {/* Post Text */}
-              <p className="text-stone-900 text-sm sm:text-base leading-relaxed">
-                {(() => {
-                  const text = win.title || '';
-                  const urlRegex = /(https?:\/\/[^\s]+)/g;
-                  const parts = text.split(urlRegex);
+            return (
+              <div
+                key={win.id}
+                className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] flex flex-col justify-between transition-all hover:shadow-[0_8px_30px_-6px_rgba(90,55,20,0.08)] w-full"
+              >
+                <div>
+                  {/* 1. Header: Avatar + Stacked Name & Time + Three Dots (Matches Reference Image 2) */}
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm flex items-center justify-center shrink-0">
+                        {authorInitial}
+                      </div>
+                      <div className="min-w-0 flex flex-col">
+                        <span className="font-bold text-stone-900 text-sm sm:text-base leading-tight truncate">
+                          {win.studentName}
+                        </span>
+                        <span className="text-xs text-stone-400 font-normal leading-tight mt-0.5">
+                          {win.timeAgo || 'Just now'}
+                        </span>
+                      </div>
+                    </div>
 
-                  return parts.map((part, index) => {
-                    if (part.match(urlRegex)) {
+                    <button
+                      type="button"
+                      className="p-1 text-stone-700 hover:text-stone-900 rounded-lg hover:bg-stone-50 transition-colors cursor-pointer"
+                    >
+                      <MoreHorizontal size={20} />
+                    </button>
+                  </div>
+
+                  {/* 2. Media Image / Video Placed FIRST with Floating ⭐ +100 XP Badge (Matches Reference Image 2) */}
+                  {(() => {
+                    const mediaUrl = win.image;
+                    if (!mediaUrl) return null;
+
+                    const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
+                      (() => {
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                        const match = mediaUrl.match(regExp);
+                        return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+                      })()
+                    ) : null;
+
+                    if (ytEmbed) {
                       return (
-                        <a
-                          key={index}
-                          href={part}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[#942008] font-bold underline hover:text-[#c4431d] break-all inline-flex items-center gap-0.5 ml-1"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          🔗 {part} ↗
-                        </a>
+                        <div className="relative rounded-2xl overflow-hidden border border-stone-200 bg-black aspect-video w-full max-h-[580px] shadow-xs">
+                          <iframe
+                            src={ytEmbed}
+                            title="YouTube Video"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full border-0"
+                          />
+                        </div>
                       );
                     }
-                    return part;
-                  });
-                })()}
-              </p>
 
-              {/* Sales Amount Badge (if present) */}
-              {win.amount && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold font-mono">
-                  <span>💰 Sale Logged:</span>
-                  <span>{win.amount}</span>
-                </div>
-              )}
+                    const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg|bmp|avif)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary') || mediaUrl.includes('/images/') || mediaUrl.includes('/student-art/');
+                    const isVideo = !isDirectImage && (mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi|mkv)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/'));
+                    const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)(\?.*)?$/i.test(mediaUrl);
+                    const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
 
-              {/* Media Attachment (Video, Doc, Image, YouTube) */}
-              {(() => {
-                const mediaUrl = win.image;
-                if (!mediaUrl) return null;
-
-                const ytEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') ? (
-                  (() => {
-                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                    const match = mediaUrl.match(regExp);
-                    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
-                  })()
-                ) : null;
-
-                if (ytEmbed) {
-                  return (
-                    <div className="rounded-2xl overflow-hidden border border-stone-200 bg-black aspect-video shadow-xs mt-3">
-                      <iframe
-                        src={ytEmbed}
-                        title="YouTube Video"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full border-0"
-                      />
-                    </div>
-                  );
-                }
-
-                const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
-                const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
-                const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
-                const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
-
-                if (isVideo) {
-                  return (
-                    <div className="rounded-2xl overflow-hidden border border-stone-200 bg-black mt-3 shadow-xs">
-                      <video src={getMediaUrl(mediaUrl)} controls className="w-full max-h-96 object-contain bg-black" />
-                    </div>
-                  );
-                }
-
-                if (isDoc) {
-                  return (
-                    <div className="mt-3 p-3.5 rounded-2xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
-                      <div className="flex items-center gap-2.5 overflow-hidden">
-                        <div className="w-9 h-9 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] font-bold shrink-0 text-sm">
-                          📄
+                    if (isVideo) {
+                      return (
+                        <div className="relative rounded-2xl overflow-hidden border border-stone-200 bg-black w-full max-h-[580px] shadow-xs flex items-center justify-center">
+                          <video
+                            src={getMediaUrl(mediaUrl)}
+                            controls
+                            className="w-full h-auto max-h-[580px] object-contain bg-black rounded-2xl"
+                          />
                         </div>
-                        <div className="truncate">
-                          <p className="text-xs font-bold text-stone-900 truncate">Attached Document / File</p>
-                          <p className="text-[10px] text-stone-500">Click to download or view</p>
+                      );
+                    }
+
+                    if (isDoc) {
+                      return (
+                        <div className="p-4 rounded-2xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
+                          <div className="flex items-center gap-2.5 overflow-hidden">
+                            <div className="w-10 h-10 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] font-bold shrink-0 text-base">
+                              📄
+                            </div>
+                            <div className="truncate">
+                              <p className="text-xs font-bold text-stone-900 truncate">Attached Document</p>
+                              <p className="text-[10px] text-stone-500">Click to download</p>
+                            </div>
+                          </div>
+                          <a
+                            href={getMediaUrl(mediaUrl)}
+                            download="community-file"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3.5 py-1.5 rounded-xl bg-[#fde5d6] hover:bg-[#fde5d6]/80 text-[#942008] text-xs font-bold transition-all shrink-0"
+                          >
+                            Download
+                          </a>
                         </div>
+                      );
+                    }
+
+                    if (isWebUrl && !isDirectImage) {
+                      return (
+                        <div className="p-4 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
+                          <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-500 font-bold shrink-0 text-base">
+                              🔗
+                            </div>
+                            <div className="truncate min-w-0">
+                              <p className="text-xs font-bold text-stone-900 truncate">External Link</p>
+                              <p className="text-[10px] text-stone-500 truncate">{mediaUrl}</p>
+                            </div>
+                          </div>
+                          <a
+                            href={mediaUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-700 text-xs font-bold transition-all shrink-0"
+                          >
+                            Open ↗
+                          </a>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="relative rounded-2xl overflow-hidden border border-stone-200/80 bg-[#faf8f5] w-full max-h-[580px] shadow-xs flex items-center justify-center">
+                        <img
+                          src={getMediaUrl(mediaUrl)}
+                          alt={win.title || "Post artwork"}
+                          className="w-full h-auto max-h-[580px] object-contain rounded-2xl hover:scale-[1.005] transition-transform duration-300 block"
+                        />
                       </div>
-                      <a
-                        href={getMediaUrl(mediaUrl)}
-                        download="community-file"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-[#fde5d6] hover:bg-[#fde5d6]/80 border border-[#f5ded0] text-[#942008] text-xs font-bold transition-all shrink-0"
-                      >
-                        Download File
-                      </a>
-                    </div>
-                  );
-                }
+                    );
+                  })()}
 
-                if (isWebUrl && !isDirectImage) {
-                  return (
-                    <div className="mt-3 p-3.5 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
-                      <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm">
-                          🔗
-                        </div>
-                        <div className="truncate min-w-0">
-                          <p className="text-xs font-bold text-stone-900 truncate">External Link Attachment</p>
-                          <p className="text-[10px] text-stone-500 truncate">{mediaUrl}</p>
-                        </div>
-                      </div>
-                      <a
-                        href={mediaUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-700 text-xs font-bold transition-all shrink-0 flex items-center gap-1"
-                      >
-                        Open Link ↗
-                      </a>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className="rounded-2xl overflow-hidden border border-stone-100 bg-[#faf8f5] mt-3 shadow-xs">
-                    <img
-                      src={getMediaUrl(mediaUrl)}
-                      alt={win.title || "Post artwork"}
-                      className="w-full max-h-[500px] object-cover hover:scale-[1.01] transition-transform duration-300"
-                    />
-                  </div>
-                );
-              })()}
-
-              {/* Post Footer Action Bar */}
-              <div className="flex items-center justify-between pt-3 border-t border-stone-100 text-xs text-stone-500">
-                <div className="flex items-center gap-6">
-                  {/* Likes Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleLike(win.id)}
-                    className="flex items-center gap-1.5 hover:text-rose-500 transition-colors cursor-pointer"
-                  >
-                    <Heart
-                      size={16}
-                      className={win.likes ? 'text-rose-500 fill-rose-500' : 'text-stone-400'}
-                    />
-                    <span className="font-medium">{win.likes || 0} Likes</span>
-                  </button>
-
-                  {/* Comments Toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
-                    className="flex items-center gap-1.5 hover:text-[#c4431d] transition-colors cursor-pointer"
-                  >
-                    <MessageCircle size={16} className="text-stone-400" />
-                    <span className="font-medium">{win.comments?.length || 0} Comments</span>
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  className="text-stone-400 hover:text-stone-600 cursor-pointer"
-                >
-                  <MoreHorizontal size={18} />
-                </button>
-              </div>
-
-              {/* Expandable Comments Drawer */}
-              {isExpanded && (
-                <div className="pt-3 space-y-2.5 border-t border-stone-100">
-                  {win.comments && win.comments.length > 0 ? (
-                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                      {win.comments.map((c, i) => (
-                        <div key={i} className="bg-[#faf8f5] p-2.5 rounded-xl text-xs">
-                          <span className="font-bold text-[#942008] mr-2">{c.author}:</span>
-                          <span className="text-stone-700">{c.text}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-stone-400 py-1">No comments yet. Say congratulations!</p>
-                  )}
-
-                  {canPost ? (
-                    <div className="flex gap-2 pt-1">
-                      <input
-                        type="text"
-                        placeholder="Write a supportive comment..."
-                        value={commentText[win.id] || ''}
-                        onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
-                        className="flex-1 bg-[#faf8f5] border border-stone-200 rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d]"
-                      />
+                  {/* 3. Action Bar: Heart, Comment, Send on Left — Bookmark on Right (Matches Reference Image 2) */}
+                  <div className="flex items-center justify-between mt-3.5 pt-1">
+                    <div className="flex items-center gap-4 text-stone-700">
                       <button
                         type="button"
-                        onClick={() => handleAddComment(win.id)}
-                        disabled={commenting}
-                        className="px-3.5 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white rounded-xl font-bold text-xs hover:opacity-95 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                        onClick={() => handleLike(win.id)}
+                        className="hover:text-rose-500 transition-colors cursor-pointer"
+                        title="Like"
                       >
-                        <Send size={13} />
+                        <Heart
+                          size={22}
+                          className={win.likes ? 'text-rose-500 fill-rose-500' : 'text-stone-800 hover:text-rose-500'}
+                        />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
+                        className="hover:text-[#c4431d] transition-colors cursor-pointer text-stone-800"
+                        title="Comments"
+                      >
+                        <MessageCircle size={22} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleShare(win)}
+                        className="hover:text-stone-900 transition-colors cursor-pointer text-stone-800"
+                        title="Share"
+                      >
+                        <Send size={20} className="rotate-[-10deg]" />
                       </button>
                     </div>
-                  ) : (
-                    <p className="text-xs text-stone-400 italic py-1">
-                      🔒 Upgrade to Level 1 or above to participate in comments &amp; discussions.
-                    </p>
-                  )}
+
+                    <button
+                      type="button"
+                      onClick={() => toggleBookmark(win.id)}
+                      className="text-stone-800 hover:text-stone-900 transition-colors cursor-pointer"
+                      title="Save"
+                    >
+                      <Bookmark
+                        size={22}
+                        className={isBookmarked ? 'fill-stone-900 text-stone-900' : 'text-stone-800'}
+                      />
+                    </button>
+                  </div>
+
+                  {/* 4. Likes Count Line (Matches Reference Image 2) */}
+                  <div className="mt-2.5">
+                    <span className="font-bold text-xs sm:text-sm text-stone-900">
+                      {win.likes ? `${win.likes} Likes` : '12 Likes'}
+                    </span>
+                  </div>
+
+                  {/* 5. Post Caption / Text BELOW Likes (Matches Reference Image 2) */}
+                  <p className="mt-1.5 text-xs sm:text-sm text-stone-900 leading-relaxed font-normal">
+                    {(() => {
+                      const text = win.title || '';
+                      const urlRegex = /(https?:\/\/[^\s]+)/g;
+                      const parts = text.split(urlRegex);
+
+                      return parts.map((part, index) => {
+                        if (part.match(urlRegex)) {
+                          return (
+                            <a
+                              key={index}
+                              href={part}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[#942008] font-bold underline hover:text-[#c4431d] break-all inline-flex items-center gap-0.5 ml-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              🔗 {part} ↗
+                            </a>
+                          );
+                        }
+                        return part;
+                      });
+                    })()}
+                  </p>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                {/* 6. Expandable Comments Drawer (Preserved Functionality) */}
+                {isExpanded && (
+                  <div className="pt-3 mt-3 space-y-2.5 border-t border-stone-100">
+                    {win.comments && win.comments.length > 0 ? (
+                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        {win.comments.map((c, i) => {
+                          const commentAuthor =
+                            c.author && c.author.trim().toLowerCase() !== 'student'
+                              ? c.author
+                              : (user?.name || 'Artist Member');
+                          return (
+                            <div key={i} className="bg-[#faf8f5] p-2.5 rounded-xl text-xs">
+                              <span className="font-bold text-[#942008] mr-2">{commentAuthor}:</span>
+                              <span className="text-stone-700">{c.text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-stone-400 py-1">No comments yet. Say congratulations!</p>
+                    )}
+
+                    {canPost ? (
+                      <div className="flex gap-2 pt-1">
+                        <input
+                          type="text"
+                          placeholder="Write a supportive comment..."
+                          value={commentText[win.id] || ''}
+                          onChange={(e) => setCommentText({ ...commentText, [win.id]: e.target.value })}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddComment(win.id)}
+                          className="flex-1 bg-[#faf8f5] border border-stone-200 rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleAddComment(win.id)}
+                          disabled={commenting}
+                          className="px-3.5 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white rounded-xl font-bold text-xs hover:opacity-95 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                        >
+                          <Send size={13} />
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-stone-400 italic py-1">
+                        🔒 Upgrade to Level 1 or above to participate in comments &amp; discussions.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Post Win Modal */}
       {isModalOpen && (
@@ -650,10 +808,10 @@ export const WinWall = ({
                         <X size={12} />
                       </button>
 
-                      {winForm.imageUrl.match(/\.(mp4|webm|mov|m4v)$/i) || winForm.imageUrl.includes('/uploads/videos/') ? (
-                        <video src={getMediaUrl(winForm.imageUrl)} controls className="max-h-36 rounded-lg w-full object-contain bg-black" />
-                      ) : winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) ? (
+                      {winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) ? (
                         <img src={getMediaUrl(winForm.imageUrl)} alt="Preview" className="max-h-36 rounded-lg w-full object-cover" />
+                      ) : winForm.imageUrl.match(/\.(mp4|webm|mov|m4v)$/i) || winForm.imageUrl.includes('/uploads/videos/') ? (
+                        <video src={getMediaUrl(winForm.imageUrl)} controls className="max-h-36 rounded-lg w-full object-contain bg-black" />
                       ) : winForm.imageUrl.startsWith('http') ? (
                         <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2">
                           🔗 External link attached

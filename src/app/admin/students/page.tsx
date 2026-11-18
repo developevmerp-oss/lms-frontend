@@ -65,6 +65,8 @@ export default function AdminStudents() {
   // Form states
   const [editProfile, setEditProfile] = useState<any>({});
   const [newMilestone, setNewMilestone] = useState({ name: "", completed: false });
+  const [isAddingMilestone, setIsAddingMilestone] = useState(false);
+  const [milestoneError, setMilestoneError] = useState("");
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
   const [editingMilestoneName, setEditingMilestoneName] = useState("");
   const [newSale, setNewSale] = useState({ amount: "", productName: "", date: "" });
@@ -75,7 +77,8 @@ export default function AdminStudents() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const API = API_BASE_URL;
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  const effectiveToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  const headers = { Authorization: `Bearer ${effectiveToken}`, "Content-Type": "application/json" };
 
   // Debounce ref for search
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -257,10 +260,17 @@ export default function AdminStudents() {
 
   // Refresh selected student data
   const refreshStudent = async (id: string) => {
-    const res = await fetch(`${API}/admin/students/${id}`, { headers });
-    const data = await res.json();
-    setSelectedStudent(data);
-    setStudents(prev => prev.map(s => s.id === id ? data : s));
+    try {
+      const res = await fetch(`${API}/admin/students/${id}`, { headers });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.id) {
+        setSelectedStudent(data);
+        setStudents(prev => prev.map(s => s.id === id ? data : s));
+      }
+    } catch (err) {
+      console.error('Error refreshing student:', err);
+    }
   };
 
   // Save profile
@@ -307,45 +317,124 @@ export default function AdminStudents() {
   // Toggle milestone complete
   const toggleMilestone = async (milestoneId: string, currentStatus: boolean) => {
     if (!selectedStudent) return;
-    await fetch(`${API}/admin/milestones/${milestoneId}`, {
-      method: 'PUT', headers,
-      body: JSON.stringify({ completed: !currentStatus, completedAt: !currentStatus ? new Date() : null })
-    });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Milestone updated!");
+    try {
+      const newStatus = !currentStatus;
+      const res = await fetch(`${API}/admin/milestones/${milestoneId}`, {
+        method: 'PUT', headers,
+        body: JSON.stringify({ completed: newStatus, completedAt: newStatus ? new Date().toISOString() : null })
+      });
+      if (res.ok) {
+        setSelectedStudent(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            milestones: (prev.milestones || []).map((m: any) =>
+              m.id === milestoneId ? { ...m, completed: newStatus, completedAt: newStatus ? new Date().toISOString() : null } : m
+            )
+          };
+        });
+        showSuccess("Milestone updated!");
+        await refreshStudent(selectedStudent.id);
+      }
+    } catch (err) {
+      console.error('Error updating milestone:', err);
+    }
   };
 
   // Update milestone name
   const updateMilestoneName = async (milestoneId: string) => {
     if (!selectedStudent || !editingMilestoneName.trim()) return;
-    await fetch(`${API}/admin/milestones/${milestoneId}`, {
-      method: 'PUT', headers,
-      body: JSON.stringify({ name: editingMilestoneName.trim() })
-    });
-    setEditingMilestoneId(null);
-    setEditingMilestoneName("");
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Milestone title updated!");
+    try {
+      const trimmed = editingMilestoneName.trim();
+      const res = await fetch(`${API}/admin/milestones/${milestoneId}`, {
+        method: 'PUT', headers,
+        body: JSON.stringify({ name: trimmed })
+      });
+      if (res.ok) {
+        setSelectedStudent(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            milestones: (prev.milestones || []).map((m: any) =>
+              m.id === milestoneId ? { ...m, name: trimmed } : m
+            )
+          };
+        });
+        setEditingMilestoneId(null);
+        setEditingMilestoneName("");
+        showSuccess("Milestone title updated!");
+        await refreshStudent(selectedStudent.id);
+      }
+    } catch (err) {
+      console.error('Error updating milestone title:', err);
+    }
   };
 
   // Add milestone
   const addMilestone = async () => {
-    if (!selectedStudent || !newMilestone.name.trim()) return;
-    await fetch(`${API}/admin/students/${selectedStudent.id}/milestones`, {
-      method: 'POST', headers,
-      body: JSON.stringify({ name: newMilestone.name, completed: newMilestone.completed, order: (selectedStudent.milestones?.length || 0) + 1 })
-    });
-    setNewMilestone({ name: "", completed: false });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Milestone added!");
+    if (!selectedStudent) return;
+    const trimmed = newMilestone.name.trim();
+    if (!trimmed) {
+      setMilestoneError("Please enter a milestone name");
+      return;
+    }
+    setMilestoneError("");
+    setIsAddingMilestone(true);
+    try {
+      const res = await fetch(`${API}/admin/students/${selectedStudent.id}/milestones`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: trimmed,
+          completed: newMilestone.completed,
+          completedAt: newMilestone.completed ? new Date().toISOString() : null,
+          order: (selectedStudent.milestones?.length || 0) + 1
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMilestoneError(data.message || "Failed to add milestone");
+        return;
+      }
+      setNewMilestone({ name: "", completed: false });
+      setSelectedStudent(prev => {
+        if (!prev) return prev;
+        const currentList = prev.milestones || [];
+        if (currentList.some((m: any) => m.id === data.id)) return prev;
+        return {
+          ...prev,
+          milestones: [...currentList, data]
+        };
+      });
+      await refreshStudent(selectedStudent.id);
+      showSuccess("Milestone added!");
+    } catch (err: any) {
+      console.error('Error adding milestone:', err);
+      setMilestoneError(err.message || "Failed to add milestone");
+    } finally {
+      setIsAddingMilestone(false);
+    }
   };
 
   // Delete milestone
   const deleteMilestone = async (milestoneId: string) => {
     if (!selectedStudent) return;
-    await fetch(`${API}/admin/milestones/${milestoneId}`, { method: 'DELETE', headers });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Milestone removed!");
+    try {
+      const res = await fetch(`${API}/admin/milestones/${milestoneId}`, { method: 'DELETE', headers });
+      if (res.ok) {
+        setSelectedStudent(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            milestones: (prev.milestones || []).filter((m: any) => m.id !== milestoneId)
+          };
+        });
+        showSuccess("Milestone removed!");
+        await refreshStudent(selectedStudent.id);
+      }
+    } catch (err) {
+      console.error('Error deleting milestone:', err);
+    }
   };
 
   // Add sales record
@@ -930,22 +1019,45 @@ export default function AdminStudents() {
                   {/* Milestones Tab */}
                   {activeTab === 'milestones' && (
                     <div className="space-y-4">
-                      <div className="flex gap-3">
-                        <input
-                          type="text"
-                          placeholder="New milestone name..."
-                          value={newMilestone.name}
-                          onChange={e => setNewMilestone({ ...newMilestone, name: e.target.value })}
-                          onKeyDown={e => e.key === 'Enter' && addMilestone()}
-                          className="flex-1 bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
-                        />
-                        <label className="flex items-center gap-2 text-sm text-stone-600 px-3 cursor-pointer">
-                          <input type="checkbox" checked={newMilestone.completed} onChange={e => setNewMilestone({ ...newMilestone, completed: e.target.checked })} className="accent-[#c4431d]" />
-                          Done
-                        </label>
-                        <button onClick={addMilestone} className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer">
-                          <Plus size={16} /> Add
-                        </button>
+                      <div>
+                        <div className="flex gap-3">
+                          <input
+                            type="text"
+                            placeholder="New milestone name..."
+                            value={newMilestone.name}
+                            onChange={e => {
+                              setNewMilestone({ ...newMilestone, name: e.target.value });
+                              if (milestoneError) setMilestoneError("");
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addMilestone();
+                              }
+                            }}
+                            className={`flex-1 bg-[#fcfaf7] border ${milestoneError ? 'border-red-400 focus:border-red-500' : 'border-stone-300 focus:border-[#c4431d]'} rounded-xl px-4 py-3 text-stone-900 placeholder:text-stone-400 outline-none focus:ring-1 focus:ring-[#c4431d]/30 transition-colors`}
+                          />
+                          <label className="flex items-center gap-2 text-sm text-stone-600 px-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={newMilestone.completed}
+                              onChange={e => setNewMilestone({ ...newMilestone, completed: e.target.checked })}
+                              className="accent-[#c4431d]"
+                            />
+                            Done
+                          </label>
+                          <button
+                            type="button"
+                            onClick={addMilestone}
+                            disabled={isAddingMilestone}
+                            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer"
+                          >
+                            <Plus size={16} /> {isAddingMilestone ? 'Adding...' : 'Add'}
+                          </button>
+                        </div>
+                        {milestoneError && (
+                          <p className="text-red-500 text-xs font-medium mt-1.5 pl-1">{milestoneError}</p>
+                        )}
                       </div>
 
                       {(selectedStudent.milestones || []).length === 0 ? (
@@ -1024,7 +1136,10 @@ export default function AdminStudents() {
                           className="w-36 bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors" />
                         <input type="date" value={newSale.date} onChange={e => setNewSale({ ...newSale, date: e.target.value })}
                           className="bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors" />
-                        <button onClick={addSaleRecord} className="flex items-center gap-2 px-5 py-3 bg-green-500 hover:bg-green-600 rounded-xl font-bold transition-colors shrink-0">
+                        <button
+                          onClick={addSaleRecord}
+                          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer"
+                        >
                           <Plus size={16} /> Add Sale
                         </button>
                       </div>
