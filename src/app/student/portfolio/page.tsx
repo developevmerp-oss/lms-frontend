@@ -67,7 +67,7 @@ export default function StudentPortfolio() {
 
         <div className="bg-white/95 backdrop-blur-xl border border-[#ecdccb] p-8 rounded-3xl min-h-[60vh] flex flex-col items-center justify-center text-center shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
           <div className="w-24 h-24 bg-[#fde5d6] rounded-full flex items-center justify-center mb-6 shadow-md shadow-[#c4431d]/20 border border-[#f5ded0] text-[#942008]">
-            <ImageIcon size={40} className="text-purple-400" />
+            <ImageIcon size={40} className="text-[#c4431d]" />
           </div>
           <h2 className="text-2xl font-bold text-stone-900 mb-2">Showcase Your Journey</h2>
           <p className="text-stone-600 max-w-md mb-8">
@@ -84,39 +84,45 @@ export default function StudentPortfolio() {
       </main>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-gray-900 border border-stone-200 rounded-3xl p-8 max-w-md w-full relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white border border-[#ecdccb] rounded-3xl p-6 sm:p-8 max-w-md w-full relative shadow-[0_20px_50px_-15px_rgba(90,55,20,0.2)]">
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-stone-900 transition-colors"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-900 flex items-center justify-center transition-colors"
             >
-              <X size={24} />
+              <X size={18} />
             </button>
             
-            <h2 className="text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
-              <ImageIcon className="text-pink-400" /> Upload Artwork
-            </h2>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[#fff2ea] border border-[#f5ded0] flex items-center justify-center text-[#e86034] shrink-0">
+                <ImageIcon size={20} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-stone-900">Upload Artwork</h2>
+                <p className="text-xs text-stone-500">Submit your masterpiece for mentor review</p>
+              </div>
+            </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Project Title</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Project Title</label>
                 <input 
                   type="text" 
                   required
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-stone-900 placeholder-gray-500 focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-[#faf8f5] border border-[#ecdccb] rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:bg-white focus:ring-2 focus:ring-[#c4431d]/10 transition-all"
                   placeholder="e.g. Ocean Wave Coaster"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Technique Used</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Technique Used</label>
                 <select 
                   required
                   value={formData.technique}
                   onChange={e => setFormData({...formData, technique: e.target.value})}
-                  className="w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-stone-900 focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-[#faf8f5] border border-[#ecdccb] rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:bg-white focus:ring-2 focus:ring-[#c4431d]/10 transition-all cursor-pointer"
                 >
                   <option value="">Select a technique...</option>
                   <option value="Resin Basics">Resin Basics</option>
@@ -128,13 +134,13 @@ export default function StudentPortfolio() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Image URL</label>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">Image URL</label>
                 <input 
                   type="url" 
                   required
                   value={formData.imageUrl}
                   onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-stone-900 placeholder-gray-500 focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-[#faf8f5] border border-[#ecdccb] rounded-xl px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:bg-white focus:ring-2 focus:ring-[#c4431d]/10 transition-all"
                   placeholder="https://imgur.com/... or similar"
                 />
               </div>
@@ -142,7 +148,7 @@ export default function StudentPortfolio() {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-stone-900 font-bold py-3 rounded-xl transition-all shadow-lg shadow-teal-500/25 disabled:opacity-50"
+                className="w-full mt-4 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-[#c4431d]/20 disabled:opacity-50 cursor-pointer text-sm"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit to Mentor'}
               </button>

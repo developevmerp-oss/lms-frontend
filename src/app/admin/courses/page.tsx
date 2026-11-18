@@ -1670,7 +1670,7 @@ export default function AdminCourses() {
               </div>
               <button
                 onClick={() => setShowCourseModal(false)}
-                className="p-2 hover:bg-stone-100 rounded-xl text-stone-500 hover:text-white transition-colors cursor-pointer"
+                className="p-2 hover:bg-[#fff5ee] rounded-xl text-stone-400 hover:text-[#942008] transition-colors cursor-pointer"
                 title="Close"
               >
                 <X size={20} />
@@ -1680,10 +1680,10 @@ export default function AdminCourses() {
             {/* Modal Body */}
             <form onSubmit={handleSaveCourse} className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-6">
               {/* Course Status: Enable / Disable */}
-              <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                    {courseForm.isPublished ? <Eye size={14} className="text-emerald-400" /> : <EyeOff size={14} className="text-red-400" />}
+                  <label className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                    {courseForm.isPublished ? <Eye size={14} className="text-emerald-500" /> : <EyeOff size={14} className="text-red-500" />}
                     Course Visibility Status
                   </label>
                   <p className="text-[11px] text-stone-500 mt-0.5">
@@ -1697,7 +1697,7 @@ export default function AdminCourses() {
                     type="button"
                     onClick={() => setCourseForm({ ...courseForm, isPublished: true })}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${courseForm.isPublished
-                      ? "bg-emerald-500 text-white font-black shadow-md shadow-emerald-500/20"
+                      ? "bg-emerald-600 text-white font-black shadow-md shadow-emerald-600/20"
                       : "bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50"
                       }`}
                   >
@@ -1707,7 +1707,7 @@ export default function AdminCourses() {
                     type="button"
                     onClick={() => setCourseForm({ ...courseForm, isPublished: false })}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${!courseForm.isPublished
-                      ? "bg-red-500 text-white font-black shadow-md shadow-red-500/20"
+                      ? "bg-red-600 text-white font-black shadow-md shadow-red-600/20"
                       : "bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50"
                       }`}
                   >
@@ -1725,7 +1725,7 @@ export default function AdminCourses() {
                     required
                     value={courseForm.title}
                     onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-semibold transition-colors"
+                    className="w-full bg-white border border-[#ecdccb] rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-semibold transition-colors"
                     placeholder="e.g. 1. Resin Fundamentals & Safety"
                   />
                 </div>
@@ -1735,7 +1735,7 @@ export default function AdminCourses() {
                   <select
                     value={courseForm.levelCode}
                     onChange={(e) => setCourseForm({ ...courseForm, levelCode: e.target.value })}
-                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-medium transition-colors"
+                    className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-medium transition-colors"
                   >
                     <option value="NONE">✨ None (Individual / Standalone Course)</option>
                     {(levels.length > 0
@@ -1761,20 +1761,21 @@ export default function AdminCourses() {
                     type="number"
                     value={courseForm.order}
                     onChange={(e) => setCourseForm({ ...courseForm, order: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-semibold"
+                    className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-semibold"
                   />
                 </div>
               </div>
 
               {/* Conditional Standalone Course Section: Price & Validity side-by-side */}
+              {/* Conditional Standalone Course Section: Price & Validity side-by-side */}
               {(!courseForm.levelCode || courseForm.levelCode === "NONE") && (
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-50 via-indigo-50 to-stone-50 border border-indigo-200 space-y-4 animate-in fade-in">
-                  <div className="flex items-center justify-between pb-2 border-b border-indigo-500/20">
-                    <span className="text-xs font-black text-indigo-300 flex items-center gap-2">
-                      <Tag size={14} className="text-indigo-400" />
+                <div className="p-5 rounded-2xl bg-[#fff8f5] border border-[#f5ded0] space-y-4 animate-in fade-in">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#f5ded0]">
+                    <span className="text-xs font-black text-[#942008] flex items-center gap-2">
+                      <Tag size={14} className="text-[#c4431d]" />
                       Individual / Standalone Course Configuration
                     </span>
-                    <span className="text-[11px] text-indigo-400/80 font-medium">
+                    <span className="text-[11px] text-[#c4431d] font-medium">
                       Applies exclusively to this single course
                     </span>
                   </div>
@@ -1782,7 +1783,7 @@ export default function AdminCourses() {
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
                     {/* Left: Price */}
                     <div className="sm:col-span-5 space-y-2">
-                      <label className="block text-xs font-bold text-purple-300">
+                      <label className="block text-xs font-bold text-stone-800">
                         Individual Course Price (₹) *
                       </label>
                       <div className="relative">
@@ -1792,7 +1793,7 @@ export default function AdminCourses() {
                           required
                           value={courseForm.price}
                           onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
-                          className="w-full bg-[#fcfaf7] border border-purple-500/50 rounded-xl pl-8 pr-4 py-2.5 text-xs text-stone-900 font-bold focus:outline-none focus:border-purple-500 placeholder:text-stone-400 shadow-xs"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl pl-8 pr-4 py-2.5 text-xs text-stone-900 font-bold focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20 placeholder:text-stone-400 shadow-xs"
                           placeholder="e.g. 999 or 1499"
                         />
                       </div>
@@ -1803,8 +1804,8 @@ export default function AdminCourses() {
 
                     {/* Right: Course Validity Duration Dropdown */}
                     <div className="sm:col-span-7 space-y-2">
-                      <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-                        <Clock size={13} className="text-indigo-400" /> Course Validity Duration (Rolling from Purchase Date)
+                      <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                        <Clock size={13} className="text-[#c4431d]" /> Course Validity Duration (Rolling from Purchase Date)
                       </label>
                       <div className="relative">
                         <select
@@ -1816,7 +1817,7 @@ export default function AdminCourses() {
                               validityMonths: val === "lifetime" ? null : parseInt(val, 10),
                             });
                           }}
-                          className="w-full bg-[#fcfaf7] border border-indigo-500/40 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 font-semibold cursor-pointer shadow-inner appearance-none"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20 font-semibold cursor-pointer shadow-xs appearance-none"
                         >
                           <option value="1">1 Month (30 Days from student registration / purchase)</option>
                           <option value="3">3 Months (90 Days from student registration / purchase)</option>
@@ -1825,7 +1826,7 @@ export default function AdminCourses() {
                           <option value="36">3 Years (36 Months from student registration / purchase)</option>
                           <option value="lifetime">Lifetime (Permanent Access, No Expiration)</option>
                         </select>
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400 text-xs">
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-stone-500 text-xs">
                           ▼
                         </div>
                       </div>
@@ -1838,29 +1839,29 @@ export default function AdminCourses() {
               )}
 
               {/* Dual Image Media Studio (16:9 Banner & 9:16 Portrait Flyer) */}
-              <div className="bg-[#fcfaf7]/70 border border-stone-200 p-5 sm:p-6 rounded-2xl space-y-6">
+              <div className="bg-[#faf8f5] border border-[#ecdccb] p-5 sm:p-6 rounded-2xl space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-stone-200/80 gap-2">
                   <div>
                     <span className="text-xs font-black text-stone-900 flex items-center gap-2">
-                      <ImageIcon size={16} className="text-[#c4431d]" />
+                      <ImageIcon size={16} className="text-[#942008]" />
                       Course Media Studio (Dual Image Support)
                     </span>
                     <p className="text-[11px] text-stone-500 mt-0.5">
                       Upload both formats for crisp, uncropped presentation: 16:9 for cards &amp; video players, and 9:16 for full marketing flyers &amp; stories.
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full self-start sm:self-auto">
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300/80 px-2.5 py-1 rounded-full self-start sm:self-auto">
                     ✓ Smart Auto-Fallback Active
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Slot 1: Horizontal Card Banner (16:9 Landscape) */}
-                  <div className="bg-white/60 border border-stone-200/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
+                  <div className="bg-white border border-[#ecdccb] rounded-2xl p-4 space-y-3.5 flex flex-col justify-between shadow-xs">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-black text-amber-300 uppercase tracking-wider bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
+                          <span className="text-[11px] font-black text-[#942008] uppercase tracking-wider bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-lg">
                             16:9 Landscape Banner
                           </span>
                           <span className="text-[10px] text-stone-500">Card &amp; Player</span>
@@ -1869,7 +1870,7 @@ export default function AdminCourses() {
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, image: "" })}
-                            className="text-[11px] text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
+                            className="text-[11px] text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
                           >
                             Clear
                           </button>
@@ -1882,7 +1883,7 @@ export default function AdminCourses() {
                             type="url"
                             value={courseForm.image}
                             onChange={(e) => setCourseForm({ ...courseForm, image: e.target.value })}
-                            className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 pr-8"
+                            className="w-full bg-white border border-[#ecdccb] rounded-xl px-3 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20 pr-8 font-medium transition-colors"
                             placeholder="Paste 16:9 banner URL..."
                           />
                           <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-stone-400" />
@@ -1905,26 +1906,30 @@ export default function AdminCourses() {
                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1.5">
                           Theme Presets:
                         </span>
-                        <div className="flex flex-wrap gap-1">
-                          {PRESET_COURSE_BANNERS.map((preset) => (
-                            <button
-                              key={preset.name}
-                              type="button"
-                              onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
-                              className={`text-[10px] px-2 py-0.5 rounded-md border font-medium transition-all cursor-pointer ${courseForm.image === preset.url
-                                ? "bg-amber-500/20 text-amber-300 border-amber-500/50 font-bold"
-                                : "bg-[#fcfaf7] text-stone-500 border-stone-200 hover:border-stone-300 hover:text-white"
+                        <div className="flex flex-wrap gap-1.5">
+                          {PRESET_COURSE_BANNERS.map((preset) => {
+                            const isSelected = courseForm.image === preset.url;
+                            return (
+                              <button
+                                key={preset.name}
+                                type="button"
+                                onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
+                                className={`text-[10px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                                  isSelected
+                                    ? "bg-[#fde5d6] text-[#942008] border-[#f5ded0] font-black shadow-xs ring-1 ring-[#c4431d]/30"
+                                    : "bg-white text-stone-700 border-stone-200 hover:border-[#c4431d] hover:bg-[#fff5ee] hover:text-[#942008] font-semibold"
                                 }`}
-                            >
-                              {preset.name}
-                            </button>
-                          ))}
+                              >
+                                {preset.name}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
 
                     {/* Live Preview Box 1 */}
-                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-[#fcfaf7] flex items-center justify-center mt-2">
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-[#faf8f5] flex items-center justify-center mt-2">
                       {courseForm.image ? (
                         <>
                           <img
@@ -1937,11 +1942,11 @@ export default function AdminCourses() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none" />
                           <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-emerald-400 bg-[#fcfaf7]/90 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-300">
                               ✓ 16:9 Banner Active
                             </span>
                             {imageRatioInfo && (
-                              <span className="text-[9px] font-mono text-stone-500 bg-white/90 px-2 py-0.5 rounded-md border border-stone-200">
+                              <span className="text-[9px] font-mono text-stone-700 bg-white/95 px-2 py-0.5 rounded-md border border-stone-200 shadow-xs">
                                 {imageRatioInfo.width} × {imageRatioInfo.height} px
                               </span>
                             )}
@@ -1958,11 +1963,11 @@ export default function AdminCourses() {
                   </div>
 
                   {/* Slot 2: Vertical Marketing Poster / Story Flyer (9:16 Portrait) */}
-                  <div className="bg-white/60 border border-stone-200/90 rounded-2xl p-4 space-y-3.5 flex flex-col justify-between">
+                  <div className="bg-white border border-[#ecdccb] rounded-2xl p-4 space-y-3.5 flex flex-col justify-between shadow-xs">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-black text-rose-300 uppercase tracking-wider bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-lg">
+                          <span className="text-[11px] font-black text-[#942008] uppercase tracking-wider bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-lg">
                             9:16 Portrait Flyer
                           </span>
                           <span className="text-[10px] text-stone-500">Marketing &amp; Stories</span>
@@ -1971,7 +1976,7 @@ export default function AdminCourses() {
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, flyerImage: "" })}
-                            className="text-[11px] text-red-400 hover:text-red-300 font-semibold transition-colors cursor-pointer"
+                            className="text-[11px] text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
                           >
                             Clear
                           </button>
@@ -1984,7 +1989,7 @@ export default function AdminCourses() {
                             type="url"
                             value={courseForm.flyerImage}
                             onChange={(e) => setCourseForm({ ...courseForm, flyerImage: e.target.value })}
-                            className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 pr-8"
+                            className="w-full bg-white border border-[#ecdccb] rounded-xl px-3 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20 pr-8 font-medium transition-colors"
                             placeholder="Paste 9:16 poster / flyer URL..."
                           />
                           <LinkIcon size={13} className="absolute right-2.5 top-2.5 text-stone-400" />
@@ -2008,7 +2013,7 @@ export default function AdminCourses() {
                     </div>
 
                     {/* Live Preview Box 2 */}
-                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-[#fcfaf7] flex items-center justify-center mt-2">
+                    <div className="relative w-full h-44 rounded-xl overflow-hidden border border-stone-200 bg-[#faf8f5] flex items-center justify-center mt-2">
                       {courseForm.flyerImage ? (
                         <>
                           <img
@@ -2029,11 +2034,11 @@ export default function AdminCourses() {
                             <Maximize2 size={12} />
                           </button>
                           <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-rose-300 bg-[#fcfaf7]/90 px-2 py-0.5 rounded-md border border-rose-500/30">
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-300">
                               ✓ 9:16 Flyer Active
                             </span>
                             {flyerRatioInfo && (
-                              <span className="text-[9px] font-mono text-stone-500 bg-white/90 px-2 py-0.5 rounded-md border border-stone-200">
+                              <span className="text-[9px] font-mono text-stone-700 bg-white/95 px-2 py-0.5 rounded-md border border-stone-200 shadow-xs">
                                 {flyerRatioInfo.width} × {flyerRatioInfo.height} px
                               </span>
                             )}
@@ -2052,10 +2057,10 @@ export default function AdminCourses() {
               </div>
 
               {/* Special Offer & Discount Configuration */}
-              <div className="bg-[#fcfaf7]/50 border border-stone-200 p-5 rounded-2xl space-y-4">
+              <div className="bg-[#faf8f5] border border-[#ecdccb] p-5 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                    <div className="w-8 h-8 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008]">
                       <Percent size={15} />
                     </div>
                     <div>
@@ -2071,7 +2076,7 @@ export default function AdminCourses() {
                       onChange={(e) => setCourseForm({ ...courseForm, offerActive: e.target.checked })}
                       className="sr-only peer"
                     />
-                    <div className="w-10 h-5 bg-stone-100 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-[#942008] peer-checked:to-[#ea580c]"></div>
+                    <div className="w-10 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-[#942008] peer-checked:to-[#ea580c]"></div>
                   </label>
                 </div>
 
@@ -2080,25 +2085,27 @@ export default function AdminCourses() {
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                       {/* Discount Type */}
                       <div className="sm:col-span-6 space-y-1.5">
-                        <label className="block text-[11px] font-bold text-stone-500">Discount Type</label>
-                        <div className="grid grid-cols-2 gap-2 bg-white p-1 rounded-xl border border-stone-200">
+                        <label className="block text-[11px] font-bold text-stone-600">Discount Type</label>
+                        <div className="grid grid-cols-2 gap-2 bg-white p-1 rounded-xl border border-[#ecdccb]">
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, discountType: "percentage" })}
-                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${courseForm.discountType === "percentage"
-                              ? "bg-red-500 text-white shadow-sm font-black"
-                              : "text-stone-500 hover:text-white"
-                              }`}
+                            className={`py-2 text-xs rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                              courseForm.discountType === "percentage"
+                                ? "bg-gradient-to-r from-[#942008] to-[#c4431d] text-white shadow-xs font-black"
+                                : "text-stone-600 hover:text-[#942008] hover:bg-[#fff5ee] font-semibold"
+                            }`}
                           >
                             <Percent size={12} /> Percentage (%)
                           </button>
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, discountType: "flat" })}
-                            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${courseForm.discountType === "flat"
-                              ? "bg-red-500 text-white shadow-sm font-black"
-                              : "text-stone-500 hover:text-white"
-                              }`}
+                            className={`py-2 text-xs rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                              courseForm.discountType === "flat"
+                                ? "bg-gradient-to-r from-[#942008] to-[#c4431d] text-white shadow-xs font-black"
+                                : "text-stone-600 hover:text-[#942008] hover:bg-[#fff5ee] font-semibold"
+                            }`}
                           >
                             <Tag size={12} /> Flat (₹)
                           </button>
@@ -2107,7 +2114,7 @@ export default function AdminCourses() {
 
                       {/* Discount Value */}
                       <div className="sm:col-span-6 space-y-1.5">
-                        <label className="block text-[11px] font-bold text-stone-500">
+                        <label className="block text-[11px] font-bold text-stone-600">
                           {courseForm.discountType === "percentage" ? "Discount Percentage (%)" : "Flat Discount Amount (₹)"}
                         </label>
                         <input
@@ -2116,7 +2123,7 @@ export default function AdminCourses() {
                           max={courseForm.discountType === "percentage" ? "100" : undefined}
                           value={courseForm.discountValue || ""}
                           onChange={(e) => setCourseForm({ ...courseForm, discountValue: parseFloat(e.target.value) || 0 })}
-                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-red-500 font-bold"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20 font-bold"
                           placeholder={courseForm.discountType === "percentage" ? "e.g. 25 for 25% OFF" : "e.g. 500 for ₹500 OFF"}
                         />
                       </div>
@@ -2125,26 +2132,26 @@ export default function AdminCourses() {
                     {/* Offer Start & End Date */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-bold text-stone-500 mb-1 flex items-center gap-1">
+                        <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
                           <Calendar size={11} className="text-[#c4431d]" /> Offer Start Date &amp; Time
                         </label>
                         <input
                           type="datetime-local"
                           value={courseForm.offerStartDate}
                           onChange={(e) => setCourseForm({ ...courseForm, offerStartDate: e.target.value })}
-                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-red-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-stone-500 mb-1 flex items-center gap-1">
-                          <Clock size={11} className="text-red-400" /> Offer End Date &amp; Time
+                        <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
+                          <Clock size={11} className="text-[#c4431d]" /> Offer End Date &amp; Time
                         </label>
                         <input
                           type="datetime-local"
                           value={courseForm.offerEndDate}
                           onChange={(e) => setCourseForm({ ...courseForm, offerEndDate: e.target.value })}
-                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-red-500"
+                          className="w-full bg-white border border-[#ecdccb] rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/20"
                         />
                       </div>
                     </div>
@@ -2159,24 +2166,24 @@ export default function AdminCourses() {
                   rows={3}
                   value={courseForm.description}
                   onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl p-3.5 text-xs text-stone-900 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none leading-relaxed"
+                  className="w-full bg-white border border-[#ecdccb] rounded-xl p-3.5 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none leading-relaxed font-medium"
                   placeholder="Describe what students will master in this module..."
                 />
               </div>
 
               {/* Modal Footer */}
-              <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t border-stone-200 -mx-6 sm:-mx-8 -mb-6 px-6 sm:px-8 py-4 flex items-center justify-end gap-3 shrink-0">
+              <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t border-[#ecdccb] -mx-6 sm:-mx-8 -mb-6 px-6 sm:px-8 py-4 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowCourseModal(false)}
-                  className="border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-xs h-10 px-5 rounded-xl cursor-pointer transition-colors"
+                  className="border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs h-10 px-5 rounded-xl cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-10 px-6 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+                  className="h-10 px-6 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   {isSubmitting ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}
                 </button>
