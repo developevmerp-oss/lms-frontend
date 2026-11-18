@@ -4,7 +4,7 @@ const isLocalhost = isBrowser && (window.location.hostname === 'localhost' || wi
 // In production browser on Vercel, use same-origin /api so Next.js rewrites proxy it with ZERO CORS preflight delays.
 export const API_BASE_URL = isBrowser
   ? (isLocalhost ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api') : `${window.location.origin}/api`)
-  : (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.ravishingarthub.com/api');
+  : (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5000/api' : 'https://api.ravishingarthub.com/api'));
 
 export const getApiUrl = (path: string): string => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -25,7 +25,7 @@ export const getImageUrl = (url?: string): string => {
     return clean;
   }
 
-  if (isLocalhost) {
+  if (isLocalhost || (process.env.NODE_ENV === 'development' && !isBrowser)) {
     return `http://localhost:5000${clean}`;
   }
   // Same-origin rewrite proxies /uploads directly without cross-origin latency
@@ -45,7 +45,7 @@ export const getFileUrl = (url?: string): string => {
     return clean;
   }
 
-  if (isLocalhost) {
+  if (isLocalhost || (process.env.NODE_ENV === 'development' && !isBrowser)) {
     return `http://localhost:5000${clean}`;
   }
   return clean;

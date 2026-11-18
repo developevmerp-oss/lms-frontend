@@ -44,6 +44,14 @@ const getFileUrl = (url?: string) => {
   let clean = url.replace(/\\/g, "/").trim();
   if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("data:")) return clean;
   if (!clean.startsWith("/")) clean = "/" + clean;
+  if (
+    clean.startsWith("/images/") ||
+    clean.startsWith("/icons/") ||
+    clean.startsWith("/fonts/") ||
+    clean.startsWith("/svg/")
+  ) {
+    return clean;
+  }
   const backendBase = API_BASE_URL.replace(/\/api$/, "");
   return `${backendBase}${clean}`;
 };
