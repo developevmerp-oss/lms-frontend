@@ -21,7 +21,8 @@ export default function AdminMilestones() {
   const [editingName, setEditingName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  const effectiveToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  const headers = { Authorization: `Bearer ${effectiveToken}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
 
   // Fetch all milestones (flat list with student context from dedicated endpoint)
@@ -99,14 +100,24 @@ export default function AdminMilestones() {
       for (const s of students) {
         await fetch(`${API}/admin/students/${s.id}/milestones`, {
           method: 'POST', headers,
-          body: JSON.stringify({ name: newMilestone.name.trim(), completed: newMilestone.completed, order: 99 })
+          body: JSON.stringify({
+            name: newMilestone.name.trim(),
+            completed: newMilestone.completed,
+            completedAt: newMilestone.completed ? new Date().toISOString() : null,
+            order: 99
+          })
         });
       }
       showSuccess(`Milestone added to all ${students.length} students!`);
     } else {
       await fetch(`${API}/admin/students/${selectedStudentId}/milestones`, {
         method: 'POST', headers,
-        body: JSON.stringify({ name: newMilestone.name.trim(), completed: newMilestone.completed, order: 99 })
+        body: JSON.stringify({
+          name: newMilestone.name.trim(),
+          completed: newMilestone.completed,
+          completedAt: newMilestone.completed ? new Date().toISOString() : null,
+          order: 99
+        })
       });
       showSuccess("Milestone added to student!");
     }

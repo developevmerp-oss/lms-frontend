@@ -57,6 +57,15 @@ export default function AdminDashboard() {
   const getMediaUrl = (url: string) => {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (
+      url.startsWith('/images/') ||
+      url.startsWith('/icons/') ||
+      url.startsWith('/fonts/') ||
+      url.startsWith('/svg/') ||
+      url.startsWith('images/')
+    ) {
+      return url.startsWith('/') ? url : `/${url}`;
+    }
     const backendBase = API.replace(/\/api\/?$/, '');
     return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
   };

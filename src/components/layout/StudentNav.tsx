@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   Video,
   ClipboardList,
+  Award,
 } from "lucide-react";
 import { ProfileUpdateModal } from "@/components/profile/ProfileUpdateModal";
 import { AccessLockModal } from "@/components/layout/AccessLockModal";
@@ -113,6 +114,15 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
       requiredLevel: "Level 0 (Fast Track)",
       requiredPoints: 0,
       description: "Student dashboard, stats, daily routine checklist, sales chart, and rewards unlock with Level 0 (Fast Track).",
+    },
+    {
+      name: "Profile & Milestones",
+      path: "/student/profile",
+      icon: Award,
+      isAccessible: true,
+      requiredLevel: "General",
+      requiredPoints: 0,
+      description: "Artpreneur career levels, badges collection, milestone checklist, and technical skill mastery scores.",
     },
     {
       name: "Feed",
