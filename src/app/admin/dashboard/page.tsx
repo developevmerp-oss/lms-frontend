@@ -9,6 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
+import { uploadMediaFile } from "@/utils/uploadFile";
 
 const API = API_BASE_URL;
 
@@ -76,21 +77,9 @@ export default function AdminDashboard() {
 
     setUploadingWinFile(true);
     try {
-      const formData = new FormData();
-      formData.append('video', file);
-
-      const res = await fetch(`${API}/upload/video`, {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setWinImage(data.url);
-      } else {
-        alert('File upload failed. Please try an external URL instead.');
-      }
+      // Images go to /upload/image, videos to /upload/video, documents to /upload/document
+      const { url } = await uploadMediaFile(file, token);
+      setWinImage(url);
     } catch (err) {
       console.error('File upload error:', err);
       alert('File upload failed. Please check your connection or use an external URL.');

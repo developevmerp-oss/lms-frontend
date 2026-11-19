@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Bookmark } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAuth } from '@/context/AuthContext';
+import { uploadMediaFile } from '@/utils/uploadFile';
 
 interface CommentItem {
   author: string;
@@ -19,6 +20,7 @@ interface WinItem {
   amount?: string;
   image?: string;
   likes?: number;
+  likedByMe?: boolean;
   comments?: CommentItem[];
   badge?: string;
   timeAgo: string;
@@ -43,6 +45,9 @@ export const WinWall = ({
   const [expandedCommentsId, setExpandedCommentsId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState<{ [winId: string]: string }>({});
   const [commenting, setCommenting] = useState(false);
+  const [likingId, setLikingId] = useState<string | null>(null);
+  // posts whose image file can no longer be loaded (old files that were stored on a server disk)
+  const [brokenMedia, setBrokenMedia] = useState<Record<string, boolean>>({});
 
   const toggleBookmark = (winId: string) => {
     setBookmarkedWins((prev) => ({
@@ -127,23 +132,11 @@ export const WinWall = ({
 
     setUploadingFile(true);
     try {
-      const formData = new FormData();
-      formData.append('video', file); // field name 'video' matches the upload route
-
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_BASE_URL}/upload/video`, {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.url) {
-        // Store the server-side URL — works for images, videos, and docs
-        setWinForm((prev) => ({ ...prev, imageUrl: data.url }));
-      } else {
-        alert('File upload failed. Please use an external URL instead.');
-      }
+      // Images go to /upload/image, videos to /upload/video, documents to /upload/document
+      // (the backend saves them in Cloudinary and returns the link)
+      const { url } = await uploadMediaFile(file, token);
+      setWinForm((prev) => ({ ...prev, imageUrl: url }));
     } catch (err) {
       console.error('Upload error:', err);
       alert('Upload failed. Please check your connection or paste an external URL.');
@@ -248,6 +241,8 @@ export const WinWall = ({
   };
 
   const handleLike = async (winId: string) => {
+    if (likingId) return; // ignore clicks while a like request is still running
+    setLikingId(winId);
     const token = localStorage.getItem('token');
     try {
       const res = await fetch(`${API_BASE_URL}/dashboard/community-wins/${winId}/like`, {
@@ -256,9 +251,12 @@ export const WinWall = ({
       });
       if (res.ok) {
         const updatedWin = await res.json();
-        setWins(wins.map((w) => (w.id === winId ? updatedWin : w)));
+        setWins((prev) => prev.map((w) => (w.id === winId ? updatedWin : w)));
       }
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      setLikingId(null);
+    }
   };
 
   const resolveAuthorName = (w: any): string => {
@@ -271,12 +269,6 @@ export const WinWall = ({
     // 2. If tracked locally in session
     if (w.id && myPostMap[w.id]) {
       return myPostMap[w.id];
-    }
-
-    // 3. Fallback for the earlier test post created by Shreya before backend author fix
-    const text = (w.achievement || w.title || '').toLowerCase();
-    if (text.includes('resin tray') || text.includes('ocean wave')) {
-      return 'shreya';
     }
 
     return 'Fellow Artist';
@@ -307,6 +299,7 @@ export const WinWall = ({
     amount: w.salesAmount ? `₹${Number(w.salesAmount).toLocaleString('en-IN')}` : undefined,
     image: w.image || w.imageUrl,
     likes: w.likes || 0,
+    likedByMe: Boolean(w.likedByMe),
     comments: w.comments || [],
     badge: '🏆 Win',
     timeAgo: w.timeAgo || 'Recently',
@@ -549,11 +542,21 @@ export const WinWall = ({
                       );
                     }
 
+                    if (brokenMedia[win.id]) {
+                      return (
+                        <div className="rounded-2xl border border-dashed border-stone-300 bg-[#faf8f5] w-full py-10 flex flex-col items-center justify-center gap-2 text-stone-400">
+                          <Image size={28} />
+                          <span className="text-xs">Image is no longer available</span>
+                        </div>
+                      );
+                    }
+
                     return (
                       <div className="relative rounded-2xl overflow-hidden border border-stone-200/80 bg-[#faf8f5] w-full max-h-[580px] shadow-xs flex items-center justify-center">
                         <img
                           src={getMediaUrl(mediaUrl)}
                           alt={win.title || "Post artwork"}
+                          onError={() => setBrokenMedia((prev) => ({ ...prev, [win.id]: true }))}
                           className="w-full h-auto max-h-[580px] object-contain rounded-2xl hover:scale-[1.005] transition-transform duration-300 block"
                         />
                       </div>
@@ -571,7 +574,7 @@ export const WinWall = ({
                       >
                         <Heart
                           size={22}
-                          className={win.likes ? 'text-rose-500 fill-rose-500' : 'text-stone-800 hover:text-rose-500'}
+                          className={win.likedByMe ? 'text-rose-500 fill-rose-500' : 'text-stone-800 hover:text-rose-500'}
                         />
                       </button>
 
@@ -610,7 +613,7 @@ export const WinWall = ({
                   {/* 4. Likes Count Line (Matches Reference Image 2) */}
                   <div className="mt-2.5">
                     <span className="font-bold text-xs sm:text-sm text-stone-900">
-                      {win.likes ? `${win.likes} Likes` : '12 Likes'}
+                      {`${win.likes || 0} ${win.likes === 1 ? 'Like' : 'Likes'}`}
                     </span>
                   </div>
 
@@ -651,7 +654,7 @@ export const WinWall = ({
                           const commentAuthor =
                             c.author && c.author.trim().toLowerCase() !== 'student'
                               ? c.author
-                              : (user?.name || 'Artist Member');
+                              : 'Artist Member';
                           return (
                             <div key={i} className="bg-[#faf8f5] p-2.5 rounded-xl text-xs">
                               <span className="font-bold text-[#942008] mr-2">{commentAuthor}:</span>
