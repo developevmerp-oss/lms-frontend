@@ -162,11 +162,16 @@ export default function StudentLeaderboard() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header: Left aligned, no trophy icon, responsive typography */}
-        <header className="mb-6 sm:mb-8 text-left">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight mb-1.5 sm:mb-2">
+        <header className="mb-6 text-left">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Gamification</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">Global Leaderboard</span>
+          </div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
             Global Leaderboard
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm md:text-base font-normal">
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5 font-normal">
             Compete with artists worldwide and earn your spot at the top.
           </p>
         </header>

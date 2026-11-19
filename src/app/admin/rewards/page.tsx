@@ -253,7 +253,7 @@ export default function AdminRewardsManager() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -265,26 +265,23 @@ export default function AdminRewardsManager() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header Section matching reference image */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5 sm:mb-6">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
           <div>
-            {/* Top pill badge + breadcrumb */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="bg-[#feeae2] border border-[#fcd7c7] text-[#c2410c] text-xs font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 uppercase tracking-wide">
-                <Gift className="w-3.5 h-3.5" /> OFFICIAL MERCH &amp; XP STORE
-              </span>
-              <span className="text-stone-300 font-light">|</span>
-              <span className="text-stone-500 font-medium text-xs sm:text-sm">
-                Merch Store Manager
-              </span>
+            {/* Top breadcrumb */}
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <Gift className="w-3.5 h-3.5" /> */}
+              <span>Gamification &amp; Recognition</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Merch Store Manager</span>
             </div>
 
-            {/* Title (No vertical red bar, clean serif title) */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-stone-900 tracking-tight mt-1 mb-1">
+            {/* Title */}
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
               Merch Store Manager
             </h1>
 
             {/* Subtitle */}
-            <p className="text-stone-500 text-xs sm:text-sm font-normal max-w-3xl leading-relaxed">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Manage physical merchandise bundles, journals, mentoring vouchers, and tickets that students can redeem with their XP points.
             </p>
           </div>

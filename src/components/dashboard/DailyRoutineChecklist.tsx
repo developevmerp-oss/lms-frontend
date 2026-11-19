@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Flame,
   Headphones,
@@ -11,9 +11,11 @@ import {
   Users,
   Sparkles,
   Check,
-} from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { API_BASE_URL } from "@/config/api";
+  CheckCircle2,
+  Lock,
+} from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/config/api';
 
 interface RoutineItem {
   id: string;
@@ -25,45 +27,45 @@ interface RoutineItem {
 
 const ROUTINE_ITEMS_CONFIG: RoutineItem[] = [
   {
-    id: "mindset",
-    letter: "A",
-    title: "Mindset Mastery",
+    id: 'mindset',
+    letter: 'A',
+    title: 'Mindset Mastery',
     subtitle: 'Listen to "The Strangest Secret" audio',
     icon: Headphones,
   },
   {
-    id: "goal_card",
-    letter: "B",
-    title: "Goal Card Intention",
-    subtitle: "Read your goal card with deep emotion & intention",
+    id: 'goal_card',
+    letter: 'B',
+    title: 'Goal Card Intention',
+    subtitle: 'Read your goal card with deep emotion & intention',
     icon: Target,
   },
   {
-    id: "affirmations",
-    letter: "C",
-    title: "Voice Affirmations",
-    subtitle: "Listen to affirmations in your own voice",
+    id: 'affirmations',
+    letter: 'C',
+    title: 'Voice Affirmations',
+    subtitle: 'Listen to affirmations in your own voice',
     icon: Mic,
   },
   {
-    id: "write_goals",
-    letter: "D",
-    title: "Write 20 Goals Daily",
-    subtitle: "Write two pages of goals (10 per page)",
+    id: 'write_goals',
+    letter: 'D',
+    title: 'Write 20 Goals Daily',
+    subtitle: 'Write two pages of goals (10 per page)',
     icon: Edit3,
   },
   {
-    id: "social_media",
-    letter: "E",
-    title: "Social Media Action",
-    subtitle: "Post a story, reel, shorts, or video of your art",
+    id: 'social_media',
+    letter: 'E',
+    title: 'Social Media Action',
+    subtitle: 'Post a story, reel, shorts, or video of your art',
     icon: Users,
   },
   {
-    id: "connect_within",
-    letter: "F",
-    title: "Connect Within",
-    subtitle: "Meditate for 15–30 min for creative clarity",
+    id: 'connect_within',
+    letter: 'F',
+    title: 'Connect Within',
+    subtitle: 'Meditate for 15–30 min for creative clarity',
     icon: Sparkles,
   },
 ];
@@ -76,9 +78,12 @@ export const DailyRoutineChecklist = ({
   onCompleteRoutine?: () => void;
 }) => {
   const { token } = useAuth();
-  const todayKey = `routine_${new Date().toISOString().split("T")[0]}`;
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const todayKey = `routine_${todayDateStr}`;
+  const todayClaimedKey = `routine_claimed_${todayDateStr}`;
+
   const [completedItems, setCompletedItems] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem(todayKey);
         if (saved) {
@@ -90,6 +95,23 @@ export const DailyRoutineChecklist = ({
     }
     return [];
   });
+
+  // Once all habits are checked in a day, user is locked from checking multiple times
+  const [isDayDone, setIsDayDone] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (localStorage.getItem(todayClaimedKey) === 'true') return true;
+        const saved = localStorage.getItem(todayKey);
+        if (saved && JSON.parse(saved).length === ROUTINE_ITEMS_CONFIG.length) {
+          return true;
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return false;
+  });
+
   const [isSyncing, setIsSyncing] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
@@ -98,14 +120,14 @@ export const DailyRoutineChecklist = ({
     setIsSyncing(true);
     try {
       const res = await fetch(`${API_BASE_URL}/dashboard/student/routine`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           completedHabits: habits,
-          date: new Date().toISOString().split("T")[0],
+          date: todayDateStr,
         }),
       });
       const data = await res.json();
@@ -113,13 +135,16 @@ export const DailyRoutineChecklist = ({
         onCompleteRoutine();
       }
     } catch (err) {
-      console.error("Error syncing routine with database:", err);
+      console.error('Error syncing routine with database:', err);
     } finally {
       setIsSyncing(false);
     }
   };
 
   const toggleItem = (id: string) => {
+    // If today is already fully completed, do not allow multiple toggling
+    if (isDayDone) return;
+
     let next: string[];
     if (completedItems.includes(id)) {
       next = completedItems.filter((i) => i !== id);
@@ -133,7 +158,14 @@ export const DailyRoutineChecklist = ({
       // ignore storage errors
     }
 
+    // When all habits are completed for the day: lock for today and sync XP once
     if (next.length === ROUTINE_ITEMS_CONFIG.length) {
+      setIsDayDone(true);
+      try {
+        localStorage.setItem(todayClaimedKey, 'true');
+      } catch {
+        // ignore
+      }
       syncRoutineWithBackend(next);
     }
   };
@@ -189,7 +221,7 @@ export const DailyRoutineChecklist = ({
           </div>
         </div>
 
-        {/* 6 Habit Cards right below the progress bar with titles */}
+        {/* 6 Habit Cards with Icon, Title, and Checklist button below title */}
         <div className="mt-3.5 sm:mt-4">
           <div className="grid grid-cols-6 gap-1.5 sm:gap-2 items-start">
             {ROUTINE_ITEMS_CONFIG.map((item) => {
@@ -203,16 +235,23 @@ export const DailyRoutineChecklist = ({
                   onMouseEnter={() => setActiveTooltip(item.id)}
                   onMouseLeave={() => setActiveTooltip(null)}
                 >
+                  {/* Top Habit Icon Button (Toggle on click) */}
                   <button
                     type="button"
                     onClick={() => toggleItem(item.id)}
-                    disabled={isSyncing}
-                    className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
+                    disabled={isDayDone || isSyncing}
+                    className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center transition-all shadow-2xs cursor-pointer ${
                       isDone
-                        ? "bg-[#e86034] text-white border border-[#d24e23] scale-105"
-                        : "bg-[#fff4ed] text-[#e86034] border border-[#fcdcd0] hover:bg-[#ffe8dc] hover:scale-105"
-                    }`}
-                    aria-label={item.title}
+                        ? 'bg-[#e86034] text-white border border-[#d24e23] scale-105'
+                        : 'bg-[#fff4ed] text-[#e86034] border border-[#fcdcd0] hover:bg-[#ffe8dc] hover:scale-105'
+                    } ${isDayDone ? 'cursor-default' : ''}`}
+                    title={
+                      isDayDone
+                        ? 'Completed for today (locked)'
+                        : isDone
+                        ? '✓ Completed (Click to undo)'
+                        : `Click to complete ${item.title}`
+                    }
                   >
                     {isDone ? (
                       <Check size={18} strokeWidth={3} />
@@ -224,7 +263,7 @@ export const DailyRoutineChecklist = ({
                   {/* Habit Title */}
                   <span
                     className={`text-[9px] sm:text-[10px] font-bold text-center leading-tight mt-1.5 line-clamp-2 px-0.5 transition-colors ${
-                      isDone ? "text-[#c4431d]" : "text-stone-600"
+                      isDone ? 'text-[#c4431d]' : 'text-stone-700'
                     }`}
                     title={item.title}
                   >
@@ -241,7 +280,11 @@ export const DailyRoutineChecklist = ({
                         {item.subtitle}
                       </p>
                       <p className="text-[#fbdcd0] font-semibold mt-1">
-                        {isDone ? "✓ Completed (Click to undo)" : "○ Click to mark done"}
+                        {isDayDone
+                          ? '✓ Completed today (Locked)'
+                          : isDone
+                          ? '✓ Done for today'
+                          : '○ Click icon to mark done'}
                       </p>
                     </div>
                   )}
@@ -252,13 +295,20 @@ export const DailyRoutineChecklist = ({
         </div>
       </div>
 
-      {/* Bottom Footer Status: fills card height harmoniously */}
+      {/* Bottom Footer Status: single check notice when completed today */}
       <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
-        <span className="flex items-center gap-1 font-medium text-stone-400">
-          <span className="text-emerald-500 font-bold">✓</span> Complete all 6 daily for streak
-        </span>
+        {isDayDone ? (
+          <span className="flex items-center gap-1 font-bold text-emerald-600">
+            <CheckCircle2 size={13} />
+            <span>All 6 habits completed today! (+10 XP claimed)</span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 font-medium text-stone-400">
+            <span className="text-emerald-500 font-bold">✓</span> Complete all 6 daily for streak
+          </span>
+        )}
         <span className="text-[#e86034] font-bold">
-          +10 XP / day
+          {isDayDone ? 'Completed' : '+10 XP / day'}
         </span>
       </div>
     </motion.div>

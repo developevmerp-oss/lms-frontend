@@ -301,7 +301,7 @@ export default function AdminPaymentTransactions() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 transition-colors lg:pl-[284px]">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 transition-colors lg:pl-64">
       <AdminNav user={user} logout={logout} />
 
       <main className="w-full px-4 sm:px-6 lg:px-8 py-6">

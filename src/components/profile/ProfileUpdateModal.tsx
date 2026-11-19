@@ -16,13 +16,15 @@ import {
   AlertCircle,
   Sparkles,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  LogOut,
 } from "lucide-react";
 
 interface ProfileUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  onLogout?: () => void;
 }
 
 const AVATAR_PRESETS = [
@@ -34,9 +36,18 @@ const AVATAR_PRESETS = [
   "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=250&auto=format&fit=crop",
 ];
 
-export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess }: ProfileUpdateModalProps) => {
-  const { user, token, updateUser } = useAuth();
+export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: ProfileUpdateModalProps) => {
+  const { user, token, updateUser, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogout = () => {
+    onClose();
+    if (onLogout) {
+      onLogout();
+    } else if (logout) {
+      logout();
+    }
+  };
 
   const [formData, setFormData] = useState({
     name: (user?.name && user.name !== "Admin") ? user.name : (user?.name === "Admin" ? "Yug" : "Yug"),
@@ -148,7 +159,7 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess }: ProfileUpdate
   };
 
   return (
-        <div className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[100] bg-stone-900/50 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white border border-[#ecdccb] rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative my-8 animate-scale-up">
 
             {/* Header */}
@@ -345,21 +356,33 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess }: ProfileUpdate
                                 </div>
 
                                 {/* Footer Actions */}
-                                  <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+                                  <div className="flex items-center justify-between gap-3 pt-4 border-t border-stone-200">
                                     <button
                                       type="button"
-                                      onClick={onClose}
-                                      className="px-5 py-2.5 text-xs font-bold text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+                                      onClick={handleLogout}
+                                      className="px-4 py-2.5 rounded-xl border border-stone-200/90 hover:border-rose-300 bg-white hover:bg-rose-50 text-stone-700 hover:text-rose-600 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-2xs group"
+                                      title="Logout"
                                     >
-                                      Cancel
+                                      <LogOut size={15} className="text-stone-500 group-hover:text-rose-600 transition-colors" />
+                                      <span>Logout</span>
                                     </button>
-                                    <button
-                                      type="submit"
-                                      disabled={isSaving}
-                                      className="px-6 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-[#c4431d]/20 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
-                                    >
-                                      {isSaving ? "Saving..." : "Save Changes"}
-                                    </button>
+
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                      <button
+                                        type="button"
+                                        onClick={onClose}
+                                        className="px-4 sm:px-5 py-2.5 text-xs font-bold text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        type="submit"
+                                        disabled={isSaving}
+                                        className="px-5 sm:px-6 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-[#c4431d]/20 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                                      >
+                                        {isSaving ? "Saving..." : "Save Changes"}
+                                      </button>
+                                    </div>
                                   </div>
 
                                 </form>

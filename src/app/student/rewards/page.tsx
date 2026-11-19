@@ -11,23 +11,24 @@ import {
   ChevronRight,
   X,
   Zap,
+  Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 import { getLevelCode } from "@/components/layout/StudentNav";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
 const DEFAULT_REWARD_IMAGES = [
-  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=300&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=300&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=400&auto=format&fit=crop",
 ];
 
 const getRewardImage = (reward: any, index: number = 0) => {
   if (reward?.imageUrl && typeof reward.imageUrl === "string" && reward.imageUrl.trim() !== "") {
-    return reward.imageUrl;
+    return getImageUrl(reward.imageUrl);
   }
   return DEFAULT_REWARD_IMAGES[index % DEFAULT_REWARD_IMAGES.length];
 };
@@ -226,117 +227,60 @@ export default function StudentRewards() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 relative z-10">
         {isLoading ? (
           /* Shimmer Loading Skeleton matching the page layout */
           <div className="w-full space-y-6 sm:space-y-8 animate-pulse">
             {/* Header Skeleton */}
             <div className="space-y-2">
-              <div className="h-8 sm:h-10 w-40 bg-stone-200/80 rounded-2xl" />
+              <div className="h-6 w-28 bg-stone-200/80 rounded-full" />
+              <div className="h-8 sm:h-10 w-44 bg-stone-200/80 rounded-2xl" />
               <div className="h-4 sm:h-5 w-80 sm:w-96 max-w-full bg-stone-200/60 rounded-xl" />
             </div>
 
-            {/* Top Progress Banner Card Skeleton */}
-            <div className="bg-white/95 border border-[#ecdccb] rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
-              <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 lg:gap-6">
-                {/* Left */}
-                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-stone-200/80 shrink-0" />
-                  <div className="space-y-1.5">
-                    <div className="h-3.5 w-16 bg-stone-200/60 rounded" />
-                    <div className="h-6 w-28 bg-stone-200/80 rounded-lg" />
-                  </div>
+            {/* Top Progress Banner Skeleton */}
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)]">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                <div className="space-y-1.5 shrink-0">
+                  <div className="h-3 w-20 bg-stone-200/60 rounded" />
+                  <div className="h-7 w-28 bg-stone-200/80 rounded-lg" />
                 </div>
-
-                {/* Divider */}
-                <div className="hidden lg:block w-px h-12 bg-stone-200 self-center" />
-
-                {/* Middle */}
-                <div className="flex-1 min-w-[200px] space-y-2.5">
-                  <div className="flex justify-between items-center">
-                    <div className="h-4 w-40 bg-stone-200/60 rounded" />
-                    <div className="h-4 w-24 bg-stone-200/60 rounded" />
-                  </div>
-                  <div className="h-3 sm:h-3.5 bg-stone-200/70 rounded-full" />
+                <div className="w-full sm:flex-1 sm:px-4 lg:px-6">
+                  <div className="h-3.5 bg-stone-200/70 rounded-full" />
                 </div>
-
-                {/* Divider */}
-                <div className="hidden lg:block w-px h-12 bg-stone-200 self-center" />
-
-                {/* Right */}
-                <div className="flex items-center gap-3 sm:gap-3.5 shrink-0 p-2.5 sm:p-0">
-                  <div className="w-16 h-14 sm:w-20 sm:h-16 rounded-2xl bg-stone-200/80 shrink-0" />
-                  <div className="space-y-1.5">
-                    <div className="h-3 w-16 bg-stone-200/60 rounded" />
-                    <div className="h-4 w-28 bg-stone-200/80 rounded" />
-                    <div className="h-4 w-20 bg-stone-200/60 rounded-md" />
-                  </div>
+                <div className="space-y-1.5 shrink-0 sm:text-right">
+                  <div className="h-3 w-16 bg-stone-200/60 rounded sm:ml-auto" />
+                  <div className="h-5 w-24 bg-stone-200/80 rounded sm:ml-auto" />
                 </div>
               </div>
             </div>
 
             {/* Filter Pills Skeleton */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-              <div className="h-8 sm:h-9 w-28 rounded-full bg-stone-200/80" />
-              <div className="h-8 sm:h-9 w-24 rounded-full bg-stone-200/60" />
-              <div className="h-8 sm:h-9 w-24 rounded-full bg-stone-200/60" />
-              <div className="h-8 sm:h-9 w-24 rounded-full bg-stone-200/60" />
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="h-9 w-28 rounded-full bg-stone-200/80" />
+              <div className="h-9 w-24 rounded-full bg-stone-200/60" />
+              <div className="h-9 w-24 rounded-full bg-stone-200/60" />
+              <div className="h-9 w-24 rounded-full bg-stone-200/60" />
             </div>
 
-            {/* Table Skeleton */}
-            <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-              <div className="overflow-x-auto">
-                <div className="min-w-[620px] lg:min-w-0">
-                  {/* Header Skeleton */}
-                  <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-stone-100">
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-4">
-                      <div className="w-16 sm:w-20 shrink-0">
-                        <div className="h-4 w-14 bg-stone-200/60 rounded" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="h-4 w-16 bg-stone-200/60 rounded" />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 shrink-0">
-                      <div className="w-24 sm:w-28">
-                        <div className="h-4 w-20 bg-stone-200/60 rounded" />
-                      </div>
-                      <div className="w-32 sm:w-36">
-                        <div className="h-4 w-16 bg-stone-200/60 rounded" />
-                      </div>
-                      <div className="w-28 sm:w-30" />
-                    </div>
+            {/* Grid Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-3.5">
+              {[1, 2, 3, 4, 5].map((item) => (
+                <div
+                  key={item}
+                  className="bg-white rounded-3xl p-3.5 sm:p-4 lg:p-4 border border-stone-200/80 flex flex-col items-center justify-between min-h-[290px] space-y-3"
+                >
+                  <div className="w-full flex justify-end">
+                    <div className="w-4 h-4 rounded-full bg-stone-200/60" />
                   </div>
-
-                  {/* Rows Skeleton */}
-                  <div className="divide-y divide-stone-100/80">
-                    {[1, 2, 3, 4, 5].map((item) => (
-                      <div key={item} className="flex items-center justify-between py-3.5 sm:py-4 px-4 sm:px-6">
-                        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-4">
-                          <div className="w-16 sm:w-20 shrink-0">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-stone-200/80" />
-                          </div>
-                          <div className="min-w-0 flex-1 space-y-1.5">
-                            <div className="h-4 w-36 sm:w-48 bg-stone-200/80 rounded" />
-                            <div className="h-3 w-48 sm:w-72 max-w-full bg-stone-200/50 rounded" />
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 shrink-0">
-                          <div className="w-24 sm:w-28">
-                            <div className="h-4 w-16 sm:w-20 bg-stone-200/80 rounded" />
-                          </div>
-                          <div className="w-32 sm:w-36">
-                            <div className="h-6 sm:h-7 w-20 sm:w-24 rounded-full bg-stone-200/70" />
-                          </div>
-                          <div className="w-28 sm:w-30 flex justify-end">
-                            <div className="h-7 sm:h-8 w-24 rounded-xl bg-stone-200/50" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="w-36 h-36 sm:w-44 sm:h-44 lg:w-40 lg:h-40 xl:w-44 xl:h-44 max-w-full aspect-square rounded-2xl bg-stone-200/70 mx-auto" />
+                  <div className="space-y-1.5 w-full flex flex-col items-center">
+                    <div className="h-5 w-20 bg-stone-200/80 rounded" />
+                    <div className="h-4 w-32 bg-stone-200/60 rounded" />
                   </div>
+                  <div className="h-7 w-24 rounded-full bg-stone-200/60" />
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         ) : isGeneral ? (
@@ -344,12 +288,19 @@ export default function StudentRewards() {
             <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border-2 border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto shadow-2xl">
               <Lock size={32} />
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900">
-              Rewards Store is Locked for General Members
-            </h1>
-            <p className="text-stone-600 text-xs sm:text-sm md:text-base leading-relaxed">
-              General members cannot redeem physical merch or mentoring calls without active Level enrollment. Upgrade to Fast Track (Level 0) or above to unlock the Rewards Store and earn XP.
-            </p>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+                <span>Student Hub</span>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-700 font-medium">Rewards Store</span>
+              </div>
+              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+                Rewards Store is Locked for General Members
+              </h1>
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
+                General members cannot redeem physical merch or mentoring calls without active Level enrollment. Upgrade to Fast Track (Level 0) or above to unlock the Rewards Store and earn XP.
+              </p>
+            </div>
             <button
               onClick={() => {
                 setSelectedUpgradeTier("L0");
@@ -363,81 +314,54 @@ export default function StudentRewards() {
           </div>
         ) : (
           <>
-            {/* Header: Left aligned matching reference image #2 */}
-            <header className="mb-6 sm:mb-8 text-left">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight mb-1.5 sm:mb-2">
-                Rewards
+            {/* Header: Left aligned with standard breadcrumb */}
+            <header className="mb-6 text-left">
+              <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+                <span>Gamification &amp; Recognition</span>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-700 font-medium">Rewards Store</span>
+              </div>
+              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+                Rewards Store
               </h1>
-              <p className="text-stone-500 text-xs sm:text-sm md:text-base font-normal">
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
                 Earn XP through learning, creating and participating — and unlock exciting rewards.
               </p>
             </header>
 
-            {/* Top Progress Card / Banner matching reference image #2 */}
-            <div className="bg-white/95 border border-[#ecdccb] rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] mb-6 sm:mb-8">
-              <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 lg:gap-6">
-                {/* 1. Left Section: Your XP */}
-                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center shrink-0">
-                    <Sparkles className="w-6 h-6 text-[#c4431d]" />
-                  </div>
-                  <div>
-                    <p className="text-xs sm:text-sm font-semibold text-stone-500">Your XP</p>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900 tracking-tight">
-                      {userPoints.toLocaleString()} XP
-                    </p>
-                  </div>
-                </div>
-
-                {/* Divider for large screens */}
-                <div className="hidden lg:block w-px h-12 bg-stone-200 self-center" />
-
-                {/* 2. Middle Section: Progress to Next Reward */}
-                <div className="flex-1 min-w-[200px]">
-                  <p className="text-xs sm:text-sm font-semibold text-stone-700 mb-2">
-                    Progress to Next Reward
+            {/* Top Progress Card / Banner matching reference image */}
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.03)] mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                {/* 1. Left: Your Progress */}
+                <div className="shrink-0">
+                  <p className="text-xs font-semibold text-stone-500">Your Progress</p>
+                  <p className="text-2xl sm:text-3xl lg:text-3xl font-black text-[#3d1a16] tracking-tight mt-0.5">
+                    {userPoints.toLocaleString()} XP
                   </p>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-3 sm:h-3.5 bg-stone-100 rounded-full overflow-hidden p-0.5 border border-stone-200">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] transition-all duration-500"
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
-                    <span className="font-bold text-stone-800 text-xs sm:text-sm shrink-0 font-mono">
-                      {userPoints.toLocaleString()} / {nextRewardTarget.toLocaleString()} XP
-                    </span>
+                </div>
+
+                {/* 2. Middle: Smooth Progress Bar */}
+                <div className="w-full sm:flex-1 min-w-[160px] sm:px-4 lg:px-6">
+                  <div className="w-full h-3 sm:h-3.5 bg-stone-100 rounded-full overflow-hidden p-0.5 border border-stone-200/80">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#d97706] transition-all duration-500"
+                      style={{ width: `${progressPercent}%` }}
+                    />
                   </div>
                 </div>
 
-                {/* Divider for large screens */}
-                <div className="hidden lg:block w-px h-12 bg-stone-200 self-center" />
-
-                {/* 3. Right Section: Next Reward Preview */}
-                <div className="flex items-center gap-3 sm:gap-3.5 shrink-0 bg-[#faf8f5] sm:bg-transparent p-2.5 sm:p-0 rounded-xl sm:rounded-none border sm:border-0 border-stone-200/80">
-                  <img
-                    src={nextReward ? getRewardImage(nextReward, 3) : DEFAULT_REWARD_IMAGES[0]}
-                    alt={nextReward?.title || "Next Reward"}
-                    className="w-16 h-13 sm:w-20 sm:h-16 rounded-2xl object-cover bg-stone-100 border border-stone-200 shrink-0 shadow-2xs"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = DEFAULT_REWARD_IMAGES[0];
-                    }}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-[0.6875rem] sm:text-xs font-semibold text-stone-400">Next Reward</p>
-                    <p className="text-xs sm:text-sm font-bold text-stone-900 truncate max-w-[130px] sm:max-w-[160px]">
-                      {nextReward?.title || "All Unlocked"}
-                    </p>
+                {/* 3. Right: Next Reward */}
+                <div className="shrink-0 sm:text-right">
+                  <p className="text-xs font-semibold text-stone-500">Next Reward</p>
+                  <p className="text-sm sm:text-base font-black text-[#3d1a16] mt-0.5">
                     {remainingXP > 0 ? (
-                      <div className="inline-block bg-[#FFF2EB] border border-[#FDDCC9] px-2 py-0.5 rounded-md text-[0.6875rem] sm:text-xs font-bold text-[#C4431D] mt-0.5">
-                        in {remainingXP.toLocaleString()} XP
-                      </div>
+                      <>
+                        in <span className="font-extrabold">{remainingXP.toLocaleString()} XP</span>
+                      </>
                     ) : (
-                      <div className="inline-block bg-[#EAF7EE] border border-[#D1F0D9] px-2 py-0.5 rounded-md text-[0.6875rem] sm:text-xs font-bold text-emerald-600 mt-0.5">
-                        Unlocked!
-                      </div>
+                      <span className="text-emerald-600 font-extrabold">All Unlocked!</span>
                     )}
-                  </div>
+                  </p>
                 </div>
               </div>
             </div>
@@ -470,168 +394,148 @@ export default function StudentRewards() {
               </div>
             )}
 
-            {/* Filter Tabs / Pills matching reference image #2 */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-5 sm:mb-6">
+            {/* Filter Tabs / Pills matching reference image */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
               <button
                 type="button"
                 onClick={() => setActiveFilter("all")}
-                className={`rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                className={`rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   activeFilter === "all"
                     ? "bg-[#94381E] text-white shadow-xs"
-                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700"
+                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700 font-medium"
                 }`}
               >
-                All Rewards ({sortedRewards.length})
+                All Rewards
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveFilter("unlocked")}
-                className={`rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                className={`rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   activeFilter === "unlocked"
                     ? "bg-[#94381E] text-white shadow-xs"
-                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700"
+                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700 font-medium"
                 }`}
               >
-                Unlocked ({unlockedCount})
+                Unlocked
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveFilter("current")}
-                className={`rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                className={`rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   activeFilter === "current"
                     ? "bg-[#94381E] text-white shadow-xs"
-                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700"
+                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700 font-medium"
                 }`}
               >
-                Current ({currentCount})
+                Current
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveFilter("locked")}
-                className={`rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                className={`rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   activeFilter === "locked"
                     ? "bg-[#94381E] text-white shadow-xs"
-                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700"
+                    : "bg-white hover:bg-stone-50 border border-stone-200/80 text-stone-700 font-medium"
                 }`}
               >
-                Locked ({lockedCount})
+                Locked
               </button>
             </div>
 
-            {/* Rewards Table matching reference image #2 */}
-            <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-              <div className="overflow-x-auto">
-                <div className="min-w-[620px] lg:min-w-0">
-                  {/* Table Header */}
-                  <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-stone-100 text-stone-700 text-xs sm:text-sm font-bold">
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-4">
-                      <div className="w-16 sm:w-20 shrink-0 text-left">Reward</div>
-                      <div className="min-w-0 flex-1 text-left">Details</div>
-                    </div>
-                    <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 shrink-0">
-                      <div className="w-24 sm:w-28 text-left">XP Required</div>
-                      <div className="w-32 sm:w-36 text-left">Status</div>
-                      <div className="w-28 sm:w-30 text-right"></div>
-                    </div>
-                  </div>
-
-                  {/* Table Rows */}
-                  <div>
-                    {filteredRewards.length === 0 ? (
-                      <div className="py-16 text-center text-stone-400 font-medium text-xs sm:text-sm md:text-base">
-                        No rewards found in this filter.
-                      </div>
-                    ) : (
-                      filteredRewards.map((reward, index) => {
-                        const isUnlocked = userPoints >= reward.pointCost;
-                        const isCurrent = isUnlocked && reward.id === currentRewardId;
-
-                        return (
-                          <motion.div
-                            key={reward.id || index}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: index * 0.04 }}
-                            onClick={() => setSelectedReward(reward)}
-                            className={`flex items-center justify-between py-3.5 sm:py-4 px-4 sm:px-6 transition-colors cursor-pointer ${
-                              isCurrent
-                                ? "bg-[#FFF5ED] border-l-4 border-l-[#C4431D] my-0.5"
-                                : "border-b border-stone-100/80 last:border-b-0 hover:bg-stone-50/70"
-                            }`}
-                          >
-                            {/* 1. Left Section: Thumbnail Image + Details */}
-                            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 pr-4">
-                              <div className="w-16 sm:w-20 shrink-0">
-                                <img
-                                  src={getRewardImage(reward, index)}
-                                  alt={reward.title}
-                                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover bg-stone-100 border border-stone-200/80 shadow-xs shrink-0"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src =
-                                      DEFAULT_REWARD_IMAGES[index % DEFAULT_REWARD_IMAGES.length];
-                                  }}
-                                />
-                              </div>
-
-                              <div className="min-w-0 flex-1">
-                                <p className="font-bold text-stone-900 text-xs sm:text-sm md:text-base truncate">
-                                  {reward.title}
-                                </p>
-                                <p className="text-stone-500 text-[0.6875rem] sm:text-xs md:text-sm line-clamp-1 mt-0.5">
-                                  {reward.description}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* 2. Right Section: XP Required + Status + View Details Button */}
-                            <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 shrink-0">
-                              {/* XP Required */}
-                              <div className="w-24 sm:w-28 text-left font-bold text-xs sm:text-sm md:text-base text-stone-900">
-                                {reward.pointCost.toLocaleString()} XP
-                              </div>
-
-                              {/* Status Badge */}
-                              <div className="w-32 sm:w-36 text-left">
-                                {isCurrent ? (
-                                  <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[0.6875rem] sm:text-xs font-bold bg-[#FFEADB] text-[#C4431D] border border-[#FDD7BD] whitespace-nowrap">
-                                    <Crown size={12} className="fill-[#C4431D]" /> Current Reward
-                                  </span>
-                                ) : isUnlocked ? (
-                                  <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[0.6875rem] sm:text-xs font-bold bg-[#EAF7EE] text-[#22863A] border border-[#D1F0D9] whitespace-nowrap">
-                                    <Check size={12} className="stroke-[3]" /> Unlocked
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[0.6875rem] sm:text-xs font-bold bg-stone-100 text-stone-500 border border-stone-200 whitespace-nowrap">
-                                    <Lock size={12} /> Locked
-                                  </span>
-                                )}
-                              </div>
-
-                              {/* Action: View Details Button */}
-                              <div className="w-28 sm:w-30 flex justify-end">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedReward(reward);
-                                  }}
-                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-white hover:bg-stone-50 text-stone-800 text-xs sm:text-sm font-semibold transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
-                                >
-                                  View Details <ChevronRight size={14} className="text-stone-400" />
-                                </button>
-                              </div>
-                            </div>
-                          </motion.div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
+            {/* Rewards Cards Grid matching reference image */}
+            {filteredRewards.length === 0 ? (
+              <div className="py-16 text-center bg-white rounded-3xl border border-stone-200/80 text-stone-400 font-medium text-xs sm:text-sm md:text-base shadow-xs">
+                No rewards found in this filter.
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-3.5">
+                {filteredRewards.map((reward, index) => {
+                  const isUnlocked = userPoints >= reward.pointCost;
+                  const isCurrent = isUnlocked && reward.id === currentRewardId;
+
+                  return (
+                    <motion.div
+                      key={reward.id || index}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.04 }}
+                      onClick={() => setSelectedReward(reward)}
+                      className={`group relative rounded-3xl p-3 sm:p-4 lg:p-3 xl:p-4 flex flex-col justify-between transition-all duration-300 cursor-pointer ${
+                        isCurrent
+                          ? "bg-[#fef0e2] border-2 border-[#fbc29d] shadow-[0_10px_28px_-8px_rgba(209,103,62,0.14)] hover:scale-[1.02]"
+                          : "bg-white border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:border-stone-300 hover:shadow-md hover:scale-[1.01]"
+                      }`}
+                    >
+                      {/* Top Header Row in Card: Current Reward Pill & Info Icon */}
+                      <div className="w-full flex items-center justify-between min-h-[1.75rem] mb-1">
+                        {isCurrent ? (
+                          <span className="bg-[#d1673e] text-white text-[0.6875rem] sm:text-xs font-bold px-3 sm:px-3.5 py-1 rounded-full shadow-xs">
+                            Current Reward
+                          </span>
+                        ) : (
+                          <div />
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedReward(reward);
+                          }}
+                          className={`transition-colors cursor-pointer p-1 rounded-full hover:bg-black/5 ml-auto ${
+                            isCurrent ? "text-[#5a150d] hover:text-[#870402]" : "text-stone-400 hover:text-stone-700"
+                          }`}
+                          title="View Details"
+                          aria-label={`View details for ${reward.title}`}
+                        >
+                          <Info size={17} />
+                        </button>
+                      </div>
+
+                      {/* Product Image Area: Same size, height & rounded edges like current reward card */}
+                      <div className="w-full flex-1 flex items-center justify-center py-2 sm:py-3">
+                        <div className="w-36 h-36 sm:w-44 sm:h-44 lg:w-40 lg:h-40 xl:w-44 xl:h-44 max-w-full aspect-square rounded-2xl overflow-hidden shrink-0 flex items-center justify-center mx-auto bg-stone-100">
+                          <img
+                            src={getRewardImage(reward, index)}
+                            alt={reward.title}
+                            className="w-full h-full object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                DEFAULT_REWARD_IMAGES[index % DEFAULT_REWARD_IMAGES.length];
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card Content: XP + Title */}
+                      <div className="mt-2 text-center w-full">
+                        <p className="text-base sm:text-lg lg:text-xl font-black text-[#870402] tracking-tight">
+                          {reward.pointCost.toLocaleString()} XP
+                        </p>
+                        <p className="text-xs sm:text-[0.8125rem] font-bold text-stone-900 line-clamp-2 mt-1 min-h-[2.25rem] flex items-center justify-center px-1">
+                          {reward.title}
+                        </p>
+                      </div>
+
+                      {/* Bottom Status Pill matching Reference Colors */}
+                      <div className="mt-3 sm:mt-4 w-full flex justify-center">
+                        {isUnlocked ? (
+                          <span className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-[0.6875rem] sm:text-xs font-bold bg-[#e0edc8] text-[#084f06]">
+                            <Check size={13} className="stroke-[3] text-[#084f06]" /> Unlocked
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-[0.6875rem] sm:text-xs font-semibold bg-[#f5f5f4] text-stone-500 border border-stone-200/80">
+                            <Lock size={11} /> Locked
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </>
         )}
 

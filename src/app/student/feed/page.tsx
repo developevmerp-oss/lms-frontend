@@ -75,11 +75,16 @@ export default function StudentFeedPage() {
       />
 
       <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-stone-900 tracking-tight flex items-center gap-2.5">
-            <Sparkles className="text-[#c4431d]" size={28} /> Sisterhood Community Feed
+        <header className="mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Community</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">Sisterhood Community Feed</span>
+          </div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            {/* <Sparkles className="text-[#c4431d]" size={28} /> */} Sisterhood Community Feed
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm mt-1">
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             Live sisterhood sales, resin artwork showcases, student milestones, and mentor updates.
           </p>
         </header>

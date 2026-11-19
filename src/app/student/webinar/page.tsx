@@ -145,10 +145,19 @@ export default function StudentWebinarPage() {
             <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border-2 border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto shadow-2xl">
               <Lock size={32} />
             </div>
-            <h1 className="text-3xl font-black text-stone-900">Live Webinar Hub is Locked</h1>
-            <p className="text-stone-600 text-sm leading-relaxed">
-              Live masterclass schedules, Zoom calls, VIP WhatsApp groups, and workshop preparation videos are exclusively available for enrolled Fast Track (Level 0) and higher members. Upgrade to Fast Track now to unlock live masterclasses and community perks.
-            </p>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+                <span>Live Events</span>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-700 font-medium">Live Webinar Hub</span>
+              </div>
+              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+                Live Webinar Hub is Locked
+              </h1>
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
+                Live masterclass schedules, Zoom calls, VIP WhatsApp groups, and workshop preparation videos are exclusively available for enrolled Fast Track (Level 0) and higher members. Upgrade to Fast Track now to unlock live masterclasses and community perks.
+              </p>
+            </div>
             <button
               onClick={() => setPurchaseModal(true)}
               className="px-8 py-3.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black rounded-xl text-sm shadow-xl flex items-center gap-2 mx-auto hover:scale-105 transition-all cursor-pointer"
@@ -159,16 +168,18 @@ export default function StudentWebinarPage() {
           </div>
         ) : (
           <>
-        {/* Header: Webinar Schedule Hub + Tabs (Exact Image Style) */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-1">
+        {/* Header: Webinar Schedule Hub + Tabs */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-1 mb-6">
           <div>
-            <div className="flex items-center gap-1.5 text-[#c4431d] font-bold text-xs uppercase tracking-wider mb-1.5">
-              <span>((•)) WEBINAR SCHEDULE</span>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Live Events</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Webinar Schedule Hub</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-stone-900 tracking-tight font-serif">
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
               Webinar Schedule Hub
             </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Browse, register, and join upcoming masterclasses and live webinars.
             </p>
           </div>

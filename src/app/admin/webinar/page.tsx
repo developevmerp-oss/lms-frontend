@@ -308,7 +308,7 @@ export default function AdminWebinarCRM() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -320,13 +320,18 @@ export default function AdminWebinarCRM() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-stone-200/80 pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <div className="inline-flex items-center gap-2 bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-xs font-bold uppercase tracking-widest px-3.5 py-1 rounded-full mb-2">
-              <Sparkles size={12} /> Masterclass Marketing Engine
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <Sparkles size={12} /> */}
+              <span>Marketing &amp; Growth</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Webinar Management &amp; Leads CRM</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900">Webinar Management &amp; Leads CRM</h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1 font-medium">
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              Webinar Management &amp; Leads CRM
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Schedule future webinar sessions, update Zoom &amp; WhatsApp links, and manage leads.
             </p>
           </div>

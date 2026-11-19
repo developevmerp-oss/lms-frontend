@@ -276,7 +276,7 @@ export default function AdminMarketingPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -288,21 +288,20 @@ export default function AdminMarketingPage() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-rose-100 text-rose-600 rounded-2xl shadow-sm">
-                <Megaphone size={26} />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-                  Marketing & Tracking Manager
-                </h1>
-                <p className="text-sm text-stone-500 font-medium">
-                  Dynamic Meta (Facebook) Pixel integration with zero code changes and fail-safe operation.
-                </p>
-              </div>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <Megaphone size={14} /> */}
+              <span>Marketing &amp; Growth</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Tracking Manager</span>
             </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              Marketing &amp; Tracking Manager
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Dynamic Meta (Facebook) Pixel integration with zero code changes and fail-safe operation.
+            </p>
           </div>
 
           <div className="flex items-center gap-2">

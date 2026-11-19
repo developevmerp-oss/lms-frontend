@@ -166,16 +166,19 @@ export default function StudentEventsPage() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <Calendar size={13} className="text-[#942008]" /> Live Interactive Masterclasses
-            </span>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <Calendar size={13} className="text-[#942008]" /> */}
+              <span>Live Coaching</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Live Coaching &amp; Attendance Portal</span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
               Live Coaching &amp; Attendance Portal
             </h1>
-            <p className="text-stone-500 text-sm mt-1">
-              Join live interactive coaching sessions with Vrajangna Patel. Clicking "Join Live Class" marks your attendance and awards bonus XP.
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Join live interactive coaching sessions with Vrajangna Patel. Clicking &quot;Join Live Class&quot; marks your attendance and awards bonus XP.
             </p>
           </div>
 

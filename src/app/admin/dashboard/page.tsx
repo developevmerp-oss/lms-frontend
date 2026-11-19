@@ -269,7 +269,7 @@ export default function AdminDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -280,10 +280,19 @@ export default function AdminDashboard() {
       <AdminNav user={user} logout={logout} />
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="flex flex-wrap justify-between items-start gap-4 mb-5">
+        <header className="flex flex-wrap justify-between items-start gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">Admin Command Center</h1>
-            <p className="text-stone-500 mt-1 text-sm font-medium">Welcome back, {user?.name || 'Admin'} – manage students, notifications and wins.</p>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Admin</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Command Center</span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              Admin Command Center
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Welcome back, {user?.name || 'Admin'} – manage students, notifications and wins.
+            </p>
           </div>
         </header>
 
@@ -846,14 +855,6 @@ export default function AdminDashboard() {
                             >
                               <Send size={12} />
                               <span>Resend</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setViewingNotification(n)}
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-500 transition-colors cursor-pointer shadow-2xs"
-                              aria-label="More notification options"
-                            >
-                              <MoreHorizontal size={14} />
                             </button>
                           </div>
                         </td>

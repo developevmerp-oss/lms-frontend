@@ -68,7 +68,7 @@ export default function AdminCertificates() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -79,12 +79,17 @@ export default function AdminCertificates() {
       <AdminNav user={user} logout={logout} />
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
-              <Award className="text-[#c4431d]" /> Certificate Management
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Learning &amp; Courses</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Certificate Management</span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              {/* <Award className="text-[#c4431d]" /> */} Certificate Management
             </h1>
-            <p className="text-stone-500 mt-2 font-medium">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Award course completion certificates to students.
             </p>
           </div>

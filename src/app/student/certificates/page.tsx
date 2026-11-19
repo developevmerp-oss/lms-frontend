@@ -35,11 +35,18 @@ export default function StudentCertificates() {
       <StudentNav user={user} level={user?.membershipLevel || "General"} points={user?.points || 0} logout={logout} />
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="mb-12">
-          <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
+        <header className="mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Student Hub</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">My Certificates</span>
+          </div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
             My Certificates
           </h1>
-          <p className="text-stone-500 mt-2">View and download your earned credentials.</p>
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+            View and download your earned credentials.
+          </p>
         </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

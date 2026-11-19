@@ -588,7 +588,7 @@ export default function AdminStudents() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -599,10 +599,19 @@ export default function AdminStudents() {
       <AdminNav user={user} logout={logout} />
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="mb-6 md:mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <header className="mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">Student Management &amp; Engagement</h1>
-            <p className="text-stone-500 mt-1 md:mt-2 text-sm font-medium">Track last login activity, milestones, sales, and trigger re-engagement notifications.</p>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Students &amp; CRM</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Student Management</span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              Student Management &amp; Engagement
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Track last login activity, milestones, sales, and trigger re-engagement notifications.
+            </p>
           </div>
           <button
             onClick={() => { setShowAddModal(true); setAddError(''); }}
