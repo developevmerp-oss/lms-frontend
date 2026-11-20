@@ -332,7 +332,7 @@ export default function AdminLeaderboard() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -344,11 +344,16 @@ export default function AdminLeaderboard() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Page Title & Subtitle */}
-        <header className="mb-5 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900 tracking-tight">
+        <header className="mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Gamification &amp; Recognition</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">Platform Leaderboard</span>
+          </div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
             Platform Leaderboard
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm mt-1 font-normal leading-relaxed">
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             Monitor top performing students across the Ravishing Art Hub ecosystem.
           </p>
         </header>

@@ -128,11 +128,18 @@ export default function StudentAssignments() {
       />
 
       <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="mb-6 md:mb-10">
-          <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
-            <ClipboardList className="text-[#c4431d]" size={28} /> Daily Tasks & Missions
+        <header className="mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Learning &amp; Growth</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">Daily Tasks &amp; Missions</span>
+          </div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            {/* <ClipboardList className="text-[#c4431d]" size={28} /> */} Daily Tasks &amp; Missions
           </h1>
-          <p className="text-stone-500 mt-2 text-sm md:text-lg">Complete assignments to earn XP points and maintain your streak!</p>
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+            Complete assignments to earn XP points and maintain your streak!
+          </p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -123,14 +123,27 @@ export default function StudentDashboard() {
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeTierCode, setUpgradeTierCode] = useState<string>("L0");
-  const [liveTiers, setLiveTiers] = useState<any[]>([]);
+  const [liveTiers, setLiveTiers] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = sessionStorage.getItem("cached_level_tiers");
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return [];
+  });
   const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/dashboard/levels`)
+    fetch(`${API_BASE_URL}/dashboard/levels`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setLiveTiers(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setLiveTiers(data);
+          try {
+            sessionStorage.setItem("cached_level_tiers", JSON.stringify(data));
+          } catch (_) {}
+        }
       })
       .catch(() => {});
 
@@ -193,14 +206,17 @@ export default function StudentDashboard() {
               <Lock size={40} />
             </div>
 
-            <div className="space-y-3">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-xs font-bold uppercase tracking-wider">
-                <Sparkles size={13} /> Level 0 Fast Track Required
-              </span>
-              <h1 className="text-3xl md:text-5xl font-black text-stone-900 leading-tight">
+            <div className="space-y-1">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+                {/* <Sparkles size={13} /> */}
+                <span>Student Hub</span>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-700 font-medium">Level 0 Fast Track Required</span>
+              </div>
+              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
                 Dashboard Locked for General Members
               </h1>
-              <p className="text-stone-600 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed max-w-xl mx-auto">
                 You are currently registered as a <strong className="text-stone-900">General Member</strong>. Your personal dashboard, 6-step daily habits routine, progress tracking, and gamified rewards unlock when you enroll in <strong className="text-[#c4431d]">Fast Track (Level 0)</strong> or higher!
               </p>
             </div>
@@ -355,13 +371,13 @@ export default function StudentDashboard() {
               onOpenProfile={() => setIsProfileModalOpen(true)}
             />
 
-            {/* Row 2: 3 Cards (Learning Progress, 6-Point Skill Mastery, Daily Habit Streak) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5 items-stretch">
-              <LearningProgress
+            {/* Row 2: 2 Cards (6-Point Skill Mastery, Daily Habit Streak) - Learning Progress removed per user request */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 items-stretch">
+              {/* <LearningProgress
                 courses={stats.courses}
                 nextGoal={stats.nextGoal}
                 progress={dynamicProgress}
-              />
+              /> */}
               <SkillMastery skills={stats.skills} />
               <DailyRoutineChecklist
                 streak={stats.streak}
@@ -377,6 +393,7 @@ export default function StudentDashboard() {
                   allCourses={stats.allCourses}
                   currentTier={stats.currentTier}
                   userLevel={effectiveLevel}
+                  levelTiers={liveTiers}
                   onUnlockTier={(tierCode) => {
                     setUpgradeTierCode(tierCode);
                     setShowUpgradeModal(true);

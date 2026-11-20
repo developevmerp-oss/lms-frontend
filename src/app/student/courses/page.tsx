@@ -287,14 +287,27 @@ export default function StudentCourses() {
   const [purchaseSuccessMsg, setPurchaseSuccessMsg] = useState("");
   const [previewFlyerModal, setPreviewFlyerModal] = useState<string | null>(null);
   
-  const [levelTiers, setLevelTiers] = useState<any[]>([]);
+  const [levelTiers, setLevelTiers] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = sessionStorage.getItem("cached_level_tiers");
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return [];
+  });
   const [campaignOffers, setCampaignOffers] = useState<any[]>([]);
 
   const fetchStudentData = () => {
     fetch(`${API_BASE_URL}/dashboard/levels`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) setLevelTiers(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setLevelTiers(data);
+          try {
+            sessionStorage.setItem("cached_level_tiers", JSON.stringify(data));
+          } catch (_) {}
+        }
       })
       .catch(err => console.error("Error fetching level tiers", err));
 
@@ -349,11 +362,11 @@ export default function StudentCourses() {
     fetchStudentData();
   }, [token]);
 
-  // Auto-open tier purchase modal when redirected from QR code or direct link with ?unlock=L1/L2/L3
+  // Auto-open tier purchase modal when redirected from QR code with ?unlock=L1/L2/L3
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const unlockParam = params.get("unlock") || params.get("tier") || params.get("level");
+      const unlockParam = params.get("unlock");
       if (unlockParam) {
         const code = unlockParam.trim().toUpperCase();
         setPurchaseModal({
@@ -455,6 +468,71 @@ export default function StudentCourses() {
     }
     return false;
   };
+
+  const hasHandledLevelActionRef = useRef(false);
+
+  // Smoothly scroll to level card & open modal if redirected with ?level=... or ?search=...
+  useEffect(() => {
+    if (typeof window !== "undefined" && !hasHandledLevelActionRef.current) {
+      const params = new URLSearchParams(window.location.search);
+      const lvlParam =
+        params.get("level") ||
+        params.get("tier") ||
+        params.get("search") ||
+        params.get("q");
+      const action = params.get("action");
+
+      if (lvlParam) {
+        const clean = lvlParam.trim().toUpperCase();
+        let matchedLvl = "";
+        if (clean.includes("L0") || clean.includes("FAST") || clean.includes("FUNDAMENTAL")) matchedLvl = "L0";
+        else if (clean.includes("L1") || clean.includes("EXPLORE") || clean.includes("SILVER")) matchedLvl = "L1";
+        else if (clean.includes("L2") || clean.includes("MASTER") || clean.includes("GOLD")) matchedLvl = "L2";
+        else if (clean.includes("L3") || clean.includes("DIAMOND") || clean.includes("RENAISSANCE") || clean.includes("MASTERS")) matchedLvl = "L3";
+
+        if (matchedLvl) {
+          hasHandledLevelActionRef.current = true;
+          // Step 1: Staged smooth scroll after page render
+          setTimeout(() => {
+            const cardEl = document.getElementById(`level-card-${matchedLvl}`);
+            if (cardEl) {
+              cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Step 2: Smooth highlight and gentle scale transition
+              cardEl.classList.add(
+                'ring-4',
+                'ring-[#c4431d]',
+                'ring-offset-4',
+                'shadow-2xl',
+                'scale-[1.02]',
+                'transition-all',
+                'duration-700'
+              );
+              setTimeout(() => {
+                cardEl.classList.remove(
+                  'ring-4',
+                  'ring-[#c4431d]',
+                  'ring-offset-4',
+                  'shadow-2xl',
+                  'scale-[1.02]'
+                );
+              }, 4000);
+            }
+
+            // Step 3: Smoothly open the next step modal after scrolling finishes comfortably
+            if (action === 'open') {
+              setTimeout(() => {
+                if (isLevelUnlocked(matchedLvl)) {
+                  handleOpenLevelModal(matchedLvl);
+                } else {
+                  setPurchaseModal({ isOpen: true, tierCode: matchedLvl });
+                }
+              }, 900);
+            }
+          }, 500);
+        }
+      }
+    }
+  }, [courses, stats]);
 
   const getCourseValidityInfo = (course: any) => {
     if (!course) return { isEnrolled: false, isExpired: false, text: "Course Info" };
@@ -576,13 +654,16 @@ export default function StudentCourses() {
       <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <BookOpen size={13} className="text-[#942008]" /> Sequential Video Curriculum
-            </span>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <BookOpen size={13} className="text-[#942008]" /> */}
+              <span>Curriculum</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Course Library &amp; Video Modules</span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
               Course Library &amp; Video Modules
             </h1>
-            <p className="text-stone-500 mt-1 text-sm md:text-base">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Your step-by-step masterclass library structured from foundational casting (L0) to commercial masterworks (L3).
             </p>
           </div>
@@ -684,17 +765,8 @@ export default function StudentCourses() {
                   "River wood tables, bridal varmala preservation, 3D photo art, concrete candles, and business scaling."
                 );
 
-                const curatedLevelThumbnails: Record<string, string> = {
-                  L0: "/images/journey/level-0.jpg",
-                  L1: "/images/courses/powder-secrets-flyer.jpeg",
-                  L2: "/images/hero/hero-img-4.jpg",
-                  L3: "/images/hero/hero-img-8.jpg",
-                };
-
                 const liveThumb = liveLevel?.thumbnail || liveLevel?.image || liveLevel?.bannerImage;
-                const cardImage = liveThumb
-                  ? getImageUrl(liveThumb) 
-                  : (curatedLevelThumbnails[lvl] || "/images/journey/level-0.jpg");
+                const cardImage = liveThumb ? getImageUrl(liveThumb) : null;
 
                 const moduleCount = courseCount || (lvl === "L0" ? 4 : lvl === "L1" ? 5 : lvl === "L2" ? 4 : 18);
 
@@ -715,7 +787,8 @@ export default function StudentCourses() {
                 return (
                   <div
                     key={lvl}
-                    className={`rounded-3xl bg-white flex flex-col justify-between border transition-all overflow-hidden shadow-sm hover:shadow-md ${
+                    id={`level-card-${lvl}`}
+                    className={`rounded-3xl bg-white flex flex-col justify-between border transition-all overflow-hidden shadow-sm hover:shadow-md scroll-mt-24 ${
                       isCurrent
                         ? "border-2 border-[#c4431d]"
                         : "border-stone-200/90 hover:border-stone-300"

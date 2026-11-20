@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.7",
-    "@react-three/drei": "^10.7.9",
-    "@react-three/fiber": "^9.8.2",
     "@types/qrcode": "^1.5.6",
     "@types/three": "^0.186.0",
     "framer-motion": "^13.0.0",

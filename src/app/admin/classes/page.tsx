@@ -422,7 +422,7 @@ export default function AdminClassesPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -434,15 +434,18 @@ export default function AdminClassesPage() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <div className="min-w-0 flex-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <Video size={13} className="text-[#c4431d]" /> Live Interactive Masterclasses
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <Video size={13} className="text-[#c4431d]" /> */}
+              <span>Live Masterclasses</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Online Class &amp; Attendance</span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
               Online Class &amp; Attendance Management
             </h1>
-            <p className="text-stone-500 mt-1 text-sm font-medium">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Schedule live Zoom coaching calls, manage meeting links, track student attendance, and upload video replays.
             </p>
           </div>

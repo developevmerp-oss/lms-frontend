@@ -121,20 +121,17 @@ export default function StudentNotificationsPage() {
 
       <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         {/* Header Banner */}
-        <header className="mb-8 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-6 md:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header className="mb-6 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                Broadcast & Announcement Hub
-              </span>
-              <span className="text-stone-500 text-xs font-bold">
-                {notifications.length} Total Messages
-              </span>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Communications</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Notifications &amp; Broadcasts</span>
             </div>
-            <h1 className="text-2xl md:text-4xl font-black text-stone-900 tracking-tight flex items-center gap-3">
-              <Bell className="text-[#c4431d] shrink-0" size={32} /> Notifications & Broadcasts
+            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              {/* <Bell className="text-[#c4431d] shrink-0" size={32} /> */} Notifications &amp; Broadcasts
             </h1>
-            <p className="text-stone-500 text-sm mt-1 max-w-2xl">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5 max-w-2xl">
               Stay updated with exclusive level upgrades, discount offers, live class reminders, and official announcements from Team Ravishing Art Hub.
             </p>
           </div>

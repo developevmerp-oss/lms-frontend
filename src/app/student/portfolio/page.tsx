@@ -56,14 +56,26 @@ export default function StudentPortfolio() {
       <StudentNav user={user} level={user?.membershipLevel || "General"} points={user?.points || 0} logout={logout} />
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/student/dashboard" className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-full transition-colors">
-            <ArrowLeft size={20} />
-          </Link>
-          <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
-            My Portfolio
-          </h1>
-        </div>
+        <header className="mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Student Hub</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">My Portfolio</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/student/dashboard" className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-full transition-colors" title="Back to Dashboard">
+              <ArrowLeft size={18} />
+            </Link>
+            <div>
+              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+                My Portfolio
+              </h1>
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+                Upload and showcase your finished resin artwork for mentor feedback.
+              </p>
+            </div>
+          </div>
+        </header>
 
         <div className="bg-white/95 backdrop-blur-xl border border-[#ecdccb] p-8 rounded-3xl min-h-[60vh] flex flex-col items-center justify-center text-center shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
           <div className="w-24 h-24 bg-[#fde5d6] rounded-full flex items-center justify-center mb-6 shadow-md shadow-[#c4431d]/20 border border-[#f5ded0] text-[#942008]">

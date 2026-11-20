@@ -55,14 +55,17 @@ export default function StudentAffiliatePage() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
         {/* Header */}
-        <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 md:p-10 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] space-y-4">
-          <div className="inline-flex items-center gap-2 bg-[#fde5d6] text-[#942008] text-xs font-black uppercase tracking-wider px-3.5 py-1 rounded-full border border-[#f5ded0]">
-            <Sparkles size={14} /> Partner &amp; Affiliate Program
+        <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 md:p-8 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            {/* <Sparkles size={14} /> */}
+            <span>Student Hub</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">Partner &amp; Affiliate Program</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
             Earn 20% Net Commission for Every Enrolled Creator
           </h1>
-          <p className="text-stone-600 text-sm md:text-base max-w-2xl leading-relaxed">
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5 max-w-2xl leading-relaxed">
             Share your authentic resin art transformation with your followers and friends. When someone enrolls through your link, you earn a 20% net commission on the course fee.
           </p>
         </div>

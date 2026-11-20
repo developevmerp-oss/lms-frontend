@@ -1,28 +1,26 @@
 'use client';
 
-import { BrandLogo } from "@/components/ui/BrandLogo";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Home,
   Users,
-  BookOpen,
-  Trophy,
-  Award,
   IndianRupee,
-  Sparkles,
-  Bell,
   ShoppingBag,
+  Bell,
+  Sparkles,
   Megaphone,
+  Trophy,
+  Target,
+  Award,
+  BookOpen,
   Video,
   ClipboardList,
-  Target,
-  LogOut,
   ChevronDown,
+  ChevronUp,
   Menu,
   X,
-  ShieldAlert,
 } from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
@@ -31,238 +29,320 @@ interface AdminNavProps {
   logout: () => void;
 }
 
-const NAV_ITEMS = [
-  {
-    label: 'Dashboard',
-    path: '/admin/dashboard',
-    icon: <Home size={18} />,
-    single: true,
-  },
-  {
-    label: 'Students & CRM',
-    icon: <Users size={18} />,
-    children: [
-      { name: 'All Students', path: '/admin/students', icon: <Users size={14} /> },
-      { name: 'Payment Transactions', path: '/admin/payments', icon: <IndianRupee size={14} /> },
-      { name: 'Student Sales (Art)', path: '/admin/sales', icon: <ShoppingBag size={14} /> },
-      { name: 'Broadcast Center', path: '/admin/notifications', icon: <Bell size={14} /> },
-      { name: 'Webinar Leads', path: '/admin/webinar', icon: <Sparkles size={14} /> },
-      { name: 'Marketing & Tracking', path: '/admin/marketing', icon: <Megaphone size={14} /> },
-      { name: 'Level Settings', path: '/admin/levels', icon: <Trophy size={14} /> },
-      { name: 'Milestones', path: '/admin/milestones', icon: <Target size={14} /> },
-      { name: 'Badges & Rewards', path: '/admin/badges', icon: <Award size={14} /> },
-      { name: 'Merch Store Manager', path: '/admin/rewards', icon: <ShoppingBag size={14} /> },
-      { name: 'Special Offers', path: '/admin/offers', icon: <Sparkles size={14} /> },
-    ],
-  },
-  {
-    label: 'Courses & Coaching',
-    icon: <BookOpen size={18} />,
-    children: [
-      { name: 'Manage Courses', path: '/admin/courses', icon: <BookOpen size={14} /> },
-      { name: 'Live Classes & Attendance', path: '/admin/classes', icon: <Video size={14} /> },
-      { name: 'Assignments', path: '/admin/assignments', icon: <ClipboardList size={14} /> },
-      { name: 'Mentoring Center', path: '/admin/mentoring', icon: <Video size={14} /> },
-      { name: 'Certificates', path: '/admin/certificates', icon: <Award size={14} /> },
-    ],
-  },
-  {
-    label: 'Leaderboard',
-    path: '/admin/leaderboard',
-    icon: <Trophy size={18} />,
-    single: true,
-  },
-];
+interface NavItem {
+  name: string;
+  path: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+}
 
 export const AdminNav = ({ user, logout }: AdminNavProps) => {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // Accordion state: by default expand groups that contain the active path
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    'Students & CRM': true,
-    'Courses & Coaching': true,
-  });
-
-  useEffect(() => {
-    NAV_ITEMS.forEach(item => {
-      if (item.children?.some(c => c.path === pathname)) {
-        setExpanded(prev => ({ ...prev, [item.label]: true }));
-      }
-    });
-    setMobileOpen(false);
-  }, [pathname]);
-
-  const toggleGroup = (label: string) => {
-    setExpanded(prev => ({ ...prev, [label]: !prev[label] }));
+  // Path matching helper
+  const isItemActive = (path: string) => {
+    if (path === '/admin/dashboard') {
+      return pathname === '/admin/dashboard';
+    }
+    return pathname === path || pathname.startsWith(path + '/');
   };
+
+  // Group 1: Students & CRM items (matching reference image exact order)
+  const crmItems: NavItem[] = [
+    { name: 'All Students', path: '/admin/students', icon: Users },
+    { name: 'Payment Transactions', path: '/admin/payments', icon: IndianRupee },
+    { name: 'Student Sales (Art)', path: '/admin/sales', icon: ShoppingBag },
+    { name: 'Broadcast Center', path: '/admin/notifications', icon: Bell },
+    { name: 'Webinar Leads', path: '/admin/webinar', icon: Sparkles },
+    { name: 'Marketing & Tracking', path: '/admin/marketing', icon: Megaphone },
+    { name: 'Level Settings', path: '/admin/levels', icon: Trophy },
+    { name: 'Milestones', path: '/admin/milestones', icon: Target },
+    { name: 'Badges & Rewards', path: '/admin/badges', icon: Award },
+    { name: 'Merch Store Manager', path: '/admin/rewards', icon: ShoppingBag },
+    { name: 'Special Offers', path: '/admin/offers', icon: Sparkles },
+  ];
+
+  // Group 2: Courses & Coaching items (matching reference image exact order)
+  const courseItems: NavItem[] = [
+    { name: 'Manage Courses', path: '/admin/courses', icon: BookOpen },
+    { name: 'Live Classes & Attenda...', path: '/admin/classes', icon: Video },
+    { name: 'Assignments', path: '/admin/assignments', icon: ClipboardList },
+    { name: 'Mentoring Center', path: '/admin/mentoring', icon: Video },
+    { name: 'Certificates', path: '/admin/certificates', icon: Award },
+  ];
+
+  const isCrmActive = crmItems.some((item) => isItemActive(item.path));
+  const isCourseActive = courseItems.some((item) => isItemActive(item.path));
+
+  // Accordion state
+  const [crmOpen, setCrmOpen] = useState(true);
+  const [courseOpen, setCourseOpen] = useState(true);
+
+  // Auto-expand active group on path change, close mobile drawer
+  useEffect(() => {
+    if (isCrmActive) setCrmOpen(true);
+    if (isCourseActive) setCourseOpen(true);
+    setMobileOpen(false);
+  }, [pathname, isCrmActive, isCourseActive]);
+
+  const isDashboardActive = isItemActive('/admin/dashboard');
+  const isLeaderboardActive = isItemActive('/admin/leaderboard');
 
   return (
     <>
       <ProfileUpdateModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+        onLogout={logout}
       />
 
-      {/* Mobile Top Header Bar (< 1024px) */}
-      <div className="lg:hidden sticky top-0 z-30 bg-white/95 border-b border-[#ecdccb] px-4 py-3 flex items-center justify-between backdrop-blur-md shadow-xs">
-        <BrandLogo href="/admin/dashboard" size="sm" />
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsProfileModalOpen(true)}
-            className="w-9 h-9 rounded-full overflow-hidden border-2 border-[#c4431d] bg-[#fde5d6] flex items-center justify-center text-xs font-black text-[#c4431d]"
-          >
-            {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt="Admin" className="w-full h-full object-cover" />
-            ) : (
-              <span>{user?.name?.charAt(0).toUpperCase() || "A"}</span>
-            )}
-          </button>
-          <button
-            onClick={() => setMobileOpen(prev => !prev)}
-            className="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 flex items-center justify-center transition-colors cursor-pointer"
-            aria-label="Toggle navigation"
-          >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
+      {/* Mobile Top Bar (< 1024px) */}
+      <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-stone-200/80 px-4 py-2.5 flex items-center justify-between shadow-xs">
+        <Link href="/admin/dashboard" className="flex items-center gap-2">
+          <img
+            src="/favicon.png"
+            alt="Favicon"
+            className="w-8 h-8 object-contain shrink-0"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/brand-emblem.png';
+            }}
+          />
+          <span className="font-bold text-stone-900 text-xs sm:text-sm">Ravishing Art</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors cursor-pointer"
+          aria-label="Toggle navigation"
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
 
       {/* Mobile Backdrop Overlay */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-40 lg:hidden animate-in fade-in duration-200"
         />
       )}
 
-      {/* Floating Left Sidebar (Fixed on Desktop, Slide-over on Mobile) */}
+      {/* Left Sidebar (Fixed on Desktop, Slide-over on Mobile) */}
       <aside
-        className={`fixed top-3 left-3 bottom-3 w-[272px] bg-white/95 border border-[#ecdccb] rounded-3xl shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col z-50 backdrop-blur-xl transition-transform duration-300 ease-in-out overflow-hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+24px)] lg:translate-x-0'
+        className={`fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-stone-200/80 flex flex-col z-50 transition-all duration-300 ease-in-out ${isProfileModalOpen ? 'blur-[3px] pointer-events-none select-none' : ''
+          } ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
           }`}
       >
-        {/* Top: Brand Logo */}
-        <div className="pt-5 pb-4 px-6 flex flex-col items-center justify-center border-b border-stone-100/90 shrink-0">
-          <BrandLogo href="/admin/dashboard" size="md" />
-        </div>
-
-        {/* Scrollable Navigation Items */}
-        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1.5 custom-scrollbar">
-          {NAV_ITEMS.map((item) => {
-            if (item.single) {
-              const isActive = pathname === item.path;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.path!}
-                  onClick={() => setMobileOpen(false)}
-                  className={`relative flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm transition-all duration-200 group ${isActive
-                    ? 'bg-gradient-to-r from-[#fde5d6]/80 via-[#fff5ee] to-[#fff5ee] text-[#942008] font-black border border-[#f5ded0] shadow-2xs'
-                    : 'text-stone-700 hover:text-[#942008] hover:bg-stone-50 font-bold border border-transparent'
-                    }`}
-                >
-                  <span className={isActive ? 'text-[#c4431d]' : 'text-stone-400 group-hover:text-[#c4431d]'}>
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </Link>
-              );
-            }
-
-            const isChildActive = item.children?.some(c => c.path === pathname);
-            const isExpanded = !!expanded[item.label];
-
-            return (
-              <div key={item.label} className="space-y-1">
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(item.label)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm transition-all duration-200 cursor-pointer group ${isChildActive
-                    ? 'text-[#942008] font-black bg-[#fff5ee]/70 border border-[#f5ded0]/70'
-                    : 'text-stone-700 hover:text-[#942008] hover:bg-stone-50 font-bold border border-transparent'
-                    }`}
-                >
-                  <div className="flex items-center gap-3.5">
-                    <span className={isChildActive ? 'text-[#c4431d]' : 'text-stone-400 group-hover:text-[#c4431d]'}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronDown
-                    size={16}
-                    className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#c4431d]' : 'text-stone-400'
-                      }`}
-                  />
-                </button>
-
-                {/* Sub-links dropdown / accordion */}
-                {isExpanded && (
-                  <div className="ml-5 pl-3 border-l border-[#ecdccb] my-1 space-y-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
-                    {item.children?.map((child) => {
-                      const isSubActive = pathname === child.path;
-                      return (
-                        <Link
-                          key={child.path}
-                          href={child.path}
-                          onClick={() => setMobileOpen(false)}
-                          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${isSubActive
-                            ? 'bg-[#fff5ee] text-[#942008] font-black border border-[#f5ded0] shadow-2xs'
-                            : 'text-stone-600 hover:text-[#942008] hover:bg-stone-50 font-semibold'
-                            }`}
-                        >
-                          <span className={isSubActive ? 'text-[#c4431d]' : 'text-stone-400'}>
-                            {child.icon}
-                          </span>
-                          <span className="truncate">{child.name}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
+        {/* Top Brand Header (Favicon icon without background, larger + text 'Ravishing Art') */}
+        <div className="p-3.5 sm:p-4 border-b border-stone-100/90 flex items-center shrink-0">
+          <Link href="/admin/dashboard" className="flex items-center gap-2.5 min-w-0 group cursor-pointer w-full">
+            <img
+              src="/favicon.png"
+              alt="Ravishing Art"
+              className="w-9 h-9 sm:w-15 sm:h-15 object-contain shrink-0 group-hover:scale-105 transition-transform"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/brand-emblem.png';
+              }}
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-stone-900 text-xs sm:text-lg leading-tight tracking-tight">
+                  Ravishing Art
+                </span>
               </div>
-            );
-          })}
+            </div>
+          </Link>
         </div>
 
-        {/* Bottom Section: Admin Profile + Logout */}
-        <div className="p-3.5 border-t border-[#ecdccb]/60 space-y-2 shrink-0 bg-[#fcfaf7]/80">
-          {/* Admin Profile Card */}
+        {/* Scrollable Navigation Area */}
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1 custom-scrollbar">
+          {/* 1. Dashboard (Standalone Top Item) */}
+          <Link
+            href="/admin/dashboard"
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${isDashboardActive
+              ? 'bg-[#fff4ed] text-[#9b2c16] border border-[#f8dfd0]'
+              : 'text-stone-800 hover:text-stone-950 hover:bg-stone-50'
+              }`}
+          >
+            <Home
+              size={18}
+              className={`shrink-0 ${isDashboardActive ? 'text-[#9b2c16]' : 'text-stone-600'}`}
+            />
+            <span>Dashboard</span>
+          </Link>
+
+          {/* 2. Students & CRM (Collapsible Accordion) */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setCrmOpen((prev) => !prev)}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${isCrmActive
+                ? 'bg-[#fff4ed] text-[#9b2c16] border border-[#f8dfd0]'
+                : 'text-stone-800 hover:text-stone-950 hover:bg-stone-50'
+                }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Users
+                  size={18}
+                  className={`shrink-0 ${isCrmActive ? 'text-[#9b2c16]' : 'text-stone-600'}`}
+                />
+                <span className="truncate">Students &amp; CRM</span>
+              </div>
+              {crmOpen ? (
+                <ChevronUp
+                  size={16}
+                  className={`shrink-0 ${isCrmActive ? 'text-[#9b2c16]' : 'text-stone-500'}`}
+                />
+              ) : (
+                <ChevronDown
+                  size={16}
+                  className={`shrink-0 ${isCrmActive ? 'text-[#9b2c16]' : 'text-stone-500'}`}
+                />
+              )}
+            </button>
+
+            {/* Accordion Children with Left Connecting Line */}
+            {crmOpen && (
+              <div className="relative pl-3.5 ml-5 border-l border-stone-200/90 my-1 space-y-0.5">
+                {crmItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = isItemActive(item.path);
+
+                  return (
+                    <Link
+                      key={item.path}
+                      href={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs sm:text-[0.8125rem] transition-all cursor-pointer ${isActive
+                        ? 'bg-[#fef3eb] text-[#9b2c16] font-bold border border-[#fcdcc5] shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50 font-medium'
+                        }`}
+                    >
+                      <Icon
+                        size={15}
+                        className={`shrink-0 ${isActive ? 'text-[#9b2c16]' : 'text-stone-400 group-hover:text-stone-600'
+                          }`}
+                      />
+                      <span className="truncate">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 3. Courses & Coaching (Collapsible Accordion) */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setCourseOpen((prev) => !prev)}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${isCourseActive
+                ? 'bg-[#fff4ed] text-[#9b2c16] border border-[#f8dfd0]'
+                : 'text-stone-800 hover:text-stone-950 hover:bg-stone-50'
+                }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <BookOpen
+                  size={18}
+                  className={`shrink-0 ${isCourseActive ? 'text-[#9b2c16]' : 'text-stone-600'}`}
+                />
+                <span className="truncate">Courses &amp; Coaching</span>
+              </div>
+              {courseOpen ? (
+                <ChevronUp
+                  size={16}
+                  className={`shrink-0 ${isCourseActive ? 'text-[#9b2c16]' : 'text-stone-500'}`}
+                />
+              ) : (
+                <ChevronDown
+                  size={16}
+                  className={`shrink-0 ${isCourseActive ? 'text-[#9b2c16]' : 'text-stone-500'}`}
+                />
+              )}
+            </button>
+
+            {/* Accordion Children with Left Connecting Line */}
+            {courseOpen && (
+              <div className="relative pl-3.5 ml-5 border-l border-stone-200/90 my-1 space-y-0.5">
+                {courseItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = isItemActive(item.path);
+
+                  return (
+                    <Link
+                      key={item.path}
+                      href={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs sm:text-[0.8125rem] transition-all cursor-pointer ${isActive
+                        ? 'bg-[#fef3eb] text-[#9b2c16] font-bold border border-[#fcdcc5] shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50 font-medium'
+                        }`}
+                    >
+                      <Icon
+                        size={15}
+                        className={`shrink-0 ${isActive ? 'text-[#9b2c16]' : 'text-stone-400 group-hover:text-stone-600'
+                          }`}
+                      />
+                      <span className="truncate">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 4. Leaderboard (Standalone Bottom Item) */}
+          <div className="pt-1">
+            <Link
+              href="/admin/leaderboard"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${isLeaderboardActive
+                ? 'bg-[#fff4ed] text-[#9b2c16] border border-[#f8dfd0]'
+                : 'text-stone-800 hover:text-stone-950 hover:bg-stone-50'
+                }`}
+            >
+              <Trophy
+                size={18}
+                className={`shrink-0 ${isLeaderboardActive ? 'text-[#9b2c16]' : 'text-stone-600'}`}
+              />
+              <span>Leaderboard</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Bottom Section: Profile Card only (Logout button moved to Edit Profile modal) */}
+        <div className="p-3 border-t border-stone-200/70 shrink-0 bg-white">
           <button
             type="button"
-            onClick={() => {
-              setIsProfileModalOpen(true);
-              setMobileOpen(false);
-            }}
-            className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 hover:bg-white border border-transparent hover:border-[#ecdccb] transition-all cursor-pointer group text-left shadow-2xs"
-            title="Click to edit profile & photo"
+            onClick={() => setIsProfileModalOpen(true)}
+            className="w-full p-2.5 sm:p-3 flex items-center gap-5 transition-all cursor-pointer text-left shadow-2xs group"
+            title="Edit Profile"
           >
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#f5ded0] shadow-2xs shrink-0 bg-[#fde5d6] flex items-center justify-center text-xs font-black text-[#c4431d] group-hover:scale-105 transition-transform">
+            {/* Avatar */}
+            <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm sm:text-base flex items-center justify-center shrink-0 border border-[#f5ded0] overflow-hidden">
               {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user?.name || "Admin"} className="w-full h-full object-cover" />
+                <img
+                  src={user.avatarUrl}
+                  alt={user?.name || 'Admin'}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <span>{user?.name?.charAt(0).toUpperCase() || "A"}</span>
+                <span>{user?.name?.charAt(0).toUpperCase() || 'A'}</span>
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs sm:text-sm font-black text-stone-900 truncate leading-tight group-hover:text-[#c4431d] transition-colors">
-                {user?.name || "Admin"}
-              </p>
-              <p className="text-[10px] text-stone-500 font-medium mt-0.5">Edit Profile →</p>
-            </div>
-          </button>
 
-          {/* Logout Button */}
-          <button
-            type="button"
-            onClick={() => {
-              setMobileOpen(false);
-              logout();
-            }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white hover:bg-rose-50 border border-[#ecdccb]/80 hover:border-rose-200 text-stone-700 hover:text-rose-600 font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-2xs"
-          >
-            <LogOut size={16} />
-            <span>Logout</span>
+            {/* User Info */}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base font-bold text-stone-900 truncate leading-tight group-hover:text-[#9b2c16] transition-colors">
+                {user?.name || 'Admin'}
+              </p>
+              <p className="text-[0.6875rem] sm:text-xs text-stone-400 font-medium leading-tight mt-0.5">
+                Edit Profile {/* → */}
+              </p>
+            </div>
           </button>
         </div>
       </aside>

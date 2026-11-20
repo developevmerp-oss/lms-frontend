@@ -171,6 +171,21 @@ export default function StudentProfile() {
       />
 
       <main className="w-full p-3 sm:p-5 lg:p-6">
+        {/* Page Header */}
+        <header className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Account</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">My Profile</span>
+          </div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            My Profile
+          </h1>
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+            Manage your personal details, membership credentials, and learning milestones.
+          </p>
+        </header>
+
         {/* Single unified card container matching Reference Image 3 */}
         <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-4 sm:p-6 lg:p-7 relative overflow-hidden">
           {/* Subtle peach warm ambient glow in top right */}
@@ -202,9 +217,9 @@ export default function StudentProfile() {
 
                 <div>
                   <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                    <h1 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight">
+                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
                       {user?.name || "Student Artist"}
-                    </h1>
+                    </h2>
                     {isGeneral ? (
                       <span className="px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200 text-stone-600 text-[11px] sm:text-xs font-bold inline-flex items-center gap-1">
                         <span>🌱</span>

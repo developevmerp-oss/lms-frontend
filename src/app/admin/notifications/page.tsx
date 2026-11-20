@@ -196,7 +196,7 @@ export default function AdminNotifications() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -209,16 +209,19 @@ export default function AdminNotifications() {
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
         
         {/* Header */}
-        <header className="mb-6 md:mb-8">
+        <header className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdeee2] border border-[#f5ded0] text-[#c4431d] text-xs md:text-sm lg:text-xs font-black uppercase tracking-wider mb-2.5">
-                <Bell size={14} className="shrink-0" /> Targeted Broadcast Center
+              <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+                {/* <Bell size={14} className="shrink-0" /> */}
+                <span>Communications</span>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-700 font-medium">Targeted Broadcast Center</span>
               </div>
-              <h1 className="text-2xl md:text-4xl lg:text-3xl font-black text-stone-900 tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
                 Send Notifications to L0, L1, L2, L3 &amp; Webinar Leads
               </h1>
-              <p className="text-stone-500 text-sm md:text-base lg:text-sm mt-1.5 font-medium leading-relaxed">
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
                 Push instant announcements, limited-time discount offers, and class reminders directly to student notification bells.
               </p>
             </div>
