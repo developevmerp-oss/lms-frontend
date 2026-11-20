@@ -27,7 +27,7 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
             </div>
             <h2 className="text-sm sm:text-base font-bold text-stone-900">Badges Earned</h2>
           </div>
-          <span className="text-[11px] text-stone-400 font-medium shrink-0">
+          <span className="text-xs text-stone-400 font-medium shrink-0">
             {displayedBadges.length} badge{displayedBadges.length !== 1 ? "s" : ""} collected
           </span>
         </div>
@@ -62,7 +62,7 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
             </div>
 
             <h3 className="text-xs sm:text-sm font-bold text-stone-800">No badges yet.</h3>
-            <p className="text-[11px] text-stone-400 max-w-[200px] mt-0.5 leading-snug">
+            <p className="text-xs text-stone-400 max-w-[200px] mt-0.5 leading-snug">
               Keep learning, stay consistent, and earn your first badge!
             </p>
           </div>
@@ -80,11 +80,11 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
                   <span className="text-xs sm:text-sm font-bold text-stone-900 block truncate">
                     {badge.name || "Achievement"}
                   </span>
-                  <span className="text-[11px] text-stone-500 block truncate mt-0.5">
+                  <span className="text-xs text-stone-500 block truncate mt-0.5">
                     {badge.description || "Official milestone achievement"}
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#fde5d6] text-[#c4431d] text-[10px] font-bold shrink-0">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#fde5d6] text-[#c4431d] text-xs font-bold shrink-0">
                   ✓ Earned
                 </span>
               </div>
@@ -103,7 +103,7 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
                 <span className="text-xs font-bold text-stone-900 line-clamp-1 w-full px-1">
                   {badge.name || "Achievement"}
                 </span>
-                <span className="text-[9px] text-[#c4431d] font-bold mt-1 bg-[#fde5d6]/70 px-2 py-0.5 rounded-full">
+                <span className="text-xs text-[#c4431d] font-bold mt-1 bg-[#fde5d6]/70 px-2 py-0.5 rounded-full">
                   ✓ Earned
                 </span>
               </div>

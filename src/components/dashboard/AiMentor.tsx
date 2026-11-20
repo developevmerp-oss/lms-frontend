@@ -51,7 +51,7 @@ export const AiMentor = ({ skills }: AiMentorProps) => {
 
         {/* Title block */}
         <div className="shrink-0">
-          <p className="text-[10px] sm:text-[11px] font-bold text-stone-400 uppercase tracking-wider mb-0.5">
+          <p className="text-xs sm:text-xs font-bold text-stone-400 uppercase tracking-wider mb-0.5">
             NEXT RECOMMENDED MISSION
           </p>
           <h2 className="text-base sm:text-lg font-black text-stone-900 leading-tight">

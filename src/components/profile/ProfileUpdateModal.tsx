@@ -211,7 +211,7 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: Pro
                                   {/* Camera Overlay */}
                                     <div className="absolute inset-0 rounded-full bg-stone-900/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity backdrop-blur-xs">
                                       <Camera size={20} className="text-white mb-0.5" />
-                                      <span className="text-[10px] text-white font-bold">Change</span>
+                                      <span className="text-xs text-white font-bold">Change</span>
                                     </div>
                                   </div>
 
@@ -234,12 +234,12 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: Pro
                                       >
                                         <Upload size={14} className="stroke-[2.5]" /> Upload Photo from Computer
                                       </button>
-                                      <p className="text-[11px] text-stone-500 mt-1">PNG, JPG, WEBP up to 4MB</p>
+                                      <p className="text-xs text-stone-500 mt-1">PNG, JPG, WEBP up to 4MB</p>
                                     </div>
 
                                     {/* Quick Preset Avatars */}
                                     <div>
-                                      <span className="text-[11px] text-stone-600 font-bold block mb-1.5">Or choose an artistic avatar:</span>
+                                      <span className="text-xs text-stone-600 font-bold block mb-1.5">Or choose an artistic avatar:</span>
                                       <div className="flex gap-2 justify-center sm:justify-start flex-wrap">
                                         {AVATAR_PRESETS.map((preset, idx) => (
                                           <button

@@ -21,6 +21,7 @@ import {
   Search,
   ArrowDownRight
 } from "lucide-react";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 interface Badge {
@@ -257,13 +258,12 @@ export default function AdminBadges() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            {/* Upper Pill Badge matching reference image */}
             <div className="inline-flex items-center gap-1.5 rounded-full bg-[#fde5d6]/80 border border-[#f5ded0] text-[#942008] text-[0.6875rem] sm:text-xs font-bold uppercase tracking-wider px-3 py-1 mb-2">
-              {/* <Search size={11} className="text-[#c4431d]" /> */}
               <span>GAMIFICATION &amp; RECOGNITION</span>
             </div>
             <h1 className="text-2xl sm:text-[1.75rem] font-bold text-stone-900 tracking-tight">
@@ -273,6 +273,7 @@ export default function AdminBadges() {
               Create, edit, and award custom mastery badges and milestone honors to students.
             </p>
           </div>
+          */}
 
           <button
             onClick={openCreateModal}
@@ -315,7 +316,7 @@ export default function AdminBadges() {
 
         {/* Badges Grid matching reference image */}
         {isLoading ? (
-          <div className="p-16 text-center text-stone-400 font-medium text-xs sm:text-sm">Loading badges...</div>
+          <CardGridSkeleton count={6} />
         ) : filteredBadges.length === 0 ? (
           <div className="text-center py-16 rounded-2xl border border-dashed border-stone-300 bg-white/70 p-8">
             <Award size={36} className="text-stone-300 mx-auto mb-3" />

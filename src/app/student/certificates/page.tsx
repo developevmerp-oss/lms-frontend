@@ -3,15 +3,18 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import { StudentNav } from "@/components/layout/StudentNav";
 
 export default function StudentCertificates() {
   const { token, user, logout } = useAuth();
   const [certificates, setCertificates] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
+    setIsLoading(true);
     fetch(`${API_BASE_URL}/certificates/mine`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -19,12 +22,13 @@ export default function StudentCertificates() {
       .then(data => {
         if (Array.isArray(data)) setCertificates(data);
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => setIsLoading(false));
   }, [token]);
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -34,21 +38,26 @@ export default function StudentCertificates() {
     >
       <StudentNav user={user} level={user?.membershipLevel || "General"} points={user?.points || 0} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
             <span>Student Hub</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">My Certificates</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
             My Certificates
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             View and download your earned credentials.
           </p>
         </header>
+        */}
 
+          {isLoading ? (
+          <CardGridSkeleton count={2} />
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {certificates.length === 0 && (
               <div className="col-span-full py-12 text-center text-stone-400">
@@ -86,7 +95,8 @@ export default function StudentCertificates() {
               </div>
             ))}
           </div>
-        </main>
+          )}
+      </main>
     </div>
   );
 }

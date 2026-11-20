@@ -40,6 +40,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
 
 interface LevelTier {
@@ -494,24 +495,25 @@ export default function AdminLevels() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              {/* <Trophy size={13} className="text-[#c4431d]" /> */}
               <span>Memberships</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Tier Hierarchy &amp; Pricing</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Membership Level &amp; Price Settings
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Manage level titles, customize offer prices (₹499, ₹4,999, ₹19,999, ₹59,999), and edit access privileges.
             </p>
           </div>
+          */}
 
           <button
             onClick={openCreateModal}
@@ -594,7 +596,7 @@ export default function AdminLevels() {
 
         {/* Level Tiers Grid */}
         {isLoading ? (
-          <div className="p-16 text-center text-stone-400 text-xs sm:text-sm lg:text-base">Loading level configurations...</div>
+          <CardGridSkeleton count={4} />
         ) : levels.length === 0 ? (
           <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/40 p-8">
             <Trophy size={40} className="text-stone-400 mx-auto mb-3" />

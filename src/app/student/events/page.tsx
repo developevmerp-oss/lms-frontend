@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav, getLevelCode } from "@/components/layout/StudentNav";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Calendar,
@@ -148,7 +149,7 @@ export default function StudentEventsPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -164,23 +165,24 @@ export default function StudentEventsPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6">
+          {/*
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              {/* <Calendar size={13} className="text-[#942008]" /> */}
               <span>Live Coaching</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Live Coaching &amp; Attendance Portal</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Live Coaching &amp; Attendance Portal
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Join live interactive coaching sessions with Vrajangna Patel. Clicking &quot;Join Live Class&quot; marks your attendance and awards bonus XP.
             </p>
           </div>
+          */}
 
           <div className="flex items-center gap-2 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-1.5 rounded-2xl self-start md:self-auto">
             <button
@@ -214,7 +216,9 @@ export default function StudentEventsPage() {
         )}
 
         {/* Access Check */}
-        {!isAccessible ? (
+        {loading ? (
+          <CardGridSkeleton count={6} />
+        ) : !isAccessible ? (
           <div className="rounded-3xl border border-[#ecdccb] bg-white/95 p-8 md:p-12 text-center max-w-2xl mx-auto shadow-2xl">
             <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto mb-4">
               <Lock size={32} />

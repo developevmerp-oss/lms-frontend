@@ -55,6 +55,12 @@ export default function StudentDashboard() {
       .then((data) => {
         if (data && !data.message) {
           setStats(data);
+          if (Array.isArray(data.levelTiers) && data.levelTiers.length > 0) {
+            setLiveTiers(data.levelTiers);
+            try {
+              sessionStorage.setItem("cached_level_tiers", JSON.stringify(data.levelTiers));
+            } catch (_) {}
+          }
           try {
             sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
           } catch (_) {}
@@ -181,7 +187,7 @@ export default function StudentDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -197,7 +203,7 @@ export default function StudentDashboard() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-7 py-5 sm:py-6 space-y-4 md:space-y-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-5 sm:space-y-6">
         {isLoading ? (
           <DashboardSkeleton />
         ) : isGeneral ? (
@@ -207,13 +213,14 @@ export default function StudentDashboard() {
             </div>
 
             <div className="space-y-1">
+              {/*
               <div className="flex items-center justify-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-                {/* <Sparkles size={13} /> */}
                 <span>Student Hub</span>
                 <span className="text-stone-300">/</span>
                 <span className="text-stone-700 font-medium">Level 0 Fast Track Required</span>
               </div>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              */}
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
                 Dashboard Locked for General Members
               </h1>
               <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed max-w-xl mx-auto">
@@ -410,7 +417,7 @@ export default function StudentDashboard() {
             </div>
 
             {/* Row 4: 4 Cards (Portfolio Projects, Sales & Income, Badges Earned, Rewards Store) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-5 items-stretch">
               <PortfolioGallery portfolios={stats.portfolios} />
               <SalesAndCommunity
                 sales={stats.salesRecords}

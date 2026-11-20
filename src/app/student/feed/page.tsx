@@ -58,7 +58,7 @@ export default function StudentFeedPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -74,20 +74,22 @@ export default function StudentFeedPage() {
         notifications={userStats.notifications}
       />
 
-      <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
             <span>Community</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">Sisterhood Community Feed</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
-            {/* <Sparkles className="text-[#c4431d]" size={28} /> */} Sisterhood Community Feed
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+            Sisterhood Community Feed
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             Live sisterhood sales, resin artwork showcases, student milestones, and mentor updates.
           </p>
         </header>
+        */}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Community Feed (8 Cols) */}
@@ -111,22 +113,37 @@ export default function StudentFeedPage() {
                 Earn badges by completing courses, sales milestones, and Art-o-Thon challenges.
               </p>
               <div className="flex flex-col gap-2.5">
-                {displayBadges.map((b: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3.5 rounded-2xl bg-[#faf8f5]/80 hover:bg-[#f6f2ed] transition-colors"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-xl shrink-0">{b.icon || "🏆"}</span>
-                      <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
-                        {b.name}
+                {isLoading ? (
+                  Array.from({ length: 4 }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3.5 rounded-2xl bg-[#faf8f5]/80"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-7 h-7 rounded-full shimmer-box shrink-0" />
+                        <div className="w-28 h-4 rounded shimmer-box" />
+                      </div>
+                      <div className="w-12 h-4 rounded shimmer-box shrink-0" />
+                    </div>
+                  ))
+                ) : (
+                  displayBadges.map((b: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3.5 rounded-2xl bg-[#faf8f5]/80 hover:bg-[#f6f2ed] transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-xl shrink-0">{b.icon || "🏆"}</span>
+                        <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
+                          {b.name}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-[#c4431d] shrink-0 font-mono">
+                        {b.pointsRequired || 100} XP
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-[#c4431d] shrink-0 font-mono">
-                      {b.pointsRequired || 100} XP
-                    </span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 

@@ -23,6 +23,7 @@ import {
   Lock,
 } from "lucide-react";
 import Link from "next/link";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
 
@@ -123,7 +124,7 @@ export default function StudentWebinarPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -139,7 +140,7 @@ export default function StudentWebinarPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
         {isGeneral ? (
           <div className="py-16 px-4 max-w-2xl mx-auto text-center space-y-6">
             <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border-2 border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto shadow-2xl">
@@ -151,7 +152,7 @@ export default function StudentWebinarPage() {
                 <span className="text-stone-300">/</span>
                 <span className="text-stone-700 font-medium">Live Webinar Hub</span>
               </div>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
                 Live Webinar Hub is Locked
               </h1>
               <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
@@ -169,20 +170,22 @@ export default function StudentWebinarPage() {
         ) : (
           <>
         {/* Header: Webinar Schedule Hub + Tabs */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-1 mb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-end gap-4 pt-1 mb-6">
+          {/*
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
               <span>Live Events</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Webinar Schedule Hub</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Webinar Schedule Hub
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Browse, register, and join upcoming masterclasses and live webinars.
             </p>
           </div>
+          */}
 
           {/* Top Right Tab Buttons */}
           <div className="flex items-center gap-3 self-start md:self-auto shrink-0 flex-wrap">
@@ -234,7 +237,7 @@ export default function StudentWebinarPage() {
 
         {/* Webinars Grid */}
         {loading ? (
-          <div className="p-16 text-center text-stone-400">Loading masterclass schedules...</div>
+          <CardGridSkeleton count={4} />
         ) : activeTab === "upcoming" ? (
           upcomingWebinars.length === 0 ? (
             <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/95 p-8">

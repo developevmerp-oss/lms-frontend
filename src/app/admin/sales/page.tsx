@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { IndianRupee, Trash2, TrendingUp, BarChart2, Info, ShieldCheck } from "lucide-react";
 
+import { AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 export default function AdminSalesRecords() {
@@ -64,21 +65,23 @@ export default function AdminSalesRecords() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <header className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
               <span>Students &amp; CRM</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Student Revenue &amp; Sales</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
-              {/* <IndianRupee className="text-green-500" /> */} Student Revenue &amp; Sales Monitor
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Student Revenue &amp; Sales Monitor
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Review live client orders and commercial revenue logged directly by students.
             </p>
           </div>
+          */}
           {successMsg && (
             <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full self-start md:self-auto">
               ✓ {successMsg}
@@ -132,7 +135,7 @@ export default function AdminSalesRecords() {
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-stone-400 font-medium">Loading student records...</div>
+            <AdminTableSkeleton rows={5} cols={5} />
           ) : displayedSales.length === 0 ? (
             <div className="p-12 text-center text-stone-400 font-medium">No sales records found.</div>
           ) : (

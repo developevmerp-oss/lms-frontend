@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus, IndianRupee, Layers, ArrowRight, Search, ArrowUpDown, User, Eye, MoreHorizontal, X } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
+import { StatCardSkeleton, AdminTableSkeleton, CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
 import { uploadMediaFile } from "@/utils/uploadFile";
@@ -279,7 +279,8 @@ export default function AdminDashboard() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
         <header className="flex flex-wrap justify-between items-start gap-4 mb-6">
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
@@ -287,7 +288,7 @@ export default function AdminDashboard() {
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Command Center</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Admin Command Center
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
@@ -295,6 +296,7 @@ export default function AdminDashboard() {
             </p>
           </div>
         </header>
+        */}
 
         {/* Tabs */}
         <div className="inline-flex items-center gap-1.5 mb-6 bg-white/95 border border-[#ecdccb] p-1.5 rounded-full max-w-full overflow-x-auto scrollbar-none shadow-[0_4px_16px_-4px_rgba(90,55,20,0.06)] backdrop-blur-md">
@@ -359,7 +361,7 @@ export default function AdminDashboard() {
                           <h2 className="text-lg font-black text-stone-900">
                             Course &amp; Level-Wise Revenue Breakdown
                           </h2>
-                          <span className="text-[10px] font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
+                          <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
                             Real-time
                           </span>
                         </div>
@@ -370,7 +372,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="sm:text-right shrink-0">
-                      <span className="text-[11px] font-semibold text-stone-500 block">Total Platform Value:</span>
+                      <span className="text-xs font-semibold text-stone-500 block">Total Platform Value:</span>
                       <p className="text-2xl font-black text-emerald-600 font-mono leading-tight">
                         ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
                       </p>
@@ -456,7 +458,7 @@ export default function AdminDashboard() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-[11px] font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-full shrink-0">
+                    <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-full shrink-0">
                       {revenueData.totalStudents} Students
                     </span>
                   </div>
@@ -487,7 +489,7 @@ export default function AdminDashboard() {
                                 <span>{t.icon}</span>
                                 <span className="truncate">{t.name}</span>
                               </p>
-                              <p className="text-[11px] font-mono font-semibold text-amber-700">{t.price}</p>
+                              <p className="text-xs font-mono font-semibold text-amber-700">{t.price}</p>
                             </div>
                           </div>
 
@@ -497,11 +499,11 @@ export default function AdminDashboard() {
                               <p className="text-xs sm:text-sm font-black text-emerald-700 font-mono">
                                 ₹{t.estimatedRevenue.toLocaleString("en-IN")}
                               </p>
-                              <p className="text-[10px] text-stone-400 font-semibold">Revenue</p>
+                              <p className="text-xs text-stone-400 font-semibold">Revenue</p>
                             </div>
                             <div className="min-w-[50px]">
                               <p className="text-xs sm:text-sm font-black text-stone-800">{t.enrolledCount}</p>
-                              <p className="text-[10px] text-stone-400 font-semibold">Students</p>
+                              <p className="text-xs text-stone-400 font-semibold">Students</p>
                             </div>
                           </div>
 
@@ -545,12 +547,12 @@ export default function AdminDashboard() {
                     <table className="w-full text-sm">
                       <thead className="sticky top-0 bg-white/95 z-10">
                         <tr className="border-b border-[#ecdccb]/80 text-stone-500">
-                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Student</th>
-                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Level</th>
-                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">XP</th>
-                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Streak</th>
-                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Courses</th>
-                          <th className="text-left pb-3 font-bold text-[11px] uppercase tracking-wider text-stone-500">Milestones</th>
+                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Student</th>
+                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Level</th>
+                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">XP</th>
+                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Streak</th>
+                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Courses</th>
+                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Milestones</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -625,7 +627,7 @@ export default function AdminDashboard() {
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start gap-2">
                             <h4 className="font-bold text-stone-900 text-xs sm:text-sm truncate">{n.title}</h4>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 ${
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold shrink-0 ${
                               n.isRead
                                 ? 'bg-stone-100 text-stone-500'
                                 : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
@@ -634,7 +636,7 @@ export default function AdminDashboard() {
                             </span>
                           </div>
                           <p className="text-xs text-stone-600 mt-0.5 line-clamp-2 leading-relaxed">{n.message}</p>
-                          <p className="text-[11px] text-stone-400 font-medium mt-1">To: {n.user?.name || 'Student'}</p>
+                          <p className="text-xs text-stone-400 font-medium mt-1">To: {n.user?.name || 'Student'}</p>
                         </div>
                       </div>
                     ))}
@@ -811,18 +813,18 @@ export default function AdminDashboard() {
                         </td>
                         <td className="py-3.5 px-3 align-middle whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
                               n.isRead
                                 ? 'bg-stone-100 text-stone-500 border border-stone-200'
                                 : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                             }`}
                           >
-                            {n.isRead ? 'Read' : 'Unread'}
+                            {n.isRead ? 'Seen' : 'Unseen'}
                           </span>
                         </td>
                         <td className="py-3.5 px-3 align-middle whitespace-nowrap">
                           {n.createdAt ? (
-                            <div className="text-[11px] leading-tight">
+                            <div className="text-xs leading-tight">
                               <p className="font-semibold text-stone-700">
                                 {new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </p>
@@ -839,10 +841,11 @@ export default function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => setViewingNotification(n)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                              className="p-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 hover:text-[#942008] transition-colors cursor-pointer shadow-2xs"
+                              title="View Notification Details"
+                              aria-label="View"
                             >
-                              <Eye size={13} />
-                              <span>View</span>
+                              <Eye size={15} />
                             </button>
                             <button
                               type="button"
@@ -850,11 +853,11 @@ export default function AdminDashboard() {
                                 setNotifTitle(n.title || '');
                                 setNotifMessage(n.message || '');
                               }}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#fff5ee] border border-[#f5ded0] text-[#c4431d] text-xs font-bold transition-colors cursor-pointer shadow-2xs"
-                              title="Copy title & message to Send Notification form"
+                              className="p-2 rounded-xl bg-white hover:bg-[#fff5ee] border border-[#f5ded0] text-[#c4431d] transition-colors cursor-pointer shadow-2xs"
+                              title="Resend Notification"
+                              aria-label="Resend"
                             >
-                              <Send size={12} />
-                              <span>Resend</span>
+                              <Send size={15} />
                             </button>
                           </div>
                         </td>
@@ -920,7 +923,7 @@ export default function AdminDashboard() {
                       : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                   }`}
                 >
-                  {viewingNotification.isRead ? 'Read' : 'Unread'}
+                  {viewingNotification.isRead ? 'Seen' : 'Unseen'}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -1101,7 +1104,7 @@ export default function AdminDashboard() {
                           <h4 className="font-bold text-stone-900 text-sm flex items-center gap-2">
                             {w.studentName}
                             {w.studentName?.includes('Admin') && (
-                              <span className="text-[10px] font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-md">Admin</span>
+                              <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-md">Admin</span>
                             )}
                           </h4>
                           <p className="text-xs text-stone-600 mt-1 leading-relaxed">{w.achievement}</p>
@@ -1160,7 +1163,7 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="truncate min-w-0">
                                   <p className="text-xs font-bold text-stone-900 truncate">Attached Document / File</p>
-                                  <p className="text-[10px] text-stone-500">Click to download or view</p>
+                                  <p className="text-xs text-stone-500">Click to download or view</p>
                                 </div>
                               </div>
                               <a
@@ -1168,7 +1171,7 @@ export default function AdminDashboard() {
                                 download="community-file"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-3 py-1 rounded-xl bg-[#fde5d6] hover:bg-[#f8d4bf] border border-[#f5ded0] text-[#942008] text-[11px] font-bold transition-all shrink-0"
+                                className="px-3 py-1 rounded-xl bg-[#fde5d6] hover:bg-[#f8d4bf] border border-[#f5ded0] text-[#942008] text-xs font-bold transition-all shrink-0"
                               >
                                 Download File
                               </a>
@@ -1188,14 +1191,14 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="truncate min-w-0">
                                   <p className="text-xs font-bold text-stone-900 truncate">External Web Link</p>
-                                  <p className="text-[10px] text-stone-500 truncate">{mediaUrl}</p>
+                                  <p className="text-xs text-stone-500 truncate">{mediaUrl}</p>
                                 </div>
                               </div>
                               <a
                                 href={mediaUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-3 py-1 rounded-xl bg-sky-100 hover:bg-sky-200 border border-sky-300 text-sky-800 text-[11px] font-bold transition-all shrink-0 flex items-center gap-1"
+                                className="px-3 py-1 rounded-xl bg-sky-100 hover:bg-sky-200 border border-sky-300 text-sky-800 text-xs font-bold transition-all shrink-0 flex items-center gap-1"
                               >
                                 Open Link ↗
                               </a>

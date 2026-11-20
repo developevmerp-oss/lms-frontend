@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
+import { TableRowSkeleton, CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users,
@@ -328,7 +329,7 @@ export default function AdminWebinarCRM() {
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Webinar Management &amp; Leads CRM</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Webinar Management &amp; Leads CRM
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
@@ -495,9 +496,7 @@ export default function AdminWebinarCRM() {
         {activeTab === "events" && (
           <div className="space-y-4">
             {eventsLoading ? (
-              <div className="p-12 text-center text-stone-500 bg-white/95 border border-[#ecdccb] rounded-3xl">
-                Loading scheduled webinars...
-              </div>
+              <CardGridSkeleton count={2} />
             ) : events.length === 0 ? (
               <div className="p-12 text-center bg-white/95 border border-[#ecdccb] rounded-3xl space-y-3">
                 <Calendar size={36} className="mx-auto text-stone-300" />
@@ -759,11 +758,9 @@ export default function AdminWebinarCRM() {
                   </thead>
                   <tbody className="divide-y divide-stone-100">
                     {loading ? (
-                      <tr>
-                        <td colSpan={7} className="p-8 text-center text-stone-400 font-medium">
-                          Loading registrations...
-                        </td>
-                      </tr>
+                      Array.from({ length: 6 }).map((_, i) => (
+                        <TableRowSkeleton key={i} cols={7} />
+                      ))
                     ) : registrations.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="p-12 text-center text-stone-400 font-medium">
