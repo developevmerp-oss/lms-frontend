@@ -159,11 +159,11 @@ export const RewardsStore = ({
                 />
               </div>
               {/* Reward title */}
-              <p className="text-[10px] font-bold text-stone-800 truncate w-full text-center mt-1 group-hover:text-[#c4431d] transition-colors">
+              <p className="text-xs font-bold text-stone-800 truncate w-full text-center mt-1 group-hover:text-[#c4431d] transition-colors">
                 {reward.title}
               </p>
               {/* XP Pill Tag */}
-              <span className="mt-0.5 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#fff2ea] text-[#c4431d] border border-[#fbdcd0] transition-colors whitespace-nowrap">
+              <span className="mt-0.5 text-xs sm:text-xs font-extrabold px-1.5 py-0.5 rounded-md bg-[#fff2ea] text-[#c4431d] border border-[#fbdcd0] transition-colors whitespace-nowrap">
                 {reward.pointCost} XP
               </span>
             </Link>

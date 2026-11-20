@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
 import { ClipboardList, CheckCircle2, Clock, Upload, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import { getLevelCode } from "@/components/layout/StudentNav";
 
@@ -15,9 +16,11 @@ export default function StudentAssignments() {
   const [showSubmitModal, setShowSubmitModal] = useState<string | null>(null);
   const [fileUrl, setFileUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     if (!token) return;
+    setIsLoading(true);
     try {
       // Nav Stats
       const statsRes = await fetch(`${API_BASE_URL}/dashboard/student`, {
@@ -45,6 +48,8 @@ export default function StudentAssignments() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,7 +116,7 @@ export default function StudentAssignments() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -127,29 +132,54 @@ export default function StudentAssignments() {
         notifications={stats.notifications}
       />
 
-      <main className="flex-1 w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
             <span>Learning &amp; Growth</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">Daily Tasks &amp; Missions</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
-            {/* <ClipboardList className="text-[#c4431d]" size={28} /> */} Daily Tasks &amp; Missions
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+            Daily Tasks &amp; Missions
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             Complete assignments to earn XP points and maintain your streak!
           </p>
         </header>
+        */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {assignments.length === 0 && (
-             <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl">
-               <CheckCircle2 size={64} className="text-green-500/50 mb-4" />
-               <h3 className="text-xl font-bold text-stone-900 mb-2">You're All Caught Up!</h3>
-               <p className="text-stone-500">No active assignments available right now. Take a break or explore new courses.</p>
-             </div>
-          )}
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-sm flex flex-col space-y-4"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="w-48 h-6 rounded-lg shimmer-box" />
+                  <div className="w-16 h-6 rounded-full shimmer-box" />
+                </div>
+                <div className="space-y-2">
+                  <div className="w-full h-3.5 rounded shimmer-box" />
+                  <div className="w-4/5 h-3.5 rounded shimmer-box" />
+                </div>
+                <div className="flex justify-between items-center pt-4">
+                  <div className="w-28 h-4 rounded shimmer-box" />
+                  <div className="w-32 h-10 rounded-xl shimmer-box" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {assignments.length === 0 && (
+               <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl">
+                 <CheckCircle2 size={64} className="text-green-500/50 mb-4" />
+                 <h3 className="text-xl font-bold text-stone-900 mb-2">You're All Caught Up!</h3>
+                 <p className="text-stone-500">No active assignments available right now. Take a break or explore new courses.</p>
+               </div>
+            )}
 
           {assignments.map((assn, idx) => {
             const mySubmission = assn.submissions?.find((sub: any) => sub.studentId === user?.id);
@@ -203,6 +233,7 @@ export default function StudentAssignments() {
             );
           })}
         </div>
+        )}
       </main>
 
       {/* Submit Assignment Modal */}

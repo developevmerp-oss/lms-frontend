@@ -52,9 +52,31 @@ export const MyCourses = ({
 
   // Check student enrolled status for tiers
   const normalizedLevel = (userLevel || currentTier?.code || 'L0').toUpperCase();
-  const isL1Enrolled = ['L1', 'L2', 'L3', 'L3+'].some((l) => normalizedLevel.includes(l));
-  const isL2Enrolled = ['L2', 'L3', 'L3+'].some((l) => normalizedLevel.includes(l));
-  const isL3Enrolled = ['L3', 'L3+'].some((l) => normalizedLevel.includes(l));
+  const LEVEL_HIERARCHY: Record<string, number> = {
+    GENERAL: -1,
+    L0: 0,
+    L1: 1,
+    L2: 2,
+    L3: 3,
+    'L3+': 4,
+  };
+  const studentRankNum = LEVEL_HIERARCHY[normalizedLevel] ?? 0;
+
+  const isTierEnrolled = (tierCode: string, tierOrder?: number) => {
+    if (normalizedLevel === 'GENERAL') return false;
+    const code = (tierCode || '').toUpperCase();
+    if (code === 'L0') return true;
+    const req = typeof tierOrder === 'number' ? tierOrder : (LEVEL_HIERARCHY[code] ?? 0);
+    return studentRankNum >= req;
+  };
+
+  const LEVEL_COLORS: Record<string, string> = {
+    L0: 'bg-[#ffedd5] text-[#c2410c]',
+    L1: 'bg-[#fce7f3] text-[#be185d]',
+    L2: 'bg-[#ede9fe] text-[#6d28d9]',
+    L3: 'bg-[#e0f2fe] text-[#0284c7]',
+    'L3+': 'bg-purple-100 text-purple-800',
+  };
 
   const resolveTier = (
     lvl: string,
@@ -74,7 +96,9 @@ export const MyCourses = ({
     const cardImage = liveThumb ? getImageUrl(liveThumb) : null;
     const title = liveLevel?.name || defaultTitle;
     const subtitle = liveLevel?.description || defaultSub;
-    const price = liveLevel?.price ? `₹${Number(liveLevel.price).toLocaleString('en-IN')}` : defaultPrice;
+    const price = liveLevel?.price
+      ? (String(liveLevel.price).startsWith('₹') ? String(liveLevel.price) : `₹${Number(liveLevel.price).toLocaleString('en-IN')}`)
+      : defaultPrice;
 
     return {
       id: `${lvl.toLowerCase()}-card`,
@@ -89,7 +113,7 @@ export const MyCourses = ({
     };
   };
 
-  // The 4 Membership Level Cards matching the Courses page exact naming & images
+  // Default fallback cards if no active tiers returned yet
   const defaultCards: CourseCardItem[] = [
     resolveTier(
       'L0',
@@ -97,7 +121,7 @@ export const MyCourses = ({
       'Foundations, chemistry, and first creations',
       '₹399',
       'bg-[#ffedd5] text-[#c2410c]',
-      true
+      isTierEnrolled('L0', 0)
     ),
     resolveTier(
       'L1',
@@ -105,7 +129,7 @@ export const MyCourses = ({
       'Core techniques, first client sale, and portfolio building',
       '₹4,999',
       'bg-[#fce7f3] text-[#be185d]',
-      isL1Enrolled
+      isTierEnrolled('L1', 1)
     ),
     resolveTier(
       'L2',
@@ -113,7 +137,7 @@ export const MyCourses = ({
       'High-ticket geode clocks, bridal preservation, and consistent revenue',
       '₹19,999',
       'bg-[#ede9fe] text-[#6d28d9]',
-      isL2Enrolled
+      isTierEnrolled('L2', 2)
     ),
     resolveTier(
       'L3',
@@ -121,9 +145,50 @@ export const MyCourses = ({
       'Scale beyond ₹50K/month, furniture river tables, and corporate orders',
       '₹59,999',
       'bg-[#e0f2fe] text-[#0284c7]',
-      isL3Enrolled
+      isTierEnrolled('L3', 3)
     ),
   ];
+
+  // Dynamic cards mapped directly from level tiers defined by admin
+  const dynamicCards: CourseCardItem[] = useMemo(() => {
+    if (!activeTiers || activeTiers.length === 0) return [];
+
+    return [...activeTiers]
+      .filter((tier: any) => {
+        const code = (tier.code || tier.levelCode || '').toUpperCase();
+        const enrolled = isTierEnrolled(code, tier.order);
+        if (tier.isPublished === false && !enrolled) return false;
+        return true;
+      })
+      .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+      .map((tier: any, idx: number) => {
+        const code = (tier.code || tier.levelCode || `L${idx}`).toUpperCase();
+        const liveThumb = tier.thumbnail || tier.image || tier.bannerImage;
+        const cardImage = liveThumb ? getImageUrl(liveThumb) : null;
+        const title = tier.name || `${code} Membership`;
+        const subtitle = tier.description || `Includes ${code} courses and masterclasses.`;
+        const price = tier.price
+          ? (String(tier.price).startsWith('₹') ? String(tier.price) : `₹${Number(tier.price).toLocaleString('en-IN')}`)
+          : '₹499';
+        const isEnrolled = isTierEnrolled(code, tier.order);
+        const levelColor = LEVEL_COLORS[code] || 'bg-amber-50 text-amber-800';
+
+        return {
+          id: tier.id || `${code.toLowerCase()}-card`,
+          levelTag: code,
+          levelColor,
+          title,
+          subtitle,
+          image: cardImage,
+          isEnrolled,
+          price,
+          tierCode: code,
+        };
+      });
+  }, [activeTiers, normalizedLevel, studentRankNum]);
+
+  // Show only 3 cards on dashboard side per user request
+  const cardsToDisplay = (dynamicCards.length > 0 ? dynamicCards : defaultCards).slice(0, 3);
 
   const handleCardClick = (course: CourseCardItem) => {
     router.push(`/student/courses?level=${course.levelTag}&action=open`);
@@ -159,9 +224,9 @@ export const MyCourses = ({
         </p>
       </div>
 
-      {/* Grid of Course Cards (L0, L1, L2, L3) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4 flex-1">
-        {defaultCards.map((course) => {
+      {/* Grid of Course Cards (Dynamic from Admin - exactly 3 cards for clean dashboard row) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 flex-1">
+        {cardsToDisplay.map((course) => {
           return (
             <div
               key={course.id}
@@ -173,17 +238,17 @@ export const MyCourses = ({
                 {/* Top Badges Row */}
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span
-                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${course.levelColor}`}
+                    className={`text-xs font-extrabold px-2 py-0.5 rounded-md ${course.levelColor}`}
                   >
                     {course.levelTag}
                   </span>
 
                   {course.isEnrolled ? (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#dcfce7] text-[#15803d] flex items-center gap-1">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#dcfce7] text-[#15803d] flex items-center gap-1">
                       <Check size={10} strokeWidth={3} /> Enrolled
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 flex items-center gap-1 border border-stone-200">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 flex items-center gap-1 border border-stone-200">
                       <Lock size={10} /> Locked
                     </span>
                   )}
@@ -200,7 +265,7 @@ export const MyCourses = ({
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-stone-100 via-stone-200/60 to-amber-50/80 flex flex-col items-center justify-center gap-1 p-2 text-center">
                       <BookOpen size={22} className="text-[#942008]/40" />
-                      <span className="text-[10px] font-bold text-stone-600 line-clamp-1">{course.title}</span>
+                      <span className="text-xs font-bold text-stone-600 line-clamp-1">{course.title}</span>
                     </div>
                   )}
                 </div>
@@ -212,14 +277,14 @@ export const MyCourses = ({
                 >
                   {course.title}
                 </h3>
-                <p className="text-[11px] text-stone-500 line-clamp-1 mt-0.5 leading-tight">
+                <p className="text-xs text-stone-500 line-clamp-1 mt-0.5 leading-tight">
                   {course.subtitle}
                 </p>
               </div>
 
               {/* Bottom Action Row (Percentage tracking removed per user request) */}
               <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#c4431d] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span className="text-xs font-bold text-[#c4431d] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                   <span>{course.isEnrolled ? 'Open Next Step' : course.price || 'Unlock'}</span>
                   <ArrowRight size={12} />
                 </span>

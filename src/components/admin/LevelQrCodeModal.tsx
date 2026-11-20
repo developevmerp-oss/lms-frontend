@@ -249,14 +249,14 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">{tier.icon || "⭐"}</span>
             <div>
-              <div className="text-[10px] font-black uppercase text-[#942008] tracking-wider">
+              <div className="text-xs font-black uppercase text-[#942008] tracking-wider">
                 {tier.code} Tier
               </div>
               <div className="text-sm font-black text-stone-900">{tier.name}</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] font-bold text-stone-500">Price</div>
+            <div className="text-xs font-bold text-stone-500">Price</div>
             <div className="text-sm font-black text-[#942008] font-mono">
               {displayPrice}
             </div>
@@ -280,14 +280,14 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
             )}
           </div>
           <div className="text-center mt-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-[11px] font-bold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-xs font-bold">
               <Smartphone size={12} /> Scan with any Camera / Google Lens
             </span>
           </div>
         </div>
 
         {/* Redirect Behavior Explanation */}
-        <div className="my-4 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-[11px] space-y-1.5 text-stone-600">
+        <div className="my-4 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs space-y-1.5 text-stone-600">
           <div className="font-bold text-stone-900 flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-emerald-400" />
             Seamless Student Flow:
@@ -308,17 +308,17 @@ export const LevelQrCodeModal: React.FC<LevelQrCodeModalProps> = ({
 
         {/* Direct Link & Copy */}
         <div className="space-y-1.5 mb-5">
-          <label className="text-[11px] font-bold text-stone-600">Direct Link:</label>
+          <label className="text-xs font-bold text-stone-600">Direct Link:</label>
           <div className="flex items-center gap-2 bg-[#faf8f5] border border-stone-200 rounded-xl p-2 text-xs">
             <input
               type="text"
               readOnly
               value={targetUrl}
-              className="bg-transparent border-none text-stone-800 flex-1 font-mono text-[11px] focus:outline-none select-all"
+              className="bg-transparent border-none text-stone-800 flex-1 font-mono text-xs focus:outline-none select-all"
             />
             <button
               onClick={handleCopyLink}
-              className="px-2.5 py-1 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+              className="px-2.5 py-1 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer shrink-0"
               title="Copy to clipboard"
             >
               {copied ? (

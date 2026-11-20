@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Award, Plus, X, ExternalLink, CheckCircle2 } from "lucide-react";
+import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 export default function AdminCertificates() {
@@ -16,12 +17,15 @@ export default function AdminCertificates() {
   const [courseId, setCourseId] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
   const fetchData = async () => {
     if (!token) return;
+    setIsLoading(true);
     try {
       const [certRes, studentsRes, coursesRes] = await Promise.all([
         fetch(`${API_BASE_URL}/certificates`, { headers }),
@@ -32,35 +36,71 @@ export default function AdminCertificates() {
       const studentsData = await studentsRes.json();
       const coursesData = await coursesRes.json();
       if (Array.isArray(certData)) setCertificates(certData);
-      if (Array.isArray(studentsData)) setStudents(studentsData);
-      if (Array.isArray(coursesData)) setCourses(coursesData);
+      if (Array.isArray(studentsData)) {
+        setStudents(studentsData);
+        if (studentsData.length > 0) setStudentId((prev) => prev || studentsData[0].id);
+      }
+      if (Array.isArray(coursesData)) {
+        setCourses(coursesData);
+        if (coursesData.length > 0) setCourseId((prev) => prev || coursesData[0].id);
+      }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => { fetchData(); }, [token]);
 
+  const handleOpenModal = () => {
+    if (students.length > 0 && !studentId) {
+      setStudentId(students[0].id);
+    }
+    if (courses.length > 0 && !courseId) {
+      setCourseId(courses[0].id);
+    }
+    setErrorMsg("");
+    setShowModal(true);
+  };
+
   const handleAward = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!studentId || !courseId) {
+      setErrorMsg("Please select both a student and a course.");
+      return;
+    }
     setIsSubmitting(true);
+    setErrorMsg("");
     try {
+      const selectedCourse = courses.find((c) => c.id === courseId);
+      const courseTitle = selectedCourse?.title || "Resin Art Masterclass";
+      const certUrl = pdfUrl.trim() || `https://res.cloudinary.com/dummy/certificates/${studentId}_${courseId}.pdf`;
+
       const res = await fetch(`${API_BASE_URL}/certificates/award`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ studentId, courseId, pdfUrl }),
+        body: JSON.stringify({
+          studentId,
+          courseId,
+          pdfUrl: certUrl,
+          certificateUrl: certUrl,
+          title: `${courseTitle} Completion Certificate`,
+        }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setShowModal(false);
-        setStudentId("");
-        setCourseId("");
         setPdfUrl("");
         await fetchData();
-        setSuccessMsg("Certificate awarded!");
-        setTimeout(() => setSuccessMsg(""), 3000);
+        setSuccessMsg("Certificate awarded successfully!");
+        setTimeout(() => setSuccessMsg(""), 3500);
+      } else {
+        setErrorMsg(data?.message || data?.error || "Failed to award certificate. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setErrorMsg(err?.message || "Failed to connect to server. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -78,20 +118,22 @@ export default function AdminCertificates() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
+            {/*
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
               <span>Learning &amp; Courses</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Certificate Management</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
-              {/* <Award className="text-[#c4431d]" /> */} Certificate Management
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Certificate Management
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Award course completion certificates to students.
             </p>
+            */}
           </div>
           <div className="flex items-center gap-4">
             {successMsg && (
@@ -100,7 +142,7 @@ export default function AdminCertificates() {
               </span>
             )}
             <button
-              onClick={() => setShowModal(true)}
+              onClick={handleOpenModal}
               className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
             >
               <Plus size={18} /> Award Certificate
@@ -108,16 +150,27 @@ export default function AdminCertificates() {
           </div>
         </header>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        {isLoading ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </div>
+            <AdminTableSkeleton rows={5} cols={4} />
+          </div>
+        ) : (
+          <>
+          {/* Stats Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {[
             { label: "Total Awarded", value: certificates.length, color: "text-yellow-400" },
             { label: "Students Certified", value: new Set(certificates.map(c => c.userId || c.studentId)).size, color: "text-green-400" },
             { label: "Courses Covered", value: new Set(certificates.map(c => c.courseId)).size, color: "text-blue-400" },
           ].map(stat => (
             <div key={stat.label} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 shadow-[0_4px_16px_-4px_rgba(45,30,15,0.06)]">
-              <p className="text-stone-500 text-sm mb-1 font-bold">{stat.label}</p>
-              <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+              <p className="text-stone-500 text-xs sm:text-sm mb-1 font-bold">{stat.label}</p>
+              <p className={`text-2xl sm:text-3xl lg:text-4xl font-black ${stat.color}`}>{stat.value}</p>
             </div>
           ))}
         </div>
@@ -184,6 +237,8 @@ export default function AdminCertificates() {
             </div>
           )}
         </div>
+        </>
+        )}
       </main>
 
       {/* Award Certificate Modal */}
@@ -203,18 +258,27 @@ export default function AdminCertificates() {
             </div>
 
             <form onSubmit={handleAward} className="space-y-5">
+              {errorMsg && (
+                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 text-xs font-bold leading-relaxed">
+                  ⚠️ {errorMsg}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">Select Student</label>
                 <select
                   required
                   value={studentId}
                   onChange={(e) => setStudentId(e.target.value)}
-                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors cursor-pointer"
                 >
-                  <option value="" disabled>-- Choose a student --</option>
-                  {students.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name} ({s.email})</option>
-                  ))}
+                  {students.length === 0 ? (
+                    <option value="" disabled>No students available</option>
+                  ) : (
+                    students.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name} ({s.email})</option>
+                    ))
+                  )}
                 </select>
               </div>
 
@@ -224,12 +288,15 @@ export default function AdminCertificates() {
                   required
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
-                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                  className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors cursor-pointer"
                 >
-                  <option value="" disabled>-- Choose a course --</option>
-                  {courses.map((c) => (
-                    <option key={c.id} value={c.id}>{c.title}</option>
-                  ))}
+                  {courses.length === 0 ? (
+                    <option value="" disabled>No courses available</option>
+                  ) : (
+                    courses.map((c) => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))
+                  )}
                 </select>
               </div>
 

@@ -211,7 +211,7 @@ export default function StudentRewards() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -227,40 +227,40 @@ export default function StudentRewards() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 relative z-10">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
         {isLoading ? (
           /* Shimmer Loading Skeleton matching the page layout */
-          <div className="w-full space-y-6 sm:space-y-8 animate-pulse">
+          <div className="w-full space-y-6 sm:space-y-8">
             {/* Header Skeleton */}
             <div className="space-y-2">
-              <div className="h-6 w-28 bg-stone-200/80 rounded-full" />
-              <div className="h-8 sm:h-10 w-44 bg-stone-200/80 rounded-2xl" />
-              <div className="h-4 sm:h-5 w-80 sm:w-96 max-w-full bg-stone-200/60 rounded-xl" />
+              <div className="h-6 w-28 shimmer-box rounded-full" />
+              <div className="h-8 sm:h-10 w-44 shimmer-box rounded-2xl" />
+              <div className="h-4 sm:h-5 w-80 sm:w-96 max-w-full shimmer-box rounded-xl" />
             </div>
 
             {/* Top Progress Banner Skeleton */}
             <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)]">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
                 <div className="space-y-1.5 shrink-0">
-                  <div className="h-3 w-20 bg-stone-200/60 rounded" />
-                  <div className="h-7 w-28 bg-stone-200/80 rounded-lg" />
+                  <div className="h-3 w-20 shimmer-box rounded" />
+                  <div className="h-7 w-28 shimmer-box rounded-lg" />
                 </div>
                 <div className="w-full sm:flex-1 sm:px-4 lg:px-6">
-                  <div className="h-3.5 bg-stone-200/70 rounded-full" />
+                  <div className="h-3.5 shimmer-box rounded-full" />
                 </div>
                 <div className="space-y-1.5 shrink-0 sm:text-right">
-                  <div className="h-3 w-16 bg-stone-200/60 rounded sm:ml-auto" />
-                  <div className="h-5 w-24 bg-stone-200/80 rounded sm:ml-auto" />
+                  <div className="h-3 w-16 shimmer-box rounded sm:ml-auto" />
+                  <div className="h-5 w-24 shimmer-box rounded sm:ml-auto" />
                 </div>
               </div>
             </div>
 
             {/* Filter Pills Skeleton */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <div className="h-9 w-28 rounded-full bg-stone-200/80" />
-              <div className="h-9 w-24 rounded-full bg-stone-200/60" />
-              <div className="h-9 w-24 rounded-full bg-stone-200/60" />
-              <div className="h-9 w-24 rounded-full bg-stone-200/60" />
+              <div className="h-9 w-28 rounded-full shimmer-box" />
+              <div className="h-9 w-24 rounded-full shimmer-box" />
+              <div className="h-9 w-24 rounded-full shimmer-box" />
+              <div className="h-9 w-24 rounded-full shimmer-box" />
             </div>
 
             {/* Grid Skeleton */}
@@ -271,14 +271,14 @@ export default function StudentRewards() {
                   className="bg-white rounded-3xl p-3.5 sm:p-4 lg:p-4 border border-stone-200/80 flex flex-col items-center justify-between min-h-[290px] space-y-3"
                 >
                   <div className="w-full flex justify-end">
-                    <div className="w-4 h-4 rounded-full bg-stone-200/60" />
+                    <div className="w-4 h-4 rounded-full shimmer-box" />
                   </div>
-                  <div className="w-36 h-36 sm:w-44 sm:h-44 lg:w-40 lg:h-40 xl:w-44 xl:h-44 max-w-full aspect-square rounded-2xl bg-stone-200/70 mx-auto" />
+                  <div className="w-36 h-36 sm:w-44 sm:h-44 lg:w-40 lg:h-40 xl:w-44 xl:h-44 max-w-full aspect-square rounded-2xl shimmer-box mx-auto" />
                   <div className="space-y-1.5 w-full flex flex-col items-center">
-                    <div className="h-5 w-20 bg-stone-200/80 rounded" />
-                    <div className="h-4 w-32 bg-stone-200/60 rounded" />
+                    <div className="h-5 w-20 shimmer-box rounded" />
+                    <div className="h-4 w-32 shimmer-box rounded" />
                   </div>
-                  <div className="h-7 w-24 rounded-full bg-stone-200/60" />
+                  <div className="h-7 w-24 rounded-full shimmer-box" />
                 </div>
               ))}
             </div>
@@ -294,7 +294,7 @@ export default function StudentRewards() {
                 <span className="text-stone-300">/</span>
                 <span className="text-stone-700 font-medium">Rewards Store</span>
               </div>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
                 Rewards Store is Locked for General Members
               </h1>
               <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
@@ -315,19 +315,21 @@ export default function StudentRewards() {
         ) : (
           <>
             {/* Header: Left aligned with standard breadcrumb */}
+            {/*
             <header className="mb-6 text-left">
               <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
                 <span>Gamification &amp; Recognition</span>
                 <span className="text-stone-300">/</span>
                 <span className="text-stone-700 font-medium">Rewards Store</span>
               </div>
-              <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
                 Rewards Store
               </h1>
               <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
                 Earn XP through learning, creating and participating — and unlock exciting rewards.
               </p>
             </header>
+            */}
 
             {/* Top Progress Card / Banner matching reference image */}
             <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.03)] mb-6 sm:mb-8">

@@ -110,7 +110,7 @@ export const TodayFocus = ({
                   >
                     {task.title}
                   </h3>
-                  <p className="text-[11px] text-stone-500 mt-0.5 leading-snug">
+                  <p className="text-xs text-stone-500 mt-0.5 leading-snug">
                     {task.description}
                   </p>
                 </div>
@@ -122,7 +122,7 @@ export const TodayFocus = ({
 
       {/* Bottom Footer Action: fills vertical space and connects to tasks */}
       <div className="mt-3.5 pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-        <span className="text-[11px] font-medium text-stone-400">
+        <span className="text-xs font-medium text-stone-400">
           Synced with your daily course goals
         </span>
         <Link

@@ -81,7 +81,7 @@ export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
         </div>
 
         <div className="text-right shrink-0">
-          <span className="text-[9px] uppercase tracking-wider text-stone-400 font-semibold block">
+          <span className="text-xs uppercase tracking-wider text-stone-400 font-semibold block">
             TOTAL REVENUE
           </span>
           <span className="text-sm sm:text-base font-black text-stone-900 leading-tight">
@@ -96,7 +96,7 @@ export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
           <div className="flex flex-col items-center justify-center text-center">
             <TrendingUp size={34} className="text-[#e86034] mb-2" />
             <p className="text-stone-600 text-xs font-medium">No sales recorded yet.</p>
-            <p className="text-stone-400 text-[11px] mt-0.5">
+            <p className="text-stone-400 text-xs mt-0.5">
               Complete your first sale to see your revenue chart!
             </p>
           </div>

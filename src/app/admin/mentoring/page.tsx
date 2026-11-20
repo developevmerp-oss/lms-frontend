@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Check, X, Star, ImageIcon, MessageSquare } from "lucide-react";
 
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 export default function AdminMentoring() {
@@ -12,6 +13,7 @@ export default function AdminMentoring() {
   const [portfolios, setPortfolios] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   
   const [scores, setScores] = useState({
@@ -27,6 +29,7 @@ export default function AdminMentoring() {
 
   const fetchPending = async () => {
     if (!token) return;
+    setIsLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/portfolio/pending`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -37,6 +40,8 @@ export default function AdminMentoring() {
       }
     } catch (err) {
       console.error("Error fetching mentoring portfolios:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,20 +110,22 @@ export default function AdminMentoring() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
             <span>Students &amp; CRM</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">Mentoring Center</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
             Mentoring Center
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             Review student portfolios, assign skills, and give feedback.
           </p>
         </header>
+        */}
 
         {/* Toast Messages */}
         {successMsg && (
@@ -134,7 +141,9 @@ export default function AdminMentoring() {
             <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">Pending Reviews</h1>
           </div>
 
-          {portfolios.length === 0 ? (
+          {isLoading ? (
+            <CardGridSkeleton count={6} />
+          ) : portfolios.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-stone-400 font-medium">
               <Check size={48} className="mb-4 text-green-500 opacity-50" />
               <p>All caught up! No pending student artworks.</p>
@@ -150,7 +159,7 @@ export default function AdminMentoring() {
                     <h3 className="text-lg font-bold text-stone-900 truncate">{item.title}</h3>
                     <p className="text-sm text-[#942008] font-bold mb-2">{item.technique}</p>
                     <div className="flex items-center gap-2 text-xs text-stone-500">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] overflow-hidden border border-[#f5ded0] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] overflow-hidden border border-[#f5ded0] flex items-center justify-center text-xs font-bold text-white shrink-0">
                         {item.User?.avatarUrl ? (
                           <img src={item.User.avatarUrl} alt="User" className="w-full h-full object-cover" />
                         ) : (

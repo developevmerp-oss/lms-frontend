@@ -68,7 +68,7 @@ export const WinWall = ({
         await navigator.clipboard.writeText(window.location.href);
         alert('Post link copied to clipboard!');
       }
-    } catch (_) {}
+    } catch (_) { }
   };
   const [winForm, setWinForm] = useState({
     title: '',
@@ -88,7 +88,7 @@ export const WinWall = ({
       if (stored) {
         setMyPostMap(JSON.parse(stored));
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   const effectiveLevel = (membershipLevel || user?.membershipLevel || user?.rank || user?.level || 'GENERAL').toUpperCase();
@@ -183,7 +183,7 @@ export const WinWall = ({
         setMyPostMap(updatedMap);
         try {
           localStorage.setItem('my_community_wins', JSON.stringify(updatedMap));
-        } catch (_) {}
+        } catch (_) { }
 
         const winWithAuthor = {
           ...data.win,
@@ -230,8 +230,14 @@ export const WinWall = ({
 
       if (res.ok) {
         const updatedWin = await res.json();
-        setWins(wins.map((w) => (w.id === winId ? updatedWin : w)));
-        setCommentText({ ...commentText, [winId]: '' });
+        let safeComments = updatedWin.comments;
+        if (typeof safeComments === 'string') {
+          try { safeComments = JSON.parse(safeComments); } catch (_) { safeComments = []; }
+        }
+        setWins((prev) => prev.map((w) => (w.id === winId ? { ...w, ...updatedWin, comments: safeComments || [] } : w)));
+        setCommentText((prev) => ({ ...prev, [winId]: '' }));
+        setExpandedCommentsId(winId);
+        onWinAdded?.();
       }
     } catch (e) {
       console.error(e);
@@ -291,19 +297,27 @@ export const WinWall = ({
     },
   ];
 
-  const parsedWins: WinItem[] = wins.map((w, idx) => ({
-    id: w.id || String(idx),
-    studentName: resolveAuthorName(w),
-    studentLevel: w.level || 'L1 Member',
-    title: w.achievement || w.title || 'Achieved a new breakthrough!',
-    amount: w.salesAmount ? `₹${Number(w.salesAmount).toLocaleString('en-IN')}` : undefined,
-    image: w.image || w.imageUrl,
-    likes: w.likes || 0,
-    likedByMe: Boolean(w.likedByMe),
-    comments: w.comments || [],
-    badge: '🏆 Win',
-    timeAgo: w.timeAgo || 'Recently',
-  }));
+  const parsedWins: WinItem[] = wins.map((w, idx) => {
+    let safeComments: CommentItem[] = [];
+    if (Array.isArray(w.comments)) {
+      safeComments = w.comments;
+    } else if (typeof w.comments === 'string') {
+      try { safeComments = JSON.parse(w.comments); } catch (_) { safeComments = []; }
+    }
+    return {
+      id: w.id || String(idx),
+      studentName: resolveAuthorName(w),
+      studentLevel: w.level || 'L1 Member',
+      title: w.achievement || w.title || 'Achieved a new breakthrough!',
+      amount: w.salesAmount ? `₹${Number(w.salesAmount).toLocaleString('en-IN')}` : undefined,
+      image: w.image || w.imageUrl,
+      likes: w.likes || 0,
+      likedByMe: Boolean(w.likedByMe),
+      comments: safeComments,
+      badge: '🏆 Win',
+      timeAgo: w.timeAgo || 'Recently',
+    };
+  });
 
   // Combine database posts with featured community wins so Patel Vrajangna's post stays permanently visible
   const displayWins: WinItem[] = [
@@ -374,20 +388,20 @@ export const WinWall = ({
               className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] space-y-4 animate-pulse w-full"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-stone-200" />
+                <div className="w-10 h-10 rounded-full shimmer-box" />
                 <div className="space-y-1.5 flex-1">
-                  <div className="h-4 bg-stone-200 rounded w-1/4" />
-                  <div className="h-3 bg-stone-100 rounded w-1/6" />
+                  <div className="h-4 shimmer-box rounded w-1/4" />
+                  <div className="h-3 shimmer-box rounded w-1/6" />
                 </div>
               </div>
-              <div className="h-72 bg-stone-100 rounded-2xl w-full" />
+              <div className="h-72 shimmer-box rounded-2xl w-full" />
               <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-stone-100" />
-                <div className="w-6 h-6 rounded-full bg-stone-100" />
-                <div className="w-6 h-6 rounded-full bg-stone-100" />
+                <div className="w-6 h-6 rounded-full shimmer-box" />
+                <div className="w-6 h-6 rounded-full shimmer-box" />
+                <div className="w-6 h-6 rounded-full shimmer-box" />
               </div>
-              <div className="h-3.5 bg-stone-100 rounded w-1/6" />
-              <div className="h-4 bg-stone-100 rounded w-3/4" />
+              <div className="h-3.5 shimmer-box rounded w-1/6" />
+              <div className="h-4 shimmer-box rounded w-3/4" />
             </div>
           ))}
         </div>
@@ -502,7 +516,7 @@ export const WinWall = ({
                             </div>
                             <div className="truncate">
                               <p className="text-xs font-bold text-stone-900 truncate">Attached Document</p>
-                              <p className="text-[10px] text-stone-500">Click to download</p>
+                              <p className="text-xs text-stone-500">Click to download</p>
                             </div>
                           </div>
                           <a
@@ -527,7 +541,7 @@ export const WinWall = ({
                             </div>
                             <div className="truncate min-w-0">
                               <p className="text-xs font-bold text-stone-900 truncate">External Link</p>
-                              <p className="text-[10px] text-stone-500 truncate">{mediaUrl}</p>
+                              <p className="text-xs text-stone-500 truncate">{mediaUrl}</p>
                             </div>
                           </div>
                           <a
@@ -643,6 +657,43 @@ export const WinWall = ({
                       });
                     })()}
                   </p>
+
+                  {/* View Comments / Comments Count Toggle */}
+                  {win.comments && win.comments.length > 0 ? (
+                    <div className="mt-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
+                        className="text-xs font-semibold text-stone-500 hover:text-stone-800 transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <MessageCircle size={14} className="text-[#c4431d]" />
+                        <span>
+                          {isExpanded
+                            ? 'Hide comments'
+                            : `View all ${win.comments.length} ${win.comments.length === 1 ? 'comment' : 'comments'}`}
+                        </span>
+                      </button>
+                      {!isExpanded && (
+                        <div className="mt-1 text-xs text-stone-600 line-clamp-1 bg-[#faf8f5]/80 px-2.5 py-1.5 rounded-lg border border-stone-200/50">
+                          <span className="font-bold text-stone-900 mr-1.5">
+                            {win.comments[win.comments.length - 1].author}:
+                          </span>
+                          <span className="text-stone-700">
+                            {win.comments[win.comments.length - 1].text}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
+                      className="mt-1.5 text-xs text-stone-400 hover:text-[#c4431d] transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <MessageCircle size={13} />
+                      <span>Add a comment...</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* 6. Expandable Comments Drawer (Preserved Functionality) */}
@@ -772,7 +823,7 @@ export const WinWall = ({
                     <span className="flex items-center gap-1.5">
                       <Image size={13} className="text-[#942008]" /> Upload File (Image, Video, Document)
                     </span>
-                    <span className="text-[10px] text-slate-500 font-normal">Browser File Picker</span>
+                    <span className="text-xs text-slate-500 font-normal">Browser File Picker</span>
                   </label>
 
                   <div className="flex flex-col gap-2">
@@ -850,7 +901,7 @@ export const WinWall = ({
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="border border-stone-300 bg-stone-100 text-stone-600 font-semibold text-xs h-10 px-4 rounded-xl cursor-pointer"
+                    className="border border-stone-300 shimmer-box text-stone-600 font-semibold text-xs h-10 px-4 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>

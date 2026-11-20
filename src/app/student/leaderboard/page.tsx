@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
 import { motion } from "framer-motion";
 
+import { LeaderboardSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import { getLevelCode } from "@/components/layout/StudentNav";
 
@@ -67,10 +68,12 @@ const GoldenCrown = () => (
 export default function StudentLeaderboard() {
   const { user, token, logout } = useAuth();
   const [students, setStudents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<any>({ points: 0, notifications: [] });
 
   useEffect(() => {
     if (!token) return;
+    setIsLoading(true);
 
     // Fetch Nav Stats
     fetch(`${API_BASE_URL}/dashboard/student`, {
@@ -99,7 +102,8 @@ export default function StudentLeaderboard() {
       .then(data => {
         if (Array.isArray(data)) setStudents(data);
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => setIsLoading(false));
   }, [token]);
 
   const candidateLevels = [
@@ -144,7 +148,7 @@ export default function StudentLeaderboard() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -160,24 +164,56 @@ export default function StudentLeaderboard() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header: Left aligned, no trophy icon, responsive typography */}
+        {/*
         <header className="mb-6 text-left">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
             <span>Gamification</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">Global Leaderboard</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
             Global Leaderboard
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5 font-normal">
             Compete with artists worldwide and earn your spot at the top.
           </p>
         </header>
+        */}
 
         {/* Top 3 Podium Cards - matching reference image #2 */}
-        {top3.length > 0 && (
+        {isLoading ? (
+          <div className="flex justify-center items-end gap-2.5 sm:gap-6 md:gap-8 mb-10 sm:mb-14 pt-8 sm:pt-12">
+            {/* 2nd place skeleton */}
+            <div className="w-1/3 max-w-[240px] flex flex-col items-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full shimmer-box -mb-8 z-10" />
+              <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 pt-10 pb-6 px-4 flex flex-col items-center gap-2">
+                <div className="w-20 h-4 rounded shimmer-box" />
+                <div className="w-14 h-3 rounded shimmer-box" />
+                <div className="w-16 h-3 rounded shimmer-box" />
+              </div>
+            </div>
+            {/* 1st place skeleton */}
+            <div className="w-1/3 max-w-[260px] flex flex-col items-center -mt-6">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shimmer-box -mb-10 z-10" />
+              <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 pt-12 pb-8 px-4 flex flex-col items-center gap-2 shadow-sm">
+                <div className="w-24 h-5 rounded shimmer-box" />
+                <div className="w-16 h-3 rounded shimmer-box" />
+                <div className="w-20 h-4 rounded shimmer-box" />
+              </div>
+            </div>
+            {/* 3rd place skeleton */}
+            <div className="w-1/3 max-w-[240px] flex flex-col items-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full shimmer-box -mb-8 z-10" />
+              <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 pt-10 pb-6 px-4 flex flex-col items-center gap-2">
+                <div className="w-20 h-4 rounded shimmer-box" />
+                <div className="w-14 h-3 rounded shimmer-box" />
+                <div className="w-16 h-3 rounded shimmer-box" />
+              </div>
+            </div>
+          </div>
+        ) : top3.length > 0 ? (
           <div className="flex justify-center items-end gap-2.5 sm:gap-6 md:gap-8 mb-10 sm:mb-14 pt-8 sm:pt-12">
             {/* 2nd Place (Left) */}
             {top2 && (
@@ -307,7 +343,7 @@ export default function StudentLeaderboard() {
               </motion.div>
             )}
           </div>
-        )}
+        ) : null}
 
         {/* Student List Table - matching reference image #3 */}
         <div className="w-full bg-white rounded-2xl sm:rounded-3xl border border-stone-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] p-3 sm:p-5 md:p-6 lg:p-8">
@@ -321,9 +357,9 @@ export default function StudentLeaderboard() {
 
           {/* Table Body */}
           <div className="pt-1">
-            {students.length === 0 ? (
-              <div className="py-16 text-center text-stone-400 font-medium text-xs sm:text-sm md:text-base">
-                Loading rankings...
+            {isLoading || students.length === 0 ? (
+              <div className="py-4">
+                <LeaderboardSkeleton rows={6} />
               </div>
             ) : rest.length === 0 ? (
               <div className="py-12 text-center text-stone-400 font-medium text-xs sm:text-sm md:text-base">

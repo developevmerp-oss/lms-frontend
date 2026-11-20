@@ -22,6 +22,7 @@ import {
   Hourglass,
   MoreHorizontal,
 } from "lucide-react";
+import { TableRowSkeleton, StatCardSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import { Pagination } from "@/components/ui/Pagination";
 
@@ -304,24 +305,28 @@ export default function AdminPaymentTransactions() {
     <div className="min-h-screen bg-[#FAF8F5] text-stone-900 transition-colors lg:pl-64">
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6">
-        {/* Breadcrumb */}
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Breadcrumb & Page Header - moved to top bar */}
+        {/*
         <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
           <span>Students &amp; CRM</span>
           <span className="text-stone-300">/</span>
           <span className="text-stone-700 font-medium">Payment Transactions</span>
         </div>
+        */}
 
         {/* Page Header */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Razorpay Payment &amp; Transactions
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Complete audit log of all membership checkout attempts with live gateway verification.
             </p>
           </div>
+          */}
 
           <div className="flex items-center gap-3">
             {toastMsg && (
@@ -478,13 +483,10 @@ export default function AdminPaymentTransactions() {
                   </thead>
                   <tbody className="divide-y divide-stone-100">
                     {isLoading ? (
-                      <tr>
-                        <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
-                          <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-[#B84A1A]" />
-                          Loading installment records...
-                        </td>
-                      </tr>
-                    ) : installmentPlans.length === 0 ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <TableRowSkeleton key={i} cols={7} />
+                    ))
+                  ) : installmentPlans.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
                           No student installment plans created yet. Once a student chooses installment checkout for Level 3, they will appear here.
@@ -520,7 +522,7 @@ export default function AdminPaymentTransactions() {
                                     {plan.user?.email || "No email"}
                                   </div>
                                   {plan.user?.phone && (
-                                    <div className="text-[11px] text-stone-400 mt-0.5">
+                                    <div className="text-xs text-stone-400 mt-0.5">
                                       {plan.user?.phone}
                                     </div>
                                   )}
@@ -558,7 +560,7 @@ export default function AdminPaymentTransactions() {
                                   style={{ width: `${percentPaid}%` }}
                                 />
                               </div>
-                              <div className="text-[11px] text-stone-400">
+                              <div className="text-xs text-stone-400">
                                 ₹{Number(plan.installmentAmount).toLocaleString("en-IN")} / inst • Total: ₹
                                 {Number(plan.totalAmount).toLocaleString("en-IN")}
                               </div>
@@ -584,7 +586,7 @@ export default function AdminPaymentTransactions() {
                                     })}
                                   </div>
                                   {isOverdue && (
-                                    <span className="inline-block text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded mt-0.5">
+                                    <span className="inline-block text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded mt-0.5">
                                       Overdue
                                     </span>
                                   )}
@@ -774,13 +776,10 @@ export default function AdminPaymentTransactions() {
                   </thead>
                   <tbody className="divide-y divide-stone-100">
                     {isLoading ? (
-                      <tr>
-                        <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
-                          <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-[#B84A1A]" />
-                          Loading transactions...
-                        </td>
-                      </tr>
-                    ) : transactions.length === 0 ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <TableRowSkeleton key={i} cols={7} />
+                    ))
+                  ) : transactions.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-16 text-center text-stone-400 font-medium">
                           No transactions found matching your criteria.
@@ -807,7 +806,7 @@ export default function AdminPaymentTransactions() {
                                     {tx.customerEmail || "No email"}
                                   </div>
                                   {tx.customerPhone && (
-                                    <div className="text-[11px] text-stone-400 mt-0.5">
+                                    <div className="text-xs text-stone-400 mt-0.5">
                                       {tx.customerPhone}
                                     </div>
                                   )}
@@ -819,7 +818,7 @@ export default function AdminPaymentTransactions() {
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-semibold text-stone-900 text-sm">{tx.tierName}</span>
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FDF0E9] text-[#C45E32] border border-[#F6D8C8] uppercase tracking-wide">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[#FDF0E9] text-[#C45E32] border border-[#F6D8C8] uppercase tracking-wide">
                                   {tx.tierCode}
                                 </span>
                               </div>
@@ -830,7 +829,7 @@ export default function AdminPaymentTransactions() {
                               <div className="font-bold text-stone-900 text-sm">
                                 ₹{tx.amount.toLocaleString("en-IN")}
                               </div>
-                              <div className="text-[11px] text-stone-400 uppercase font-medium mt-0.5">
+                              <div className="text-xs text-stone-400 uppercase font-medium mt-0.5">
                                 {tx.currency}
                               </div>
                             </td>
@@ -889,7 +888,7 @@ export default function AdminPaymentTransactions() {
                                   year: "numeric",
                                 })}
                               </div>
-                              <div className="text-[11px] text-stone-400 font-normal mt-0.5">
+                              <div className="text-xs text-stone-400 font-normal mt-0.5">
                                 {new Date(tx.createdAt).toLocaleTimeString("en-IN", {
                                   hour: "2-digit",
                                   minute: "2-digit",

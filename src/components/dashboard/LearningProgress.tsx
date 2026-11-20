@@ -84,7 +84,7 @@ export const LearningProgress = ({
 
         {enrolledCourse?.title && (
           <span
-            className="text-[11px] font-semibold text-stone-400 max-w-[150px] truncate hidden sm:block"
+            className="text-xs font-semibold text-stone-400 max-w-[150px] truncate hidden sm:block"
             title={enrolledCourse.title}
           >
             {enrolledCourse.title}

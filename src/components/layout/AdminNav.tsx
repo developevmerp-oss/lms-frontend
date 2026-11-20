@@ -27,7 +27,32 @@ import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 interface AdminNavProps {
   user: any;
   logout: () => void;
+  title?: string;
 }
+
+const getAdminPageTitle = (path: string, customTitle?: string): string => {
+  if (customTitle) return customTitle;
+  if (!path) return 'Admin Command Center';
+  if (path === '/admin/dashboard' || path === '/admin') return 'Admin Command Center';
+  if (path.startsWith('/admin/courses')) return 'Course Management';
+  if (path.startsWith('/admin/students')) return 'Student Management & Engagement';
+  if (path.startsWith('/admin/payments')) return 'Razorpay Payment & Transactions';
+  if (path.startsWith('/admin/sales')) return 'Student Revenue & Sales Monitor';
+  if (path.startsWith('/admin/notifications')) return 'Targeted Broadcast Center';
+  if (path.startsWith('/admin/webinar')) return 'Webinar Management & Leads CRM';
+  if (path.startsWith('/admin/marketing')) return 'Marketing & Tracking Manager';
+  if (path.startsWith('/admin/levels')) return 'Membership Level & Price Settings';
+  if (path.startsWith('/admin/milestones')) return 'Milestone Management';
+  if (path.startsWith('/admin/badges')) return 'Badge & Reward Management';
+  if (path.startsWith('/admin/rewards')) return 'Merch Store Manager';
+  if (path.startsWith('/admin/offers')) return 'Special Offers & Campaign Manager';
+  if (path.startsWith('/admin/classes')) return 'Online Class & Attendance Management';
+  if (path.startsWith('/admin/assignments')) return 'Assignment Management';
+  if (path.startsWith('/admin/mentoring')) return 'Mentoring Center';
+  if (path.startsWith('/admin/certificates')) return 'Certificate Management';
+  if (path.startsWith('/admin/leaderboard')) return 'Platform Leaderboard';
+  return 'Admin Command Center';
+};
 
 interface NavItem {
   name: string;
@@ -35,10 +60,12 @@ interface NavItem {
   icon: React.ComponentType<{ size?: number; className?: string }>;
 }
 
-export const AdminNav = ({ user, logout }: AdminNavProps) => {
+export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const pageTitle = getAdminPageTitle(pathname, title);
 
   // Path matching helper
   const isItemActive = (path: string) => {
@@ -97,29 +124,55 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
         onLogout={logout}
       />
 
-      {/* Mobile Top Bar (< 1024px) */}
-      <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-stone-200/80 px-4 py-2.5 flex items-center justify-between shadow-xs">
-        <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <img
-            src="/favicon.png"
-            alt="Favicon"
-            className="w-8 h-8 object-contain shrink-0"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/brand-emblem.png';
-            }}
-          />
-          <span className="font-bold text-stone-900 text-xs sm:text-sm">Ravishing Art</span>
-        </Link>
+      {/* Top Bar matching Reference Image 4 (Left: Page Title, Right: Profile Pill) */}
+      <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-stone-200/80 px-4 sm:px-6 lg:px-8 h-16 sm:h-[68px] flex items-center justify-between shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
+        {/* Left: Mobile Menu Toggle (< 1024px) + Page Title */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            className="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors cursor-pointer shrink-0"
+            aria-label="Toggle navigation"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
 
+          <h1 className="text-base sm:text-xl lg:text-2xl font-bold text-stone-900 tracking-tight truncate">
+            {pageTitle}
+          </h1>
+        </div>
+
+        {/* Right: User Profile Pill matching Reference Image 4 */}
         <button
           type="button"
-          onClick={() => setMobileOpen((prev) => !prev)}
-          className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors cursor-pointer"
-          aria-label="Toggle navigation"
+          onClick={() => setIsProfileModalOpen(true)}
+          className="flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl hover:bg-stone-50 transition-all cursor-pointer group text-left shrink-0"
+          title="Edit Profile"
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {/* Avatar Circle */}
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#c4431d] text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 overflow-hidden shadow-xs ring-2 ring-[#c4431d]/20 group-hover:ring-[#c4431d]/40 transition-all">
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user?.name || 'Admin'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span>{user?.name?.charAt(0).toUpperCase() || 'A'}</span>
+            )}
+          </div>
+
+          {/* User Info (Name + Role Subtitle) */}
+          <div className="hidden sm:flex flex-col min-w-0 max-w-[160px] md:max-w-[200px]">
+            <span className="text-xs sm:text-sm font-bold text-stone-900 truncate leading-snug group-hover:text-[#c4431d] transition-colors">
+              {user?.name || 'Admin'}
+            </span>
+            <span className="text-[0.6875rem] sm:text-xs text-stone-500 font-medium truncate leading-tight mt-0.5">
+              {user?.role && user.role.toLowerCase() !== 'admin' ? user.role : 'Studio Admin'}
+            </span>
+          </div>
         </button>
-      </div>
+      </header>
 
       {/* Mobile Backdrop Overlay */}
       {mobileOpen && (
@@ -313,38 +366,7 @@ export const AdminNav = ({ user, logout }: AdminNavProps) => {
           </div>
         </div>
 
-        {/* Bottom Section: Profile Card only (Logout button moved to Edit Profile modal) */}
-        <div className="p-3 border-t border-stone-200/70 shrink-0 bg-white">
-          <button
-            type="button"
-            onClick={() => setIsProfileModalOpen(true)}
-            className="w-full p-2.5 sm:p-3 flex items-center gap-5 transition-all cursor-pointer text-left shadow-2xs group"
-            title="Edit Profile"
-          >
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm sm:text-base flex items-center justify-center shrink-0 border border-[#f5ded0] overflow-hidden">
-              {user?.avatarUrl ? (
-                <img
-                  src={user.avatarUrl}
-                  alt={user?.name || 'Admin'}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span>{user?.name?.charAt(0).toUpperCase() || 'A'}</span>
-              )}
-            </div>
-
-            {/* User Info */}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base font-bold text-stone-900 truncate leading-tight group-hover:text-[#9b2c16] transition-colors">
-                {user?.name || 'Admin'}
-              </p>
-              <p className="text-[0.6875rem] sm:text-xs text-stone-400 font-medium leading-tight mt-0.5">
-                Edit Profile {/* → */}
-              </p>
-            </div>
-          </button>
-        </div>
+        {/* Bottom Section: Profile card removed per user request (already available in top bar) */}
       </aside>
     </>
   );

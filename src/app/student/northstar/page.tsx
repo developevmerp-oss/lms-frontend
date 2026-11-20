@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav, getLevelCode } from "@/components/layout/StudentNav";
+import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Target,
@@ -121,7 +122,7 @@ export default function NorthstarTrackingPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -137,23 +138,24 @@ export default function NorthstarTrackingPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6">
+          {/*
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              {/* <Target size={13} className="text-[#942008]" /> */}
               <span>Business &amp; Growth</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Northstar Revenue &amp; Goal Tracker</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Northstar Revenue &amp; Goal Tracker
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Track your journey from art creation to consistent ₹3,00,000/month commercial business growth.
             </p>
           </div>
+          */}
 
           {isAccessible && (
             <button
@@ -201,6 +203,18 @@ export default function NorthstarTrackingPage() {
           </div>
         ) : (
           <div className="space-y-8">
+            {loading ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </div>
+              <AdminTableSkeleton rows={5} cols={4} />
+            </div>
+          ) : (
+            <>
             {/* Northstar KPI Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="rounded-3xl border border-stone-200 bg-white/95 p-6 shadow-xl">
@@ -310,6 +324,8 @@ export default function NorthstarTrackingPage() {
                 </div>
               )}
             </div>
+            </>
+          )}
           </div>
         )}
 

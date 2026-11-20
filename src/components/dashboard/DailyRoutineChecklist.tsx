@@ -191,7 +191,7 @@ export const DailyRoutineChecklist = ({
                 Daily Habit Streak
               </h2>
             </div>
-            <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5 leading-snug">
+            <p className="text-xs sm:text-xs text-stone-500 mt-0.5 leading-snug">
               Complete your 6 habits daily to build consistency.
             </p>
           </div>
@@ -199,7 +199,7 @@ export const DailyRoutineChecklist = ({
           {/* Right badge: Flame + Days count */}
           <div className="flex flex-col items-center justify-center shrink-0">
             <Flame size={16} className="text-[#e86034]" />
-            <span className="text-[11px] sm:text-xs font-black text-stone-900 leading-tight">
+            <span className="text-xs sm:text-xs font-black text-stone-900 leading-tight">
               {streak || 0} Days
             </span>
           </div>
@@ -207,7 +207,7 @@ export const DailyRoutineChecklist = ({
 
         {/* Progress Bar & Text */}
         <div className="space-y-1.5 mt-2.5">
-          <div className="flex justify-between text-[11px] sm:text-xs font-semibold text-stone-600">
+          <div className="flex justify-between text-xs sm:text-xs font-semibold text-stone-600">
             <span>
               {completedItems.length} of {ROUTINE_ITEMS_CONFIG.length} Habits Completed
             </span>
@@ -262,7 +262,7 @@ export const DailyRoutineChecklist = ({
 
                   {/* Habit Title */}
                   <span
-                    className={`text-[9px] sm:text-[10px] font-bold text-center leading-tight mt-1.5 line-clamp-2 px-0.5 transition-colors ${
+                    className={`text-xs sm:text-xs font-bold text-center leading-tight mt-1.5 line-clamp-2 px-0.5 transition-colors ${
                       isDone ? 'text-[#c4431d]' : 'text-stone-700'
                     }`}
                     title={item.title}
@@ -272,11 +272,11 @@ export const DailyRoutineChecklist = ({
 
                   {/* Hover Tooltip showing habit details */}
                   {activeTooltip === item.id && (
-                    <div className="absolute bottom-full mb-2 z-30 pointer-events-none w-44 p-2 rounded-xl bg-stone-900 text-white text-[10px] shadow-xl text-center animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute bottom-full mb-2 z-30 pointer-events-none w-44 p-2 rounded-xl bg-stone-900 text-white text-xs shadow-xl text-center animate-in fade-in zoom-in-95 duration-150">
                       <p className="font-bold text-[#fde5d6]">
                         {item.title}
                       </p>
-                      <p className="text-stone-300 mt-0.5 leading-tight text-[9px]">
+                      <p className="text-stone-300 mt-0.5 leading-tight text-xs">
                         {item.subtitle}
                       </p>
                       <p className="text-[#fbdcd0] font-semibold mt-1">
@@ -296,7 +296,7 @@ export const DailyRoutineChecklist = ({
       </div>
 
       {/* Bottom Footer Status: single check notice when completed today */}
-      <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
+      <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
         {isDayDone ? (
           <span className="flex items-center gap-1 font-bold text-emerald-600">
             <CheckCircle2 size={13} />

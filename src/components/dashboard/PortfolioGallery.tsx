@@ -36,7 +36,7 @@ export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
         </div>
         <Link
           href="/student/portfolio"
-          className="text-[11px] font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-2.5 py-1 rounded-full shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
+          className="text-xs font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-2.5 py-1 rounded-full shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
         >
           <Plus size={12} /> Upload New
         </Link>
@@ -73,7 +73,7 @@ export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
                   <h3 className="text-xs font-bold text-stone-900 truncate">
                     {project.title}
                   </h3>
-                  <p className="text-[10px] text-[#c4431d] font-semibold truncate">
+                  <p className="text-xs text-[#c4431d] font-semibold truncate">
                     {project.technique}
                   </p>
                 </div>

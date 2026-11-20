@@ -12,6 +12,7 @@ import {
   Search,
   Download,
 } from "lucide-react";
+import { LeaderboardSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import { getLevelCode } from "@/components/layout/StudentNav";
 
@@ -342,21 +343,23 @@ export default function AdminLeaderboard() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Page Title & Subtitle */}
+        {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
             <span>Gamification &amp; Recognition</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">Platform Leaderboard</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
             Platform Leaderboard
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
             Monitor top performing students across the Ravishing Art Hub ecosystem.
           </p>
         </header>
+        */}
 
         {/* 3 Overview Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 mb-5 sm:mb-6">
@@ -543,7 +546,7 @@ export default function AdminLeaderboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
               {/* Podium #1 */}
               {top1 && (
-                <div className="bg-[#fff8f3] border border-[#f5ded0] rounded-2xl p-3 sm:p-3.5 shadow-2xs relative overflow-hidden">
+                <div className="bg-[#fff8f3] border border-[#f5ded0] rounded-2xl p-3 sm:p-3.5 shadow-2xs relative overflow-hidden flex flex-col justify-between">
                   <div className="flex items-center justify-between gap-2.5 sm:gap-3">
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <GoldPodiumBadge />
@@ -556,17 +559,6 @@ export default function AdminLeaderboard() {
                         </div>
                         <div className="text-xs text-stone-500 truncate mt-0.5">
                           {top1.city || "Ravishing Artist"}
-                        </div>
-                        {/* On tablet & desktop (sm:), show badge inline under artist info */}
-                        <div className="hidden sm:block mt-1">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                              getStudentLevelBadge(top1).color
-                            }`}
-                          >
-                            <Star size={11} className="shrink-0" />
-                            <span>{getStudentLevelBadge(top1).label}</span>
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -582,15 +574,15 @@ export default function AdminLeaderboard() {
                     </div>
                   </div>
 
-                  {/* On mobile (< sm:), show badge on clean full-width line with zero truncation and comfortable text-xs */}
-                  <div className="sm:hidden mt-2.5 pt-2 border-t border-[#f5ded0]/60 flex items-center">
+                  {/* Level Badge on clean dedicated row for all screen sizes */}
+                  <div className="mt-2.5 pt-2 border-t border-[#f5ded0]/70 flex items-center min-w-0">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border truncate max-w-full ${
                         getStudentLevelBadge(top1).color
                       }`}
                     >
                       <Star size={11} className="shrink-0" />
-                      <span>{getStudentLevelBadge(top1).label}</span>
+                      <span className="truncate">{getStudentLevelBadge(top1).label}</span>
                     </span>
                   </div>
                 </div>
@@ -598,7 +590,7 @@ export default function AdminLeaderboard() {
 
               {/* Podium #2 */}
               {top2 && (
-                <div className="bg-white border border-[#ecdccb] rounded-2xl p-3 sm:p-3.5 shadow-2xs relative overflow-hidden">
+                <div className="bg-white border border-[#ecdccb] rounded-2xl p-3 sm:p-3.5 shadow-2xs relative overflow-hidden flex flex-col justify-between">
                   <div className="flex items-center justify-between gap-2.5 sm:gap-3">
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <SilverPodiumBadge />
@@ -611,17 +603,6 @@ export default function AdminLeaderboard() {
                         </div>
                         <div className="text-xs text-stone-500 truncate mt-0.5">
                           {top2.city || "Ravishing Artist"}
-                        </div>
-                        {/* On tablet & desktop (sm:), show badge inline under artist info */}
-                        <div className="hidden sm:block mt-1">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                              getStudentLevelBadge(top2).color
-                            }`}
-                          >
-                            <Star size={11} className="shrink-0" />
-                            <span>{getStudentLevelBadge(top2).label}</span>
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -637,15 +618,15 @@ export default function AdminLeaderboard() {
                     </div>
                   </div>
 
-                  {/* On mobile (< sm:), show badge on clean full-width line with zero truncation and comfortable text-xs */}
-                  <div className="sm:hidden mt-2.5 pt-2 border-t border-stone-100 flex items-center">
+                  {/* Level Badge on clean dedicated row for all screen sizes */}
+                  <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center min-w-0">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border truncate max-w-full ${
                         getStudentLevelBadge(top2).color
                       }`}
                     >
                       <Star size={11} className="shrink-0" />
-                      <span>{getStudentLevelBadge(top2).label}</span>
+                      <span className="truncate">{getStudentLevelBadge(top2).label}</span>
                     </span>
                   </div>
                 </div>
@@ -653,7 +634,7 @@ export default function AdminLeaderboard() {
 
               {/* Podium #3 */}
               {top3 && (
-                <div className="bg-white border border-[#ecdccb] rounded-2xl p-3 sm:p-3.5 shadow-2xs relative overflow-hidden">
+                <div className="bg-white border border-[#ecdccb] rounded-2xl p-3 sm:p-3.5 shadow-2xs relative overflow-hidden flex flex-col justify-between">
                   <div className="flex items-center justify-between gap-2.5 sm:gap-3">
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <BronzePodiumBadge />
@@ -666,17 +647,6 @@ export default function AdminLeaderboard() {
                         </div>
                         <div className="text-xs text-stone-500 truncate mt-0.5">
                           {top3.city || "Ravishing Artist"}
-                        </div>
-                        {/* On tablet & desktop (sm:), show badge inline under artist info */}
-                        <div className="hidden sm:block mt-1">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                              getStudentLevelBadge(top3).color
-                            }`}
-                          >
-                            <Star size={11} className="shrink-0" />
-                            <span>{getStudentLevelBadge(top3).label}</span>
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -692,15 +662,15 @@ export default function AdminLeaderboard() {
                     </div>
                   </div>
 
-                  {/* On mobile (< sm:), show badge on clean full-width line with zero truncation and comfortable text-xs */}
-                  <div className="sm:hidden mt-2.5 pt-2 border-t border-stone-100 flex items-center">
+                  {/* Level Badge on clean dedicated row for all screen sizes */}
+                  <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center min-w-0">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border truncate max-w-full ${
                         getStudentLevelBadge(top3).color
                       }`}
                     >
                       <Star size={11} className="shrink-0" />
-                      <span>{getStudentLevelBadge(top3).label}</span>
+                      <span className="truncate">{getStudentLevelBadge(top3).label}</span>
                     </span>
                   </div>
                 </div>
@@ -723,9 +693,7 @@ export default function AdminLeaderboard() {
 
                 {/* Table Body */}
                 {isLoading ? (
-                  <div className="p-12 sm:p-16 text-center text-stone-500 text-xs sm:text-sm font-medium">
-                    Loading rankings...
-                  </div>
+                  <LeaderboardSkeleton rows={8} />
                 ) : filteredStudents.length === 0 ? (
                   <div className="p-12 sm:p-16 text-center text-stone-500 text-xs sm:text-sm font-medium">
                     No students found matching your filters.
@@ -780,12 +748,12 @@ export default function AdminLeaderboard() {
                             </div>
 
                             {/* Level */}
-                            <div className="col-span-3 text-center">
+                            <div className="col-span-3 text-center px-1">
                               <span
-                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${levelInfo.color}`}
+                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border max-w-full truncate ${levelInfo.color}`}
                               >
                                 <Star size={11} className="shrink-0" />
-                                <span>{levelInfo.label}</span>
+                                <span className="truncate">{levelInfo.label}</span>
                               </span>
                             </div>
 

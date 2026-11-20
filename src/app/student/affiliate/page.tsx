@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { StudentNav } from '@/components/layout/StudentNav';
 import { 
@@ -20,8 +20,13 @@ import {
 
 export default function StudentAffiliatePage() {
   const { user, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [coursePrice, setCoursePrice] = useState(4999);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Student referral code/link
   const referralCode = user?.id ? `RAH-${user.id.slice(0, 6).toUpperCase()}` : 'RAH-VIP';
@@ -43,7 +48,7 @@ export default function StudentAffiliatePage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 selection:bg-[#c4431d] selection:text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 selection:bg-[#c4431d] selection:text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -53,22 +58,56 @@ export default function StudentAffiliatePage() {
     >
       <StudentNav user={user} level="Affiliate Partner" points={0} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+        {!mounted || !user ? (
+          <div className="space-y-8">
+            {/* Header Skeleton */}
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 md:p-8 space-y-3">
+              <div className="w-36 h-4 rounded shimmer-box" />
+              <div className="w-3/4 h-8 rounded-lg shimmer-box" />
+              <div className="w-1/2 h-4 rounded shimmer-box" />
+            </div>
+
+            {/* Referral Link Skeleton */}
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 md:p-8 space-y-4">
+              <div className="w-48 h-6 rounded-lg shimmer-box" />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 h-12 rounded-2xl shimmer-box" />
+                <div className="w-36 h-12 rounded-2xl shimmer-box" />
+                <div className="w-44 h-12 rounded-2xl shimmer-box" />
+              </div>
+            </div>
+
+            {/* Commission Stats Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-6 space-y-3">
+                  <div className="w-10 h-10 rounded-xl shimmer-box" />
+                  <div className="w-28 h-3 rounded shimmer-box" />
+                  <div className="w-24 h-7 rounded-lg shimmer-box" />
+                  <div className="w-48 h-3 rounded shimmer-box" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Header */}
+        {/*
         <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 md:p-8 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-            {/* <Sparkles size={14} /> */}
             <span>Student Hub</span>
             <span className="text-stone-300">/</span>
             <span className="text-stone-700 font-medium">Partner &amp; Affiliate Program</span>
           </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
             Earn 20% Net Commission for Every Enrolled Creator
           </h1>
           <p className="text-stone-500 text-xs sm:text-sm mt-0.5 max-w-2xl leading-relaxed">
             Share your authentic resin art transformation with your followers and friends. When someone enrolls through your link, you earn a 20% net commission on the course fee.
           </p>
         </div>
+        */}
 
         {/* Unique Link Box */}
         <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-6 md:p-8 shadow-xl space-y-4">
@@ -110,7 +149,7 @@ export default function StudentAffiliatePage() {
             </div>
             <p className="text-xs text-stone-500 font-bold uppercase">Commission Rate</p>
             <p className="text-3xl font-black text-stone-900">20% Net</p>
-            <p className="text-[11px] text-slate-500">After GST (18%) and gateway charges deduction.</p>
+            <p className="text-xs text-slate-500">After GST (18%) and gateway charges deduction.</p>
           </div>
 
           <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-2xl p-6 shadow-xl space-y-2">
@@ -119,7 +158,7 @@ export default function StudentAffiliatePage() {
             </div>
             <p className="text-xs text-stone-500 font-bold uppercase">Per Sale Earnings</p>
             <p className="text-3xl font-black text-emerald-400">₹{estimatedCommission.toLocaleString('en-IN')}</p>
-            <p className="text-[11px] text-slate-500">Estimated payout per student enrollment.</p>
+            <p className="text-xs text-slate-500">Estimated payout per student enrollment.</p>
           </div>
 
           <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-2xl p-6 shadow-xl space-y-2">
@@ -128,7 +167,7 @@ export default function StudentAffiliatePage() {
             </div>
             <p className="text-xs text-stone-500 font-bold uppercase">Payout Schedule</p>
             <p className="text-3xl font-black text-stone-900">Monthly</p>
-            <p className="text-[11px] text-slate-500">Transferred directly via UPI / Bank account.</p>
+            <p className="text-xs text-slate-500">Transferred directly via UPI / Bank account.</p>
           </div>
         </div>
 
@@ -153,6 +192,8 @@ export default function StudentAffiliatePage() {
             </div>
           </div>
         </div>
+          </>
+        )}
       </main>
     </div>
   );

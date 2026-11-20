@@ -509,7 +509,7 @@ export const TierPurchaseModal = ({
                   <div>
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <span className="text-lg">{liveMatch?.icon || tier.icon}</span>
-                      <span className="text-[11px] font-black text-[#942008] uppercase">
+                      <span className="text-xs font-black text-[#942008] uppercase">
                         {tier.code}
                       </span>
                     </div>
@@ -519,14 +519,14 @@ export const TierPurchaseModal = ({
                     {pricing.hasOffer ? (
                       <div className="flex items-baseline gap-1">
                         <span className="text-xs text-amber-300 font-bold">{pricing.finalPrice}</span>
-                        <span className="text-[9px] text-red-400 font-bold">{pricing.discountLabel}</span>
+                        <span className="text-xs text-red-400 font-bold">{pricing.discountLabel}</span>
                       </div>
                     ) : (
                       <span>{pricing.finalPrice}</span>
                     )}
                   </div>
                   {liveMatch?.installmentsEnabled && Array.isArray(liveMatch?.installmentPlans) && liveMatch.installmentPlans.length > 0 && (
-                    <span className="mt-1 text-[9px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded inline-block text-center truncate">
+                    <span className="mt-1 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded inline-block text-center truncate">
                       💳 Installments Available
                     </span>
                   )}
@@ -538,7 +538,7 @@ export const TierPurchaseModal = ({
           {/* Multi-Offer Campaign Selector (When admin creates multiple offers for the same level) */}
           {matchingOffers.length > 1 && (
             <div className="mb-3 p-3 bg-[#faf8f5] border border-stone-200 rounded-2xl">
-              <span className="text-[11px] font-bold text-stone-500 block mb-2">
+              <span className="text-xs font-bold text-stone-500 block mb-2">
                 🎉 {matchingOffers.length} Active Offers Available for {selectedCode} (Click to Switch):
               </span>
               <div className="flex flex-wrap gap-2">
@@ -588,7 +588,7 @@ export const TierPurchaseModal = ({
                 }`}
               >
                 <CreditCard size={13} /> Pay in Installments
-                <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-black border border-emerald-500/30">
+                <span className="text-xs px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-black border border-emerald-500/30">
                   Easy EMIs
                 </span>
               </button>
@@ -602,7 +602,7 @@ export const TierPurchaseModal = ({
                 <span className="text-xs font-black text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
                   <CreditCard size={15} /> Official Installment Structure
                 </span>
-                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
                   ⚡ 1st Installment Unlocks Curriculum
                 </span>
               </div>
@@ -614,11 +614,11 @@ export const TierPurchaseModal = ({
                     <span className="text-xs font-bold text-stone-800">
                       Total Instalments
                     </span>
-                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    <span className="text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       Configured by Academy
                     </span>
                   </div>
-                  <p className="text-[11px] text-stone-500 mt-1">
+                  <p className="text-xs text-stone-500 mt-1">
                     Divided into <strong className="text-white">{adminTotalInstallments} equal instalments</strong> of{" "}
                     <strong className="text-emerald-400 font-mono">₹{autoInstallmentRounded.toLocaleString("en-IN")}</strong> each
                   </p>
@@ -627,7 +627,7 @@ export const TierPurchaseModal = ({
                   <span className="text-xl font-black font-mono text-cyan-400">
                     {adminTotalInstallments}
                   </span>
-                  <span className="text-[9px] text-stone-500 block font-bold uppercase tracking-wider">
+                  <span className="text-xs text-stone-500 block font-bold uppercase tracking-wider">
                     Instalments
                   </span>
                 </div>
@@ -637,7 +637,7 @@ export const TierPurchaseModal = ({
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
                   <span>Select Payment Frequency</span>
-                  <span className="text-[10px] text-stone-500 font-normal">Available Cycles</span>
+                  <span className="text-xs text-stone-500 font-normal">Available Cycles</span>
                 </label>
                 <select
                   value={customPeriod}
@@ -650,7 +650,7 @@ export const TierPurchaseModal = ({
                     </option>
                   ))}
                 </select>
-                <span className="text-[10px] text-stone-500 mt-1 block">
+                <span className="text-xs text-stone-500 mt-1 block">
                   Select payment cycle interval allowed by instructor.
                 </span>
               </div>
@@ -670,7 +670,7 @@ export const TierPurchaseModal = ({
                         <span className="font-black text-white text-xs block">
                           {getOrdinal(idx + 1)} Instalment
                         </span>
-                        <span className="text-[11px] text-stone-600 font-medium">
+                        <span className="text-xs text-stone-600 font-medium">
                           {getPeriodOffsetLabel(idx, customPeriod)}
                         </span>
                       </div>
@@ -680,7 +680,7 @@ export const TierPurchaseModal = ({
                         ₹{autoInstallmentRounded.toLocaleString("en-IN")}
                       </span>
                       {idx === 0 && (
-                        <span className="block text-[9px] font-bold text-emerald-400">
+                        <span className="block text-xs font-bold text-emerald-400">
                           Due Today (DOP)
                         </span>
                       )}
@@ -694,7 +694,7 @@ export const TierPurchaseModal = ({
                 <h5 className="font-black text-stone-800 text-xs flex items-center gap-1.5">
                   <Info size={13} className="text-[#c4431d]" /> Important Information
                 </h5>
-                <ul className="space-y-1 text-[11px] text-stone-600 list-disc list-inside">
+                <ul className="space-y-1 text-xs text-stone-600 list-disc list-inside">
                   <li>
                     Please note that if the student fails to pay his instalments on time, access to upcoming curriculum may be temporarily placed on hold until renewed.
                   </li>
@@ -708,7 +708,7 @@ export const TierPurchaseModal = ({
               {/* Bottom Price Summary & Create Action */}
               <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-stone-200">
                 <div>
-                  <span className="text-[11px] text-stone-600 block font-medium">
+                  <span className="text-xs text-stone-600 block font-medium">
                     {adminTotalInstallments} instalments · ₹{autoInstallmentRounded.toLocaleString("en-IN")} each
                   </span>
                   <span className="text-sm md:text-base font-black text-white font-mono">
@@ -757,7 +757,7 @@ export const TierPurchaseModal = ({
                 <span className="text-xs font-black text-[#942008] flex items-center gap-1.5">
                   🎁 {mergedTier.offerTitle}
                 </span>
-                <span className="text-[10px] font-black text-white bg-gradient-to-r from-red-500 to-rose-600 px-2.5 py-0.5 rounded-lg shadow-md animate-pulse flex items-center gap-1">
+                <span className="text-xs font-black text-white bg-gradient-to-r from-red-500 to-rose-600 px-2.5 py-0.5 rounded-lg shadow-md animate-pulse flex items-center gap-1">
                   <Flame size={10} /> {offerBadge} ACTIVE
                 </span>
               </div>
@@ -784,7 +784,7 @@ export const TierPurchaseModal = ({
                       else if (vDays > 0) vText = `⏳ ${vDays} Days Validity`;
 
                       return (
-                        <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                        <span className="text-xs font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
                           {vText}
                         </span>
                       );
@@ -813,7 +813,7 @@ export const TierPurchaseModal = ({
                       <span className="text-2xl font-black text-amber-400 font-mono">
                         ₹{finalNumericPrice.toLocaleString("en-IN")}
                       </span>
-                      <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded-lg shadow-md flex items-center gap-1 animate-pulse">
+                      <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-xs px-2 py-0.5 rounded-lg shadow-md flex items-center gap-1 animate-pulse">
                         <Flame size={10} /> {offerBadge}
                       </span>
                     </>
@@ -830,7 +830,7 @@ export const TierPurchaseModal = ({
                     </>
                   )}
                 </div>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-0.5">
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full mt-0.5">
                   Instant Auto-Activation
                 </span>
               </div>

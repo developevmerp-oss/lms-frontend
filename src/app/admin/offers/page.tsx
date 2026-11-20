@@ -21,6 +21,7 @@ import {
   Globe,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 export interface LevelOffer {
@@ -222,23 +223,24 @@ export default function AdminOffersPage() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              {/* <Percent size={13} className="text-[#c4431d]" /> */}
               <span>Marketing &amp; Growth</span>
               <span className="text-stone-300">/</span>
               <span className="text-stone-700 font-medium">Special Offers &amp; Campaigns</span>
             </div>
-            <h1 className="text-2xl sm:text-[28px] font-bold text-stone-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Special Offers &amp; Campaign Manager
             </h1>
             <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Create, schedule, and manage multiple promotional discount campaigns for each level tier.
             </p>
           </div>
+          */}
 
           <button
             onClick={openCreateModal}
@@ -336,7 +338,7 @@ export default function AdminOffersPage() {
 
         {/* Offers Cards Grid */}
         {isLoading ? (
-          <div className="p-16 text-center text-stone-400 font-medium text-sm md:text-base lg:text-sm">Loading campaign offers...</div>
+          <CardGridSkeleton count={4} />
         ) : filteredOffers.length === 0 ? (
           <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/60 p-8">
             <Tag size={40} className="text-stone-300 mx-auto mb-3" />

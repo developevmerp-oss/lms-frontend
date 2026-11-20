@@ -29,7 +29,28 @@ interface StudentNavProps {
   points: number;
   logout: () => void;
   notifications?: any[];
+  title?: string;
 }
+
+const getStudentPageTitle = (path: string, customTitle?: string): string => {
+  if (customTitle) return customTitle;
+  if (!path) return 'Dashboard';
+  if (path === '/student/dashboard' || path === '/student') return 'Dashboard';
+  if (path.startsWith('/student/profile')) return 'My Profile';
+  if (path.startsWith('/student/feed')) return 'Sisterhood Community Feed';
+  if (path.startsWith('/student/courses')) return 'Course Library & Video Modules';
+  if (path.startsWith('/student/events')) return 'Live Coaching & Attendance Portal';
+  if (path.startsWith('/student/webinar')) return 'Webinar Schedule Hub';
+  if (path.startsWith('/student/northstar')) return 'Northstar Revenue & Goal Tracker';
+  if (path.startsWith('/student/rewards')) return 'Rewards Store';
+  if (path.startsWith('/student/leaderboard')) return 'Global Leaderboard';
+  if (path.startsWith('/student/tasks')) return 'Daily Tasks & Missions';
+  if (path.startsWith('/student/certificates')) return 'My Certificates';
+  if (path.startsWith('/student/portfolio')) return 'My Portfolio';
+  if (path.startsWith('/student/affiliate')) return 'Partner & Affiliate Program';
+  if (path.startsWith('/student/notifications')) return 'Notifications & Broadcasts';
+  return 'Student Hub';
+};
 
 export function getLevelCode(levelName?: string, _points: number = 0): 'GENERAL' | 'L0' | 'L1' | 'L2' | 'L3' | 'L3+' {
   const raw = (levelName || '').toUpperCase().trim();
@@ -52,11 +73,13 @@ export function getLevelCode(levelName?: string, _points: number = 0): 'GENERAL'
   return 'GENERAL';
 }
 
-export const StudentNav = ({ user, level, points, logout, notifications = [] }: StudentNavProps) => {
+export const StudentNav = ({ user, level, points, logout, notifications = [], title }: StudentNavProps) => {
   const pathname = usePathname();
   const { user: authUser, logout: authLogout } = useAuth();
   const effectiveUser = authUser || user;
   const effectiveLogout = logout || authLogout;
+
+  const pageTitle = getStudentPageTitle(pathname, title);
 
   // Determine student display name & initial
   const studentName =
@@ -324,84 +347,81 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
         description={lockModal.description}
       />
 
-      {/* Mobile Top Header Bar (< 1024px) */}
-      <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-stone-200/80 px-3 sm:px-4 py-2.5 flex items-center justify-between shadow-xs">
-        <Link href="/student/dashboard" className="flex items-center gap-2">
-          <img
-            src="/favicon.png"
-            alt="Favicon"
-            className="w-8 h-8 object-contain shrink-0"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/brand-emblem.png';
-            }}
-          />
-          <span className="font-bold text-stone-900 text-xs sm:text-sm">Ravishing Art</span>
-          <span className="bg-[#fff2e8] text-[#c4431d] border border-[#fbdcd0] text-[0.625rem] font-bold px-1.5 py-0.5 rounded uppercase leading-none">
-            Studio
-          </span>
-        </Link>
-
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* XP & Level Pill on Mobile */}
-          <Link
-            href="/student/profile"
-            className="flex items-center gap-1.5 bg-[#fde5d6] border border-[#f5ded0] rounded-xl px-2 sm:px-2.5 py-1 text-[0.6875rem] sm:text-xs font-black text-stone-900 shadow-2xs"
-            title="My XP & Level"
+      {/* Top Bar matching Reference Image 4 (Left: Page Title, Right: Profile Pill) */}
+      <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-stone-200/80 px-4 sm:px-6 lg:px-8 h-16 sm:h-[68px] flex items-center justify-between shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
+        {/* Left: Mobile Menu Toggle (< 1024px) + Page Title */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            className="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors cursor-pointer shrink-0"
+            aria-label="Toggle navigation"
           >
-            <Trophy size={13} className="text-[#c4431d] shrink-0" />
-            <span className="font-mono">{points.toLocaleString()} XP</span>
-            <span className="text-stone-400">·</span>
-            <span className="text-[#942008] font-bold">{studentLevelCode === 'GENERAL' ? 'Gen' : studentLevelCode}</span>
-          </Link>
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
 
-          {/* Mobile Notifications Bell */}
+          <h1 className="text-base sm:text-xl lg:text-2xl font-bold text-stone-900 tracking-tight truncate">
+            {pageTitle}
+          </h1>
+        </div>
+
+        {/* Right: Notifications & User Profile Pill matching Reference Image 4 */}
+        <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
+          {/* Notifications Bell */}
           <div className="relative" ref={mobileNotifRef}>
             <button
               type="button"
               onClick={() => setShowMobileNotifications((prev) => !prev)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-600 flex items-center justify-center transition-colors relative cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-600 flex items-center justify-center transition-colors relative cursor-pointer"
               aria-label="Notifications"
             >
-              <Bell size={16} />
+              <Bell size={17} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-gradient-to-r from-[#942008] to-[#ea580c] text-white rounded-full text-[0.5625rem] font-bold flex items-center justify-center animate-pulse">
-                  {unreadCount}
+                <span className="absolute -top-1.5 -right-1.5 min-w-[1.125rem] h-[1.125rem] px-1 bg-gradient-to-r from-[#942008] to-[#ea580c] text-white rounded-full text-[0.625rem] font-black flex items-center justify-center ring-2 ring-white shadow-xs animate-pulse">
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </button>
 
             {showMobileNotifications && (
-              <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 rounded-2xl bg-white border border-[#ecdccb] shadow-2xl p-4 z-50 animate-in fade-in duration-200">
+              <div className="fixed left-3 right-3 top-18 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 rounded-2xl bg-white border border-[#ecdccb] shadow-2xl p-4 z-50 animate-in fade-in duration-200">
                 {renderNotificationList(true)}
               </div>
             )}
           </div>
 
-          {/* User Avatar Circle on Mobile Header */}
+          {/* User Profile Pill matching Reference Image 4 */}
           <button
             type="button"
             onClick={() => setIsProfileModalOpen(true)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-[#f5ded0] shadow-2xs shrink-0 bg-[#fde5d6] flex items-center justify-center text-xs font-black text-[#942008] cursor-pointer"
+            className="flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl hover:bg-stone-50 transition-all cursor-pointer group text-left shrink-0"
             title="Edit Profile"
           >
-            {effectiveUser?.avatarUrl ? (
-              <img src={effectiveUser.avatarUrl} alt={studentName} className="w-full h-full object-cover" />
-            ) : (
-              <span>{studentInitial}</span>
-            )}
-          </button>
+            {/* Avatar Circle */}
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#c4431d] text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 overflow-hidden shadow-xs ring-2 ring-[#c4431d]/20 group-hover:ring-[#c4431d]/40 transition-all">
+              {effectiveUser?.avatarUrl ? (
+                <img
+                  src={effectiveUser.avatarUrl}
+                  alt={studentName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{studentInitial}</span>
+              )}
+            </div>
 
-          {/* Mobile Hamburger Toggle */}
-          <button
-            type="button"
-            onClick={() => setMobileOpen((prev) => !prev)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 flex items-center justify-center transition-colors cursor-pointer"
-            aria-label="Toggle navigation"
-          >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {/* User Info (Name + Level Subtitle) */}
+            <div className="hidden sm:flex flex-col min-w-0 max-w-[160px] md:max-w-[200px]">
+              <span className="text-xs sm:text-sm font-bold text-stone-900 truncate leading-snug group-hover:text-[#c4431d] transition-colors">
+                {studentName}
+              </span>
+              <span className="text-[0.6875rem] sm:text-xs text-stone-500 font-medium truncate leading-tight mt-0.5">
+                {studentLevelCode !== 'GENERAL' ? `${studentLevelCode} Student` : 'Student'}
+              </span>
+            </div>
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Mobile Backdrop Overlay */}
       {mobileOpen && (
@@ -464,7 +484,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#942008] to-[#ea580c] text-white rounded-full text-[9px] font-black flex items-center justify-center animate-pulse">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#942008] to-[#ea580c] text-white rounded-full text-[0.625rem] font-black flex items-center justify-center animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -525,38 +545,7 @@ export const StudentNav = ({ user, level, points, logout, notifications = [] }: 
           })}
         </div>
 
-        {/* Bottom Section: Profile Card only (Logout button in Edit Profile modal) */}
-        <div className="p-3 border-t border-stone-200/70 shrink-0 bg-white">
-          <button
-            type="button"
-            onClick={() => setIsProfileModalOpen(true)}
-            className="w-full p-2.5 sm:p-3 flex items-center gap-5  transition-all cursor-pointer text-left shadow-2xs group"
-            title="Edit Profile"
-          >
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm sm:text-base flex items-center justify-center shrink-0 border border-[#f5ded0] overflow-hidden">
-              {effectiveUser?.avatarUrl ? (
-                <img
-                  src={effectiveUser.avatarUrl}
-                  alt={studentName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span>{studentInitial}</span>
-              )}
-            </div>
-
-            {/* User Info */}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm sm:text-base font-bold text-stone-900 truncate leading-tight group-hover:text-[#9b2c16] transition-colors">
-                {studentName}
-              </p>
-              {/* <p className="text-[0.6875rem] sm:text-xs text-stone-400 font-medium leading-tight mt-0.5">
-                Edit Profile 
-              </p> */}
-            </div>
-          </button>
-        </div>
+        {/* Bottom Section: Profile card removed per user request (already available in top bar) */}
       </aside>
     </>
   );
