@@ -37,8 +37,10 @@ import {
   ChevronRight,
   ChevronDown,
   MoreHorizontal,
+  MoreVertical,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
 
 interface LevelTier {
@@ -483,7 +485,7 @@ export default function AdminLevels() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -493,21 +495,25 @@ export default function AdminLevels() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <Trophy size={13} className="text-[#c4431d]" /> Membership Tier Hierarchy &amp; Pricing
-            </span>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Memberships</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Tier Hierarchy &amp; Pricing</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Membership Level &amp; Price Settings
             </h1>
-            <p className="text-stone-500 mt-1 text-xs sm:text-sm lg:text-base font-medium">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Manage level titles, customize offer prices (₹499, ₹4,999, ₹19,999, ₹59,999), and edit access privileges.
             </p>
           </div>
+          */}
 
           <button
             onClick={openCreateModal}
@@ -590,7 +596,7 @@ export default function AdminLevels() {
 
         {/* Level Tiers Grid */}
         {isLoading ? (
-          <div className="p-16 text-center text-stone-400 text-xs sm:text-sm lg:text-base">Loading level configurations...</div>
+          <CardGridSkeleton count={4} />
         ) : levels.length === 0 ? (
           <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/40 p-8">
             <Trophy size={40} className="text-stone-400 mx-auto mb-3" />
@@ -629,153 +635,210 @@ export default function AdminLevels() {
                 const isInstallmentsExpanded = expandedInstallmentsTierId === tier.id;
                 const isMenuOpen = openCardMenuId === tier.id;
 
+                // Active offer & discount calculation
+                const activeOffer = offersForLevel.find(o => o.isActive !== false);
+                const hasDirectOffer = Boolean(tier.offerActive && (tier.discountValue || 0) > 0);
+                const hasCampaignOffer = Boolean(activeOffer && (activeOffer.discountValue || 0) > 0);
+                const hasDiscount = hasDirectOffer || hasCampaignOffer;
+                const primaryOffer = hasDirectOffer ? {
+                  title: tier.offerTitle || 'Special Offer',
+                  discountType: tier.discountType || 'percentage',
+                  discountValue: tier.discountValue || 0,
+                } : activeOffer;
+
+                const discType = primaryOffer?.discountType || 'percentage';
+                const discVal = Number(primaryOffer?.discountValue) || 0;
+                const numPrice = parseInt(displayPrice.replace(/[^0-9]/g, ''), 10) || 0;
+                let finalPrice = numPrice;
+                let discountPercentLabel = "";
+
+                if (hasDiscount && discVal > 0) {
+                  if (discType === 'percentage') {
+                    finalPrice = Math.max(0, Math.round(numPrice * (1 - discVal / 100)));
+                    discountPercentLabel = `${discVal}% OFF`;
+                  } else {
+                    finalPrice = Math.max(0, numPrice - discVal);
+                    discountPercentLabel = `₹${discVal} OFF`;
+                  }
+                }
+
+                // Header badge text and emblem name matching reference image exactly
+                const getLevelBadgeText = (code: string) => {
+                  const digits = code.replace(/\D/g, '');
+                  return digits ? `Level ${digits}` : code;
+                };
+
+                const getEmblemName = (code: string, name: string) => {
+                  if (code === 'L0') return 'FOUNDATION';
+                  if (code === 'L1') return 'SILVER';
+                  if (code === 'L2') return 'GOLD';
+                  if (code === 'L3') return 'DIAMOND';
+                  const cleaned = name.split(':')[0].replace(/Membership|Club|Tier/gi, '').trim().toUpperCase();
+                  return cleaned || code;
+                };
+
                 return (
                   <div
                     key={tier.id}
                     data-color={colorConfig.value}
-                    className={`rounded-3xl border flex flex-col justify-between transition-all duration-200 ${isPub
+                    className={`rounded-3xl border flex flex-col justify-between transition-all duration-200 overflow-hidden ${isPub
                       ? 'border-[#ecdccb] bg-white shadow-[0_10px_28px_-10px_rgba(45,30,15,0.08)] hover:border-[#c4431d]/40'
                       : 'border-stone-200 bg-[#fcfaf7] opacity-85'
                       }`}
                   >
-                    {/* Top Visual Area: Banner Image OR Clean Pill Header Bar */}
+                    {/* Top Visual Area: Banner Image OR Level Code Center Box matching Attached Reference Image */}
                     {tier.thumbnail ? (
-                      <div className="relative w-full h-48 sm:h-52 lg:h-56 bg-stone-100 overflow-hidden rounded-t-3xl border-b border-stone-100">
+                      <div className="relative w-full h-44 sm:h-48 lg:h-52 bg-stone-100 overflow-hidden border-b border-stone-100">
                         <img
                           src={getImageUrl(tier.thumbnail)}
                           alt={tier.name}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-                          <span className="px-3 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-white/95 backdrop-blur-xs text-[#942008] border border-[#f5ded0]/80 shadow-xs">
-                            {tier.code}
+                        {/* Overlay Badges */}
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#1e293b] text-white shadow-xs">
+                            {getLevelBadgeText(tier.code)}
                           </span>
-                          <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-white/95 backdrop-blur-xs border shadow-xs inline-flex items-center gap-1.5 ${isPub ? 'border-emerald-200 text-emerald-700' : 'border-rose-200 text-rose-700'
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold bg-white shadow-xs inline-flex items-center gap-1.5 ${isPub ? 'text-emerald-700' : 'text-stone-500'
                             }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                            {isPub ? 'Enabled' : 'Disabled'}
+                            <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-500' : 'bg-stone-400'}`} />
+                            {isPub ? 'Active' : 'Inactive'}
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className="px-5 sm:px-6 py-3.5 bg-[#fcfaf7] border-b border-stone-100 rounded-t-3xl flex items-center justify-between gap-2">
-                        <span className="px-3 py-1 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider bg-white text-[#942008] border border-[#f5ded0] shadow-xs">
-                          {tier.code}
-                        </span>
-                        <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-white border shadow-xs inline-flex items-center gap-1.5 ${isPub ? 'border-emerald-200 text-emerald-700' : 'border-rose-200 text-rose-700'
-                          }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                          {isPub ? 'Enabled' : 'Disabled'}
+                      <div className="relative w-full h-44 sm:h-48 lg:h-52 bg-[#f4f7fa] overflow-hidden border-b border-stone-100 flex flex-col items-center justify-center">
+                        {/* Overlay Badges */}
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#1e293b] text-white shadow-xs">
+                            {getLevelBadgeText(tier.code)}
+                          </span>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold bg-white shadow-xs inline-flex items-center gap-1.5 ${isPub ? 'text-emerald-700' : 'text-stone-500'
+                            }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isPub ? 'bg-emerald-500' : 'bg-stone-400'}`} />
+                            {isPub ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+
+                        {/* Center Box Showing Level Code directly */}
+                        <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-stone-100/80 flex items-center justify-center">
+                          <span className="font-black text-xl text-stone-900 tracking-tight">
+                            {tier.code}
+                          </span>
+                        </div>
+                        <span className="text-[0.625rem] tracking-wider uppercase text-stone-400 font-bold mt-2.5">
+                          TIER EMBLEM • {getEmblemName(tier.code, tier.name)}
                         </span>
                       </div>
                     )}
 
                     {/* Main Card Body */}
-                    <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-5 flex-1 flex flex-col">
-                      {/* Header Row: Icon + Code/Order + Name + Price Pill */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-11 h-11 rounded-full bg-[#fff2e6] border border-[#fde0c6] flex items-center justify-center text-xl sm:text-2xl shrink-0">
-                            {tier.icon || '⭐'}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="text-xs sm:text-sm font-bold text-[#942008] tracking-wide">
-                                {tier.code} Tier
-                              </span>
-                              <span className="text-stone-300" aria-hidden="true">·</span>
-                              <span className="text-xs text-stone-400 font-semibold">
-                                Order #{tier.order}
-                              </span>
-                            </div>
-                            <h3 className="text-base sm:text-lg lg:text-xl font-black text-stone-900 leading-snug break-words">
-                              {tier.name}
-                            </h3>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          <span className="text-xs sm:text-sm lg:text-base font-black text-[#c4431d] font-mono bg-[#fff7ed] border border-[#fed7aa] px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap shadow-xs">
-                            <Tag size={14} className="text-[#ea580c]" /> {displayPrice}
+                    <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        {/* Line 1: Sequence Order & Tier Code Pill */}
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="text-xs text-stone-400 font-medium">
+                            Sequence Order #{tier.order}
                           </span>
-
-                          {tier.offerActive && (
-                            <div className="flex flex-col items-end gap-1">
-                              {tier.offerTitle && (
-                                <span className="text-xs font-extrabold text-rose-700 tracking-tight text-right">
-                                  🎁 {tier.offerTitle}
-                                </span>
-                              )}
-                              <span className="bg-gradient-to-r from-red-500 to-rose-600 text-white font-black text-xs px-2 py-0.5 rounded-lg shadow-xs inline-flex items-center gap-1 whitespace-nowrap">
-                                <Flame size={11} />
-                                {tier.discountType === "percentage" ? `${tier.discountValue}% OFF` : `₹${tier.discountValue} OFF`}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Description */}
-                      <p className="mt-3 text-xs sm:text-sm lg:text-base text-stone-600 leading-relaxed">
-                        {tier.description || "Full membership tier benefits and unlocked portal privileges."}
-                      </p>
-
-                      {/* Category & Validity Pills */}
-                      <div className="mt-4 flex flex-wrap items-center gap-2">
-                        <span className="bg-[#f6f3ee] border border-[#eae4dc] text-stone-800 font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
-                          📂 {tier.category || 'General'}
-                        </span>
-                        <span className="bg-[#eef6ff] border border-[#d6e8ff] text-[#2563eb] font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
-                          {validityText}
-                        </span>
-                      </div>
-
-                      {/* Clean Hairline Divider Rows */}
-                      <div className="mt-5 border-t border-stone-200/80 divide-y divide-stone-200/80">
-                        {/* Row 1: Assigned Members */}
-                        <div className="py-3 flex items-center justify-between gap-2 text-xs sm:text-sm lg:text-base">
-                          <span className="inline-flex items-center gap-2 font-medium text-stone-600">
-                            <Users size={15} className="text-[#c4431d] shrink-0" /> Assigned Members
-                          </span>
-                          <span className="inline-flex items-center gap-1 font-bold text-stone-900">
-                            {studentCount} Students <ChevronRight size={15} className="text-stone-400" />
+                          <span className="bg-stone-100 text-stone-600 text-[0.6875rem] font-semibold px-2 py-0.5 rounded">
+                            Tier {tier.code}
                           </span>
                         </div>
 
-                        {/* Row 2: Level Offers (Accordion Row) */}
-                        <div className="py-3 text-xs sm:text-sm lg:text-base">
-                          <div className="flex items-center justify-between gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setExpandedOffersTierId(isOffersExpanded ? null : tier.id)}
-                              className="flex-1 flex items-center justify-between gap-2 text-left cursor-pointer group"
-                            >
-                              <span className="inline-flex items-center gap-2 font-medium text-stone-600 group-hover:text-stone-900 transition-colors">
-                                <Tag size={15} className="text-[#c4431d] shrink-0" /> Level Offers ({offersForLevel.length})
+                        {/* Line 2: Title and Price */}
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="text-base sm:text-lg font-black text-stone-900 leading-snug break-words flex-1">
+                            {tier.name}
+                          </h3>
+
+                          {/* Price Display */}
+                          <div className="shrink-0 flex flex-col items-end gap-0.5">
+                            {hasDiscount ? (
+                              <>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-stone-400 line-through font-semibold font-mono">
+                                    {displayPrice}
+                                  </span>
+                                  <span className="text-base font-black text-[#0f766e] font-mono bg-[#e6fcf5] px-2.5 py-0.5 rounded-lg inline-flex items-center">
+                                    ₹{finalPrice.toLocaleString('en-IN')}
+                                  </span>
+                                </div>
+                                {discountPercentLabel && (
+                                  <span className="text-[0.625rem] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">
+                                    {discountPercentLabel}
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-base font-black text-[#0f766e] font-mono bg-[#e6fcf5] px-2.5 py-0.5 rounded-lg inline-flex items-center">
+                                {displayPrice}
                               </span>
-                            </button>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => openAddOfferForLevelModal(tier.code)}
-                                className="px-2.5 py-0.5 rounded-full bg-[#fff5ee] hover:bg-[#fde5d6] text-[#942008] border border-[#f5ded0] text-xs font-bold transition-colors cursor-pointer"
-                              >
-                                + Add Offer
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setExpandedOffersTierId(isOffersExpanded ? null : tier.id)}
-                                className="p-0.5 text-stone-400 hover:text-stone-700 cursor-pointer"
-                                aria-label={isOffersExpanded ? "Collapse level offers" : "Expand level offers"}
-                              >
-                                {isOffersExpanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
-                              </button>
-                            </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Line 3: Description */}
+                        <p className="mt-2 text-xs text-stone-500 leading-relaxed line-clamp-2">
+                          {tier.description || "Core techniques, first client sale, and portfolio building"}
+                        </p>
+
+                        {/* Line 4: Badges Row */}
+                        <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                          <span className="bg-[#eff6ff] text-[#2563eb] border border-[#dbeafe] text-xs font-semibold px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                            {validityText}
+                          </span>
+                          <span className="bg-stone-100 text-stone-600 border border-stone-200 text-xs font-semibold px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                            📁 {tier.category || 'General'}
+                          </span>
+                        </div>
+
+                        {/* Line 5: Soft Boxed Section with Divider Items */}
+                        <div className="bg-[#f8fafc] rounded-2xl p-3.5 space-y-2.5 border border-stone-100/80 mt-4">
+                          {/* Row 1: Assigned Members */}
+                          <div className="flex items-center justify-between gap-2 text-xs">
+                            <span className="inline-flex items-center gap-2 font-medium text-stone-600">
+                              <Users size={14} className="text-stone-400 shrink-0" /> Assigned Members
+                            </span>
+                            <span className="inline-flex items-center gap-1 font-bold text-stone-900">
+                              {studentCount} Students <ChevronRight size={14} className="text-stone-400" />
+                            </span>
                           </div>
 
-                          {isOffersExpanded && (
-                            <div className="mt-2.5 pl-6 space-y-1.5">
-                              {offersForLevel.length > 0 ? (
+                          {/* Row 2: Level Offers */}
+                          <div className="text-xs">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="inline-flex items-center gap-2 font-medium text-stone-600">
+                                <Tag size={14} className="text-stone-400 shrink-0" /> Level Offers
+                              </span>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {hasDiscount && primaryOffer && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#ecfdf5] border border-emerald-200 text-[#059669] text-xs font-bold inline-flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    {primaryOffer.title || 'FESTIVE20'} ({discountPercentLabel})
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => openAddOfferForLevelModal(tier.code)}
+                                  className="px-2.5 py-0.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                                >
+                                  + Add Offer
+                                </button>
+                                {offersForLevel.length > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedOffersTierId(isOffersExpanded ? null : tier.id)}
+                                    className="p-0.5 text-stone-400 hover:text-stone-700 cursor-pointer"
+                                    aria-label={isOffersExpanded ? "Collapse level offers" : "Expand level offers"}
+                                  >
+                                    {isOffersExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {isOffersExpanded && offersForLevel.length > 0 && (
+                              <div className="mt-2.5 pl-5 space-y-1.5">
                                 <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
                                   {offersForLevel.map((off) => (
                                     <div key={off.id} className="flex items-center justify-between gap-2 text-xs bg-[#fcfaf7] px-2.5 py-1.5 rounded-xl border border-[#ecdccb]/80">
@@ -789,150 +852,133 @@ export default function AdminLevels() {
                                     </div>
                                   ))}
                                 </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Row 3: Installments */}
+                          <div className="py-2.5 text-xs flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-2 font-medium text-stone-600">
+                              <CreditCard size={14} className={tier.installmentsEnabled ? "text-emerald-600 shrink-0" : "text-stone-400 shrink-0"} /> Installments
+                            </span>
+                            {tier.installmentsEnabled ? (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedInstallmentsTierId(isInstallmentsExpanded ? null : tier.id)}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full cursor-pointer"
+                              >
+                                Active ({activeFreqs.length} Plans) {isInstallmentsExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                              </button>
+                            ) : (
+                              <span className="text-xs text-stone-400 font-medium">
+                                Disabled (Full payment only)
+                              </span>
+                            )}
+                          </div>
+
+                          {isInstallmentsExpanded && tier.installmentsEnabled && (
+                            <div className="mt-2.5 pl-5 space-y-1.5 pb-1">
+                              {activeFreqs.length > 0 ? (
+                                <>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {activeFreqs.map((f) => (
+                                      <span
+                                        key={f.frequency}
+                                        className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-[#fcfaf7] border border-stone-200 text-stone-700"
+                                      >
+                                        🗓️ {f.label}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  <p className="text-xs text-stone-500">
+                                    Students enter count (2-12) &amp; choose frequency; price auto-divides from {displayPrice}.
+                                  </p>
+                                </>
                               ) : (
-                                <p className="text-xs text-stone-400 font-medium">
-                                  No campaign offers added for {tier.code} yet.
+                                <p className="text-xs text-amber-800 font-medium">
+                                  Installments active. Edit tier to check allowed frequencies.
                                 </p>
                               )}
                             </div>
                           )}
                         </div>
-
-                        {/* Row 3: Installment Plans */}
-                        <div className="py-3 text-xs sm:text-sm lg:text-base">
-                          {tier.installmentsEnabled ? (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => setExpandedInstallmentsTierId(isInstallmentsExpanded ? null : tier.id)}
-                                className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
-                              >
-                                <span className="inline-flex items-center gap-2 font-medium text-stone-600">
-                                  <CreditCard size={15} className="text-emerald-600 shrink-0" /> Installments Enabled
-                                </span>
-                                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                                  Active {isInstallmentsExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                                </span>
-                              </button>
-                              {isInstallmentsExpanded && (
-                                <div className="mt-2.5 pl-6 space-y-1.5">
-                                  {activeFreqs.length > 0 ? (
-                                    <>
-                                      <div className="flex flex-wrap gap-1.5">
-                                        {activeFreqs.map((f) => (
-                                          <span
-                                            key={f.frequency}
-                                            className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-[#fcfaf7] border border-stone-200 text-stone-700"
-                                          >
-                                            🗓️ {f.label}
-                                          </span>
-                                        ))}
-                                      </div>
-                                      <p className="text-xs text-stone-500">
-                                        Students enter count (2-12) &amp; choose frequency; price auto-divides from {displayPrice}.
-                                      </p>
-                                    </>
-                                  ) : (
-                                    <p className="text-xs text-amber-800 font-medium">
-                                      Installments active. Edit tier to check allowed frequencies.
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="inline-flex items-center gap-2 font-medium text-stone-500">
-                                <CreditCard size={15} className="text-stone-400 shrink-0" /> Installments: Disabled
-                              </span>
-                              <span className="text-xs text-stone-400 font-medium">Full payment only</span>
-                            </div>
-                          )}
-                        </div>
                       </div>
-                    </div>
 
-                    {/* Card Footer: Edit Tier & Price | Status Switch | More Menu */}
-                    <div className="mt-auto px-5 pb-5 pt-2 sm:px-6 sm:pb-6 flex items-center gap-2.5 relative">
-                      <button
-                        onClick={() => openEditModal(tier)}
-                        className="flex-1 h-9 bg-white hover:bg-stone-50 text-stone-900 font-bold text-xs sm:text-sm lg:text-base rounded-2xl border border-stone-200/90 shadow-xs transition-colors inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap px-3"
-                      >
-                        <Edit2 size={14} /> Edit Tier &amp; Price
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setStatusModalTier(tier)}
-                        className={`w-12 h-7 rounded-full p-1 transition-colors duration-500 flex items-center cursor-pointer shrink-0 shadow-inner ${isPub ? 'bg-[#4f9a3d]' : 'bg-stone-300'
-                          }`}
-                        title={isPub ? "Level Enabled — click to change visibility" : "Level Disabled — click to change visibility"}
-                        aria-label={isPub ? "Change level status (currently enabled)" : "Change level status (currently disabled)"}
-                      >
-                        <span
-                          className={`w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform duration-500 ease-in-out ${isPub ? 'translate-x-5' : 'translate-x-0'
-                            }`}
-                        >
-                          <span
-                            className={`inline-flex items-center justify-center transition-transform duration-500 ease-in-out ${isPub ? 'rotate-[360deg] text-[#4f9a3d]' : 'rotate-0 text-rose-600'
-                              }`}
-                          >
-                            {isPub ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
-                          </span>
-                        </span>
-                      </button>
-
-                      <div className="relative shrink-0">
+                      {/* Card Footer: Edit Details & Price | Status Switch | More Menu */}
+                      <div className="pt-4 flex items-center gap-2 relative">
                         <button
-                          type="button"
-                          onClick={() => setOpenCardMenuId(isMenuOpen ? null : tier.id)}
-                          className="w-9 h-9 rounded-full border border-stone-200/90 bg-white hover:bg-stone-50 text-stone-700 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
-                          title="More actions"
-                          aria-label="More actions"
+                          onClick={() => openEditModal(tier)}
+                          className="flex-1 h-9 bg-[#f8fafc] hover:bg-stone-100 text-stone-800 font-bold text-xs sm:text-sm rounded-xl border border-stone-200/80 shadow-none transition-colors inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap px-3"
                         >
-                          <MoreHorizontal size={16} />
+                          <Edit2 size={13} /> Edit Details &amp; Price
                         </button>
 
-                        {isMenuOpen && (
-                          <>
-                            <div
-                              className="fixed inset-0 z-10"
-                              onClick={() => setOpenCardMenuId(null)}
-                            />
-                            <div className="absolute right-0 bottom-12 z-20 w-44 rounded-2xl bg-white border border-[#ecdccb] shadow-xl p-1.5 space-y-0.5 text-xs sm:text-sm">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setOpenCardMenuId(null);
-                                  setQrModalTier(tier);
-                                }}
-                                className="w-full px-3 py-2 rounded-xl text-left font-bold text-[#942008] hover:bg-[#fff5ee] flex items-center gap-2 cursor-pointer transition-colors"
-                              >
-                                <QrCode size={14} className="text-[#c4431d]" /> QR Code
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setOpenCardMenuId(null);
-                                  openAddOfferForLevelModal(tier.code);
-                                }}
-                                className="w-full px-3 py-2 rounded-xl text-left font-bold text-stone-700 hover:bg-stone-50 flex items-center gap-2 cursor-pointer transition-colors"
-                              >
-                                <Tag size={14} className="text-[#c4431d]" /> + Add Offer
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setOpenCardMenuId(null);
-                                  handleDeleteTier(tier.id, tier.code);
-                                }}
-                                className="w-full px-3 py-2 rounded-xl text-left font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer transition-colors"
-                              >
-                                <Trash2 size={14} /> Delete Tier
-                              </button>
-                            </div>
-                          </>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => setStatusModalTier(tier)}
+                          className={`w-12 h-7 rounded-full p-1 transition-colors duration-300 flex items-center cursor-pointer shrink-0 ${isPub ? 'bg-[#15803d]' : 'bg-stone-300'
+                            }`}
+                          title={isPub ? "Level Enabled — click to change visibility" : "Level Disabled — click to change visibility"}
+                          aria-label={isPub ? "Change level status (currently enabled)" : "Change level status (currently disabled)"}
+                        >
+                          <span
+                            className={`w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center transition-transform duration-300 ease-in-out ${isPub ? 'translate-x-5' : 'translate-x-0'
+                              }`}
+                          />
+                        </button>
+
+                        <div className="relative shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setOpenCardMenuId(isMenuOpen ? null : tier.id)}
+                            className="w-9 h-9 rounded-xl border border-stone-200/80 bg-[#f8fafc] hover:bg-stone-100 text-stone-700 flex items-center justify-center transition-colors cursor-pointer"
+                            title="More actions"
+                            aria-label="More actions"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+
+                          {isMenuOpen && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={() => setOpenCardMenuId(null)}
+                              />
+                              <div className="absolute right-0 bottom-12 z-20 w-44 rounded-2xl bg-white border border-stone-200/90 shadow-xl p-1.5 space-y-0.5 text-xs sm:text-sm">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenCardMenuId(null);
+                                    setQrModalTier(tier);
+                                  }}
+                                  className="w-full px-3 py-2 rounded-xl text-left font-bold text-stone-800 hover:bg-stone-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                                >
+                                  <QrCode size={14} className="text-stone-600" /> QR Code
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenCardMenuId(null);
+                                    openAddOfferForLevelModal(tier.code);
+                                  }}
+                                  className="w-full px-3 py-2 rounded-xl text-left font-bold text-stone-800 hover:bg-stone-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                                >
+                                  <Tag size={14} className="text-[#c4431d]" /> {hasDiscount ? 'Modify Offer' : '+ Add Offer'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenCardMenuId(null);
+                                    handleDeleteTier(tier.id, tier.code);
+                                  }}
+                                  className="w-full px-3 py-2 rounded-xl text-left font-bold text-[#b91c1c] hover:bg-rose-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                                >
+                                  <Trash2 size={14} /> Delete Tier
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

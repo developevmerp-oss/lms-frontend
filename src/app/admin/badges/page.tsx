@@ -18,8 +18,10 @@ import {
   Info,
   Send,
   X,
-  Search
+  Search,
+  ArrowDownRight
 } from "lucide-react";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 interface Badge {
@@ -44,6 +46,17 @@ const COLOR_OPTIONS = [
 ];
 
 const EMOJI_PRESETS = ['🎨', '💰', '💎', '⏰', '🔥', '🌊', '💐', '👑', '⭐', '⚡', '🏆', '🚀', '🔮', '🛡️', '🌟'];
+
+const PASTEL_BG_COLORS = [
+  "bg-[#fff2e8]",
+  "bg-[#fef9e7]",
+  "bg-[#fdf0f4]",
+  "bg-[#edf5fd]",
+  "bg-[#fff4eb]",
+  "bg-[#eaf6fc]",
+  "bg-[#f8edfb]",
+  "bg-[#fef7e9]",
+];
 
 export default function AdminBadges() {
   const { token, user, logout } = useAuth();
@@ -235,7 +248,7 @@ export default function AdminBadges() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -245,158 +258,147 @@ export default function AdminBadges() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <Award size={13} className="text-[#c4431d]" /> Gamification &amp; Recognition
-            </span>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#fde5d6]/80 border border-[#f5ded0] text-[#942008] text-[0.6875rem] sm:text-xs font-bold uppercase tracking-wider px-3 py-1 mb-2">
+              <span>GAMIFICATION &amp; RECOGNITION</span>
+            </div>
+            <h1 className="text-2xl sm:text-[1.75rem] font-bold text-stone-900 tracking-tight">
               Badge &amp; Reward Management
             </h1>
-            <p className="text-stone-500 mt-1 text-sm font-medium">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Create, edit, and award custom mastery badges and milestone honors to students.
             </p>
           </div>
+          */}
 
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 px-6 rounded-2xl shadow-md shadow-[#c4431d]/25 transition-all hover:scale-105 cursor-pointer self-start md:self-auto"
+            className="inline-flex items-center gap-1.5 bg-[#c4431d] hover:bg-[#a93313] text-white font-bold text-xs sm:text-sm h-10 px-4 sm:px-5 rounded-xl shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
           >
-            <Plus size={18} /> Create New Badge
+            <Plus size={16} /> Create New Badge
           </button>
         </div>
 
         {/* Success Alert */}
         {successMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">
-            <CheckCircle2 size={18} /> {successMsg}
+          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
           </div>
         )}
 
-        {/* Search & Filter Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white/95 border border-[#ecdccb] p-4 rounded-2xl shadow-xs">
-          <div className="relative w-full sm:w-80">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-              <Search size={16} />
-            </div>
+        {/* Search & Total Configured Badges Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          {/* Search Input */}
+          <div className="relative w-full sm:w-80 md:w-96">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search badges by title or criteria..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+              className="w-full bg-white border border-stone-200/90 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#c4431d] shadow-2xs transition-colors"
             />
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-stone-500 font-medium">
-            <span>
-              Total Configured Badges: <strong className="text-stone-900 font-mono">{badges.length}</strong>
+          {/* Total Configured Badges Badge */}
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-stone-500 font-medium self-end sm:self-auto">
+            <span>Total Configured Badges:</span>
+            <span className="inline-flex items-center justify-center min-w-[1.75rem] h-6 px-2 text-xs sm:text-sm font-bold text-stone-900 bg-white border border-stone-200/90 rounded-lg shadow-2xs font-mono">
+              {filteredBadges.length}
             </span>
           </div>
         </div>
 
-        {/* Badges Grid */}
+        {/* Badges Grid matching reference image */}
         {isLoading ? (
-          <div className="p-16 text-center text-stone-400 font-medium">Loading badges...</div>
+          <CardGridSkeleton count={6} />
         ) : filteredBadges.length === 0 ? (
-          <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/60 p-8">
-            <Award size={40} className="text-stone-300 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-stone-900 mb-1">No Badges Found</h3>
-            <p className="text-sm text-stone-500 mb-4 font-medium">Create badges to reward students for milestones and achievements.</p>
+          <div className="text-center py-16 rounded-2xl border border-dashed border-stone-300 bg-white/70 p-8">
+            <Award size={36} className="text-stone-300 mx-auto mb-3" />
+            <h3 className="text-sm sm:text-base font-bold text-stone-900 mb-1">No Badges Found</h3>
+            <p className="text-xs sm:text-sm text-stone-500 mb-4 font-medium">Create badges to reward students for milestones and achievements.</p>
             <button
               onClick={openCreateModal}
-              className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-xs cursor-pointer"
+              className="bg-[#c4431d] hover:bg-[#a93313] text-white font-bold text-xs h-9 px-4 rounded-xl shadow-xs cursor-pointer"
             >
               + Create First Badge
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1  lg:grid-cols-3 gap-5 sm:gap-6">
-            {filteredBadges.map((badge) => {
-              const pillClass = "bg-[#fff1eb] text-[#942008] border-[#f5ded0]/70";
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {filteredBadges.map((badge, index) => {
+              const bgClass = PASTEL_BG_COLORS[index % PASTEL_BG_COLORS.length];
 
               return (
                 <div
                   key={badge.id}
-                  className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#ecdccb]/90 bg-white shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] hover:shadow-md hover:border-[#c4431d]/30 transition-all duration-300 flex flex-col justify-between h-full min-h-[12.25rem] sm:min-h-[13rem] group"
+                  className="bg-white rounded-2xl border border-stone-200/80 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden group"
                 >
-                  {/* Decorative soft peach corner curve matching Image 2 */}
-                  <svg
-                    viewBox="0 0 100 100"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="absolute top-0 right-0 w-16 sm:w-20 h-10 sm:h-12 pointer-events-none z-0"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M0 0 C5 35 45 100 100 100 L100 0 Z"
-                      fill="#faeee5"
-                    />
-                  </svg>
-
                   {/* Upper Content Area */}
-                  <div className="relative z-10 p-5 sm:p-6 pb-4 sm:pb-5 flex items-start gap-4 sm:gap-4.5 flex-1">
-                    {/* Badge Icon Container */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#fdf6f0] border border-[#f3e5d7] flex items-center justify-center text-2xl sm:text-3xl shrink-0 group-hover:scale-105 transition-transform duration-300 select-none shadow-[0_2px_8px_-2px_rgba(90,55,20,0.06)]">
+                  <div className="p-4 sm:p-5 flex items-start gap-3.5">
+                    {/* Badge Icon Box with soft pastel background */}
+                    <div
+                      className={`w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shrink-0 group-hover:scale-105 transition-transform duration-200 select-none ${bgClass}`}
+                    >
                       {badge.icon || "🎨"}
                     </div>
 
                     {/* Details & XP */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-start">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-base sm:text-xl lg:text-lg font-bold text-stone-900 leading-snug tracking-tight">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-xs sm:text-sm font-bold text-stone-900 truncate" title={badge.name}>
                           {badge.name}
                         </h3>
 
-                        <span className={`px-2.5 sm:px-3 py-0.5 rounded-full text-xs sm:text-base lg:text-sm font-bold tracking-wide shrink-0 border ${pillClass}`}>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[0.6875rem] font-bold bg-[#fef5ee] text-[#c4431d] border border-[#fbdcd0] shrink-0 font-mono whitespace-nowrap">
                           {badge.pointsRequired ? `${badge.pointsRequired} XP` : "Milestone"}
                         </span>
                       </div>
 
-                      <p className="text-sm sm:text-lg lg:text-base text-stone-500 font-normal leading-relaxed mt-2 line-clamp-2 sm:line-clamp-3">
+                      <p className="text-stone-400 text-[0.6875rem] sm:text-xs mt-1.5 line-clamp-2 leading-relaxed">
                         {badge.description || "Earned by achieving course milestones and creative excellence."}
                       </p>
                     </div>
                   </div>
 
                   {/* Bottom Action Bar */}
-                  <div className="relative z-10 border-t border-[#f0e6dc] flex items-center justify-between py-3.5 sm:py-4 px-4 sm:px-5 bg-white">
+                  <div className="border-t border-stone-100 px-4 py-2.5 sm:px-5 sm:py-3 flex items-center justify-between bg-white text-xs">
                     <button
                       type="button"
                       onClick={() => {
                         setAwardModal({ isOpen: true, badge });
                         setSelectedStudentId("all");
                       }}
-                      className="flex-[1.4] flex items-center justify-center gap-1.5 text-sm sm:text-base lg:text-sm font-semibold text-[#b43e18] hover:text-[#942008] transition-colors cursor-pointer py-1 group/btn"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#c4431d] hover:text-[#942008] transition-colors cursor-pointer group/btn"
                     >
-                      <Send size={13} className="shrink-0 transition-transform group-hover/btn:translate-x-0.5" />
-                      <span className="truncate">Award to Student</span>
+                      <ArrowDownRight size={13} className="stroke-[2.5] transition-transform group-hover/btn:translate-x-0.5" />
+                      <span>Award to Student</span>
                     </button>
 
-                    <span className="h-4 w-[1px] bg-[#ecdccb] shrink-0" aria-hidden="true" />
-
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(badge)}
-                      className="flex-1 flex items-center justify-center gap-1.5 text-sm sm:text-base lg:text-sm font-medium sm:font-semibold text-stone-600 hover:text-stone-900 transition-colors cursor-pointer py-1 group/btn"
-                    >
-                      <Edit2 size={13} className="shrink-0 transition-transform group-hover/btn:scale-110" />
-                      <span>Edit</span>
-                    </button>
-
-                    <span className="h-4 w-[1px] bg-[#ecdccb] shrink-0" aria-hidden="true" />
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteBadge(badge.id, badge.name)}
-                      className="w-10 sm:w-12 flex items-center justify-center text-stone-400 hover:text-rose-600 transition-colors cursor-pointer py-1"
-                      title="Delete Badge"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    <div className="flex items-center gap-2.5 text-stone-400 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(badge)}
+                        className="inline-flex items-center gap-1 hover:text-stone-700 transition-colors cursor-pointer"
+                      >
+                        <Edit2 size={12} />
+                        <span>Edit</span>
+                      </button>
+                      <span className="text-stone-200">|</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteBadge(badge.id, badge.name)}
+                        className="hover:text-red-500 transition-colors cursor-pointer p-0.5"
+                        title="Delete Badge"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Target, CheckCircle2, Circle, Plus, Trash2, Edit2, Check, X, Search, Filter, Calendar } from "lucide-react";
 
+import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 export default function AdminMilestones() {
@@ -137,7 +138,7 @@ export default function AdminMilestones() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -147,16 +148,23 @@ export default function AdminMilestones() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <header className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
-              <Target className="text-[#c4431d]" /> Milestone Management
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Gamification &amp; Recognition</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Milestone Management</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Milestone Management
             </h1>
-            <p className="text-stone-500 mt-2 font-medium">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Create, rename, complete, and customize Business Milestones across all student journeys.
             </p>
           </div>
+          */}
           {successMsg && (
             <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2 self-start md:self-auto">
               <CheckCircle2 size={16} /> {successMsg}
@@ -268,7 +276,7 @@ export default function AdminMilestones() {
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-stone-400 font-medium">Loading milestones...</div>
+            <ListSkeleton count={5} />
           ) : displayedMilestones.length === 0 ? (
             <div className="p-12 text-center text-stone-400 font-medium">No milestones found.</div>
           ) : (
@@ -337,7 +345,7 @@ export default function AdminMilestones() {
                           <Edit2 size={13} />
                         </button>
                         {m.completed && m.completedAt && (
-                          <span className="text-[11px] text-emerald-400 font-medium ml-2 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                          <span className="text-xs text-emerald-400 font-medium ml-2 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
                             {new Date(m.completedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
                         )}

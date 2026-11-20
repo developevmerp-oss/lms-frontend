@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
+import { ProfileSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Trophy,
@@ -148,7 +149,7 @@ export default function StudentProfile() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -170,8 +171,29 @@ export default function StudentProfile() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full p-3 sm:p-5 lg:p-6">
-        {/* Single unified card container matching Reference Image 3 */}
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Page Header - Moved to Top Bar per user instruction */}
+        {/*
+        <header className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Account</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">My Profile</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+            My Profile
+          </h1>
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+            Manage your personal details, membership credentials, and learning milestones.
+          </p>
+        </header>
+        */}
+
+        {isLoading ? (
+          <ProfileSkeleton />
+        ) : (
+          <>
+          {/* Single unified card container matching Reference Image 3 */}
         <div className="bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] rounded-3xl p-4 sm:p-6 lg:p-7 relative overflow-hidden">
           {/* Subtle peach warm ambient glow in top right */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#fde5d6]/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
@@ -195,23 +217,23 @@ export default function StudentProfile() {
                   ) : (
                     <span>{isGeneral ? "🌱" : (currentTier?.icon || "👑")}</span>
                   )}
-                  <div className="absolute inset-0 bg-[#faf8f5]/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-[10px] font-bold text-stone-900">
+                  <div className="absolute inset-0 bg-[#faf8f5]/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold text-stone-900">
                     Change 📷
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                    <h1 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight">
+                    <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
                       {user?.name || "Student Artist"}
-                    </h1>
+                    </h2>
                     {isGeneral ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200 text-stone-600 text-[11px] sm:text-xs font-bold inline-flex items-center gap-1">
+                      <span className="px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200 text-stone-600 text-xs sm:text-xs font-bold inline-flex items-center gap-1">
                         <span>🌱</span>
                         General Member
                       </span>
                     ) : (
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#fde5d6]/70 border border-[#f5ded0] text-[#942008] text-[11px] sm:text-xs font-bold inline-flex items-center gap-1.5">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#fde5d6]/70 border border-[#f5ded0] text-[#942008] text-xs sm:text-xs font-bold inline-flex items-center gap-1.5">
                         <span>{currentTier?.icon || "👑"}</span>
                         <span>{currentTier?.name || "Masters Club: Artistry Pinnacle"} ({currentTier?.code || "L3+"})</span>
                       </span>
@@ -223,7 +245,7 @@ export default function StudentProfile() {
                   <div className="flex items-center gap-2 sm:gap-3 mt-1.5 flex-wrap">
                     <button
                       onClick={() => setIsProfileModalOpen(true)}
-                      className="px-3 py-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-[11px] sm:text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs sm:text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
                     >
                       Edit Profile & Photo ⚙️
                     </button>
@@ -240,7 +262,7 @@ export default function StudentProfile() {
               {/* Right: Plain Stats (borderless, minimalist, matching Image 3) */}
               <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-200/50 sm:border-t-0 sm:pt-0 sm:flex sm:flex-row sm:items-center sm:gap-5 lg:gap-8 lg:ml-auto">
                 <div className="text-left sm:text-center">
-                  <span className="text-[11px] sm:text-xs text-stone-400 font-medium block">Total XP</span>
+                  <span className="text-xs sm:text-xs text-stone-400 font-medium block">Total XP</span>
                   <span className="text-sm sm:text-base lg:text-lg font-black text-amber-500 flex items-center gap-1 font-mono">
                     <Star size={14} className="text-amber-500 fill-amber-500" />
                     {currentPoints.toLocaleString()}
@@ -248,7 +270,7 @@ export default function StudentProfile() {
                 </div>
 
                 <div className="text-left sm:text-center">
-                  <span className="text-[11px] sm:text-xs text-stone-400 font-medium block">Login Streak</span>
+                  <span className="text-xs sm:text-xs text-stone-400 font-medium block">Login Streak</span>
                   <span className="text-sm sm:text-base lg:text-lg font-black text-stone-900 flex items-center gap-1 font-mono">
                     <Flame size={14} className="text-[#c4431d] fill-[#c4431d]" />
                     {stats.streak || 1}d
@@ -256,7 +278,7 @@ export default function StudentProfile() {
                 </div>
 
                 <div className="text-left sm:text-center">
-                  <span className="text-[11px] sm:text-xs text-stone-400 font-medium block">Badges</span>
+                  <span className="text-xs sm:text-xs text-stone-400 font-medium block">Badges</span>
                   <span className="text-sm sm:text-base lg:text-lg font-black text-stone-900 flex items-center gap-1 font-mono">
                     <Medal size={14} className="text-amber-500" />
                     {(stats.badges || []).length || 1}
@@ -264,7 +286,7 @@ export default function StudentProfile() {
                 </div>
 
                 <div className="text-left sm:text-center">
-                  <span className="text-[11px] sm:text-xs text-stone-400 font-medium block">Levels Cleared</span>
+                  <span className="text-xs sm:text-xs text-stone-400 font-medium block">Levels Cleared</span>
                   <span className="text-sm sm:text-base lg:text-lg font-black text-emerald-500 flex items-center gap-1 font-mono">
                     <CheckCircle2 size={14} className="text-emerald-500" />
                     {completedLevelsCount} / {levelTiers.length}
@@ -287,11 +309,11 @@ export default function StudentProfile() {
                     <Trophy className="text-[#942008] shrink-0" size={19} />
                     Artpreneur Career Levels & Progress
                   </h2>
-                  <p className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
+                  <p className="text-xs sm:text-xs text-stone-400 mt-0.5">
                     Track all completed tiers, your active level milestone, and the upcoming tiers to unlock.
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-xl bg-stone-100/80 border border-stone-200/80 text-[11px] sm:text-xs font-semibold text-stone-600 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">
+                <span className="px-3 py-1 rounded-xl bg-stone-100/80 border border-stone-200/80 text-xs sm:text-xs font-semibold text-stone-600 shrink-0 self-start sm:self-auto mt-1 sm:mt-0">
                   {completedLevelsCount} of {levelTiers.length} Levels Completed
                 </span>
               </div>
@@ -336,7 +358,7 @@ export default function StudentProfile() {
                             <h3 className="text-xs sm:text-sm font-bold text-stone-900 leading-tight truncate">
                               {tier.name}
                             </h3>
-                            <p className="text-[10px] sm:text-xs text-stone-400 truncate mt-0.5">
+                            <p className="text-xs sm:text-xs text-stone-400 truncate mt-0.5">
                               {tier.description}
                             </p>
                           </div>
@@ -345,19 +367,19 @@ export default function StudentProfile() {
                         {/* Middle: Status indicator (matching Image 3: text with checkmark or lightning) */}
                         <div className="shrink-0 flex items-center">
                           {isCompleted && (
-                            <span className="text-[11px] sm:text-xs font-black text-[#c4431d] flex items-center gap-1">
+                            <span className="text-xs sm:text-xs font-black text-[#c4431d] flex items-center gap-1">
                               <Check size={13} strokeWidth={3} className="text-[#c4431d]" />
                               COMPLETED
                             </span>
                           )}
                           {isCurrent && (
-                            <span className="text-[11px] sm:text-xs font-black text-[#c4431d] flex items-center gap-1">
+                            <span className="text-xs sm:text-xs font-black text-[#c4431d] flex items-center gap-1">
                               <Zap size={13} className="fill-[#c4431d] text-[#c4431d]" />
                               CURRENT LEVEL ({progressPercent}%)
                             </span>
                           )}
                           {status === "locked" && (
-                            <span className="text-[11px] sm:text-xs font-bold text-stone-400 flex items-center gap-1">
+                            <span className="text-xs sm:text-xs font-bold text-stone-400 flex items-center gap-1">
                               <Lock size={12} />
                               LOCKED
                             </span>
@@ -366,9 +388,9 @@ export default function StudentProfile() {
 
                         {/* Right: XP Requirements & Progress Bar */}
                         <div className="w-full sm:w-48 lg:w-56 shrink-0 text-left sm:text-right">
-                          <div className="flex justify-between sm:justify-end gap-1.5 items-baseline text-[11px] sm:text-xs mb-1">
-                            <span className="text-stone-400 text-[10px] sm:text-[11px]">XP Target:</span>
-                            <span className="font-mono font-bold text-stone-900 text-[10px] sm:text-[11px]">
+                          <div className="flex justify-between sm:justify-end gap-1.5 items-baseline text-xs sm:text-xs mb-1">
+                            <span className="text-stone-400 text-xs sm:text-xs">XP Target:</span>
+                            <span className="font-mono font-bold text-stone-900 text-xs sm:text-xs">
                               {tier.minPoints.toLocaleString()} {tier.maxPoints ? `→ ${tier.maxPoints.toLocaleString()} XP` : "+ XP"}
                             </span>
                           </div>
@@ -407,11 +429,11 @@ export default function StudentProfile() {
                     <Medal className="text-amber-500 shrink-0" size={19} />
                     Badges & Awards Collection
                   </h2>
-                  <p className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
+                  <p className="text-xs sm:text-xs text-stone-400 mt-0.5">
                     Official achievement badges awarded for master projects, milestones, and streak records.
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-xl bg-[#fde5d6]/70 border border-[#f5ded0] text-[11px] sm:text-xs font-bold text-[#942008] shrink-0 self-start sm:self-auto mt-1 sm:mt-0">
+                <span className="px-3 py-1 rounded-xl bg-[#fde5d6]/70 border border-[#f5ded0] text-xs sm:text-xs font-bold text-[#942008] shrink-0 self-start sm:self-auto mt-1 sm:mt-0">
                   {(stats.badges || []).length || 1} Badges Earned
                 </span>
               </div>
@@ -441,13 +463,13 @@ export default function StudentProfile() {
                         <h4 className="text-xs sm:text-sm font-bold text-stone-900 leading-tight truncate">
                           {badge.name}
                         </h4>
-                        <p className="text-[10px] sm:text-[11px] text-stone-400 mt-0.5 line-clamp-1">
+                        <p className="text-xs sm:text-xs text-stone-400 mt-0.5 line-clamp-1">
                           {badge.description || "Official verified achievement"}
                         </p>
                       </div>
                     </div>
 
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#fde5d6]/70 border border-[#f5ded0] text-[11px] font-bold text-[#c4431d] flex items-center gap-1 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#fde5d6]/70 border border-[#f5ded0] text-xs font-bold text-[#c4431d] flex items-center gap-1 shrink-0">
                       <Check size={11} strokeWidth={3} />
                       Unlocked
                     </span>
@@ -503,7 +525,7 @@ export default function StudentProfile() {
                         </span>
 
                         <span
-                          className={`text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full shrink-0 ${
+                          className={`text-xs sm:text-xs px-2.5 py-0.5 rounded-full shrink-0 ${
                             isCompleted
                               ? "bg-[#fde5d6] text-[#942008] border border-[#f5ded0] font-bold"
                               : "bg-stone-100 text-stone-400 font-medium"
@@ -555,6 +577,8 @@ export default function StudentProfile() {
 
           </div>
         </div>
+        </>
+        )}
       </main>
     </div>
   );

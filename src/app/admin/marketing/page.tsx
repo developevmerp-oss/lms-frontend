@@ -19,6 +19,7 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
+import { CardGridSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 interface MetaEventsState {
@@ -276,7 +277,7 @@ export default function AdminMarketingPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -286,24 +287,24 @@ export default function AdminMarketingPage() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-rose-100 text-rose-600 rounded-2xl shadow-sm">
-                <Megaphone size={26} />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-                  Marketing & Tracking Manager
-                </h1>
-                <p className="text-sm text-stone-500 font-medium">
-                  Dynamic Meta (Facebook) Pixel integration with zero code changes and fail-safe operation.
-                </p>
-              </div>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Marketing &amp; Growth</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Tracking Manager</span>
             </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Marketing &amp; Tracking Manager
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Dynamic Meta (Facebook) Pixel integration with zero code changes and fail-safe operation.
+            </p>
           </div>
+          */}
 
           <div className="flex items-center gap-2">
             <button
@@ -339,7 +340,14 @@ export default function AdminMarketingPage() {
           </div>
         )}
 
-        {/* Platform Selection Tabs */}
+        {isLoading ? (
+          <div className="space-y-6">
+            <CardGridSkeleton count={2} />
+            <AdminTableSkeleton rows={4} cols={4} />
+          </div>
+        ) : (
+          <>
+          {/* Platform Selection Tabs */}
         <div className="flex gap-2 p-1.5 bg-white border border-[#ecdccb] rounded-2xl mb-8 shadow-sm overflow-x-auto">
           <button
             onClick={() => setActiveTab("meta")}
@@ -352,7 +360,7 @@ export default function AdminMarketingPage() {
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
             Meta / Facebook Pixel
             {enabled && pixelId && (
-              <span className="ml-1.5 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 rounded-full">
+              <span className="ml-1.5 px-2 py-0.5 text-xs font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 rounded-full">
                 Active
               </span>
             )}
@@ -368,7 +376,7 @@ export default function AdminMarketingPage() {
           >
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
             Google Analytics 4
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
+            <span className="px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
               Soon
             </span>
           </button>
@@ -383,7 +391,7 @@ export default function AdminMarketingPage() {
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             Google Ads Conversion
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
+            <span className="px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
               Soon
             </span>
           </button>
@@ -398,7 +406,7 @@ export default function AdminMarketingPage() {
           >
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
             TikTok Pixel
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
+            <span className="px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-500 rounded-full border border-[#ecdccb]">
               Soon
             </span>
           </button>
@@ -548,7 +556,7 @@ export default function AdminMarketingPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-black text-stone-900">{evt.label}</span>
                           <span
-                            className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${evt.badgeColor}`}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-md border ${evt.badgeColor}`}
                           >
                             {evt.badge}
                           </span>
@@ -678,6 +686,8 @@ export default function AdminMarketingPage() {
               </div>
             </div>
           </div>
+        )}
+        </>
         )}
       </main>
     </div>

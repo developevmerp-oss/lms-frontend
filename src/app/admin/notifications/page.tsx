@@ -18,8 +18,11 @@ import {
   Flame,
   Filter,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  X
 } from "lucide-react";
+import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 const TARGET_AUDIENCE_OPTIONS = [
@@ -86,6 +89,7 @@ export default function AdminNotifications() {
   const [errorMsg, setErrorMsg] = useState("");
   const [history, setHistory] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [viewingItem, setViewingItem] = useState<any | null>(null);
 
   const fetchHistory = async () => {
     if (!token) return;
@@ -196,7 +200,7 @@ export default function AdminNotifications() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -206,22 +210,26 @@ export default function AdminNotifications() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         
         {/* Header */}
-        <header className="mb-6 md:mb-8">
+        <header className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/*
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fdeee2] border border-[#f5ded0] text-[#c4431d] text-xs md:text-sm lg:text-xs font-black uppercase tracking-wider mb-2.5">
-                <Bell size={14} className="shrink-0" /> Targeted Broadcast Center
+              <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+                <span>Communications</span>
+                <span className="text-stone-300">/</span>
+                <span className="text-stone-700 font-medium">Targeted Broadcast Center</span>
               </div>
-              <h1 className="text-2xl md:text-4xl lg:text-3xl font-black text-stone-900 tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
                 Send Notifications to L0, L1, L2, L3 &amp; Webinar Leads
               </h1>
-              <p className="text-stone-500 text-sm md:text-base lg:text-sm mt-1.5 font-medium leading-relaxed">
+              <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
                 Push instant announcements, limited-time discount offers, and class reminders directly to student notification bells.
               </p>
             </div>
+            */}
           </div>
         </header>
 
@@ -459,7 +467,7 @@ export default function AdminNotifications() {
               </div>
 
               {isLoadingHistory ? (
-                <div className="py-8 text-center text-xs md:text-sm lg:text-xs text-stone-400 font-medium">Loading history...</div>
+                <ListSkeleton count={4} />
               ) : history.length === 0 ? (
                 <div className="py-8 text-center text-xs md:text-sm lg:text-xs text-stone-400 font-medium border border-dashed border-stone-200 rounded-2xl">
                   No notifications broadcasted yet.
@@ -471,16 +479,53 @@ export default function AdminNotifications() {
                       key={n.id}
                       className="p-3.5 bg-[#fcfaf7] border border-stone-200/90 rounded-2xl hover:border-[#c4431d]/30 transition-colors"
                     >
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded-md text-xs md:text-sm lg:text-xs font-black bg-[#fde5d6] text-[#942008] border border-[#f5ded0]">
-                          {n.targetAudience?.toUpperCase() || "ALL"}
-                        </span>
-                        <span className="text-xs md:text-sm lg:text-xs text-stone-400 font-mono">
-                          {new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
-                        </span>
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-md text-[0.6875rem] font-black bg-[#fde5d6] text-[#942008] border border-[#f5ded0]">
+                            {n.targetAudience?.toUpperCase() || "ALL"}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-md text-[0.6875rem] font-bold ${
+                            n.isRead
+                              ? 'bg-stone-100 text-stone-600 border border-stone-200'
+                              : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                          }`}>
+                            {n.isRead ? 'Seen' : 'Unseen'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[0.6875rem] text-stone-400 font-mono mr-1">
+                            {new Date(n.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setViewingItem(n)}
+                            className="p-1.5 rounded-lg bg-white hover:bg-stone-100 border border-stone-200 text-stone-600 hover:text-[#942008] transition-colors cursor-pointer"
+                            title="View Broadcast Details"
+                            aria-label="View"
+                          >
+                            <Eye size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setForm({
+                                title: n.title || "",
+                                message: n.message || "",
+                                targetAudience: n.targetAudience || "all",
+                                type: n.type || "offer",
+                                link: n.link || "/student/courses",
+                              });
+                            }}
+                            className="p-1.5 rounded-lg bg-white hover:bg-[#fff5ee] border border-[#f5ded0] text-[#c4431d] transition-colors cursor-pointer"
+                            title="Resend / Load in Composer"
+                            aria-label="Resend"
+                          >
+                            <Send size={13} />
+                          </button>
+                        </div>
                       </div>
-                      <h5 className="text-sm md:text-base lg:text-sm font-bold text-stone-900 truncate">{n.title}</h5>
-                      <p className="text-xs md:text-sm lg:text-xs text-stone-500 line-clamp-1 mt-0.5">{n.message}</p>
+                      <h5 className="text-sm font-bold text-stone-900 truncate">{n.title}</h5>
+                      <p className="text-xs text-stone-500 line-clamp-1 mt-0.5">{n.message}</p>
                     </div>
                   ))}
                 </div>
@@ -490,6 +535,81 @@ export default function AdminNotifications() {
           </div>
 
         </div>
+
+        {/* View Modal */}
+        {viewingItem && (
+          <div
+            className="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={() => setViewingItem(null)}
+          >
+            <div
+              className="w-full max-w-lg bg-white border border-[#ecdccb] rounded-3xl p-6 shadow-2xl space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
+                    <Bell size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-stone-900">{viewingItem.title}</h3>
+                    <p className="text-xs text-stone-500 font-medium mt-0.5">
+                      Target: {viewingItem.targetAudience?.toUpperCase() || 'ALL'}
+                      {viewingItem.createdAt
+                        ? ` · ${new Date(viewingItem.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                        : ''}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewingItem(null)}
+                  className="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="bg-[#fcfaf7] border border-[#ecdccb]/80 rounded-2xl p-4 text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
+                {viewingItem.message}
+              </div>
+
+              {viewingItem.link && (
+                <div className="text-xs font-mono text-[#c4431d] bg-[#fff5ee] p-2.5 rounded-xl border border-[#f5ded0] break-all">
+                  Link: {viewingItem.link}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2">
+                <span
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                    viewingItem.isRead
+                      ? 'bg-stone-100 text-stone-500 border border-stone-200'
+                      : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                  }`}
+                >
+                  {viewingItem.isRead ? 'Seen' : 'Unseen'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm({
+                      title: viewingItem.title || "",
+                      message: viewingItem.message || "",
+                      targetAudience: viewingItem.targetAudience || "all",
+                      type: viewingItem.type || "offer",
+                      link: viewingItem.link || "/student/courses",
+                    });
+                    setViewingItem(null);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white text-xs font-bold shadow-sm cursor-pointer"
+                >
+                  <Send size={13} /> Resend in Composer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
     </div>

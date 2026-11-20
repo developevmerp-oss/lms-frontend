@@ -49,7 +49,7 @@ export const AccessLockModal = ({
               <Lock size={24} />
             </div>
             <div>
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#fde5d6] px-2.5 py-0.5 text-[11px] font-bold text-[#942008] uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#fde5d6] px-2.5 py-0.5 text-xs font-bold text-[#942008] uppercase tracking-wider">
                 {requiredLevel} Tier Required
               </span>
               <h3 className="text-xl font-black text-stone-900 leading-tight mt-0.5">

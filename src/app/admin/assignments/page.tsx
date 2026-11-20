@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { ClipboardList, Plus, X, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
+import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 export default function AdminAssignments() {
@@ -20,12 +21,14 @@ export default function AdminAssignments() {
   const [dueDate, setDueDate] = useState("");
   const [courseId, setCourseId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'pending' | 'assignments'>('pending');
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
   const fetchData = async () => {
     if (!token) return;
+    setIsLoading(true);
     try {
       const [assnRes, subRes, courseRes] = await Promise.all([
         fetch(`${API_BASE_URL}/assignments`, { headers }),
@@ -40,6 +43,8 @@ export default function AdminAssignments() {
       if (Array.isArray(courseData)) setCourses(courseData);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,7 +98,7 @@ export default function AdminAssignments() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -103,14 +108,23 @@ export default function AdminAssignments() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="flex justify-between items-center mb-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
+          {/*
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
-              <ClipboardList className="text-purple-400" /> Assignment Management
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Learning &amp; Courses</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Assignment Management</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Assignment Management
             </h1>
-            <p className="text-stone-500 mt-2 font-medium">Create tasks, review submissions, and award points.</p>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Create tasks, review submissions, and award points.
+            </p>
           </div>
+          */}
           <div className="flex items-center gap-4">
             {successMsg && (
               <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
@@ -126,8 +140,20 @@ export default function AdminAssignments() {
           </div>
         </header>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        {isLoading ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </div>
+            <AdminTableSkeleton rows={5} cols={4} />
+          </div>
+        ) : (
+          <>
+          {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {[
             { label: "Total Assignments", value: assignments.length, color: "text-purple-400" },
             { label: "Pending Review", value: pending.length, color: "text-yellow-400" },
@@ -135,8 +161,8 @@ export default function AdminAssignments() {
             { label: "Rejected", value: submissions.filter(s => s.status === "rejected").length, color: "text-red-400" },
           ].map(stat => (
             <div key={stat.label} className="bg-white/95 border border-[#ecdccb] rounded-2xl p-5 shadow-[0_4px_16px_-4px_rgba(45,30,15,0.06)]">
-              <p className="text-stone-500 text-sm mb-1 font-bold">{stat.label}</p>
-              <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+              <p className="text-stone-500 text-xs sm:text-sm mb-1 font-bold">{stat.label}</p>
+              <p className={`text-2xl sm:text-3xl lg:text-4xl font-black ${stat.color}`}>{stat.value}</p>
             </div>
           ))}
         </div>
@@ -252,6 +278,8 @@ export default function AdminAssignments() {
               </div>
             ))}
           </div>
+        )}
+        </>
         )}
       </main>
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
+import { TableRowSkeleton, CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users,
@@ -308,7 +309,7 @@ export default function AdminWebinarCRM() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -320,13 +321,18 @@ export default function AdminWebinarCRM() {
 
       <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-stone-200/80 pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <div className="inline-flex items-center gap-2 bg-[#fde5d6] border border-[#f5ded0] text-[#942008] text-xs font-bold uppercase tracking-widest px-3.5 py-1 rounded-full mb-2">
-              <Sparkles size={12} /> Masterclass Marketing Engine
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              {/* <Sparkles size={12} /> */}
+              <span>Marketing &amp; Growth</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Webinar Management &amp; Leads CRM</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900">Webinar Management &amp; Leads CRM</h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1 font-medium">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Webinar Management &amp; Leads CRM
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Schedule future webinar sessions, update Zoom &amp; WhatsApp links, and manage leads.
             </p>
           </div>
@@ -490,9 +496,7 @@ export default function AdminWebinarCRM() {
         {activeTab === "events" && (
           <div className="space-y-4">
             {eventsLoading ? (
-              <div className="p-12 text-center text-stone-500 bg-white/95 border border-[#ecdccb] rounded-3xl">
-                Loading scheduled webinars...
-              </div>
+              <CardGridSkeleton count={2} />
             ) : events.length === 0 ? (
               <div className="p-12 text-center bg-white/95 border border-[#ecdccb] rounded-3xl space-y-3">
                 <Calendar size={36} className="mx-auto text-stone-300" />
@@ -754,11 +758,9 @@ export default function AdminWebinarCRM() {
                   </thead>
                   <tbody className="divide-y divide-stone-100">
                     {loading ? (
-                      <tr>
-                        <td colSpan={7} className="p-8 text-center text-stone-400 font-medium">
-                          Loading registrations...
-                        </td>
-                      </tr>
+                      Array.from({ length: 6 }).map((_, i) => (
+                        <TableRowSkeleton key={i} cols={7} />
+                      ))
                     ) : registrations.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="p-12 text-center text-stone-400 font-medium">

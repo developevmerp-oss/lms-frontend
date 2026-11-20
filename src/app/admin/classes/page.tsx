@@ -28,6 +28,7 @@ import {
   Hourglass,
   Ellipsis,
 } from "lucide-react";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 interface LiveClass {
@@ -422,7 +423,7 @@ export default function AdminClassesPage() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -432,20 +433,24 @@ export default function AdminClassesPage() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-end gap-4 mb-6">
+          {/*
           <div className="min-w-0 flex-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <Video size={13} className="text-[#c4431d]" /> Live Interactive Masterclasses
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Live Masterclasses</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Online Class &amp; Attendance</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Online Class &amp; Attendance Management
             </h1>
-            <p className="text-stone-500 mt-1 text-sm font-medium">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Schedule live Zoom coaching calls, manage meeting links, track student attendance, and upload video replays.
             </p>
           </div>
+          */}
 
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 lg:gap-2.5 self-start lg:self-auto shrink-0">
             <button
@@ -506,7 +511,7 @@ export default function AdminClassesPage() {
 
         {/* Classes List */}
         {isLoading ? (
-          <div className="p-16 text-center text-stone-400 font-medium">Loading scheduled classes...</div>
+          <CardGridSkeleton count={4} />
         ) : filteredClasses.length === 0 ? (
           <div className="text-center py-16 rounded-3xl border border-dashed border-stone-200 bg-white/60 p-8">
             <Video size={40} className="text-stone-300 mx-auto mb-3" />
@@ -768,7 +773,7 @@ export default function AdminClassesPage() {
                     <label className="block text-xs font-bold text-stone-700">
                       Target Level Access <span className="text-[#c4431d] font-semibold">(Multi-Select Supported)</span>
                     </label>
-                    <span className="text-[11px] font-bold text-stone-500">
+                    <span className="text-xs font-bold text-stone-500">
                       Target: <span className="text-[#c4431d] font-bold">{selectedLevels.includes("All") ? "All Membership Levels" : selectedLevels.join(", ")}</span>
                     </span>
                   </div>
@@ -822,7 +827,7 @@ export default function AdminClassesPage() {
                     <span className="font-bold text-stone-900 flex items-center gap-1.5">
                       🔔 Send In-App Bell Notification to Eligible Students
                     </span>
-                    <span className="text-[11px] text-stone-500 block mt-0.5">
+                    <span className="text-xs text-stone-500 block mt-0.5">
                       Eligible students enrolled in {selectedLevels.includes("All") ? "all levels" : selectedLevels.join(", ")} will immediately receive a notification alert with the direct join link.
                     </span>
                   </label>
@@ -1084,7 +1089,20 @@ export default function AdminClassesPage() {
               {/* History Table / Records */}
               <div className="overflow-y-auto flex-1 space-y-2 pr-1">
                 {isHistoryLoading ? (
-                  <div className="p-12 text-center text-stone-400 text-sm font-medium">Loading attendance history ledger...</div>
+                  <div className="space-y-3 p-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="p-3.5 bg-[#fcfaf7] border border-stone-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full shimmer-box shrink-0" />
+                          <div className="space-y-2">
+                            <div className="w-36 h-3.5 rounded shimmer-box" />
+                            <div className="w-48 h-2.5 rounded shimmer-box" />
+                          </div>
+                        </div>
+                        <div className="w-24 h-6 rounded-full shimmer-box" />
+                      </div>
+                    ))}
+                  </div>
                 ) : historyRecords.length === 0 ? (
                   <div className="p-12 text-center bg-[#fcfaf7] border border-stone-200 rounded-2xl">
                     <Users size={32} className="text-stone-300 mx-auto mb-2" />
@@ -1115,19 +1133,19 @@ export default function AdminClassesPage() {
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="font-bold text-stone-900 text-xs sm:text-sm">{rec.studentName}</h4>
-                                <span className="text-[10px] text-amber-400 font-semibold px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-md">
+                                <span className="text-xs text-amber-400 font-semibold px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-md">
                                   {rec.studentLevel}
                                 </span>
                                 {rec.classStatus && rec.classStatus.includes("Removed") && (
-                                  <span className="text-[10px] text-stone-500 font-medium px-1.5 py-0.5 bg-stone-100 border border-stone-200 rounded">
+                                  <span className="text-xs text-stone-500 font-medium px-1.5 py-0.5 bg-stone-100 border border-stone-200 rounded">
                                     Concluded Session
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-stone-500 mt-0.5">
+                              <p className="text-xs text-stone-500 mt-0.5">
                                 Class: <strong className="text-stone-900">{rec.classTitle}</strong>
                               </p>
-                              <p className="text-[10px] text-stone-400">
+                              <p className="text-xs text-stone-400">
                                 {rec.studentEmail} {rec.studentPhone && rec.studentPhone !== "N/A" ? `· ${rec.studentPhone}` : ""}
                               </p>
                             </div>
@@ -1136,7 +1154,7 @@ export default function AdminClassesPage() {
                           <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-stone-200">
                             {joinDate && (
                               <div className="text-left sm:text-right">
-                                <span className="text-[10px] text-stone-400 block">Attended On</span>
+                                <span className="text-xs text-stone-400 block">Attended On</span>
                                 <span className="text-xs text-stone-700 font-mono">
                                   {joinDate.toLocaleDateString("en-IN", {
                                     day: "numeric",

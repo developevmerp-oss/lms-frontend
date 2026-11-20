@@ -41,6 +41,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { CourseQrCodeModal } from "@/components/admin/CourseQrCodeModal";
 
 export const PRESET_COURSE_BANNERS = [
@@ -610,6 +611,54 @@ export default function AdminCourses() {
         finalPdfUrl = "";
       }
 
+      // Safety check: If finalVideoUrl is a base64 data URL, upload as multipart Blob first to prevent HTTP 413
+      if (finalVideoUrl && finalVideoUrl.startsWith("data:")) {
+        try {
+          const blobRes = await fetch(finalVideoUrl);
+          const blob = await blobRes.blob();
+          const fd = new FormData();
+          fd.append("video", blob, "uploaded-video.mp4");
+          fd.append("file", blob, "uploaded-video.mp4");
+          const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+          const upHeaders: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+          const upRes = await fetch(`${API_BASE_URL}/upload/video`, {
+            method: "POST",
+            headers: upHeaders,
+            body: fd,
+          });
+          const upData = await upRes.json().catch(() => ({}));
+          if (upRes.ok && upData.url) {
+            finalVideoUrl = upData.url;
+          }
+        } catch (uploadErr) {
+          console.warn("Could not pre-upload base64 video:", uploadErr);
+        }
+      }
+
+      // Safety check: If finalPdfUrl is a base64 data URL, upload as multipart Blob first to prevent HTTP 413
+      if (finalPdfUrl && finalPdfUrl.startsWith("data:")) {
+        try {
+          const blobRes = await fetch(finalPdfUrl);
+          const blob = await blobRes.blob();
+          const fd = new FormData();
+          fd.append("pdf", blob, "uploaded-doc.pdf");
+          fd.append("file", blob, "uploaded-doc.pdf");
+          const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+          const upHeaders: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+          const upRes = await fetch(`${API_BASE_URL}/upload/pdf`, {
+            method: "POST",
+            headers: upHeaders,
+            body: fd,
+          });
+          const upData = await upRes.json().catch(() => ({}));
+          if (upRes.ok && upData.url) {
+            finalPdfUrl = upData.url;
+          }
+        } catch (uploadErr) {
+          console.warn("Could not pre-upload base64 pdf:", uploadErr);
+        }
+      }
+
       let res;
       if (editingChapter) {
         res = await fetch(`${API_BASE_URL}/courses/chapters/${editingChapter.id}`, {
@@ -678,6 +727,7 @@ export default function AdminCourses() {
     try {
       const formData = new FormData();
       formData.append("video", file);
+      formData.append("file", file);
 
       const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const uploadHeaders: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
@@ -688,7 +738,7 @@ export default function AdminCourses() {
         body: formData,
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.url) {
         setChapterForm((prev) => ({
           ...prev,
@@ -696,24 +746,11 @@ export default function AdminCourses() {
         }));
         showSuccess("Video file uploaded successfully!");
       } else {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setChapterForm((prev) => ({
-            ...prev,
-            videoUrl: reader.result as string,
-          }));
-        };
-        reader.readAsDataURL(file);
+        alert(data.message || `Video upload failed (Status ${res.status}). Please check video format or connection.`);
       }
-    } catch (err) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setChapterForm((prev) => ({
-          ...prev,
-          videoUrl: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
+    } catch (err: any) {
+      console.error("Video upload error:", err);
+      alert(err.message || "Failed to upload video file. Please check connection.");
     } finally {
       setUploadingVideo(false);
     }
@@ -732,6 +769,7 @@ export default function AdminCourses() {
     try {
       const formData = new FormData();
       formData.append("pdf", file);
+      formData.append("file", file);
 
       const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const uploadHeaders: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
@@ -742,7 +780,7 @@ export default function AdminCourses() {
         body: formData,
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.url) {
         setChapterForm((prev) => ({
           ...prev,
@@ -750,24 +788,11 @@ export default function AdminCourses() {
         }));
         showSuccess("PDF document uploaded successfully!");
       } else {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setChapterForm((prev) => ({
-            ...prev,
-            pdfUrl: reader.result as string,
-          }));
-        };
-        reader.readAsDataURL(file);
+        alert(data.message || `PDF upload failed (Status ${res.status}). Please check document format.`);
       }
-    } catch (err) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setChapterForm((prev) => ({
-          ...prev,
-          pdfUrl: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
+    } catch (err: any) {
+      console.error("PDF upload error:", err);
+      alert(err.message || "Failed to upload PDF file.");
     } finally {
       setUploadingPdf(false);
     }
@@ -837,14 +862,19 @@ export default function AdminCourses() {
   const displayedCourses = courses.filter((c) => {
     if (activeLevelFilter === "all") return true;
     if (activeLevelFilter === "NONE") {
-      return !c.levelCode || c.levelCode.toUpperCase() === "NONE";
+      return !c.levelCode || c.levelCode.toUpperCase() === "NONE" || c.levelCode.toUpperCase() === "STANDALONE";
     }
-    return (c.levelCode || "").toUpperCase() === activeLevelFilter.toUpperCase();
+    return (
+      c.levelCode &&
+      c.levelCode.toUpperCase() !== "NONE" &&
+      c.levelCode.toUpperCase() !== "STANDALONE" &&
+      c.levelCode.toUpperCase() === activeLevelFilter.toUpperCase()
+    );
   });
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -854,16 +884,22 @@ export default function AdminCourses() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f5ded0] bg-[#fde5d6] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#942008] mb-2">
-              <BookOpen size={13} className="text-[#c4431d]" /> Sequential Level & Individual Curriculum
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">Course Management</h1>
-            <p className="text-stone-500 mt-1 text-sm font-medium">
+            {/*
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Curriculum &amp; Content</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Course Management</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Course Management
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Organize sequential level-wise courses (L0-L3) or create standalone individual courses with custom pricing.
             </p>
+            */}
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -916,7 +952,10 @@ export default function AdminCourses() {
         <div className="mb-8">
           <div className="flex flex-nowrap items-center gap-2.5 sm:gap-3 overflow-x-auto py-1 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <button
-              onClick={() => setActiveLevelFilter("all")}
+              onClick={() => {
+                setActiveLevelFilter("all");
+                setSelectedCourse(null);
+              }}
               className={`shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeLevelFilter === "all"
                 ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/25 border border-transparent"
                 : "bg-white border border-[#ecdccb] text-stone-700 hover:text-[#942008] hover:bg-[#fff5ee] hover:border-[#f5ded0] shadow-2xs"
@@ -928,7 +967,10 @@ export default function AdminCourses() {
 
             {/* Standalone / Individual Courses Filter Tab */}
             <button
-              onClick={() => setActiveLevelFilter("NONE")}
+              onClick={() => {
+                setActiveLevelFilter("NONE");
+                setSelectedCourse(null);
+              }}
               className={`shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeLevelFilter === "NONE"
                 ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/25 border border-transparent"
                 : "bg-white border border-[#ecdccb] text-stone-700 hover:text-[#942008] hover:bg-[#fff5ee] hover:border-[#f5ded0] shadow-2xs"
@@ -983,7 +1025,10 @@ export default function AdminCourses() {
               return (
                 <button
                   key={lvl}
-                  onClick={() => setActiveLevelFilter(lvl)}
+                  onClick={() => {
+                    setActiveLevelFilter(lvl);
+                    setSelectedCourse(null);
+                  }}
                   className={`shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${isActive
                     ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black shadow-md shadow-[#c4431d]/25 border border-transparent"
                     : "bg-white border border-[#ecdccb] text-stone-700 hover:text-[#942008] hover:bg-[#fff5ee] hover:border-[#f5ded0] shadow-2xs"
@@ -1013,7 +1058,7 @@ export default function AdminCourses() {
 
         {/* Courses Grid */}
         {isLoading && courses.length === 0 ? (
-          <div className="p-16 text-center text-stone-400 font-medium">Loading curriculum library...</div>
+          <CardGridSkeleton count={6} />
         ) : displayedCourses.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-white/60 border border-dashed border-stone-200 rounded-3xl p-8">
             <BookOpen size={48} className="text-stone-300 mb-4" />
@@ -1543,7 +1588,7 @@ export default function AdminCourses() {
                 selectedCourse.chapters.map((chapter: any, index: number) => (
                   <div
                     key={chapter.id}
-                    className="bg-stone-900/40 border border-stone-200 hover:border-stone-300 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
+                    className="bg-white border border-[#ecdccb] hover:border-[#f5ded0] p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded-full bg-[#fff5ee] text-[#942008] border border-[#f5ded0] flex items-center justify-center font-bold text-xs shrink-0">
@@ -1551,16 +1596,16 @@ export default function AdminCourses() {
                       </div>
                       <div className="min-w-0">
                         <h4 className="font-bold text-stone-900 text-sm truncate">{chapter.title}</h4>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-stone-400">
+                        <div className="flex items-center gap-2 mt-1 text-xs">
                           {chapter.videoUrl ? (
-                            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                            <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1">
                               <FileVideo size={12} /> Video Attached
                             </span>
                           ) : (
                             <span className="text-stone-400">No Video</span>
                           )}
                           {chapter.pdfUrl && (
-                            <span className="text-blue-400 font-semibold flex items-center gap-1">
+                            <span className="text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1">
                               <FileText size={12} /> PDF Attached
                             </span>
                           )}
@@ -1686,7 +1731,7 @@ export default function AdminCourses() {
                     {courseForm.isPublished ? <Eye size={14} className="text-emerald-500" /> : <EyeOff size={14} className="text-red-500" />}
                     Course Visibility Status
                   </label>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
+                  <p className="text-xs text-stone-500 mt-0.5">
                     {courseForm.isPublished
                       ? "Enabled: This course is actively visible for students in their curriculum & purchase catalog."
                       : "Disabled: This course is hidden from the student catalog (previously enrolled students keep access)."}
@@ -1775,7 +1820,7 @@ export default function AdminCourses() {
                       <Tag size={14} className="text-[#c4431d]" />
                       Individual / Standalone Course Configuration
                     </span>
-                    <span className="text-[11px] text-[#c4431d] font-medium">
+                    <span className="text-xs text-[#c4431d] font-medium">
                       Applies exclusively to this single course
                     </span>
                   </div>
@@ -1797,7 +1842,7 @@ export default function AdminCourses() {
                           placeholder="e.g. 999 or 1499"
                         />
                       </div>
-                      <p className="text-[10px] text-stone-500 leading-relaxed">
+                      <p className="text-xs text-stone-500 leading-relaxed">
                         Students purchase this standalone without level membership. Any active offer configured below applies on top of this price.
                       </p>
                     </div>
@@ -1830,7 +1875,7 @@ export default function AdminCourses() {
                           ▼
                         </div>
                       </div>
-                      <p className="text-[10px] text-stone-500 leading-relaxed">
+                      <p className="text-xs text-stone-500 leading-relaxed">
                         Access period starts from the day of student registration / purchase (1, 3, 6 months, 1, 3 years, or Lifetime). After expiry, student can re-purchase to renew.
                       </p>
                     </div>
@@ -1846,11 +1891,11 @@ export default function AdminCourses() {
                       <ImageIcon size={16} className="text-[#942008]" />
                       Course Media Studio (Dual Image Support)
                     </span>
-                    <p className="text-[11px] text-stone-500 mt-0.5">
+                    <p className="text-xs text-stone-500 mt-0.5">
                       Upload both formats for crisp, uncropped presentation: 16:9 for cards &amp; video players, and 9:16 for full marketing flyers &amp; stories.
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-300/80 px-2.5 py-1 rounded-full self-start sm:self-auto">
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-300/80 px-2.5 py-1 rounded-full self-start sm:self-auto">
                     ✓ Smart Auto-Fallback Active
                   </span>
                 </div>
@@ -1861,16 +1906,16 @@ export default function AdminCourses() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-black text-[#942008] uppercase tracking-wider bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-lg">
+                          <span className="text-xs font-black text-[#942008] uppercase tracking-wider bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-lg">
                             16:9 Landscape Banner
                           </span>
-                          <span className="text-[10px] text-stone-500">Card &amp; Player</span>
+                          <span className="text-xs text-stone-500">Card &amp; Player</span>
                         </div>
                         {courseForm.image && (
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, image: "" })}
-                            className="text-[11px] text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
+                            className="text-xs text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
                           >
                             Clear
                           </button>
@@ -1903,7 +1948,7 @@ export default function AdminCourses() {
 
                       {/* Presets */}
                       <div>
-                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1.5">
+                        <span className="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-1.5">
                           Theme Presets:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -1914,7 +1959,7 @@ export default function AdminCourses() {
                                 key={preset.name}
                                 type="button"
                                 onClick={() => setCourseForm({ ...courseForm, image: preset.url })}
-                                className={`text-[10px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                                className={`text-xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
                                   isSelected
                                     ? "bg-[#fde5d6] text-[#942008] border-[#f5ded0] font-black shadow-xs ring-1 ring-[#c4431d]/30"
                                     : "bg-white text-stone-700 border-stone-200 hover:border-[#c4431d] hover:bg-[#fff5ee] hover:text-[#942008] font-semibold"
@@ -1942,11 +1987,11 @@ export default function AdminCourses() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none" />
                           <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-300">
+                            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-300">
                               ✓ 16:9 Banner Active
                             </span>
                             {imageRatioInfo && (
-                              <span className="text-[9px] font-mono text-stone-700 bg-white/95 px-2 py-0.5 rounded-md border border-stone-200 shadow-xs">
+                              <span className="text-xs font-mono text-stone-700 bg-white/95 px-2 py-0.5 rounded-md border border-stone-200 shadow-xs">
                                 {imageRatioInfo.width} × {imageRatioInfo.height} px
                               </span>
                             )}
@@ -1955,8 +2000,8 @@ export default function AdminCourses() {
                       ) : (
                         <div className="flex flex-col items-center justify-center text-stone-400 p-3 text-center">
                           <ImageIcon size={22} className="mb-1 text-stone-400" />
-                          <span className="text-[11px] font-semibold text-stone-500">No 16:9 banner chosen</span>
-                          <span className="text-[9px] text-stone-400 mt-0.5">Used for course card thumbnails &amp; video headers</span>
+                          <span className="text-xs font-semibold text-stone-500">No 16:9 banner chosen</span>
+                          <span className="text-xs text-stone-400 mt-0.5">Used for course card thumbnails &amp; video headers</span>
                         </div>
                       )}
                     </div>
@@ -1967,16 +2012,16 @@ export default function AdminCourses() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-black text-[#942008] uppercase tracking-wider bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-lg">
+                          <span className="text-xs font-black text-[#942008] uppercase tracking-wider bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-lg">
                             9:16 Portrait Flyer
                           </span>
-                          <span className="text-[10px] text-stone-500">Marketing &amp; Stories</span>
+                          <span className="text-xs text-stone-500">Marketing &amp; Stories</span>
                         </div>
                         {courseForm.flyerImage && (
                           <button
                             type="button"
                             onClick={() => setCourseForm({ ...courseForm, flyerImage: "" })}
-                            className="text-[11px] text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
+                            className="text-xs text-red-500 hover:text-red-700 font-bold transition-colors cursor-pointer"
                           >
                             Clear
                           </button>
@@ -2007,7 +2052,7 @@ export default function AdminCourses() {
                         </label>
                       </div>
 
-                      <p className="text-[10px] text-stone-500 leading-relaxed">
+                      <p className="text-xs text-stone-500 leading-relaxed">
                         Upload your workshop brochure, story poster, or WhatsApp graphic. Displayed uncropped in full lightbox and enrollment modal.
                       </p>
                     </div>
@@ -2034,11 +2079,11 @@ export default function AdminCourses() {
                             <Maximize2 size={12} />
                           </button>
                           <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-300">
+                            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-300">
                               ✓ 9:16 Flyer Active
                             </span>
                             {flyerRatioInfo && (
-                              <span className="text-[9px] font-mono text-stone-700 bg-white/95 px-2 py-0.5 rounded-md border border-stone-200 shadow-xs">
+                              <span className="text-xs font-mono text-stone-700 bg-white/95 px-2 py-0.5 rounded-md border border-stone-200 shadow-xs">
                                 {flyerRatioInfo.width} × {flyerRatioInfo.height} px
                               </span>
                             )}
@@ -2047,8 +2092,8 @@ export default function AdminCourses() {
                       ) : (
                         <div className="flex flex-col items-center justify-center text-stone-400 p-3 text-center">
                           <ImageIcon size={22} className="mb-1 text-stone-400" />
-                          <span className="text-[11px] font-semibold text-stone-500">No 9:16 poster chosen</span>
-                          <span className="text-[9px] text-stone-400 mt-0.5">Will automatically fall back to 16:9 banner</span>
+                          <span className="text-xs font-semibold text-stone-500">No 9:16 poster chosen</span>
+                          <span className="text-xs text-stone-400 mt-0.5">Will automatically fall back to 16:9 banner</span>
                         </div>
                       )}
                     </div>
@@ -2065,7 +2110,7 @@ export default function AdminCourses() {
                     </div>
                     <div>
                       <h4 className="text-xs font-black text-stone-900">Course Offer &amp; Discount</h4>
-                      <p className="text-[10px] text-stone-500">Configure percentage or flat price reduction with active dates</p>
+                      <p className="text-xs text-stone-500">Configure percentage or flat price reduction with active dates</p>
                     </div>
                   </div>
 
@@ -2085,7 +2130,7 @@ export default function AdminCourses() {
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                       {/* Discount Type */}
                       <div className="sm:col-span-6 space-y-1.5">
-                        <label className="block text-[11px] font-bold text-stone-600">Discount Type</label>
+                        <label className="block text-xs font-bold text-stone-600">Discount Type</label>
                         <div className="grid grid-cols-2 gap-2 bg-white p-1 rounded-xl border border-[#ecdccb]">
                           <button
                             type="button"
@@ -2114,7 +2159,7 @@ export default function AdminCourses() {
 
                       {/* Discount Value */}
                       <div className="sm:col-span-6 space-y-1.5">
-                        <label className="block text-[11px] font-bold text-stone-600">
+                        <label className="block text-xs font-bold text-stone-600">
                           {courseForm.discountType === "percentage" ? "Discount Percentage (%)" : "Flat Discount Amount (₹)"}
                         </label>
                         <input
@@ -2132,7 +2177,7 @@ export default function AdminCourses() {
                     {/* Offer Start & End Date */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
+                        <label className="block text-xs font-bold text-stone-600 mb-1 flex items-center gap-1">
                           <Calendar size={11} className="text-[#c4431d]" /> Offer Start Date &amp; Time
                         </label>
                         <input
@@ -2144,7 +2189,7 @@ export default function AdminCourses() {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1">
+                        <label className="block text-xs font-bold text-stone-600 mb-1 flex items-center gap-1">
                           <Clock size={11} className="text-[#c4431d]" /> Offer End Date &amp; Time
                         </label>
                         <input

@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   ChevronDown,
 } from "lucide-react";
+import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
 interface RewardItem {
@@ -253,7 +254,7 @@ export default function AdminRewardsManager() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 font-sans transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -263,31 +264,26 @@ export default function AdminRewardsManager() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header Section matching reference image */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5 sm:mb-6">
+        <div className="flex flex-col md:flex-row md:items-start justify-end gap-4 mb-6">
+          {/*
           <div>
-            {/* Top pill badge + breadcrumb */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="bg-[#feeae2] border border-[#fcd7c7] text-[#c2410c] text-xs font-bold px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 uppercase tracking-wide">
-                <Gift className="w-3.5 h-3.5" /> OFFICIAL MERCH &amp; XP STORE
-              </span>
-              <span className="text-stone-300 font-light">|</span>
-              <span className="text-stone-500 font-medium text-xs sm:text-sm">
-                Merch Store Manager
-              </span>
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Gamification &amp; Recognition</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Merch Store Manager</span>
             </div>
 
-            {/* Title (No vertical red bar, clean serif title) */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-stone-900 tracking-tight mt-1 mb-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
               Merch Store Manager
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-stone-500 text-xs sm:text-sm font-normal max-w-3xl leading-relaxed">
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
               Manage physical merchandise bundles, journals, mentoring vouchers, and tickets that students can redeem with their XP points.
             </p>
           </div>
+          */}
 
           {/* Top CTA Button */}
           <button
@@ -381,10 +377,7 @@ export default function AdminRewardsManager() {
 
         {/* Main Rewards Table Container matching Reference Image */}
         {isLoading ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-stone-200/80 shadow-xs">
-            <div className="inline-block animate-spin w-8 h-8 border-4 border-[#c2410c] border-t-transparent rounded-full mb-3"></div>
-            <p className="text-stone-500 text-xs sm:text-sm font-bold">Loading merchandise catalog...</p>
-          </div>
+          <CardGridSkeleton count={6} />
         ) : filteredRewards.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-3xl border border-stone-200/80 shadow-xs">
             <ShoppingBag size={48} className="mx-auto text-stone-300 mb-3" />

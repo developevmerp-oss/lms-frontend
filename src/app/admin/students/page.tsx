@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { Pagination } from "@/components/ui/Pagination";
+import { Shimmer } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users, Search, SlidersHorizontal, ChevronDown, ChevronRight, X, Plus, Trash2, CheckCircle2,
@@ -588,7 +589,7 @@ export default function AdminStudents() {
 
   return (
     <div
-      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-[284px]"
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
       style={{
         backgroundColor: "#faf8f5",
         backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
@@ -598,11 +599,22 @@ export default function AdminStudents() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6">
-        <header className="mb-6 md:mb-8 flex items-start justify-between gap-4 flex-wrap">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <header className="mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">Student Management &amp; Engagement</h1>
-            <p className="text-stone-500 mt-1 md:mt-2 text-sm font-medium">Track last login activity, milestones, sales, and trigger re-engagement notifications.</p>
+            {/*
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+              <span>Students &amp; CRM</span>
+              <span className="text-stone-300">/</span>
+              <span className="text-stone-700 font-medium">Student Management</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+              Student Management &amp; Engagement
+            </h1>
+            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+              Track last login activity, milestones, sales, and trigger re-engagement notifications.
+            </p>
+            */}
           </div>
           <button
             onClick={() => { setShowAddModal(true); setAddError(''); }}
@@ -794,7 +806,17 @@ export default function AdminStudents() {
               className={`flex-1 overflow-y-auto divide-y divide-stone-100 [scrollbar-width:thin] [scrollbar-color:#d6d3d1_transparent] ${totalPages <= 1 ? 'rounded-b-3xl' : ''}`}
             >
               {isLoading ? (
-                <div className="p-8 text-center text-sm text-stone-400 font-medium">Loading students...</div>
+                <div className="p-4 space-y-3">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="flex items-center gap-3 py-2 border-b border-stone-100 last:border-0">
+                      <Shimmer className="w-10 h-10 rounded-full shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <Shimmer className="h-4 w-32" />
+                        <Shimmer className="h-3 w-48" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : filteredStudents.length === 0 ? (
                 <div className="p-8 text-center text-sm text-stone-400 font-medium">No students match filter</div>
               ) : (
@@ -934,7 +956,7 @@ export default function AdminStudents() {
                       );
                     })()}
                   </div>
-                  <span className="text-stone-500 font-mono text-[11px] font-semibold">
+                  <span className="text-stone-500 font-mono text-xs font-semibold">
                     ID: {selectedStudent.id.slice(0, 8)}...
                   </span>
                 </div>
@@ -1283,11 +1305,11 @@ export default function AdminStudents() {
                                 <span className="text-3xl mb-2">{badge.icon || '🏅'}</span>
                                 <p className="text-stone-900 text-xs font-bold leading-tight">{badge.name}</p>
                                 {badge.description && (
-                                  <p className="text-stone-500 text-[10px] mt-1 leading-snug">{badge.description}</p>
+                                  <p className="text-stone-500 text-xs mt-1 leading-snug">{badge.description}</p>
                                 )}
                                 <button
                                   onClick={() => revokeBadgeFromStudent(badge.id)}
-                                  className="mt-3 text-[10px] px-2.5 py-1 bg-white border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 font-bold shadow-xs"
+                                  className="mt-3 text-xs px-2.5 py-1 bg-white border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 font-bold shadow-xs"
                                 >
                                   Revoke
                                 </button>
@@ -1321,9 +1343,9 @@ export default function AdminStudents() {
                                 <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">{badge.icon || '🏅'}</span>
                                 <p className="text-stone-800 text-xs font-bold leading-tight group-hover:text-[#942008] transition-colors">{badge.name}</p>
                                 {badge.description && (
-                                  <p className="text-stone-500 text-[10px] mt-1 leading-snug">{badge.description}</p>
+                                  <p className="text-stone-500 text-xs mt-1 leading-snug">{badge.description}</p>
                                 )}
-                                <span className="mt-2 text-[10px] px-2.5 py-0.5 bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-full opacity-0 group-hover:opacity-100 transition-opacity font-bold">
+                                <span className="mt-2 text-xs px-2.5 py-0.5 bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-full opacity-0 group-hover:opacity-100 transition-opacity font-bold">
                                   Click to Award
                                 </span>
                               </button>
@@ -1457,7 +1479,7 @@ export default function AdminStudents() {
               <p className="text-xs text-stone-600 leading-relaxed">
                 Are you sure you want to soft delete <strong className="text-stone-900">{selectedStudent.name}</strong> (<span className="text-[#c4431d] font-mono font-bold">{selectedStudent.email}</span>)?
               </p>
-              <p className="text-[11px] text-rose-400/90 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl text-left">
+              <p className="text-xs text-rose-400/90 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl text-left">
                 ⚠️ Soft-deleting will remove this student from active student lists, leaderboards, feeds, attendance, and all software modules while preserving safe data audit history.
               </p>
             </div>
