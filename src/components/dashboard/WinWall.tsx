@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Bookmark } from 'lucide-react';
+import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Bookmark, Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAuth } from '@/context/AuthContext';
 import { uploadMediaFile } from '@/utils/uploadFile';
@@ -490,10 +490,28 @@ export const WinWall = ({
                       );
                     }
 
-                    const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg|bmp|avif)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary') || mediaUrl.includes('/images/') || mediaUrl.includes('/student-art/');
-                    const isVideo = !isDirectImage && (mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi|mkv)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/'));
-                    const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)(\?.*)?$/i.test(mediaUrl);
-                    const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
+                    const isVideo =
+                      mediaUrl.startsWith('data:video') ||
+                      /\.(mp4|webm|mov|m4v|avi|mkv|3gp|flv|ogv)(\?.*)?$/i.test(mediaUrl) ||
+                      mediaUrl.includes('/video/upload/') ||
+                      mediaUrl.includes('/uploads/videos/') ||
+                      mediaUrl.includes('/videos/');
+
+                    const isDoc =
+                      !isVideo &&
+                      (mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)(\?.*)?$/i.test(mediaUrl));
+
+                    const isDirectImage =
+                      !isVideo &&
+                      !isDoc &&
+                      (mediaUrl.startsWith('data:image') ||
+                        /\.(jpeg|jpg|gif|png|webp|svg|bmp|avif)(\?.*)?$/i.test(mediaUrl) ||
+                        mediaUrl.includes('unsplash.com') ||
+                        (mediaUrl.includes('cloudinary') && !mediaUrl.includes('/video/')) ||
+                        mediaUrl.includes('/images/') ||
+                        mediaUrl.includes('/student-art/'));
+
+                    const isWebUrl = !isVideo && !isDoc && !isDirectImage && (mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://'));
 
                     if (isVideo) {
                       return (
@@ -501,6 +519,7 @@ export const WinWall = ({
                           <video
                             src={getMediaUrl(mediaUrl)}
                             controls
+                            playsInline
                             className="w-full h-auto max-h-[580px] object-contain bg-black rounded-2xl"
                           />
                         </div>
@@ -732,9 +751,9 @@ export const WinWall = ({
                           type="button"
                           onClick={() => handleAddComment(win.id)}
                           disabled={commenting}
-                          className="px-3.5 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white rounded-xl font-bold text-xs hover:opacity-95 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                          className="px-3.5 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white rounded-xl font-bold text-xs hover:opacity-95 transition-all cursor-pointer shrink-0 disabled:opacity-50 flex items-center justify-center"
                         >
-                          <Send size={13} />
+                          {commenting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                         </button>
                       </div>
                     ) : (
@@ -862,9 +881,9 @@ export const WinWall = ({
                         <X size={12} />
                       </button>
 
-                      {winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) ? (
+                      {winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || (winForm.imageUrl.includes('cloudinary') && !winForm.imageUrl.includes('/video/')) ? (
                         <img src={getMediaUrl(winForm.imageUrl)} alt="Preview" className="max-h-36 rounded-lg w-full object-cover" />
-                      ) : winForm.imageUrl.match(/\.(mp4|webm|mov|m4v)$/i) || winForm.imageUrl.includes('/uploads/videos/') ? (
+                      ) : winForm.imageUrl.match(/\.(mp4|webm|mov|m4v|avi|mkv)$/i) || winForm.imageUrl.includes('/uploads/videos/') || winForm.imageUrl.includes('/video/upload/') || winForm.imageUrl.startsWith('data:video') ? (
                         <video src={getMediaUrl(winForm.imageUrl)} controls className="max-h-36 rounded-lg w-full object-contain bg-black" />
                       ) : winForm.imageUrl.startsWith('http') ? (
                         <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2">
@@ -896,6 +915,7 @@ export const WinWall = ({
                     disabled={posting || uploadingFile}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
+                    {(posting || uploadingFile) && <Loader2 size={14} className="animate-spin" />}
                     {posting ? 'Publishing...' : `Publish Win ${canEarnWinXp ? '(+100 XP)' : ''}`}
                   </button>
                   <button

@@ -38,6 +38,7 @@ import {
   ChevronDown,
   MoreHorizontal,
   MoreVertical,
+  Loader2,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
@@ -166,6 +167,10 @@ export default function AdminLevels() {
   const [openCardMenuId, setOpenCardMenuId] = useState<string | null>(null);
   const [statusModalTier, setStatusModalTier] = useState<LevelTier | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isSavingTier, setIsSavingTier] = useState(false);
+  const [isSavingOffer, setIsSavingOffer] = useState(false);
+  const [deletingOfferId, setDeletingOfferId] = useState<string | null>(null);
+  const [deletingTierId, setDeletingTierId] = useState<string | null>(null);
 
   // Modal State for Level Tier
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -191,9 +196,11 @@ export default function AdminLevels() {
     installmentFrequencies: DEFAULT_FREQUENCIES.map((f) => ({ ...f })),
   });
 
-  // Modal State for Quick Add Offer on Level Card
+  // Modal State for Quick Add / Edit Offer on Level Card
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [editingOffer, setEditingOffer] = useState<any | null>(null);
   const [offerTargetCode, setOfferTargetCode] = useState("L1");
+  const [selectedOfferByTier, setSelectedOfferByTier] = useState<Record<string, string>>({});
   const [offerFormData, setOfferFormData] = useState({
     title: "",
     discountType: "percentage" as "percentage" | "flat",
@@ -202,6 +209,39 @@ export default function AdminLevels() {
     endDate: "",
     isActive: true,
   });
+
+  const toDateTimeLocalValue = (dateVal?: string | Date | null) => {
+    if (!dateVal) return "";
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return "";
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  };
+
+  const formatAdminOfferDate = (dateVal?: string | Date | null) => {
+    if (!dateVal) return "";
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return "";
+    const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
+    if (hasTime) {
+      return d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    return d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   // Razorpay Gateway Config State
   const [isRazorpayModalOpen, setIsRazorpayModalOpen] = useState(false);
@@ -315,11 +355,12 @@ export default function AdminLevels() {
 
   const handleSaveTier = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.code.trim()) {
-      showError("Tier Code and Name are required");
+    if (!formData.name.trim() || !formData.code.trim() || isSavingTier) {
+      if (!formData.name.trim() || !formData.code.trim()) showError("Tier Code and Name are required");
       return;
     }
 
+    setIsSavingTier(true);
     try {
       const payload = {
         code: formData.code.trim().toUpperCase(),
@@ -372,6 +413,8 @@ export default function AdminLevels() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setIsSavingTier(false);
     }
   };
 
@@ -420,46 +463,115 @@ export default function AdminLevels() {
 
   const openAddOfferForLevelModal = (code: string) => {
     setOfferTargetCode(code);
+    setEditingOffer(null);
     setOfferFormData({
       title: "",
       discountType: "percentage",
       discountValue: 20,
-      startDate: new Date().toISOString().slice(0, 16),
+      startDate: toDateTimeLocalValue(new Date()),
       endDate: "",
       isActive: true,
     });
     setIsOfferModalOpen(true);
   };
 
+  const openEditOfferModal = (offer: any, code?: string) => {
+    if (!offer) return;
+    if (offer.id === 'tier-direct') {
+      const matchedTier = levels.find((l) => l.code === (code || offer.levelCode));
+      if (matchedTier) {
+        openEditModal(matchedTier);
+        return;
+      }
+    }
+    setOfferTargetCode(code || offer.levelCode || "L1");
+    setEditingOffer(offer);
+    setOfferFormData({
+      title: offer.title || "",
+      discountType: offer.discountType === "flat" ? "flat" : "percentage",
+      discountValue: offer.discountValue !== undefined ? Number(offer.discountValue) : 20,
+      startDate: toDateTimeLocalValue(offer.startDate),
+      endDate: toDateTimeLocalValue(offer.endDate),
+      isActive: offer.isActive !== false,
+    });
+    setIsOfferModalOpen(true);
+  };
+
   const handleSaveOfferForLevel = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!offerFormData.title.trim()) {
-      showError("Offer Campaign Title is required.");
+    if (!offerFormData.title.trim() || isSavingOffer) {
+      if (!offerFormData.title.trim()) showError("Offer Campaign Title is required.");
       return;
     }
 
+    setIsSavingOffer(true);
     try {
-      const res = await fetch(`${API}/admin/offers`, {
-        method: "POST",
+      const url = editingOffer ? `${API}/admin/offers/${editingOffer.id}` : `${API}/admin/offers`;
+      const method = editingOffer ? "PUT" : "POST";
+
+      const payload = {
+        title: offerFormData.title.trim(),
+        levelCode: offerTargetCode,
+        discountType: offerFormData.discountType,
+        discountValue: Number(offerFormData.discountValue) || 0,
+        startDate: offerFormData.startDate ? new Date(offerFormData.startDate).toISOString() : null,
+        endDate: offerFormData.endDate ? new Date(offerFormData.endDate).toISOString() : null,
+        isActive: Boolean(offerFormData.isActive),
+        bannerText: offerFormData.title.trim(),
+      };
+
+      const res = await fetch(url, {
+        method,
         headers,
-        body: JSON.stringify({
-          ...offerFormData,
-          levelCode: offerTargetCode,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to create offer");
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData?.message || (editingOffer ? "Failed to update offer" : "Failed to create offer"));
 
-      showSuccess(`🎉 Offer added to ${offerTargetCode} successfully!`);
+      if (resData && resData.id) {
+        setSelectedOfferByTier((prev) => ({ ...prev, [offerTargetCode]: resData.id }));
+      }
+
+      showSuccess(editingOffer ? `Offer "${offerFormData.title}" updated successfully!` : `🎉 Offer added to ${offerTargetCode} successfully!`);
       setIsOfferModalOpen(false);
+      setEditingOffer(null);
       fetchData();
     } catch (err: any) {
-      showError(err?.message || "Failed to add campaign offer.");
+      showError(err?.message || "Failed to save campaign offer.");
+    } finally {
+      setIsSavingOffer(false);
+    }
+  };
+
+  const handleDeleteOffer = async (id: string, title: string) => {
+    if (deletingOfferId === id) return;
+    if (!confirm(`Are you sure you want to delete offer "${title}"?`)) return;
+    setDeletingOfferId(id);
+    try {
+      const res = await fetch(`${API}/admin/offers/${id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (res.ok) {
+        showSuccess(`Offer "${title}" deleted successfully!`);
+        setIsOfferModalOpen(false);
+        setEditingOffer(null);
+        fetchData();
+      } else {
+        showError("Failed to delete offer");
+      }
+    } catch (err: any) {
+      showError(err.message || "An error occurred");
+    } finally {
+      setDeletingOfferId(null);
     }
   };
 
   const handleDeleteTier = async (id: string, code: string) => {
+    if (deletingTierId === id) return;
     if (!confirm(`Are you sure you want to delete tier "${code}"?`)) return;
+    setDeletingTierId(id);
     try {
       const res = await fetch(`${API}/admin/levels/${id}`, {
         method: 'DELETE',
@@ -473,6 +585,8 @@ export default function AdminLevels() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setDeletingTierId(null);
     }
   };
 
@@ -635,16 +749,27 @@ export default function AdminLevels() {
                 const isInstallmentsExpanded = expandedInstallmentsTierId === tier.id;
                 const isMenuOpen = openCardMenuId === tier.id;
 
-                // Active offer & discount calculation
-                const activeOffer = offersForLevel.find(o => o.isActive !== false);
+                // Active offer & discount calculation with support for selected offer
+                const userSelectedOfferId = selectedOfferByTier[tier.code];
+                const selectedOffer = userSelectedOfferId
+                  ? (offersForLevel.find(o => o.id === userSelectedOfferId) || offersForLevel.find(o => o.isActive !== false) || offersForLevel[0])
+                  : (offersForLevel.find(o => o.isActive !== false) || offersForLevel[0]);
+
+                const hasCampaignOffer = Boolean(selectedOffer && (selectedOffer.discountValue || 0) > 0);
                 const hasDirectOffer = Boolean(tier.offerActive && (tier.discountValue || 0) > 0);
-                const hasCampaignOffer = Boolean(activeOffer && (activeOffer.discountValue || 0) > 0);
-                const hasDiscount = hasDirectOffer || hasCampaignOffer;
-                const primaryOffer = hasDirectOffer ? {
-                  title: tier.offerTitle || 'Special Offer',
-                  discountType: tier.discountType || 'percentage',
-                  discountValue: tier.discountValue || 0,
-                } : activeOffer;
+                const hasDiscount = hasCampaignOffer || hasDirectOffer;
+                const primaryOffer = hasCampaignOffer
+                  ? selectedOffer
+                  : (hasDirectOffer ? {
+                      id: 'tier-direct',
+                      title: tier.offerTitle || 'Special Offer',
+                      discountType: tier.discountType || 'percentage',
+                      discountValue: tier.discountValue || 0,
+                      startDate: tier.offerStartDate,
+                      endDate: tier.offerEndDate,
+                      isActive: true,
+                      levelCode: tier.code,
+                    } : null);
 
                 const discType = primaryOffer?.discountType || 'percentage';
                 const discVal = Number(primaryOffer?.discountValue) || 0;
@@ -810,12 +935,23 @@ export default function AdminLevels() {
                               <span className="inline-flex items-center gap-2 font-medium text-stone-600">
                                 <Tag size={14} className="text-stone-400 shrink-0" /> Level Offers
                               </span>
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
                                 {hasDiscount && primaryOffer && (
-                                  <span className="px-2.5 py-0.5 rounded-full bg-[#ecfdf5] border border-emerald-200 text-[#059669] text-xs font-bold inline-flex items-center gap-1.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    {primaryOffer.title || 'FESTIVE20'} ({discountPercentLabel})
-                                  </span>
+                                  <div className="inline-flex items-center gap-1">
+                                    <span className="px-2.5 py-0.5 rounded-full bg-[#ecfdf5] border border-emerald-200 text-[#059669] text-xs font-bold inline-flex items-center gap-1.5">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                      {primaryOffer.title || 'Special Offer'} ({discountPercentLabel})
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => openEditOfferModal(primaryOffer, tier.code)}
+                                      className="px-2 py-0.5 rounded-lg bg-stone-100 hover:bg-[#fde5d6] text-stone-700 hover:text-[#942008] border border-stone-200 text-xs font-bold inline-flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                                      title="Edit this offer (Title, Dates, Discount)"
+                                    >
+                                      <Edit2 size={11} />
+                                      <span>Edit</span>
+                                    </button>
+                                  </div>
                                 )}
                                 <button
                                   type="button"
@@ -837,20 +973,104 @@ export default function AdminLevels() {
                               </div>
                             </div>
 
+                            {/* Active / Selected Offer Banner */}
+                            {primaryOffer && !isOffersExpanded && (
+                              <div className="mt-2 flex items-center justify-between gap-2 text-xs bg-[#fcfaf7] px-3 py-2 rounded-xl border border-[#ecdccb]/80">
+                                <div className="flex flex-col min-w-0">
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="shrink-0">🎁</span>
+                                    <span className="font-bold text-stone-900 truncate">{primaryOffer.title}</span>
+                                  </div>
+                                  {(primaryOffer.startDate || primaryOffer.endDate) && (
+                                    <span className="text-[0.625rem] text-stone-500 font-medium pl-5 mt-0.5">
+                                      📅 {primaryOffer.startDate ? new Date(primaryOffer.startDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Start: Today'}
+                                      {primaryOffer.endDate ? ` → Exp: ${new Date(primaryOffer.endDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}` : ' (No Expiry)'}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <span className="font-black text-rose-700 font-mono text-xs bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                                    {primaryOffer.discountType === 'percentage' ? `${primaryOffer.discountValue}% OFF` : `₹${primaryOffer.discountValue} OFF`}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => openEditOfferModal(primaryOffer, tier.code)}
+                                    className="p-1 rounded-lg hover:bg-stone-200 text-stone-500 hover:text-[#942008] transition-colors cursor-pointer"
+                                    title="Edit this offer"
+                                  >
+                                    <Edit2 size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Expanded Offers List */}
                             {isOffersExpanded && offersForLevel.length > 0 && (
-                              <div className="mt-2.5 pl-5 space-y-1.5">
-                                <div className="space-y-1.5 max-h-32 overflow-y-auto pr-0.5">
-                                  {offersForLevel.map((off) => (
-                                    <div key={off.id} className="flex items-center justify-between gap-2 text-xs bg-[#fcfaf7] px-2.5 py-1.5 rounded-xl border border-[#ecdccb]/80">
-                                      <div className="flex items-center gap-1.5 min-w-0">
-                                        <span className="shrink-0">🎁</span>
-                                        <span className="font-bold text-stone-900 truncate">{off.title}</span>
+                              <div className="mt-2.5 pl-1 space-y-1.5">
+                                <div className="text-[0.6875rem] font-bold text-stone-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+                                  <span>Tier Offers ({offersForLevel.length})</span>
+                                  <span className="text-[0.625rem] font-normal normal-case text-stone-400">Click offer to select</span>
+                                </div>
+                                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
+                                  {offersForLevel.map((off) => {
+                                    const isCurrentSelected = primaryOffer?.id === off.id;
+                                    return (
+                                      <div
+                                        key={off.id}
+                                        className={`flex flex-col gap-1 text-xs px-2.5 py-2 rounded-xl border transition-all ${
+                                          isCurrentSelected
+                                            ? 'bg-[#fff5ee] border-[#f5ded0] shadow-2xs'
+                                            : 'bg-[#fcfaf7] hover:bg-stone-50 border-[#ecdccb]/80'
+                                        }`}
+                                      >
+                                        <div className="flex items-center justify-between gap-2">
+                                          <div
+                                            className="flex items-center gap-1.5 min-w-0 cursor-pointer flex-1"
+                                            onClick={() => setSelectedOfferByTier(prev => ({ ...prev, [tier.code]: off.id }))}
+                                            title="Click to apply this offer to level card"
+                                          >
+                                            <span className="shrink-0">🎁</span>
+                                            <span className="font-bold text-stone-900 truncate">{off.title}</span>
+                                            {isCurrentSelected && (
+                                              <span className="text-[0.625rem] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full shrink-0">
+                                                Selected
+                                              </span>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center gap-1.5 shrink-0">
+                                            <span className="font-black text-rose-700 font-mono text-xs bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                                              {off.discountType === 'percentage' ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`}
+                                            </span>
+                                            <button
+                                              type="button"
+                                              onClick={() => openEditOfferModal(off, tier.code)}
+                                              className="p-1 rounded-md bg-stone-100 hover:bg-[#fde5d6] text-stone-600 hover:text-[#942008] border border-stone-200 transition-colors cursor-pointer"
+                                              title="Edit offer details & dates"
+                                            >
+                                              <Edit2 size={11} />
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDeleteOffer(off.id, off.title)}
+                                              disabled={deletingOfferId === off.id}
+                                              className="p-1 rounded-md bg-stone-100 hover:bg-rose-100 text-stone-400 hover:text-rose-700 border border-stone-200 transition-colors cursor-pointer disabled:opacity-50"
+                                              title="Delete offer"
+                                            >
+                                              {deletingOfferId === off.id ? <Loader2 size={11} className="animate-spin text-rose-600" /> : <Trash2 size={11} />}
+                                            </button>
+                                          </div>
+                                        </div>
+                                        {(off.startDate || off.endDate) && (
+                                          <div className="flex items-center gap-2 text-[0.625rem] text-stone-500 font-medium pl-5">
+                                            <span>
+                                              📅 {off.startDate ? formatAdminOfferDate(off.startDate) : 'Starts now'}
+                                              {off.endDate ? ` → Exp: ${formatAdminOfferDate(off.endDate)}` : ' (No expiry)'}
+                                            </span>
+                                          </div>
+                                        )}
                                       </div>
-                                      <span className="font-black text-rose-700 font-mono text-xs shrink-0 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
-                                        {off.discountType === 'percentage' ? `${off.discountValue}% OFF` : `₹${off.discountValue} OFF`}
-                                      </span>
-                                    </div>
-                                  ))}
+                                    );
+                                  })}
                                 </div>
                               </div>
                             )}
@@ -971,9 +1191,10 @@ export default function AdminLevels() {
                                     setOpenCardMenuId(null);
                                     handleDeleteTier(tier.id, tier.code);
                                   }}
-                                  className="w-full px-3 py-2 rounded-xl text-left font-bold text-[#b91c1c] hover:bg-rose-50 flex items-center gap-2.5 cursor-pointer transition-colors"
+                                  disabled={deletingTierId === tier.id}
+                                  className="w-full px-3 py-2 rounded-xl text-left font-bold text-[#b91c1c] hover:bg-rose-50 flex items-center gap-2.5 cursor-pointer transition-colors disabled:opacity-50"
                                 >
-                                  <Trash2 size={14} /> Delete Tier
+                                  {deletingTierId === tier.id ? <Loader2 size={14} className="animate-spin text-rose-600" /> : <Trash2 size={14} />} Delete Tier
                                 </button>
                               </div>
                             </>
@@ -1583,9 +1804,11 @@ export default function AdminLevels() {
                   </button>
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 px-8 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                    disabled={isSavingTier}
+                    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 px-8 rounded-xl shadow-lg transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-50"
                   >
-                    {editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}
+                    {isSavingTier && <Loader2 size={16} className="animate-spin" />}
+                    <span>{isSavingTier ? 'Saving...' : editingTier ? 'Update Level Tier & Price' : 'Create Level Tier'}</span>
                   </button>
                 </div>
               </form>
@@ -1593,12 +1816,16 @@ export default function AdminLevels() {
           </div>
         )}
 
-        {/* Quick Add Offer Modal directly for Level Card */}
+        {/* Quick Add / Edit Offer Modal directly for Level Card */}
         {isOfferModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm">
-            <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-white p-6 sm:p-7 shadow-2xl text-stone-900">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+            <div className="relative w-full max-w-md rounded-3xl border border-[#ecdccb] bg-white p-6 sm:p-7 shadow-2xl text-stone-900 animate-in fade-in zoom-in-95 duration-150">
               <button
-                onClick={() => setIsOfferModalOpen(false)}
+                type="button"
+                onClick={() => {
+                  setIsOfferModalOpen(false);
+                  setEditingOffer(null);
+                }}
                 className="absolute right-4 top-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 flex items-center justify-center transition-colors cursor-pointer"
               >
                 ✕
@@ -1610,9 +1837,11 @@ export default function AdminLevels() {
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-stone-900">
-                    Add Campaign Offer for {offerTargetCode}
+                    {editingOffer ? `Edit Offer for ${offerTargetCode}` : `Add Campaign Offer for ${offerTargetCode}`}
                   </h3>
-                  <p className="text-xs text-stone-500">Create another offer deal for {offerTargetCode} tier</p>
+                  <p className="text-xs text-stone-500">
+                    {editingOffer ? `Update offer title, discount, and validity dates` : `Create another offer deal for ${offerTargetCode} tier`}
+                  </p>
                 </div>
               </div>
 
@@ -1668,7 +1897,7 @@ export default function AdminLevels() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-600 mb-1">End Date &amp; Time</label>
+                    <label className="block text-xs font-bold text-stone-600 mb-1">End / Expiry Date &amp; Time</label>
                     <input
                       type="datetime-local"
                       value={offerFormData.endDate}
@@ -1678,17 +1907,49 @@ export default function AdminLevels() {
                   </div>
                 </div>
 
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs">
+                  <span className="font-bold text-stone-700">Offer Status</span>
+                  <label className="inline-flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={offerFormData.isActive}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, isActive: e.target.checked })}
+                      className="rounded text-[#c4431d] focus:ring-[#c4431d]"
+                    />
+                    <span className={offerFormData.isActive ? "text-emerald-700 font-bold" : "text-stone-500 font-medium"}>
+                      {offerFormData.isActive ? "Active (Live)" : "Inactive"}
+                    </span>
+                  </label>
+                </div>
+
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer"
+                    disabled={isSavingOffer}
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black text-xs h-10 rounded-xl shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                   >
-                    + Add Offer to {offerTargetCode}
+                    {isSavingOffer && <Loader2 size={13} className="animate-spin" />}
+                    <span>{isSavingOffer ? "Saving..." : editingOffer ? "Update Offer" : `+ Add Offer to ${offerTargetCode}`}</span>
                   </button>
+                  {editingOffer && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteOffer(editingOffer.id, editingOffer.title)}
+                      disabled={deletingOfferId === editingOffer.id}
+                      className="px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs h-10 rounded-xl border border-rose-200 inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                      title="Delete this offer"
+                    >
+                      {deletingOfferId === editingOffer.id ? <Loader2 size={13} className="animate-spin text-rose-600" /> : <Trash2 size={13} />}
+                      <span>Delete</span>
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => setIsOfferModalOpen(false)}
-                    className="px-4 bg-stone-100 text-stone-700 font-semibold text-xs h-10 rounded-xl cursor-pointer"
+                    onClick={() => {
+                      setIsOfferModalOpen(false);
+                      setEditingOffer(null);
+                    }}
+                    className="px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-xs h-10 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>

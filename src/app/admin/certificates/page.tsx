@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { Award, Plus, X, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Award, Plus, X, ExternalLink, CheckCircle2, Loader2 } from "lucide-react";
 import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
@@ -322,9 +322,10 @@ export default function AdminCertificates() {
                 <button
                   type="submit"
                   disabled={isSubmitting || !studentId || !courseId}
-                  className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white disabled:opacity-50 rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white disabled:opacity-50 rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? "Awarding..." : "Award Certificate"}
+                  {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+                  <span>{isSubmitting ? "Awarding..." : "Award Certificate"}</span>
                 </button>
               </div>
             </form>

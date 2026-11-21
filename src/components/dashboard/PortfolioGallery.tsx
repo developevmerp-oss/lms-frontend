@@ -24,45 +24,45 @@ export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
+      className="bg-white/95 border border-[#ecdccb] p-6 sm:p-7 rounded-3xl h-full min-h-[300px] sm:min-h-[340px] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
-            <ImageIcon size={16} />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0 shadow-2xs">
+            <ImageIcon size={18} />
           </div>
-          <h2 className="text-sm sm:text-base font-bold text-stone-900">Portfolio Projects</h2>
+          <h2 className="text-base sm:text-lg font-bold text-stone-900">Portfolio Projects</h2>
         </div>
         <Link
           href="/student/portfolio"
-          className="text-xs font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-2.5 py-1 rounded-full shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
+          className="text-xs sm:text-sm font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-3 py-1.5 rounded-full shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
         >
-          <Plus size={12} /> Upload New
+          <Plus size={14} /> Upload New
         </Link>
       </div>
 
-      {/* Content centered vertically with no bottom dead space */}
-      <div className="flex-1 flex flex-col justify-center py-2 sm:py-3">
+      {/* Content centered vertically with plenty of height */}
+      <div className="flex-1 flex flex-col justify-center py-3">
         {activePortfolios.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center">
-            <UploadCloud size={34} className="text-[#e86034] mb-2" />
-            <p className="text-stone-600 text-xs font-medium">No projects uploaded yet.</p>
+          <div className="flex flex-col items-center justify-center text-center py-6">
+            <UploadCloud size={44} className="text-[#e86034] mb-2.5" />
+            <p className="text-stone-700 text-sm font-semibold">No projects uploaded yet.</p>
             <Link
               href="/student/portfolio"
-              className="text-[#c4431d] hover:text-[#942008] text-xs font-bold transition-colors mt-0.5"
+              className="text-[#c4431d] hover:text-[#942008] text-xs sm:text-sm font-bold transition-colors mt-1"
             >
               Start your portfolio
             </Link>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {activePortfolios.slice(0, 2).map((project, i) => (
               <div
                 key={project.id || i}
-                className="flex items-center gap-2.5 p-2 bg-[#faf8f5] border border-stone-200/80 rounded-xl"
+                className="flex items-center gap-3.5 p-3 sm:p-3.5 bg-[#faf8f5] border border-stone-200/80 rounded-2xl shadow-2xs"
               >
-                <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-stone-100">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 bg-stone-100 border border-stone-200">
                   <img
                     src={project.imageUrl}
                     alt={project.title}
@@ -70,10 +70,10 @@ export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xs font-bold text-stone-900 truncate">
+                  <h3 className="text-sm sm:text-base font-bold text-stone-900 truncate">
                     {project.title}
                   </h3>
-                  <p className="text-xs text-[#c4431d] font-semibold truncate">
+                  <p className="text-xs sm:text-sm text-[#c4431d] font-semibold truncate mt-0.5">
                     {project.technique}
                   </p>
                 </div>

@@ -17,6 +17,7 @@ import {
   X,
   AlertTriangle,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -54,6 +55,7 @@ export default function AdminRewardsManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<RewardItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -217,6 +219,7 @@ export default function AdminRewardsManager() {
 
   const handleDeleteItem = async (id: string, title: string) => {
     if (!confirm(`Are you sure you want to delete "${title}" from the Merch Store?`)) return;
+    setDeletingId(id);
     try {
       const res = await fetch(`${API_BASE_URL}/rewards/${id}`, {
         method: "DELETE",
@@ -231,6 +234,8 @@ export default function AdminRewardsManager() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -265,27 +270,9 @@ export default function AdminRewardsManager() {
       <AdminNav user={user} logout={logout} />
 
       <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header Section matching reference image */}
+        {/* Commented out top standalone CTA button per user instruction */}
+        {/*
         <div className="flex flex-col md:flex-row md:items-start justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Gamification &amp; Recognition</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Merch Store Manager</span>
-            </div>
-
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Merch Store Manager
-            </h1>
-
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Manage physical merchandise bundles, journals, mentoring vouchers, and tickets that students can redeem with their XP points.
-            </p>
-          </div>
-          */}
-
-          {/* Top CTA Button */}
           <button
             onClick={openCreateModal}
             className="bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0 self-start md:self-auto cursor-pointer"
@@ -293,6 +280,7 @@ export default function AdminRewardsManager() {
             <Plus size={16} /> Add New Merch Item
           </button>
         </div>
+        */}
 
         {/* Alerts */}
         {successMsg && (
@@ -322,56 +310,30 @@ export default function AdminRewardsManager() {
                 className="w-full bg-white border border-stone-200/90 rounded-2xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#c2410c] focus:ring-1 focus:ring-[#c2410c]/20 transition-all shadow-2xs"
               />
             </div>
-
-            {/* <div className="relative shrink-0" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="bg-white border border-stone-200/90 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-medium text-stone-800 flex items-center justify-between gap-3 shadow-2xs hover:border-stone-300 transition-colors cursor-pointer min-w-[145px]"
-              >
-                <span>{selectedCategory}</span>
-                <ChevronDown
-                  size={15}
-                  className={`text-stone-500 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-56 bg-white border border-stone-200 rounded-2xl shadow-lg py-1.5 z-30">
-                  {CATEGORY_OPTIONS.map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 text-xs sm:text-sm transition-colors cursor-pointer ${
-                        selectedCategory === cat
-                          ? "bg-[#fff5ee] text-[#c2410c] font-bold"
-                          : "text-stone-700 hover:bg-stone-50 font-normal"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div> */}
           </div>
 
-          {/* Right Group: Stat Pills */}
+          {/* Right Group: Add New Merch Item Button (Replaced 5 Store Items and XP Range buttons per Task-1) */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 self-start md:self-auto">
-            {/* Stat Pill 1: Total Store Items */}
+            {/* Stat Pill 1: Total Store Items
             <div className="bg-white border border-stone-200/90 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2 shadow-2xs shrink-0 whitespace-nowrap">
               <Gift size={16} className="text-[#c2410c]" />
               <span>{rewards.length} Store Items</span>
             </div>
+            */}
 
-            {/* Stat Pill 2: XP Range */}
+            {/* Stat Pill 2: XP Range
             <div className="bg-white border border-stone-200/90 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2 shadow-2xs shrink-0 whitespace-nowrap">
               <Star size={16} className="text-amber-500" />
               <span>{rewards.length > 0 ? `${minXP} – ${maxXP} XP` : "0 XP"}</span>
             </div>
+            */}
+
+            <button
+              onClick={openCreateModal}
+              className="bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Plus size={16} /> Add New Merch Item
+            </button>
           </div>
         </div>
 
@@ -524,10 +486,15 @@ export default function AdminRewardsManager() {
                         <button
                           type="button"
                           onClick={() => handleDeleteItem(item.id, item.title)}
-                          className="w-8 h-8 rounded-full border border-stone-200 bg-white hover:bg-rose-50 flex items-center justify-center text-rose-500 transition-colors shadow-2xs"
+                          disabled={deletingId === item.id}
+                          className="w-8 h-8 rounded-full border border-stone-200 bg-white hover:bg-rose-50 flex items-center justify-center text-rose-500 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
                           title="Delete Item"
                         >
-                          <Trash2 size={13} />
+                          {deletingId === item.id ? (
+                            <Loader2 size={13} className="animate-spin text-rose-500" />
+                          ) : (
+                            <Trash2 size={13} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -674,13 +641,16 @@ export default function AdminRewardsManager() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold text-xs sm:text-sm transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-[#c2410c] hover:bg-[#a83408] text-white font-semibold text-xs sm:text-sm transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  {isSubmitting
-                    ? "Saving..."
-                    : editingItem
-                      ? "Update Item"
-                      : "Publish Merch Item"}
+                  {isSubmitting && <Loader2 size={14} className="animate-spin" />}
+                  <span>
+                    {isSubmitting
+                      ? "Saving..."
+                      : editingItem
+                        ? "Update Item"
+                        : "Publish Merch Item"}
+                  </span>
                 </button>
               </div>
             </form>

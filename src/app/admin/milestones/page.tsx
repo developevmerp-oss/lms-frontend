@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { Target, CheckCircle2, Circle, Plus, Trash2, Edit2, Check, X, Search, Filter, Calendar } from "lucide-react";
+import { Target, CheckCircle2, Circle, Plus, Trash2, Edit2, Check, X, Search, Filter, Calendar, Loader2 } from "lucide-react";
 
 import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -21,6 +21,10 @@ export default function AdminMilestones() {
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAddingMilestone, setIsAddingMilestone] = useState(false);
+  const [togglingMilestoneId, setTogglingMilestoneId] = useState<string | null>(null);
+  const [isSavingNameId, setIsSavingNameId] = useState<string | null>(null);
+  const [deletingMilestoneId, setDeletingMilestoneId] = useState<string | null>(null);
 
   const effectiveToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
   const headers = { Authorization: `Bearer ${effectiveToken}`, "Content-Type": "application/json" };
@@ -61,24 +65,36 @@ export default function AdminMilestones() {
   };
 
   const toggleMilestone = async (milestoneId: string, current: boolean) => {
-    await fetch(`${API}/admin/milestones/${milestoneId}`, {
-      method: 'PUT', headers,
-      body: JSON.stringify({ completed: !current, completedAt: !current ? new Date() : null })
-    });
-    await fetchMilestones();
-    showSuccess("Milestone status updated!");
+    setTogglingMilestoneId(milestoneId);
+    try {
+      await fetch(`${API}/admin/milestones/${milestoneId}`, {
+        method: 'PUT', headers,
+        body: JSON.stringify({ completed: !current, completedAt: !current ? new Date() : null })
+      });
+      await fetchMilestones();
+      showSuccess("Milestone status updated!");
+    } catch (_) {
+    } finally {
+      setTogglingMilestoneId(null);
+    }
   };
 
   const saveMilestoneName = async (milestoneId: string) => {
     if (!editingName.trim()) return;
-    await fetch(`${API}/admin/milestones/${milestoneId}`, {
-      method: 'PUT', headers,
-      body: JSON.stringify({ name: editingName.trim() })
-    });
-    setEditingMilestoneId(null);
-    setEditingName("");
-    await fetchMilestones();
-    showSuccess("Milestone title updated!");
+    setIsSavingNameId(milestoneId);
+    try {
+      await fetch(`${API}/admin/milestones/${milestoneId}`, {
+        method: 'PUT', headers,
+        body: JSON.stringify({ name: editingName.trim() })
+      });
+      setEditingMilestoneId(null);
+      setEditingName("");
+      await fetchMilestones();
+      showSuccess("Milestone title updated!");
+    } catch (_) {
+    } finally {
+      setIsSavingNameId(null);
+    }
   };
 
   const startEditing = (m: any) => {
@@ -88,18 +104,37 @@ export default function AdminMilestones() {
 
   const deleteMilestone = async (milestoneId: string) => {
     if (!confirm("Are you sure you want to delete this milestone?")) return;
-    await fetch(`${API}/admin/milestones/${milestoneId}`, { method: 'DELETE', headers });
-    await fetchMilestones();
-    showSuccess("Milestone deleted!");
+    setDeletingMilestoneId(milestoneId);
+    try {
+      await fetch(`${API}/admin/milestones/${milestoneId}`, { method: 'DELETE', headers });
+      await fetchMilestones();
+      showSuccess("Milestone deleted!");
+    } catch (_) {
+    } finally {
+      setDeletingMilestoneId(null);
+    }
   };
 
   const addMilestone = async () => {
     if (!newMilestone.name.trim()) return;
-
-    if (applyToAll || selectedStudentId === "all") {
-      // Add to all students
-      for (const s of students) {
-        await fetch(`${API}/admin/students/${s.id}/milestones`, {
+    setIsAddingMilestone(true);
+    try {
+      if (applyToAll || selectedStudentId === "all") {
+        // Add to all students
+        for (const s of students) {
+          await fetch(`${API}/admin/students/${s.id}/milestones`, {
+            method: 'POST', headers,
+            body: JSON.stringify({
+              name: newMilestone.name.trim(),
+              completed: newMilestone.completed,
+              completedAt: newMilestone.completed ? new Date().toISOString() : null,
+              order: 99
+            })
+          });
+        }
+        showSuccess(`Milestone added to all ${students.length} students!`);
+      } else {
+        await fetch(`${API}/admin/students/${selectedStudentId}/milestones`, {
           method: 'POST', headers,
           body: JSON.stringify({
             name: newMilestone.name.trim(),
@@ -108,23 +143,14 @@ export default function AdminMilestones() {
             order: 99
           })
         });
+        showSuccess("Milestone added to student!");
       }
-      showSuccess(`Milestone added to all ${students.length} students!`);
-    } else {
-      await fetch(`${API}/admin/students/${selectedStudentId}/milestones`, {
-        method: 'POST', headers,
-        body: JSON.stringify({
-          name: newMilestone.name.trim(),
-          completed: newMilestone.completed,
-          completedAt: newMilestone.completed ? new Date().toISOString() : null,
-          order: 99
-        })
-      });
-      showSuccess("Milestone added to student!");
+      setNewMilestone({ name: "", completed: false });
+      await fetchMilestones();
+    } catch (_) {
+    } finally {
+      setIsAddingMilestone(false);
     }
-
-    setNewMilestone({ name: "", completed: false });
-    await fetchMilestones();
   };
 
   const displayedMilestones = milestones
@@ -222,10 +248,10 @@ export default function AdminMilestones() {
             </label>
             <button
               onClick={addMilestone}
-              disabled={!newMilestone.name.trim()}
+              disabled={isAddingMilestone || !newMilestone.name.trim()}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
             >
-              <Plus size={16} /> Save Milestone
+              {isAddingMilestone ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />} Save Milestone
             </button>
           </div>
         </div>
@@ -292,13 +318,17 @@ export default function AdminMilestones() {
                   <div className="col-span-1">
                     <button
                       onClick={() => toggleMilestone(m.id, m.completed)}
+                      disabled={togglingMilestoneId === m.id}
                       title={m.completed ? "Mark as Incomplete" : "Mark as Completed"}
-                      className="cursor-pointer"
+                      className="cursor-pointer disabled:opacity-50"
                     >
-                      {m.completed
-                        ? <CheckCircle2 size={22} className="text-emerald-400 hover:scale-110 transition-transform" />
-                        : <Circle size={22} className="text-stone-400 hover:text-[#c4431d] transition-colors" />
-                      }
+                      {togglingMilestoneId === m.id ? (
+                        <Loader2 size={22} className="animate-spin text-[#c4431d]" />
+                      ) : m.completed ? (
+                        <CheckCircle2 size={22} className="text-emerald-400 hover:scale-110 transition-transform" />
+                      ) : (
+                        <Circle size={22} className="text-stone-400 hover:text-[#c4431d] transition-colors" />
+                      )}
                     </button>
                   </div>
 
@@ -319,10 +349,11 @@ export default function AdminMilestones() {
                         />
                         <button
                           onClick={() => saveMilestoneName(m.id)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg cursor-pointer"
+                          disabled={isSavingNameId === m.id}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg cursor-pointer disabled:opacity-50"
                           title="Save Changes"
                         >
-                          <Check size={16} />
+                          {isSavingNameId === m.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                         </button>
                         <button
                           onClick={() => setEditingMilestoneId(null)}
@@ -374,10 +405,11 @@ export default function AdminMilestones() {
                     </button>
                     <button
                       onClick={() => deleteMilestone(m.id)}
-                      className="text-stone-400 hover:text-rose-600 p-1.5 bg-stone-100 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      disabled={deletingMilestoneId === m.id}
+                      className="text-stone-400 hover:text-rose-600 p-1.5 bg-stone-100 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                       title="Delete Milestone"
                     >
-                      <Trash2 size={14} />
+                      {deletingMilestoneId === m.id ? <Loader2 size={14} className="animate-spin text-rose-600" /> : <Trash2 size={14} />}
                     </button>
                   </div>
                 </div>

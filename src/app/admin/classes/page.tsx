@@ -27,6 +27,7 @@ import {
   Download,
   Hourglass,
   Ellipsis,
+  Loader2,
 } from "lucide-react";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -57,6 +58,9 @@ export default function AdminClassesPage() {
   // Create / Edit Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<LiveClass | null>(null);
+  const [isSavingClass, setIsSavingClass] = useState(false);
+  const [deletingClassId, setDeletingClassId] = useState<string | null>(null);
+  const [updatingRosterId, setUpdatingRosterId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -316,11 +320,12 @@ export default function AdminClassesPage() {
 
   const handleSaveClass = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.scheduledAt) {
-      showError("Class title and date/time are required");
+    if (!formData.title.trim() || !formData.scheduledAt || isSavingClass) {
+      if (!formData.title.trim() || !formData.scheduledAt) showError("Class title and date/time are required");
       return;
     }
 
+    setIsSavingClass(true);
     try {
       const targetLevelString = selectedLevels.includes("All")
         ? "All"
@@ -364,11 +369,15 @@ export default function AdminClassesPage() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setIsSavingClass(false);
     }
   };
 
   const handleDeleteClass = async (id: string, title: string) => {
+    if (deletingClassId === id) return;
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    setDeletingClassId(id);
     try {
       const res = await fetch(`${API}/classes/${id}`, {
         method: "DELETE",
@@ -382,10 +391,14 @@ export default function AdminClassesPage() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setDeletingClassId(null);
     }
   };
 
   const handleToggleAttendance = async (classId: string, studentId: string, currentStatus: boolean) => {
+    if (updatingRosterId === studentId) return;
+    setUpdatingRosterId(studentId);
     try {
       const res = await fetch(`${API}/classes/${classId}/attendance/${studentId}`, {
         method: "POST",
@@ -412,6 +425,8 @@ export default function AdminClassesPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setUpdatingRosterId(null);
     }
   };
 
@@ -699,9 +714,10 @@ export default function AdminClassesPage() {
                               setOpenActionMenuId(null);
                               handleDeleteClass(cls.id, cls.title);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            disabled={deletingClassId === cls.id}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
                           >
-                            <Trash2 size={15} className="shrink-0" />
+                            {deletingClassId === cls.id ? <Loader2 size={15} className="animate-spin text-rose-600 shrink-0" /> : <Trash2 size={15} className="shrink-0" />}
                             <span>Delete Class</span>
                           </button>
                         </div>
@@ -883,9 +899,11 @@ export default function AdminClassesPage() {
                 <div className="flex items-center gap-3 pt-4 border-t border-stone-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer"
+                    disabled={isSavingClass}
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    {editingClass ? "Update Live Class" : "Schedule Live Class"}
+                    {isSavingClass && <Loader2 size={16} className="animate-spin" />}
+                    <span>{isSavingClass ? "Saving..." : editingClass ? "Update Live Class" : "Schedule Live Class"}</span>
                   </button>
                   <button
                     type="button"
@@ -1014,12 +1032,15 @@ export default function AdminClassesPage() {
                               onClick={() =>
                                 handleToggleAttendance(rosterModal.liveClass!.id, att.userId, att.attended)
                               }
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${att.attended
+                              disabled={updatingRosterId === att.userId}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${att.attended
                                 ? "bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100"
                                 : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
                                 }`}
                             >
-                              {att.attended ? (
+                              {updatingRosterId === att.userId ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : att.attended ? (
                                 <>
                                   <UserCheck size={13} /> Present
                                 </>

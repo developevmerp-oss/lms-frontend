@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Image as ImageIcon } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
+import { getComputedTierPricing } from "@/utils/tierPricing";
 
 export interface InstallmentPlan {
   label?: string;
@@ -56,20 +57,34 @@ export interface LevelCourse {
 
 /**
  * Dynamically extract feature points strictly from backend data:
- * 1. Linked course titles from backend courses API
- * 2. Or parsed technique phrases from backend tier.description
+ * 1. Admin-configured feature points / description from backend LevelTier
+ * 2. Or linked course titles from backend courses API
  */
 function getTierHighlights(tier: LevelTier, dynamicCourses: LevelCourse[]): string[] {
-  if (dynamicCourses && dynamicCourses.length > 0) {
-    return dynamicCourses.map((c) => c.title.replace(/^\d+\.\s*/, "").trim());
+  // 1. If admin entered description points on this membership card, extract those exact points!
+  if (tier.description && tier.description.trim()) {
+    const rawDesc = tier.description.trim();
+    const points = rawDesc
+      .split(/\r?\n|•|;/)
+      .map((p) => p.replace(/^[-*]\s*/, "").trim())
+      .filter((p) => p.length > 2);
+    if (points.length > 1) {
+      return points;
+    } else if (points.length === 1 && (rawDesc.includes(",") || rawDesc.includes(" and "))) {
+      const subPoints = rawDesc
+        .replace(/\band\b/gi, ",")
+        .split(",")
+        .map((p) => p.replace(/^[-*]\s*/, "").trim())
+        .filter((p) => p.length > 2);
+      if (subPoints.length > 0) return subPoints;
+    } else if (points.length === 1) {
+      return points;
+    }
   }
 
-  if (tier.description && tier.description.trim()) {
-    return tier.description
-      .replace(/\band\b/gi, ",")
-      .split(/[,;\n•]+/)
-      .map((p) => p.replace(/^\s*[-•*]\s*/, "").replace(/\.\s*$/, "").trim())
-      .filter((p) => p.length > 2);
+  // 2. Otherwise extract from dynamic course titles assigned to this level
+  if (dynamicCourses && dynamicCourses.length > 0) {
+    return dynamicCourses.map((c) => c.title.replace(/^\d+[\.\:\s\-]+/, "").trim());
   }
 
   return [];
@@ -129,12 +144,15 @@ function PlanImageBanner({
 export default function JourneySec({
   levelTiers: propTiers,
   levelCourses: propCourses,
+  campaignOffers: propOffers,
 }: {
   levelTiers?: LevelTier[];
   levelCourses?: LevelCourse[];
+  campaignOffers?: any[];
 }) {
   const [tiers, setTiers] = useState<LevelTier[]>(propTiers && propTiers.length > 0 ? propTiers : []);
   const [courses, setCourses] = useState<LevelCourse[]>(propCourses && propCourses.length > 0 ? propCourses : []);
+  const [offers, setOffers] = useState<any[]>(propOffers && propOffers.length > 0 ? propOffers : []);
   const [loading, setLoading] = useState<boolean>(!propTiers || propTiers.length === 0);
 
   // Sync state if parent supplies or updates props
@@ -151,6 +169,12 @@ export default function JourneySec({
     }
   }, [propCourses]);
 
+  useEffect(() => {
+    if (propOffers && propOffers.length > 0) {
+      setOffers(propOffers);
+    }
+  }, [propOffers]);
+
   // Fetch 100% dynamic data directly from backend API: http://localhost:5000/api/dashboard/levels
   useEffect(() => {
     let isMounted = true;
@@ -160,11 +184,14 @@ export default function JourneySec({
         const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         const headers: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
 
-        const [levelsRes, coursesRes] = await Promise.all([
+        const [levelsRes, coursesRes, offersRes] = await Promise.all([
           fetch(`${API_BASE_URL}/dashboard/levels`, { headers })
             .then((res) => (res.ok ? res.json() : []))
             .catch(() => []),
           fetch(`${API_BASE_URL}/dashboard/courses`, { headers })
+            .then((res) => (res.ok ? res.json() : []))
+            .catch(() => []),
+          fetch(`${API_BASE_URL}/dashboard/offers`, { headers })
             .then((res) => (res.ok ? res.json() : []))
             .catch(() => []),
         ]);
@@ -187,6 +214,12 @@ export default function JourneySec({
 
         if (validCourses.length > 0) {
           setCourses(validCourses);
+        }
+
+        if (Array.isArray(offersRes)) {
+          setOffers(offersRes);
+        } else if (offersRes && Array.isArray(offersRes.offers)) {
+          setOffers(offersRes.offers);
         }
       } catch (err) {
         console.error("Error fetching dynamic level data from backend:", err);
@@ -263,7 +296,7 @@ export default function JourneySec({
               // Purely dynamic information from backend LevelTier object
               const levelName = tier.name || tier.code || "Level";
               const levelDesc = tier.description || "";
-              const price = tier.price || "";
+              const tierPricing = getComputedTierPricing(tier.code || "", tiers, offers);
 
               // Matching icons from reference image
               const icon =
@@ -342,7 +375,7 @@ export default function JourneySec({
                     ? "Explore Fast Track"
                     : `Explore ${displayTitle.split(":")[0].trim()}`;
 
-              const buttonHref = codeUpper === "L1" ? "/register" : "/webinar";
+              const buttonHref = `/student/courses?unlock=${codeUpper}`;
 
               // Validity text strictly dynamic from backend validityDays
               const validityText =
@@ -399,32 +432,50 @@ export default function JourneySec({
                         {displayTitle}
                       </h3>
 
-                      {/* Price */}
-                      {price && (
-                        <p className="journey-price mt-1.5 text-2xl sm:text-[28px] font-black text-neutral-950 tracking-tight">
-                          {price}
+                      {/* Dynamic Price Display */}
+                      <div className="mt-1.5 flex flex-wrap items-baseline gap-2">
+                        <p className="journey-price text-2xl sm:text-[28px] font-black text-neutral-950 tracking-tight">
+                          {tierPricing.finalPrice}
                         </p>
-                      )}
+                        {tierPricing.hasOffer && (
+                          <span className="text-sm font-semibold text-neutral-400 line-through">
+                            {tierPricing.originalPrice}
+                          </span>
+                        )}
+                      </div>
 
-                      {/* Dynamic Campaign Offer if active */}
-                      {tier.offerActive && (
+                      {/* Dynamic Campaign Offers */}
+                      {tierPricing.applicableOffers && tierPricing.applicableOffers.length > 0 ? (
+                        <div className="mt-2.5 flex flex-wrap gap-1.5 self-start">
+                          {tierPricing.applicableOffers.map((off) => (
+                            <div
+                              key={off.id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-600 text-xs sm:text-base lg:text-xs font-semibold self-start"
+                            >
+                              <span>🎁</span>
+                              <span>{off.title || "Special Offer"}</span>
+                              {off.discountLabel && (
+                                <span className="font-bold">({off.discountLabel})</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : tierPricing.hasOffer ? (
                         <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200/80 text-rose-600 text-xs sm:text-base lg:text-xs font-semibold self-start">
                           <span>🎁</span>
-                          <span>{tier.offerTitle || "Special Offer"}</span>
-                          {Boolean(tier.discountValue && tier.discountValue > 0) && (
-                            <span>
-                              ({tier.discountType === "percentage" ? `${tier.discountValue}%` : `₹${tier.discountValue}`} OFF)
-                            </span>
+                          <span>{tierPricing.offerTitle || "Special Offer"}</span>
+                          {tierPricing.discountLabel && (
+                            <span className="font-bold">({tierPricing.discountLabel})</span>
                           )}
                         </div>
-                      )}
+                      ) : null}
 
                       {/* Description */}
-                      {levelDesc && (
+                      {/* {levelDesc && (
                         <p className="journey-desc mt-2 text-xs sm:text-[13px] leading-relaxed text-neutral-600">
                           {levelDesc}
                         </p>
-                      )}
+                      )} */}
 
                       {/* EMI / Installment Badge */}
                       {hasEmi && (
@@ -444,8 +495,18 @@ export default function JourneySec({
                       </p>
 
                       <ul className="space-y-2.5">
+                        {dynamicCourses.length > 0 && (
+                          <li className="flex items-start gap-2.5 text-xs sm:text-base text-neutral-900 font-bold leading-snug">
+                            <div className="w-4 h-4 rounded-full bg-[#ea580c] text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                              <svg className="w-2.5 h-2.5 stroke-white stroke-[3.5] fill-none" viewBox="0 0 24 24">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            </div>
+                            <span>Includes {dynamicCourses.length} Masterclass Modules</span>
+                          </li>
+                        )}
                         {visibleHighlights.map((feature, fIdx) => (
-                          <li key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-neutral-700 font-medium leading-snug">
+                          <li key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-base text-neutral-700 font-medium leading-snug">
                             <div className="w-4 h-4 rounded-full bg-[#ea580c] text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
                               <svg className="w-2.5 h-2.5 stroke-white stroke-[3.5] fill-none" viewBox="0 0 24 24">
                                 <polyline points="20 6 9 17 4 12" />
@@ -458,7 +519,7 @@ export default function JourneySec({
 
                       {remainingCount > 0 && (
                         <p className="mt-2.5 text-xs text-neutral-400 font-medium pl-6.5">
-                          + {remainingCount} More Modules Included
+                          + {remainingCount} More Features Included
                         </p>
                       )}
                     </div>

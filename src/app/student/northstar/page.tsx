@@ -20,6 +20,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Zap,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -35,6 +36,7 @@ export default function NorthstarTrackingPage() {
     date: new Date().toISOString().split("T")[0],
   });
   const [savingSale, setSavingSale] = useState(false);
+  const [deletingSaleId, setDeletingSaleId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState("");
 
   const targetMonthlyGoal = 300000; // ₹3 Lakh target roadmap
@@ -103,6 +105,7 @@ export default function NorthstarTrackingPage() {
   const handleDeleteSale = async (id: string) => {
     if (!confirm("Are you sure you want to delete this sales entry?")) return;
 
+    setDeletingSaleId(id);
     const token = localStorage.getItem("token");
     try {
       await fetch(`${API_BASE_URL}/dashboard/student/sales/${id}`, {
@@ -110,7 +113,10 @@ export default function NorthstarTrackingPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchStudentData();
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      setDeletingSaleId(null);
+    }
   };
 
   const effectiveLevel = user?.membershipLevel || stats?.membershipLevel || user?.rank;
@@ -311,10 +317,15 @@ export default function NorthstarTrackingPage() {
                           <td className="py-4 text-right">
                             <button
                               onClick={() => handleDeleteSale(sale.id)}
-                              className="text-stone-400 hover:text-red-400 p-1.5 transition-colors cursor-pointer"
+                              disabled={deletingSaleId === sale.id}
+                              className="text-stone-400 hover:text-red-400 p-1.5 transition-colors cursor-pointer disabled:opacity-50"
                               title="Delete entry"
                             >
-                              <Trash2 size={15} />
+                              {deletingSaleId === sale.id ? (
+                                <Loader2 size={15} className="animate-spin text-red-500" />
+                              ) : (
+                                <Trash2 size={15} />
+                              )}
                             </button>
                           </td>
                         </tr>
@@ -379,8 +390,9 @@ export default function NorthstarTrackingPage() {
                   <button
                     type="submit"
                     disabled={savingSale}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black text-sm h-11 rounded-xl shadow-lg hover:scale-105 transition-all cursor-pointer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white font-black text-sm h-11 rounded-xl shadow-lg hover:scale-105 transition-all cursor-pointer disabled:opacity-50"
                   >
+                    {savingSale && <Loader2 size={16} className="animate-spin" />}
                     {savingSale ? "Saving..." : "Save Sale (+100 XP)"}
                   </button>
                   <button

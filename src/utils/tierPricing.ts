@@ -2,6 +2,19 @@
  * Shared utility for dynamic tier pricing, numeric conversion, and level-wide special offer calculations.
  */
 
+export interface ApplicableTierOffer {
+  id: string;
+  title: string;
+  discountType: "percentage" | "flat" | string;
+  discountValue: number;
+  discountLabel: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  formattedEndDate?: string | null;
+  finalNumericPrice: number;
+  finalPrice: string;
+}
+
 export interface ComputedTierPricing {
   levelCode: string;
   name: string;
@@ -13,9 +26,12 @@ export interface ComputedTierPricing {
   originalPrice: string; // e.g. "₹499"
   discountLabel: string | null; // e.g. "20% OFF" or "₹1,000 OFF"
   offerTitle: string | null; // e.g. "Diwali Special Offer"
+  offerStartDate?: string | null;
   offerEndDate?: string | null;
+  formattedEndDate?: string | null;
   discountType?: "percentage" | "flat" | string;
   discountValue?: number;
+  applicableOffers: ApplicableTierOffer[];
 }
 
 export const FALLBACK_TIER_PRICES: Record<string, { name: string; price: string; numericPrice: number; originalPrice: string }> = {
@@ -25,6 +41,31 @@ export const FALLBACK_TIER_PRICES: Record<string, { name: string; price: string;
   L3: { name: "Diamond Club", price: "₹59,999", numericPrice: 59999, originalPrice: "₹99,999" },
   "L3+": { name: "Masters Club", price: "Exclusive", numericPrice: 0, originalPrice: "Exclusive" },
 };
+
+/**
+ * Formats an offer expiry date to clean human-readable date and time.
+ */
+export function formatOfferExpiryDate(dateStr?: string | Date | null): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+
+  const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
+  if (hasTime) {
+    return d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+  return d.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 /**
  * Extracts a clean integer numeric price from strings like "₹499", "₹4,999", "299", or numbers.
@@ -38,7 +79,8 @@ export function parseNumericPrice(priceStr?: string | number | null): number {
 }
 
 /**
- * Calculates the dynamic base price, applied special campaign offer, and final checkout price for any Level Tier.
+ * Calculates the dynamic base price, applied special campaign offers, and final checkout price for any Level Tier.
+ * Returns all active applicable offers with formatted expiry dates.
  */
 export function getComputedTierPricing(
   tierCodeInput: string,
@@ -60,8 +102,8 @@ export function getComputedTierPricing(
 
   const now = new Date();
 
-  // 2. Check for matching active campaign offer from LevelOffers module
-  const matchingCampaignOffer = campaignOffers.find((co: any) => {
+  // 2. Check for matching active campaign offers from LevelOffers module
+  const matchingCampaignOffers = (campaignOffers || []).filter((co: any) => {
     if (!co || co.isActive === false) return false;
     const coLevel = (co.levelCode || "").toUpperCase();
     if (coLevel !== "ALL" && coLevel !== code) return false;
@@ -72,25 +114,32 @@ export function getComputedTierPricing(
   });
 
   // 3. Or check built-in offer on the LevelTier model itself
-  const builtInOffer =
+  const hasBuiltIn =
     liveTier?.offerActive &&
     liveTier?.discountValue &&
     (!liveTier.offerStartDate || new Date(liveTier.offerStartDate) <= now) &&
-    (!liveTier.offerEndDate || new Date(liveTier.offerEndDate) >= now)
-      ? {
-          title: liveTier.offerTitle || "Special Level Offer 🔥",
-          discountType: liveTier.discountType || "percentage",
-          discountValue: liveTier.discountValue,
-          endDate: liveTier.offerEndDate,
-        }
-      : null;
+    (!liveTier.offerEndDate || new Date(liveTier.offerEndDate) >= now);
 
-  const activeOffer = matchingCampaignOffer || builtInOffer;
+  const builtInOffer = hasBuiltIn
+    ? {
+        id: `builtin-${code}`,
+        title: liveTier.offerTitle || "Special Level Offer 🔥",
+        discountType: liveTier.discountType || "percentage",
+        discountValue: liveTier.discountValue,
+        startDate: liveTier.offerStartDate,
+        endDate: liveTier.offerEndDate,
+      }
+    : null;
 
-  if (activeOffer && activeOffer.discountValue && baseNumericPrice > 0) {
-    const discVal = parseFloat(activeOffer.discountValue) || 0;
-    const isPercent = (activeOffer.discountType || "percentage") === "percentage";
+  const rawOffers: any[] = [...matchingCampaignOffers];
+  if (builtInOffer && !rawOffers.some((o) => o.title === builtInOffer.title)) {
+    rawOffers.push(builtInOffer);
+  }
 
+  // Map each active offer into an ApplicableTierOffer with expiry details
+  const applicableOffers: ApplicableTierOffer[] = rawOffers.map((off: any, idx: number) => {
+    const discVal = parseFloat(off.discountValue) || 0;
+    const isPercent = (off.discountType || "percentage") === "percentage";
     let finalNum = baseNumericPrice;
     let label = "";
 
@@ -104,19 +153,43 @@ export function getComputedTierPricing(
     }
 
     return {
+      id: off.id || `offer-${idx}`,
+      title: off.title || "Special Offer",
+      discountType: isPercent ? "percentage" : "flat",
+      discountValue: discVal,
+      discountLabel: label,
+      startDate: off.startDate || null,
+      endDate: off.endDate || null,
+      formattedEndDate: formatOfferExpiryDate(off.endDate),
+      finalNumericPrice: finalNum,
+      finalPrice: `₹${finalNum.toLocaleString("en-IN")}`,
+    };
+  });
+
+  if (applicableOffers.length > 0 && baseNumericPrice > 0) {
+    // Select the best discount for the primary display
+    const bestOffer = applicableOffers.reduce((best, curr) =>
+      curr.finalNumericPrice < best.finalNumericPrice ? curr : best,
+      applicableOffers[0]
+    );
+
+    return {
       levelCode: code,
       name,
       basePrice,
       baseNumericPrice,
       hasOffer: true,
-      finalNumericPrice: finalNum,
-      finalPrice: `₹${finalNum.toLocaleString("en-IN")}`,
+      finalNumericPrice: bestOffer.finalNumericPrice,
+      finalPrice: bestOffer.finalPrice,
       originalPrice: basePrice,
-      discountLabel: label,
-      offerTitle: activeOffer.title || "Special Level Offer 🔥",
-      offerEndDate: activeOffer.endDate || null,
-      discountType: isPercent ? "percentage" : "flat",
-      discountValue: discVal,
+      discountLabel: bestOffer.discountLabel,
+      offerTitle: bestOffer.title,
+      offerStartDate: bestOffer.startDate || null,
+      offerEndDate: bestOffer.endDate || null,
+      formattedEndDate: bestOffer.formattedEndDate || null,
+      discountType: bestOffer.discountType,
+      discountValue: bestOffer.discountValue,
+      applicableOffers,
     };
   }
 
@@ -132,7 +205,10 @@ export function getComputedTierPricing(
     originalPrice: fallback.originalPrice || basePrice,
     discountLabel: null,
     offerTitle: null,
+    offerStartDate: null,
     offerEndDate: null,
+    formattedEndDate: null,
+    applicableOffers: [],
   };
 }
 

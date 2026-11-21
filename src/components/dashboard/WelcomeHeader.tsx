@@ -41,6 +41,32 @@ export const WelcomeHeader = ({
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [todayChecked, setTodayChecked] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("habit_today_checked_" + new Date().toDateString());
+        if (stored !== null) return stored === "true";
+      } catch (_) { }
+    }
+    return true;
+  });
+
+  const handleToggleToday = () => {
+    const next = !todayChecked;
+    setTodayChecked(next);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("habit_today_checked_" + new Date().toDateString(), String(next));
+      } catch (_) { }
+    }
+  };
+
+  const formatMMDDYYYY = (d: Date) => {
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${mm}-${dd}-${yyyy}`;
+  };
 
   // Membership Levels Config for targeted search
   const MEMBERSHIP_LEVELS = [
@@ -246,21 +272,21 @@ export const WelcomeHeader = ({
         </div>
       </div>
 
-      {/* Row 1: 4 Equal Cards (Current Level, Total XP, Streak with Today's Date, Mon-Sun Tracker) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5">
+      {/* Row 1: 4 Cards (All cards unified in one size and height) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5 items-stretch">
         {/* Card 1: Current Level */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center gap-3.5"
+          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 h-full min-h-[108px] sm:min-h-[114px] shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center gap-3.5"
         >
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#fff2ea] border border-[#fbdcd0] flex items-center justify-center text-[#c4431d] shrink-0">
-            <Layers size={20} />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#fff2ea] border border-[#fbdcd0] flex items-center justify-center text-[#c4431d] shrink-0 shadow-2xs">
+            <Layers size={22} />
           </div>
           <div className="min-w-0">
-            <p className="text-xs sm:text-xs text-stone-500 font-medium">Current Level</p>
-            <p className="text-base sm:text-lg font-black text-stone-900 tracking-tight truncate">
+            <p className="text-xs text-stone-500 font-medium">Current Level</p>
+            <p className="text-base sm:text-lg font-black text-stone-900 tracking-tight truncate mt-0.5">
               {levelCode}
             </p>
           </div>
@@ -271,14 +297,14 @@ export const WelcomeHeader = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center gap-3.5"
+          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 h-full min-h-[108px] sm:min-h-[114px] shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center gap-3.5"
         >
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#fff2ea] border border-[#fbdcd0] flex items-center justify-center text-[#c4431d] shrink-0">
-            <Star size={20} className="fill-[#c4431d]/20" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#fff2ea] border border-[#fbdcd0] flex items-center justify-center text-[#c4431d] shrink-0 shadow-2xs">
+            <Star size={22} className="fill-[#c4431d]/20" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs sm:text-xs text-stone-500 font-medium">Total XP</p>
-            <p className="text-base sm:text-lg font-black text-stone-900 tracking-tight truncate">
+            <p className="text-xs text-stone-500 font-medium">Total XP</p>
+            <p className="text-base sm:text-lg font-black text-stone-900 tracking-tight truncate mt-0.5">
               {(xp || 0).toLocaleString()} XP
             </p>
           </div>
@@ -289,22 +315,22 @@ export const WelcomeHeader = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center gap-3.5"
+          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 h-full min-h-[108px] sm:min-h-[114px] shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center gap-3.5"
         >
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#fff2ea] border border-[#fbdcd0] flex items-center justify-center text-[#c4431d] shrink-0">
-            <Flame size={20} />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#fff2ea] border border-[#fbdcd0] flex items-center justify-center text-[#c4431d] shrink-0 shadow-2xs">
+            <Flame size={22} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between">
-              <p className="text-xs sm:text-xs text-stone-500 font-medium">Streak</p>
+              <p className="text-xs text-stone-500 font-medium">Streak</p>
               <span className="text-xs text-[#c4431d] font-bold bg-[#fff2ea] px-1.5 py-0.5 rounded border border-[#fbdcd0]">
                 Today
               </span>
             </div>
-            <p className="text-base sm:text-lg font-black text-stone-900 tracking-tight truncate">
+            <p className="text-base sm:text-lg font-black text-stone-900 tracking-tight truncate mt-0.5">
               {streak || 0} Days
             </p>
-            <p className="text-xs sm:text-xs text-stone-500 font-medium mt-0.5 truncate">
+            <p className="text-xs text-stone-500 font-medium mt-0.5 truncate">
               {new Date().toLocaleDateString("en-IN", {
                 weekday: "short",
                 day: "numeric",
@@ -315,46 +341,71 @@ export const WelcomeHeader = ({
           </div>
         </motion.div>
 
-        {/* Card 4: Mon - Sun Days of Week Tracker with Dates */}
+        {/* Card 4: Mon - Sun Days of Week Tracker with Top Right mm-dd-yyyy Date */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-3 sm:p-4 shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex items-center justify-between"
+          className="bg-white/95 border border-[#ecdccb] rounded-2xl p-4 sm:p-4.5 h-full min-h-[108px] sm:min-h-[114px] shadow-[0_8px_20px_-10px_rgba(90,55,20,0.06)] flex flex-col justify-between"
         >
-          {weekDaysWithDates.map((item, i) => {
-            // Determine if day is completed: in Image 4, Monday is completed with orange circle + checkmark
-            // Or if streak > 0, match streak days or weekStatus
-            const isCompleted =
-              (weekStatus && weekStatus[i]?.status === "completed") ||
-              (streak > 0 && i < Math.min(streak, 7)) ||
-              i === 0; // Mon checked as default visual in Image 4
+          {/* Card Top: Activity Label on Left, mm-dd-yyyy Date on Right */}
+          <div className="flex items-center justify-between mb-2 sm:mb-2.5">
+            <p className="text-xs text-stone-500 font-medium">Activity</p>
+            <span className="text-xs font-bold text-[#c4431d] bg-[#fff2ea] px-2 py-0.5 rounded-md border border-[#fbdcd0] font-mono">
+              {formatMMDDYYYY(new Date())}
+            </span>
+          </div>
 
-            return (
-              <div key={item.day} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                <span className="text-[0.6875rem] text-stone-400 font-medium text-center truncate">
-                  {item.day}
-                </span>
-                <span
-                  className={`text-xs font-black font-mono leading-none ${
-                    item.isToday ? "text-[#c4431d]" : "text-stone-700"
-                  }`}
-                >
-                  {item.dateNum}
-                </span>
+          {/* Row of 7 Days: Mon - Sun */}
+          <div className="flex items-center justify-between gap-1">
+            {weekDaysWithDates.map((item, i) => {
+              const currentDayIndex = (new Date().getDay() + 6) % 7;
+              const isPastDay = i < currentDayIndex;
+              const isToday = item.isToday;
+
+              const isCompleted = isToday
+                ? todayChecked
+                : (weekStatus && weekStatus[i]?.status === "completed") ||
+                  (streak > 0 && isPastDay) ||
+                  isPastDay;
+
+              return (
                 <div
-                  className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center transition-all mt-0.5 ${
-                    isCompleted
-                      ? "bg-[#e86034] text-white shadow-2xs"
-                      : "border border-stone-300 bg-transparent"
+                  key={item.day}
+                  onClick={isToday ? handleToggleToday : undefined}
+                  className={`flex flex-col items-center gap-1.5 flex-1 min-w-0 ${
+                    isToday ? "cursor-pointer select-none group" : "cursor-default"
                   }`}
-                  title={`${item.day} (${item.fullDate}): ${isCompleted ? "Active / Completed" : "Not yet active"}`}
+                  title={
+                    isToday
+                      ? `Today (${formatMMDDYYYY(new Date())}) - Click to toggle`
+                      : `${item.day}`
+                  }
                 >
-                  {isCompleted && <Check size={10} strokeWidth={3} />}
+                  <span
+                    className={`text-[0.6875rem] font-bold text-center truncate ${
+                      isToday ? "text-[#c4431d]" : "text-stone-400"
+                    }`}
+                  >
+                    {item.day}
+                  </span>
+                  <div
+                    className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full flex items-center justify-center transition-all ${
+                      isCompleted
+                        ? "bg-[#e86034] text-white shadow-2xs"
+                        : "border border-stone-300 bg-transparent"
+                    } ${
+                      isToday
+                        ? "ring-2 ring-[#c4431d]/30 group-hover:scale-110 active:scale-95 cursor-pointer"
+                        : "opacity-80"
+                    }`}
+                  >
+                    {isCompleted && <Check size={11} strokeWidth={3} />}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </motion.div>
       </div>
     </div>

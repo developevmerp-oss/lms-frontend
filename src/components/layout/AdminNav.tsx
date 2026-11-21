@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -21,6 +21,8 @@ import {
   ChevronUp,
   Menu,
   X,
+  User,
+  LogOut,
 } from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 
@@ -64,6 +66,24 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+    if (showProfileMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showProfileMenu]);
 
   const pageTitle = getAdminPageTitle(pathname, title);
 
@@ -102,16 +122,17 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
   const isCrmActive = crmItems.some((item) => isItemActive(item.path));
   const isCourseActive = courseItems.some((item) => isItemActive(item.path));
 
-  // Accordion state
-  const [crmOpen, setCrmOpen] = useState(true);
-  const [courseOpen, setCourseOpen] = useState(true);
+  // Accordion state: closed by default on login/initial landing
+  const [openDropdown, setOpenDropdown] = useState<'crm' | 'courses' | null>(null);
 
-  // Auto-expand active group on path change, close mobile drawer
+  const toggleDropdown = (key: 'crm' | 'courses') => {
+    setOpenDropdown((prev) => (prev === key ? null : key));
+  };
+
+  // Close mobile drawer on path change
   useEffect(() => {
-    if (isCrmActive) setCrmOpen(true);
-    if (isCourseActive) setCourseOpen(true);
     setMobileOpen(false);
-  }, [pathname, isCrmActive, isCourseActive]);
+  }, [pathname]);
 
   const isDashboardActive = isItemActive('/admin/dashboard');
   const isLeaderboardActive = isItemActive('/admin/leaderboard');
@@ -142,36 +163,88 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
           </h1>
         </div>
 
-        {/* Right: User Profile Pill matching Reference Image 4 */}
-        <button
-          type="button"
-          onClick={() => setIsProfileModalOpen(true)}
-          className="flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl hover:bg-stone-50 transition-all cursor-pointer group text-left shrink-0"
-          title="Edit Profile"
+        {/* Right: User Profile Pill with Hover & Click Dropdown */}
+        <div
+          ref={profileMenuRef}
+          className="relative shrink-0"
+          onMouseEnter={() => {
+            if (typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+              setShowProfileMenu(true);
+            }
+          }}
+          onMouseLeave={() => {
+            if (typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+              setShowProfileMenu(false);
+            }
+          }}
         >
-          {/* Avatar Circle */}
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#c4431d] text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 overflow-hidden shadow-xs ring-2 ring-[#c4431d]/20 group-hover:ring-[#c4431d]/40 transition-all">
-            {user?.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={user?.name || 'Admin'}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span>{user?.name?.charAt(0).toUpperCase() || 'A'}</span>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowProfileMenu((prev) => !prev);
+            }}
+            className="flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl hover:bg-stone-50 transition-all cursor-pointer text-left shrink-0 group"
+            title="Profile & Settings"
+            aria-expanded={showProfileMenu}
+          >
+            {/* Avatar Circle */}
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#c4431d] text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 overflow-hidden shadow-xs ring-2 ring-[#c4431d]/20 group-hover:ring-[#c4431d]/40 transition-all">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user?.name || 'Admin'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{user?.name?.charAt(0).toUpperCase() || 'A'}</span>
+              )}
+            </div>
 
-          {/* User Info (Name + Role Subtitle) */}
-          <div className="hidden sm:flex flex-col min-w-0 max-w-[160px] md:max-w-[200px]">
-            <span className="text-xs sm:text-sm font-bold text-stone-900 truncate leading-snug group-hover:text-[#c4431d] transition-colors">
-              {user?.name || 'Admin'}
-            </span>
-            <span className="text-[0.6875rem] sm:text-xs text-stone-500 font-medium truncate leading-tight mt-0.5">
-              {user?.role && user.role.toLowerCase() !== 'admin' ? user.role : 'Studio Admin'}
-            </span>
-          </div>
-        </button>
+            {/* User Info (Name + Role Subtitle) */}
+            <div className="hidden sm:flex flex-col min-w-0 max-w-[160px] md:max-w-[200px]">
+              <span className="text-xs sm:text-sm font-bold text-stone-900 truncate leading-snug group-hover:text-[#c4431d] transition-colors">
+                {user?.name || 'Admin'}
+              </span>
+              <span className="text-[0.6875rem] sm:text-xs text-stone-500 font-medium truncate leading-tight mt-0.5">
+                {user?.role && user.role.toLowerCase() !== 'admin' ? user.role : 'Studio Admin'}
+              </span>
+            </div>
+          </button>
+
+          {/* Floating Dropdown Menu matching Reference Image */}
+          {showProfileMenu && (
+            <div className="absolute right-0 top-full pt-1.5 z-50 min-w-[200px] animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="bg-white rounded-2xl border border-stone-200/90 shadow-2xl p-1.5 space-y-0.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowProfileMenu(false);
+                    setIsProfileModalOpen(true);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 hover:text-stone-950 hover:bg-stone-50 transition-colors text-left cursor-pointer group"
+                >
+                  <User size={16} className="text-stone-400 group-hover:text-stone-700 transition-colors shrink-0" />
+                  <span>Edit Profile</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowProfileMenu(false);
+                    logout();
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors text-left cursor-pointer group"
+                >
+                  <LogOut size={16} className="text-rose-500 group-hover:text-rose-700 group-hover:-translate-x-0.5 transition-transform shrink-0" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Mobile Backdrop Overlay */}
@@ -231,7 +304,7 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
           <div className="pt-1">
             <button
               type="button"
-              onClick={() => setCrmOpen((prev) => !prev)}
+              onClick={() => toggleDropdown('crm')}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${isCrmActive
                 ? 'bg-[#fff4ed] text-[#9b2c16] border border-[#f8dfd0]'
                 : 'text-stone-800 hover:text-stone-950 hover:bg-stone-50'
@@ -244,7 +317,7 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
                 />
                 <span className="truncate">Students &amp; CRM</span>
               </div>
-              {crmOpen ? (
+              {openDropdown === 'crm' ? (
                 <ChevronUp
                   size={16}
                   className={`shrink-0 ${isCrmActive ? 'text-[#9b2c16]' : 'text-stone-500'}`}
@@ -258,7 +331,7 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
             </button>
 
             {/* Accordion Children with Left Connecting Line */}
-            {crmOpen && (
+            {openDropdown === 'crm' && (
               <div className="relative pl-3.5 ml-5 border-l border-stone-200/90 my-1 space-y-0.5">
                 {crmItems.map((item) => {
                   const Icon = item.icon;
@@ -291,7 +364,7 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
           <div className="pt-1">
             <button
               type="button"
-              onClick={() => setCourseOpen((prev) => !prev)}
+              onClick={() => toggleDropdown('courses')}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${isCourseActive
                 ? 'bg-[#fff4ed] text-[#9b2c16] border border-[#f8dfd0]'
                 : 'text-stone-800 hover:text-stone-950 hover:bg-stone-50'
@@ -304,7 +377,7 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
                 />
                 <span className="truncate">Courses &amp; Coaching</span>
               </div>
-              {courseOpen ? (
+              {openDropdown === 'courses' ? (
                 <ChevronUp
                   size={16}
                   className={`shrink-0 ${isCourseActive ? 'text-[#9b2c16]' : 'text-stone-500'}`}
@@ -318,7 +391,7 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
             </button>
 
             {/* Accordion Children with Left Connecting Line */}
-            {courseOpen && (
+            {openDropdown === 'courses' && (
               <div className="relative pl-3.5 ml-5 border-l border-stone-200/90 my-1 space-y-0.5">
                 {courseItems.map((item) => {
                   const Icon = item.icon;

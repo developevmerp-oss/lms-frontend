@@ -69,22 +69,22 @@ export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
+      className="bg-white/95 border border-[#ecdccb] p-6 sm:p-7 rounded-3xl h-full min-h-[300px] sm:min-h-[340px] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
-            <TrendingUp size={16} />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0 shadow-2xs">
+            <TrendingUp size={18} />
           </div>
-          <h2 className="text-sm sm:text-base font-bold text-stone-900">Sales & Income</h2>
+          <h2 className="text-base sm:text-lg font-bold text-stone-900">Sales & Income</h2>
         </div>
 
         <div className="text-right shrink-0">
-          <span className="text-xs uppercase tracking-wider text-stone-400 font-semibold block">
+          <span className="text-xs uppercase tracking-wider text-stone-400 font-bold block">
             TOTAL REVENUE
           </span>
-          <span className="text-sm sm:text-base font-black text-stone-900 leading-tight">
+          <span className="text-base sm:text-xl font-black text-stone-900 leading-tight">
             ₹{totalRevenue.toLocaleString("en-IN")}
           </span>
         </div>
@@ -93,17 +93,17 @@ export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
       {/* Content: Empty state matching Portfolio Projects when no sales, dynamic bar chart when sales exist */}
       <div className="flex-1 flex flex-col justify-center py-2 sm:py-3">
         {totalRevenue === 0 || chartData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center">
-            <TrendingUp size={34} className="text-[#e86034] mb-2" />
-            <p className="text-stone-600 text-xs font-medium">No sales recorded yet.</p>
-            <p className="text-stone-400 text-xs mt-0.5">
+          <div className="flex flex-col items-center justify-center text-center py-6">
+            <TrendingUp size={44} className="text-[#e86034] mb-2.5" />
+            <p className="text-stone-700 text-sm font-semibold">No sales recorded yet.</p>
+            <p className="text-stone-400 text-xs mt-1">
               Complete your first sale to see your revenue chart!
             </p>
           </div>
         ) : (
-          <div className="h-24 sm:h-28 w-full pt-1">
+          <div className="h-44 sm:h-52 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
+              <BarChart data={chartData} margin={{ top: 12, right: 8, left: 8, bottom: 0 }}>
                 <defs>
                   <linearGradient id="salesBarGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#e86034" />
@@ -114,7 +114,7 @@ export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 10, fill: "#a8a29e", fontWeight: 500 }}
+                  tick={{ fontSize: 11, fill: "#78716c", fontWeight: 600 }}
                 />
                 <Tooltip
                   cursor={{ fill: "rgba(232, 96, 52, 0.06)", radius: 6 }}
@@ -133,9 +133,9 @@ export const SalesAndCommunity = ({ sales }: SalesAndCommunityProps) => {
                 <Bar
                   dataKey="sales"
                   fill="url(#salesBarGradient)"
-                  radius={[5, 5, 0, 0]}
-                  maxBarSize={28}
-                  minPointSize={3}
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={32}
+                  minPointSize={4}
                 />
               </BarChart>
             </ResponsiveContainer>

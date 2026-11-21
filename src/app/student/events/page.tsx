@@ -18,7 +18,8 @@ import {
   Flame,
   ShieldAlert,
   Zap,
-  PlayCircle
+  PlayCircle,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
@@ -309,9 +310,13 @@ export default function StudentEventsPage() {
                     <button
                       onClick={() => handleJoinClass(ev.id, ev.meetingUrl)}
                       disabled={joiningClassId === ev.id}
-                      className="self-start inline-flex items-center gap-1.5 bg-gradient-to-r from-[#b53310] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs py-2 px-3.5 sm:px-4 rounded-xl shadow-sm hover:scale-[1.02] transition-all cursor-pointer"
+                      className="self-start inline-flex items-center gap-1.5 bg-gradient-to-r from-[#b53310] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs py-2 px-3.5 sm:px-4 rounded-xl shadow-sm hover:scale-[1.02] transition-all cursor-pointer disabled:opacity-50"
                     >
-                      <Video size={14} />
+                      {joiningClassId === ev.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Video size={14} />
+                      )}
                       <span>
                         {joiningClassId === ev.id
                           ? "Recording Attendance..."

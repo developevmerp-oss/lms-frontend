@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { IndianRupee, Trash2, TrendingUp, BarChart2, Info, ShieldCheck } from "lucide-react";
+import { IndianRupee, Trash2, TrendingUp, BarChart2, Info, ShieldCheck, Loader2 } from "lucide-react";
 
 import { AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -15,6 +15,7 @@ export default function AdminSalesRecords() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStudentId, setSelectedStudentId] = useState("all");
   const [successMsg, setSuccessMsg] = useState("");
+  const [deletingSaleId, setDeletingSaleId] = useState<string | null>(null);
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const API = API_BASE_URL;
@@ -43,9 +44,15 @@ export default function AdminSalesRecords() {
 
   const deleteSale = async (recordId: string) => {
     if (!confirm("Delete this sales record from the platform?")) return;
-    await fetch(`${API}/admin/sales/${recordId}`, { method: 'DELETE', headers });
-    await fetchData();
-    showSuccess("Sales record deleted!");
+    setDeletingSaleId(recordId);
+    try {
+      await fetch(`${API}/admin/sales/${recordId}`, { method: 'DELETE', headers });
+      await fetchData();
+      showSuccess("Sales record deleted!");
+    } catch (_) {
+    } finally {
+      setDeletingSaleId(null);
+    }
   };
 
   const displayedSales = allSales.filter(s => selectedStudentId === "all" || s.studentId === selectedStudentId);
@@ -156,10 +163,15 @@ export default function AdminSalesRecords() {
                   <div className="col-span-1 flex justify-end">
                     <button
                       onClick={() => deleteSale(s.id)}
-                      className="text-stone-400 hover:text-rose-600 transition-colors p-1.5 cursor-pointer"
+                      disabled={deletingSaleId === s.id}
+                      className="text-stone-400 hover:text-rose-600 transition-colors p-1.5 cursor-pointer disabled:opacity-50"
                       title="Delete entry"
                     >
-                      <Trash2 size={16} />
+                      {deletingSaleId === s.id ? (
+                        <Loader2 size={16} className="animate-spin text-rose-600" />
+                      ) : (
+                        <Trash2 size={16} />
+                      )}
                     </button>
                   </div>
                 </div>
