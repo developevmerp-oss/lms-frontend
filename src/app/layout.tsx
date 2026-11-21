@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
 import { MetaPixelProvider } from "@/components/marketing/MetaPixelProvider";
+import { ArtAdvisorChatbot } from "@/components/chat/ArtAdvisorChatbot";
 
 const inter = Inter({ subsets: ["latin"] });
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display" });
@@ -31,6 +32,7 @@ export default function RootLayout({
         <AuthProvider>
           <MetaPixelProvider />
           {children}
+          <ArtAdvisorChatbot />
           {/* <ThemeSelector /> */}
         </AuthProvider>
       </body>
