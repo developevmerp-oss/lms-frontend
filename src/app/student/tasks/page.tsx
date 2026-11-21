@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentNav } from "@/components/layout/StudentNav";
-import { ClipboardList, CheckCircle2, Clock, Upload, X } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock, Upload, X, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -283,6 +283,7 @@ export default function StudentAssignments() {
                   disabled={isSubmitting || !fileUrl}
                   className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white disabled:opacity-50 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
+                  {isSubmitting && <Loader2 size={16} className="animate-spin" />}
                   {isSubmitting ? "Submitting..." : "Submit Project"}
                 </button>
               </div>

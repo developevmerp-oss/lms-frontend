@@ -138,6 +138,7 @@ const ARTWORKS_ROW_2 = [
 export default function HomePage() {
   const [levelTiers, setLevelTiers] = useState<any[]>([]);
   const [levelCourses, setLevelCourses] = useState<any[]>([]);
+  const [levelOffers, setLevelOffers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchLevelData = async () => {
@@ -145,9 +146,10 @@ export default function HomePage() {
         const storedToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         const headers: Record<string, string> = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
 
-        const [levelsRes, coursesRes] = await Promise.all([
+        const [levelsRes, coursesRes, offersRes] = await Promise.all([
           fetch(`${API_BASE_URL}/dashboard/levels`, { headers }).then((r) => r.ok ? r.json() : []).catch(() => []),
           fetch(`${API_BASE_URL}/dashboard/courses`, { headers }).then((r) => r.ok ? r.json() : []).catch(() => []),
+          fetch(`${API_BASE_URL}/dashboard/offers`, { headers }).then((r) => r.ok ? r.json() : []).catch(() => []),
         ]);
 
         let validCourses = Array.isArray(coursesRes) && coursesRes.length > 0 ? coursesRes : [];
@@ -158,6 +160,8 @@ export default function HomePage() {
 
         if (Array.isArray(levelsRes) && levelsRes.length > 0) setLevelTiers(levelsRes);
         if (validCourses.length > 0) setLevelCourses(validCourses);
+        if (Array.isArray(offersRes)) setLevelOffers(offersRes);
+        else if (offersRes && Array.isArray(offersRes.offers)) setLevelOffers(offersRes.offers);
       } catch (err) {
         console.error("Error loading level progression data:", err);
       }
@@ -589,7 +593,7 @@ export default function HomePage() {
       */}
 
         {/* ─── SECTION 15: YOUR RAVISHING JOURNEY (Membership Tiers) ─── */}
-        <JourneySec levelTiers={levelTiers} levelCourses={levelCourses} />
+        <JourneySec levelTiers={levelTiers} levelCourses={levelCourses} campaignOffers={levelOffers} />
 
         {/* ─── SECTION 16: FREE MASTERCLASS ─── */}
         <MasterclassSec />

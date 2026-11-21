@@ -12,6 +12,7 @@ import {
   X,
   Zap,
   Info,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
@@ -61,13 +62,15 @@ export default function StudentRewards() {
       });
       const statsData = await statsRes.json();
       if (statsData && !statsData.message) {
+        const effectivePts = Math.max(Number(statsData.points || 0), Number(statsData.xpPoints || 0));
         setStats({
-          points: statsData.points ?? 0,
           notifications: statsData.notifications ?? [],
           membershipLevel: statsData.membershipLevel,
           rank: statsData.rank,
           currentTier: statsData.currentTier,
           ...statsData,
+          points: effectivePts,
+          xpPoints: effectivePts,
         });
       }
 
@@ -100,7 +103,8 @@ export default function StudentRewards() {
   }, [token]);
 
   const handleRedeem = async (rewardId: string, cost: number) => {
-    if ((stats.points || 0) < cost) {
+    const effectiveBalance = Math.max(Number(stats.points || 0), Number(stats.xpPoints || 0));
+    if (effectiveBalance < cost) {
       alert("Not enough points!");
       return;
     }
@@ -156,7 +160,7 @@ export default function StudentRewards() {
     return "Fast Track (L0)";
   };
 
-  const userPoints = stats.points || 0;
+  const userPoints = Math.max(Number(stats.points || 0), Number(stats.xpPoints || 0));
 
   // Sort rewards by pointCost ascending
   const sortedRewards = [...rewards].sort((a, b) => a.pointCost - b.pointCost);
@@ -669,11 +673,16 @@ export default function StudentRewards() {
                             : "bg-stone-100 text-stone-400 cursor-not-allowed"
                         }`}
                       >
-                        {isRedeeming === selectedReward.id
-                          ? "Redeeming..."
-                          : userPoints >= selectedReward.pointCost
-                          ? "Claim Reward"
-                          : `Need ${modalRemainingXP.toLocaleString()} more XP`}
+                        {isRedeeming === selectedReward.id ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin text-white" />
+                            <span>Redeeming...</span>
+                          </>
+                        ) : userPoints >= selectedReward.pointCost ? (
+                          "Claim Reward"
+                        ) : (
+                          `Need ${modalRemainingXP.toLocaleString()} more XP`
+                        )}
                       </button>
                     ) : (
                       <button

@@ -9,7 +9,7 @@ import { Shimmer } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users, Search, SlidersHorizontal, ChevronDown, ChevronRight, X, Plus, Trash2, CheckCircle2,
-  Circle, Star, Edit3, Trophy, Flame, IndianRupee, BookOpen, Save, UserPlus, Eye, EyeOff, Send, AlertTriangle
+  Circle, Star, Edit3, Trophy, Flame, IndianRupee, BookOpen, Save, UserPlus, Eye, EyeOff, Send, AlertTriangle, Loader2
 } from "lucide-react";
 
 interface Student {
@@ -76,6 +76,13 @@ export default function AdminStudents() {
   const [allBadges, setAllBadges] = useState<any[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingMilestoneId, setDeletingMilestoneId] = useState<string | null>(null);
+  const [togglingMilestoneId, setTogglingMilestoneId] = useState<string | null>(null);
+  const [isAddingSale, setIsAddingSale] = useState(false);
+  const [deletingSaleId, setDeletingSaleId] = useState<string | null>(null);
+  const [enrollingCourseId, setEnrollingCourseId] = useState<string | null>(null);
+  const [awardingBadgeId, setAwardingBadgeId] = useState<string | null>(null);
+  const [revokingBadgeId, setRevokingBadgeId] = useState<string | null>(null);
 
   const API = API_BASE_URL;
   const effectiveToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
@@ -317,7 +324,8 @@ export default function AdminStudents() {
 
   // Toggle milestone complete
   const toggleMilestone = async (milestoneId: string, currentStatus: boolean) => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || togglingMilestoneId) return;
+    setTogglingMilestoneId(milestoneId);
     try {
       const newStatus = !currentStatus;
       const res = await fetch(`${API}/admin/milestones/${milestoneId}`, {
@@ -339,6 +347,8 @@ export default function AdminStudents() {
       }
     } catch (err) {
       console.error('Error updating milestone:', err);
+    } finally {
+      setTogglingMilestoneId(null);
     }
   };
 
@@ -419,7 +429,8 @@ export default function AdminStudents() {
 
   // Delete milestone
   const deleteMilestone = async (milestoneId: string) => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || deletingMilestoneId) return;
+    setDeletingMilestoneId(milestoneId);
     try {
       const res = await fetch(`${API}/admin/milestones/${milestoneId}`, { method: 'DELETE', headers });
       if (res.ok) {
@@ -435,74 +446,116 @@ export default function AdminStudents() {
       }
     } catch (err) {
       console.error('Error deleting milestone:', err);
+    } finally {
+      setDeletingMilestoneId(null);
     }
   };
 
   // Add sales record
   const addSaleRecord = async () => {
-    if (!selectedStudent || !newSale.amount || !newSale.productName) return;
-    await fetch(`${API}/admin/students/${selectedStudent.id}/sales`, {
-      method: 'POST', headers,
-      body: JSON.stringify({ amount: parseFloat(newSale.amount), productName: newSale.productName, date: newSale.date || new Date().toISOString() })
-    });
-    setNewSale({ amount: "", productName: "", date: "" });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Sale record added!");
+    if (!selectedStudent || !newSale.amount || !newSale.productName || isAddingSale) return;
+    setIsAddingSale(true);
+    try {
+      await fetch(`${API}/admin/students/${selectedStudent.id}/sales`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ amount: parseFloat(newSale.amount), productName: newSale.productName, date: newSale.date || new Date().toISOString() })
+      });
+      setNewSale({ amount: "", productName: "", date: "" });
+      await refreshStudent(selectedStudent.id);
+      showSuccess("Sale record added!");
+    } catch (err) {
+      console.error('Error adding sale record:', err);
+    } finally {
+      setIsAddingSale(false);
+    }
   };
 
   // Delete sale record
   const deleteSaleRecord = async (recordId: string) => {
-    if (!selectedStudent) return;
-    await fetch(`${API}/admin/sales/${recordId}`, { method: 'DELETE', headers });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Sale record removed!");
+    if (!selectedStudent || deletingSaleId) return;
+    setDeletingSaleId(recordId);
+    try {
+      await fetch(`${API}/admin/sales/${recordId}`, { method: 'DELETE', headers });
+      await refreshStudent(selectedStudent.id);
+      showSuccess("Sale record removed!");
+    } catch (err) {
+      console.error('Error deleting sale record:', err);
+    } finally {
+      setDeletingSaleId(null);
+    }
   };
 
   // Save skills
   const saveSkills = async () => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || isSaving) return;
     setIsSaving(true);
-    await fetch(`${API}/admin/students/${selectedStudent.id}/skills`, {
-      method: 'PUT', headers,
-      body: JSON.stringify(skillsForm)
-    });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Skills updated!");
-    setIsSaving(false);
+    try {
+      await fetch(`${API}/admin/students/${selectedStudent.id}/skills`, {
+        method: 'PUT', headers,
+        body: JSON.stringify(skillsForm)
+      });
+      await refreshStudent(selectedStudent.id);
+      showSuccess("Skills updated!");
+    } catch (err) {
+      console.error('Error saving skills:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Enroll in course
   const enrollCourse = async (courseId: string) => {
-    if (!selectedStudent) return;
-    await fetch(`${API}/admin/students/${selectedStudent.id}/courses`, {
-      method: 'POST', headers,
-      body: JSON.stringify({ courseId, status: 'enrolled', progress: 0 })
-    });
-    await refreshStudent(selectedStudent.id);
-    showSuccess("Student enrolled!");
+    if (!selectedStudent || enrollingCourseId) return;
+    setEnrollingCourseId(courseId);
+    try {
+      await fetch(`${API}/admin/students/${selectedStudent.id}/courses`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ courseId, status: 'enrolled', progress: 0 })
+      });
+      await refreshStudent(selectedStudent.id);
+      showSuccess("Student enrolled!");
+    } catch (err) {
+      console.error('Error enrolling course:', err);
+    } finally {
+      setEnrollingCourseId(null);
+    }
   };
 
   // Award badge to student
   const awardBadgeToStudent = async (badgeId: string) => {
-    if (!selectedStudent) return;
-    const res = await fetch(`${API}/admin/students/${selectedStudent.id}/badges`, {
-      method: 'POST', headers,
-      body: JSON.stringify({ badgeId })
-    });
-    const data = await res.json();
-    if (res.status === 409) { showSuccess('Badge already awarded!'); return; }
-    await refreshStudent(selectedStudent.id);
-    showSuccess('Badge awarded! 🎖️');
+    if (!selectedStudent || awardingBadgeId) return;
+    setAwardingBadgeId(badgeId);
+    try {
+      const res = await fetch(`${API}/admin/students/${selectedStudent.id}/badges`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ badgeId })
+      });
+      const data = await res.json();
+      if (res.status === 409) { showSuccess('Badge already awarded!'); return; }
+      await refreshStudent(selectedStudent.id);
+      showSuccess('Badge awarded! 🎖️');
+    } catch (err) {
+      console.error('Error awarding badge:', err);
+    } finally {
+      setAwardingBadgeId(null);
+    }
   };
 
   // Revoke badge from student
   const revokeBadgeFromStudent = async (badgeId: string) => {
-    if (!selectedStudent) return;
-    await fetch(`${API}/admin/students/${selectedStudent.id}/badges/${badgeId}`, {
-      method: 'DELETE', headers
-    });
-    await refreshStudent(selectedStudent.id);
-    showSuccess('Badge removed.');
+    if (!selectedStudent || revokingBadgeId) return;
+    setRevokingBadgeId(badgeId);
+    try {
+      await fetch(`${API}/admin/students/${selectedStudent.id}/badges/${badgeId}`, {
+        method: 'DELETE', headers
+      });
+      await refreshStudent(selectedStudent.id);
+      showSuccess('Badge removed.');
+    } catch (err) {
+      console.error('Error revoking badge:', err);
+    } finally {
+      setRevokingBadgeId(null);
+    }
   };
 
   const formatLastLogin = (dateStr?: string | null) => {
@@ -599,68 +652,46 @@ export default function AdminStudents() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <header className="mb-6 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            {/*
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Students &amp; CRM</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Student Management</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Student Management &amp; Engagement
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Track last login activity, milestones, sales, and trigger re-engagement notifications.
-            </p>
-            */}
-          </div>
-          <button
-            onClick={() => { setShowAddModal(true); setAddError(''); }}
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 rounded-xl font-bold text-white transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer"
-          >
-            <UserPlus size={18} /> Add Student
-          </button>
-        </header>
-
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 min-h-[600px] lg:h-[calc(100vh-220px)]">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 min-h-[600px] lg:h-[calc(100vh-140px)]">
           
           {/* Student List */}
-          <div className="w-full lg:w-80 xl:w-[21.5rem] lg:shrink-0 bg-white border border-[#ecdccb] rounded-3xl flex flex-col relative shadow-[0_12px_32px_-12px_rgba(90,55,20,0.1)] max-h-[28rem] lg:max-h-none">
+          <div className="w-full lg:w-80 xl:w-[22.5rem] lg:shrink-0 bg-white border border-[#ecdccb] rounded-3xl flex flex-col relative shadow-[0_12px_32px_-12px_rgba(90,55,20,0.1)] max-h-[28rem] lg:max-h-none">
             <div className="px-4 pt-4 pb-3.5 border-b border-stone-100 space-y-3 shrink-0 rounded-t-3xl bg-white">
               <div className="flex items-center justify-between gap-2 px-0.5">
-                <h2 className="text-lg sm:text-xl font-black text-stone-900 tracking-tight">
+                <h2 className="text-base sm:text-lg font-black text-stone-900 tracking-tight shrink-0">
                   Students ({total})
                 </h2>
 
-                <div className="relative" ref={filterPopoverRef}>
-                  <button
-                    type="button"
-                    onClick={toggleFilterPopover}
-                    aria-label="Filter students"
-                    aria-expanded={isFilterOpen}
-                    className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
-                      isFilterOpen || hasActiveFilters
-                        ? 'bg-[#fdeee2] border-[#c4431d]/40 text-[#942008] shadow-xs'
-                        : 'bg-[#fff5ee] border-[#f5ded0] text-[#c4431d] hover:bg-[#fdeee2] hover:border-[#c4431d]/40'
-                    }`}
-                  >
-                    <SlidersHorizontal size={18} />
-                    {hasActiveFilters && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#c4431d] ring-2 ring-white"
-                      />
-                    )}
-                  </button>
-
-                  {isFilterOpen && (
-                    <div
-                      role="dialog"
-                      aria-label="Filter Students"
-                      className="absolute right-0 top-full mt-2.5 z-30 w-64 sm:w-72 bg-white border border-[#ecdccb] rounded-2xl p-4 shadow-[0_18px_40px_-12px_rgba(90,55,20,0.22)]"
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="relative" ref={filterPopoverRef}>
+                    <button
+                      type="button"
+                      onClick={toggleFilterPopover}
+                      aria-label="Filter students"
+                      aria-expanded={isFilterOpen}
+                      className={`w-9 h-9 sm:w-9.5 sm:h-9.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
+                        isFilterOpen || hasActiveFilters
+                          ? 'bg-[#fdeee2] border-[#c4431d]/40 text-[#942008] shadow-xs'
+                          : 'bg-[#fff5ee] border-[#f5ded0] text-[#c4431d] hover:bg-[#fdeee2] hover:border-[#c4431d]/40'
+                      }`}
+                      title="Filter students"
                     >
+                      <SlidersHorizontal size={16} />
+                      {hasActiveFilters && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#c4431d] ring-2 ring-white"
+                        />
+                      )}
+                    </button>
+
+                    {isFilterOpen && (
+                      <div
+                        role="dialog"
+                        aria-label="Filter Students"
+                        className="absolute right-0 top-full mt-2.5 z-30 w-64 sm:w-72 bg-white border border-[#ecdccb] rounded-2xl p-4 shadow-[0_18px_40px_-12px_rgba(90,55,20,0.22)]"
+                      >
                       <div
                         aria-hidden="true"
                         className="absolute -top-1.5 right-3.5 w-3 h-3 rotate-45 bg-white border-l border-t border-[#ecdccb]"
@@ -750,7 +781,19 @@ export default function AdminStudents() {
                     </div>
                   )}
                 </div>
+
+                {/* Add Student Button on Filter option right side */}
+                <button
+                  type="button"
+                  onClick={() => { setShowAddModal(true); setAddError(''); }}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 rounded-xl font-bold text-white text-xs transition-all shadow-sm shadow-[#c4431d]/20 shrink-0 cursor-pointer"
+                  title="Add new student"
+                >
+                  <UserPlus size={14} />
+                  <span>Add Student</span>
+                </button>
               </div>
+            </div>
 
               <div className="relative">
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
@@ -892,17 +935,47 @@ export default function AdminStudents() {
             ) : (
               <>
                 {/* Student Header */}
-                <div className="p-6 border-b border-stone-200/80 flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center font-black text-xl text-white shadow-md">
+                <div className="p-5 sm:p-6 border-b border-stone-200/80 flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-[#942008] via-[#c4431d] to-[#ea580c] flex items-center justify-center font-black text-lg sm:text-xl text-white shadow-md shrink-0">
                       {selectedStudent.name?.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <h2 className="text-xl font-black text-stone-900">{selectedStudent.name}</h2>
-                      <p className="text-stone-500 text-sm font-medium">{selectedStudent.email}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="text-lg sm:text-xl font-black text-stone-900 truncate">{selectedStudent.name}</h2>
+                        {(() => {
+                          const logInfo = formatLastLogin(selectedStudent.lastLoginAt);
+                          return (
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0 ${
+                              logInfo.isInactive
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200/80'
+                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${logInfo.dot}`} />
+                              <span>{logInfo.text}</span>
+                            </span>
+                          );
+                        })()}
+                        <span className="text-[0.6875rem] text-stone-500 font-mono bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200/80 shrink-0">
+                          ID: {selectedStudent.id.slice(0, 8)}...
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-stone-500 text-xs sm:text-sm font-medium mt-1 flex-wrap">
+                        <span className="truncate">{selectedStudent.email}</span>
+                        {selectedStudent.lastLoginAt && (
+                          <>
+                            <span className="text-stone-300">•</span>
+                            <span className="text-stone-400 text-xs font-normal">
+                              Last login: {new Date(selectedStudent.lastLoginAt).toLocaleString('en-IN')}
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 flex-wrap">
+
+                  <div className="flex items-center gap-3 sm:gap-4 flex-wrap shrink-0">
                     {successMsg && (
                       <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
                         <CheckCircle2 size={14} /> {successMsg}
@@ -914,51 +987,28 @@ export default function AdminStudents() {
                       type="button"
                       onClick={() => handleSendReengagement(selectedStudent.id, selectedStudent.name)}
                       disabled={reEngageSending}
-                      className="px-3.5 py-1.5 bg-[#fff5ee] hover:bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-3.5 py-2 bg-[#fff5ee] hover:bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
                       title="Send re-engagement push notification"
                     >
-                      <Send size={13} /> {reEngageSending ? 'Sending...' : 'Send Reminder'}
+                      {reEngageSending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                      <span>{reEngageSending ? 'Sending...' : 'Send Reminder'}</span>
                     </button>
 
                     {/* Delete Student Quick Action */}
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmOpen(true)}
-                      className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
                       title="Soft delete student from software"
                     >
                       <Trash2 size={13} /> Delete Student
                     </button>
 
-                    <div className="text-right">
-                      <p className="text-[#c4431d] font-black text-lg font-mono">{(selectedStudent.points || 0).toLocaleString()} XP</p>
+                    <div className="text-right pl-1">
+                      <p className="text-[#c4431d] font-black text-base sm:text-lg font-mono">{(selectedStudent.points || 0).toLocaleString()} XP</p>
                       <p className="text-stone-500 text-xs font-semibold">🔥 {selectedStudent.streak || 0} day streak</p>
                     </div>
                   </div>
-                </div>
-
-                {/* Last Login Info Strip */}
-                <div className="px-6 py-2.5 bg-[#fcfaf7] border-b border-stone-200/80 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="text-stone-500 font-semibold">Activity Status:</span>
-                    {(() => {
-                      const logInfo = formatLastLogin(selectedStudent.lastLoginAt);
-                      return (
-                        <span className={`font-bold flex items-center gap-1.5 ${logInfo.color}`}>
-                          <span className={`w-2 h-2 rounded-full ${logInfo.dot}`} />
-                          {logInfo.text}
-                          {selectedStudent.lastLoginAt && (
-                            <span className="text-stone-400 font-normal">
-                              ({new Date(selectedStudent.lastLoginAt).toLocaleString('en-IN')})
-                            </span>
-                          )}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                  <span className="text-stone-500 font-mono text-xs font-semibold">
-                    ID: {selectedStudent.id.slice(0, 8)}...
-                  </span>
                 </div>
 
                 {/* Tabs - scrollable on mobile */}
@@ -997,7 +1047,14 @@ export default function AdminStudents() {
                             <input
                               type={field.type}
                               value={editProfile[field.key] || ''}
-                              onChange={e => setEditProfile({ ...editProfile, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value })}
+                              onChange={e => {
+                                const val = field.type === 'number' ? Number(e.target.value) : e.target.value;
+                                if (field.key === 'points' || field.key === 'xpPoints') {
+                                  setEditProfile({ ...editProfile, points: Number(val), xpPoints: Number(val) });
+                                } else {
+                                  setEditProfile({ ...editProfile, [field.key]: val });
+                                }
+                              }}
                               className="w-full bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                             />
                           </div>
@@ -1024,13 +1081,15 @@ export default function AdminStudents() {
                           disabled={isSaving}
                           className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
                         >
-                          <Save size={16} /> {isSaving ? 'Saving...' : 'Save Profile'}
+                          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                          <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => setDeleteConfirmOpen(true)}
-                          className="flex items-center gap-2 px-4 py-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 hover:text-rose-800 rounded-xl font-bold text-xs transition-all cursor-pointer"
+                          disabled={isDeleting}
+                          className="flex items-center gap-2 px-4 py-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 hover:text-rose-800 disabled:opacity-50 rounded-xl font-bold text-xs transition-all cursor-pointer"
                         >
                           <Trash2 size={16} /> Delete Student
                         </button>
@@ -1074,7 +1133,8 @@ export default function AdminStudents() {
                             disabled={isAddingMilestone}
                             className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer"
                           >
-                            <Plus size={16} /> {isAddingMilestone ? 'Adding...' : 'Add'}
+                            {isAddingMilestone ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                            <span>{isAddingMilestone ? 'Adding...' : 'Add'}</span>
                           </button>
                         </div>
                         {milestoneError && (
@@ -1088,11 +1148,14 @@ export default function AdminStudents() {
                         <div className="space-y-2">
                           {(selectedStudent.milestones || []).map((m: any) => (
                             <div key={m.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-colors ${m.completed ? 'bg-emerald-50/60 border-emerald-200' : 'bg-[#fcfaf7] border-stone-200'}`}>
-                              <button onClick={() => toggleMilestone(m.id, m.completed)} className="shrink-0 cursor-pointer" title={m.completed ? "Mark incomplete" : "Mark complete"}>
-                                {m.completed
-                                  ? <CheckCircle2 size={22} className="text-emerald-400" />
-                                  : <Circle size={22} className="text-stone-400 hover:text-[#c4431d] transition-colors" />
-                                }
+                              <button onClick={() => toggleMilestone(m.id, m.completed)} disabled={togglingMilestoneId === m.id} className="shrink-0 cursor-pointer disabled:opacity-50" title={m.completed ? "Mark incomplete" : "Mark complete"}>
+                                {togglingMilestoneId === m.id ? (
+                                  <Loader2 size={22} className="animate-spin text-[#c4431d]" />
+                                ) : m.completed ? (
+                                  <CheckCircle2 size={22} className="text-emerald-400" />
+                                ) : (
+                                  <Circle size={22} className="text-stone-400 hover:text-[#c4431d] transition-colors" />
+                                )}
                               </button>
 
                               {editingMilestoneId === m.id ? (
@@ -1138,8 +1201,8 @@ export default function AdminStudents() {
                                 </div>
                               )}
 
-                              <button onClick={() => deleteMilestone(m.id)} className="text-stone-400 hover:text-rose-600 transition-colors p-1 shrink-0" title="Delete">
-                                <Trash2 size={16} />
+                              <button onClick={() => deleteMilestone(m.id)} disabled={deletingMilestoneId === m.id} className="text-stone-400 hover:text-rose-600 transition-colors p-1 shrink-0 disabled:opacity-50 cursor-pointer" title="Delete">
+                                {deletingMilestoneId === m.id ? <Loader2 size={16} className="animate-spin text-rose-500" /> : <Trash2 size={16} />}
                               </button>
                             </div>
                           ))}
@@ -1160,9 +1223,11 @@ export default function AdminStudents() {
                           className="bg-[#fcfaf7] border border-stone-300 rounded-xl px-4 py-3 text-stone-900 placeholder:text-stone-400 outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors" />
                         <button
                           onClick={addSaleRecord}
-                          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer"
+                          disabled={isAddingSale}
+                          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 shrink-0 cursor-pointer"
                         >
-                          <Plus size={16} /> Add Sale
+                          {isAddingSale ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                          <span>{isAddingSale ? 'Adding...' : 'Add Sale'}</span>
                         </button>
                       </div>
 
@@ -1182,8 +1247,8 @@ export default function AdminStudents() {
                               <div className="text-right font-bold text-emerald-700 font-mono">₹{s.amount?.toLocaleString('en-IN')}</div>
                               <div className="text-stone-500 text-sm">{s.date ? new Date(s.date).toLocaleDateString('en-IN') : '-'}</div>
                               <div className="text-right">
-                                <button onClick={() => deleteSaleRecord(s.id)} className="text-stone-400 hover:text-rose-600 transition-colors cursor-pointer">
-                                  <Trash2 size={16} />
+                                <button onClick={() => deleteSaleRecord(s.id)} disabled={deletingSaleId === s.id} className="text-stone-400 hover:text-rose-600 transition-colors cursor-pointer disabled:opacity-50">
+                                  {deletingSaleId === s.id ? <Loader2 size={16} className="animate-spin text-rose-500" /> : <Trash2 size={16} />}
                                 </button>
                               </div>
                             </div>
@@ -1222,7 +1287,8 @@ export default function AdminStudents() {
                         disabled={isSaving}
                         className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
                       >
-                        <Save size={16} /> {isSaving ? 'Saving...' : 'Save Skills'}
+                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        <span>{isSaving ? 'Saving...' : 'Save Skills'}</span>
                       </button>
                     </div>
                   )}
@@ -1265,9 +1331,14 @@ export default function AdminStudents() {
                             <button
                               key={course.id}
                               onClick={() => enrollCourse(course.id)}
-                              className="flex items-center gap-3 p-4 bg-[#fcfaf7] border border-stone-200 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/60 rounded-2xl text-left transition-all group"
+                              disabled={enrollingCourseId === course.id}
+                              className="flex items-center gap-3 p-4 bg-[#fcfaf7] border border-stone-200 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/60 rounded-2xl text-left transition-all group disabled:opacity-50 cursor-pointer"
                             >
-                              <Plus size={16} className="text-stone-400 group-hover:text-[#c4431d] transition-colors shrink-0" />
+                              {enrollingCourseId === course.id ? (
+                                <Loader2 size={16} className="animate-spin text-[#c4431d] shrink-0" />
+                              ) : (
+                                <Plus size={16} className="text-stone-400 group-hover:text-[#c4431d] transition-colors shrink-0" />
+                              )}
                               <span className="font-bold text-stone-800 group-hover:text-[#942008] transition-colors text-sm">{course.title}</span>
                             </button>
                           ))
@@ -1309,9 +1380,11 @@ export default function AdminStudents() {
                                 )}
                                 <button
                                   onClick={() => revokeBadgeFromStudent(badge.id)}
-                                  className="mt-3 text-xs px-2.5 py-1 bg-white border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 font-bold shadow-xs"
+                                  disabled={revokingBadgeId === badge.id}
+                                  className="mt-3 text-xs px-2.5 py-1 bg-white border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 font-bold shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1"
                                 >
-                                  Revoke
+                                  {revokingBadgeId === badge.id && <Loader2 size={12} className="animate-spin text-rose-600" />}
+                                  <span>Revoke</span>
                                 </button>
                               </div>
                             ))}
@@ -1338,15 +1411,23 @@ export default function AdminStudents() {
                               <button
                                 key={badge.id}
                                 onClick={() => awardBadgeToStudent(badge.id)}
-                                className="flex flex-col items-center p-4 bg-[#fcfaf7] border border-stone-200 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/60 rounded-2xl text-center transition-all group shadow-xs"
+                                disabled={awardingBadgeId === badge.id}
+                                className="flex flex-col items-center p-4 bg-[#fcfaf7] border border-stone-200 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/60 rounded-2xl text-center transition-all group shadow-xs disabled:opacity-50 cursor-pointer"
                               >
                                 <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">{badge.icon || '🏅'}</span>
                                 <p className="text-stone-800 text-xs font-bold leading-tight group-hover:text-[#942008] transition-colors">{badge.name}</p>
                                 {badge.description && (
                                   <p className="text-stone-500 text-xs mt-1 leading-snug">{badge.description}</p>
                                 )}
-                                <span className="mt-2 text-xs px-2.5 py-0.5 bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-full opacity-0 group-hover:opacity-100 transition-opacity font-bold">
-                                  Click to Award
+                                <span className="mt-2 text-xs px-2.5 py-0.5 bg-[#fde5d6] text-[#942008] border border-[#f5ded0] rounded-full opacity-0 group-hover:opacity-100 transition-opacity font-bold flex items-center gap-1">
+                                  {awardingBadgeId === badge.id ? (
+                                    <>
+                                      <Loader2 size={11} className="animate-spin text-[#942008]" />
+                                      <span>Awarding...</span>
+                                    </>
+                                  ) : (
+                                    'Click to Award'
+                                  )}
                                 </span>
                               </button>
                             ))}
@@ -1460,7 +1541,7 @@ export default function AdminStudents() {
                 disabled={isAdding}
                 className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer"
               >
-                {isAdding ? 'Creating...' : <><UserPlus size={16} /> Create Student</>}
+                {isAdding ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : <><UserPlus size={16} /> Create Student</>}
               </button>
             </div>
           </div>
@@ -1496,9 +1577,9 @@ export default function AdminStudents() {
                 type="button"
                 onClick={handleDeleteStudent}
                 disabled={isDeleting}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs transition-colors cursor-pointer shadow-lg shadow-rose-600/30 flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs transition-colors cursor-pointer shadow-lg shadow-rose-600/30 flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
-                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+                {isDeleting ? <><Loader2 size={14} className="animate-spin" /> Deleting...</> : 'Confirm Delete'}
               </button>
             </div>
           </div>

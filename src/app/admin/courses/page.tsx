@@ -39,6 +39,7 @@ import {
   MoreVertical,
   Type,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
@@ -260,6 +261,8 @@ export default function AdminCourses() {
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingCourseId, setDeletingCourseId] = useState<string | null>(null);
+  const [deletingChapterId, setDeletingChapterId] = useState<string | null>(null);
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -544,8 +547,10 @@ export default function AdminCourses() {
 
   // Handle Course Delete
   const handleDeleteCourse = async (courseId: string, courseTitle: string) => {
+    if (deletingCourseId === courseId) return;
     if (!confirm(`Are you sure you want to delete "${courseTitle}" and all its chapters?`)) return;
 
+    setDeletingCourseId(courseId);
     try {
       const res = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
         method: "DELETE",
@@ -558,6 +563,8 @@ export default function AdminCourses() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeletingCourseId(null);
     }
   };
 
@@ -701,8 +708,10 @@ export default function AdminCourses() {
 
   // Handle Chapter Delete
   const handleDeleteChapter = async (chapterId: string) => {
+    if (deletingChapterId === chapterId) return;
     if (!confirm("Are you sure you want to delete this chapter?")) return;
 
+    setDeletingChapterId(chapterId);
     try {
       const res = await fetch(`${API_BASE_URL}/courses/chapters/${chapterId}`, {
         method: "DELETE",
@@ -714,6 +723,8 @@ export default function AdminCourses() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeletingChapterId(null);
     }
   };
 
@@ -1374,9 +1385,10 @@ export default function AdminCourses() {
                               setOpenActionMenuId(null);
                               handleDeleteCourse(course.id, course.title);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            disabled={deletingCourseId === course.id}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
                           >
-                            <Trash2 size={15} className="shrink-0" />
+                            {deletingCourseId === course.id ? <Loader2 size={15} className="animate-spin text-rose-600 shrink-0" /> : <Trash2 size={15} className="shrink-0" />}
                             <span>Delete Course</span>
                           </button>
                         </div>
@@ -1505,10 +1517,11 @@ export default function AdminCourses() {
                               </button>
                               <button
                                 onClick={() => handleDeleteChapter(chapter.id)}
-                                className="p-1.5 rounded-lg bg-stone-100 text-stone-500 hover:text-rose-600 hover:bg-rose-50 border border-stone-300 cursor-pointer"
+                                disabled={deletingChapterId === chapter.id}
+                                className="p-1.5 rounded-lg bg-stone-100 text-stone-500 hover:text-rose-600 hover:bg-rose-50 border border-stone-300 cursor-pointer disabled:opacity-50"
                                 title="Delete Lesson"
                               >
-                                <Trash2 size={12} />
+                                {deletingChapterId === chapter.id ? <Loader2 size={12} className="animate-spin text-rose-600" /> : <Trash2 size={12} />}
                               </button>
                             </div>
                           </div>
@@ -1678,10 +1691,11 @@ export default function AdminCourses() {
 
                       <button
                         onClick={() => handleDeleteChapter(chapter.id)}
-                        className="p-2 text-stone-400 hover:text-red-400 bg-white border border-[#ecdccb] hover:border-red-500/30 rounded-xl transition-colors cursor-pointer"
+                        disabled={deletingChapterId === chapter.id}
+                        className="p-2 text-stone-400 hover:text-red-400 bg-white border border-[#ecdccb] hover:border-red-500/30 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                         title="Delete Chapter"
                       >
-                        <Trash2 size={14} />
+                        {deletingChapterId === chapter.id ? <Loader2 size={14} className="animate-spin text-rose-600" /> : <Trash2 size={14} />}
                       </button>
                     </div>
                   </div>
@@ -2228,9 +2242,10 @@ export default function AdminCourses() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-10 px-6 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                  className="h-10 px-6 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
-                  {isSubmitting ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}
+                  {isSubmitting && <Loader2 size={14} className="animate-spin" />}
+                  <span>{isSubmitting ? "Saving..." : editingCourse ? "Update Course" : "Create Course"}</span>
                 </button>
               </div>
             </form>

@@ -19,6 +19,7 @@ import {
   Layers,
   Zap,
   Globe,
+  Loader2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
@@ -57,6 +58,8 @@ export default function AdminOffersPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingOfferId, setDeletingOfferId] = useState<string | null>(null);
   const [editingOffer, setEditingOffer] = useState<LevelOffer | null>(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -150,6 +153,7 @@ export default function AdminOffersPage() {
       return;
     }
 
+    setIsSaving(true);
     try {
       const url = editingOffer ? `${API}/admin/offers/${editingOffer.id}` : `${API}/admin/offers`;
       const method = editingOffer ? "PUT" : "POST";
@@ -167,6 +171,8 @@ export default function AdminOffersPage() {
       fetchOffers();
     } catch (err: any) {
       showError(err?.message || "Failed to save campaign offer.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -185,6 +191,7 @@ export default function AdminOffersPage() {
 
   const handleDeleteOffer = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this offer campaign?")) return;
+    setDeletingOfferId(id);
     try {
       const res = await fetch(`${API}/admin/offers/${id}`, {
         method: "DELETE",
@@ -194,7 +201,10 @@ export default function AdminOffersPage() {
         setOffers(offers.filter((o) => o.id !== id));
         showSuccess("Offer deleted successfully!");
       }
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      setDeletingOfferId(null);
+    }
   };
 
   const filteredOffers = offers.filter((o) => {
@@ -437,10 +447,15 @@ export default function AdminOffersPage() {
                     </button>
                     <button
                       onClick={() => handleDeleteOffer(offer.id)}
-                      className="w-9 h-9 bg-white hover:bg-rose-50 text-rose-600 border border-[#f5ded0] hover:border-rose-300 rounded-xl flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                      disabled={deletingOfferId === offer.id}
+                      className="w-9 h-9 bg-white hover:bg-rose-50 text-rose-600 border border-[#f5ded0] hover:border-rose-300 rounded-xl flex items-center justify-center transition-colors cursor-pointer shrink-0 disabled:opacity-50"
                       title="Delete Offer"
                     >
-                      <Trash2 size={15} />
+                      {deletingOfferId === offer.id ? (
+                        <Loader2 size={15} className="animate-spin text-rose-600" />
+                      ) : (
+                        <Trash2 size={15} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -574,8 +589,10 @@ export default function AdminOffersPage() {
               <div className="flex items-center gap-3 pt-3">
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs sm:text-sm lg:text-xs h-11 rounded-xl shadow-md shadow-[#c4431d]/25 hover:scale-[1.02] transition-all cursor-pointer"
+                  disabled={isSaving}
+                  className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white font-black text-xs sm:text-sm lg:text-xs h-11 rounded-xl shadow-md shadow-[#c4431d]/25 hover:scale-[1.02] transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
+                  {isSaving && <Loader2 size={14} className="animate-spin" />}
                   {editingOffer ? "Update Campaign Offer" : "Save & Activate Campaign"}
                 </button>
                 <button

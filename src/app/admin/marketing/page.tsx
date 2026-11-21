@@ -18,6 +18,7 @@ import {
   Info,
   Layers,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { CardGridSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -320,7 +321,7 @@ export default function AdminMarketingPage() {
               disabled={isSaving || isLoading}
               className="px-5 py-2 text-sm font-bold text-white bg-[#c4431d] hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
             >
-              <Save size={15} />
+              {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
               {isSaving ? "Saving..." : "Save Settings"}
             </button>
           </div>
@@ -680,7 +681,7 @@ export default function AdminMarketingPage() {
                   disabled={isSaving || isLoading}
                   className="px-6 py-2.5 text-sm font-bold text-white bg-[#c4431d] hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
                 >
-                  <Save size={15} />
+                  {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                   {isSaving ? "Saving Settings..." : "Save Marketing Settings"}
                 </button>
               </div>
