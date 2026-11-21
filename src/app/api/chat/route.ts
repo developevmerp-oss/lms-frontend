@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   buildSystemPrompt,
-  formatDynamicLevelsText,
-  matchAndAnswerAcademyQuery,
-  LEVEL_TIERS_INFO,
-  COURSES_CATALOG,
-  MENTOR_PROFILE,
-  COMMON_FAQS
+  matchAndAnswerAcademyQuery
 } from '@/lib/ai/knowledgeBase';
 
 export const dynamic = 'force-dynamic';
@@ -107,6 +102,28 @@ async function getDynamicServerData(): Promise<DynamicContext> {
   };
 }
 
+/**
+ * Detect smart contextual CTA button (EVM ERP style)
+ */
+function extractContextualAction(text: string, query: string): { label: string; path: string } | null {
+  const combined = (text + ' ' + query).toLowerCase();
+
+  if (combined.includes('webinar') || combined.includes('masterclass') || combined.includes('vrajangna patel') || combined.includes('/webinar')) {
+    return { label: 'Register for Live Masterclass', path: '/webinar' };
+  }
+  if (
+    combined.includes('membership') || combined.includes('pricing') || combined.includes('cost') ||
+    combined.includes('fee') || combined.includes('tier') || combined.includes('/subscribe') ||
+    combined.includes('l0') || combined.includes('l1') || combined.includes('l2') || combined.includes('l3')
+  ) {
+    return { label: 'Explore Memberships & Pricing', path: '/subscribe' };
+  }
+  if (combined.includes('course') || combined.includes('curriculum') || combined.includes('preservation') || combined.includes('river table')) {
+    return { label: 'View 30 Academy Courses', path: '/subscribe' };
+  }
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   let latestUserMessage = '';
   try {
@@ -121,25 +138,24 @@ export async function POST(req: NextRequest) {
     }
 
     latestUserMessage = messages[messages.length - 1]?.content || '';
+    const isOngoing = messages.length > 1;
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
-    // Fetch or resolve dynamic context (levels, courses, webinar)
+    // Resolve dynamic context (levels, courses, webinar)
     let dynamicContext: DynamicContext = {};
-
-    // 1. If client sent dynamic data (already loaded on page), use it
     if (clientDynamicData?.levels && clientDynamicData.levels.length > 0) {
       dynamicContext = clientDynamicData;
     } else {
-      // 2. Otherwise fetch or use server cached data
       dynamicContext = await getDynamicServerData();
     }
 
-    // IF GEMINI API KEY IS CONFIGURED: Call Google Gemini with strict 3.5s timeout
+    // ─── 1. REAL AI ENGINE (Google Gemini 3.5 Flash Lite) ───
     if (apiKey) {
       const systemPrompt = buildSystemPrompt(
         dynamicContext.levels,
         dynamicContext.courses,
-        dynamicContext.webinar
+        dynamicContext.webinar,
+        isOngoing
       );
 
       const contents = messages.map((m) => ({
@@ -147,15 +163,19 @@ export async function POST(req: NextRequest) {
         parts: [{ text: m.content }]
       }));
 
-      // Standard Gemini production models
-      const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+      // Models verified for current Gemini API key
+      const modelsToTry = [
+        'gemini-3.5-flash-lite',
+        'gemini-3.8-flash',
+        'gemini-flash-latest'
+      ];
 
       for (const model of modelsToTry) {
         try {
-          const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+          const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
 
           const geminiRes = await fetch(geminiEndpoint, {
             method: 'POST',
@@ -167,7 +187,7 @@ export async function POST(req: NextRequest) {
                 parts: [{ text: systemPrompt }]
               },
               generationConfig: {
-                temperature: 0.6,
+                temperature: 0.7,
                 maxOutputTokens: 1024,
               }
             })
@@ -175,95 +195,45 @@ export async function POST(req: NextRequest) {
 
           clearTimeout(timeoutId);
 
-          if (geminiRes.ok && geminiRes.body) {
-            const encoder = new TextEncoder();
-            const decoder = new TextDecoder();
+          if (geminiRes.ok) {
+            const result = await geminiRes.json();
+            const replyText = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
-            const stream = new ReadableStream({
-              async start(controller) {
-                const reader = geminiRes.body!.getReader();
-                let buffer = '';
-
-                try {
-                  while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop() || '';
-
-                    for (const line of lines) {
-                      if (line.startsWith('data: ')) {
-                        const jsonStr = line.slice(6).trim();
-                        if (jsonStr === '[DONE]') continue;
-                        try {
-                          const parsed = JSON.parse(jsonStr);
-                          const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-                          if (textChunk) {
-                            controller.enqueue(encoder.encode(textChunk));
-                          }
-                        } catch (_) {}
-                      }
-                    }
-                  }
-                } catch (err) {
-                  controller.error(err);
-                } finally {
-                  controller.close();
-                }
-              }
-            });
-
-            return new Response(stream, {
-              headers: {
-                'Content-Type': 'text/plain; charset=utf-8',
-                'Cache-Control': 'no-cache, no-transform',
-              }
-            });
+            if (replyText) {
+              const action = extractContextualAction(replyText, latestUserMessage);
+              return NextResponse.json({
+                message: replyText,
+                action
+              });
+            }
           }
         } catch (err) {
-          console.warn(`Model ${model} stream attempt failed, trying next fallback:`, err);
+          console.warn(`Model ${model} attempt failed:`, err);
         }
       }
     }
 
-    // FALLBACK: Fast built-in academy matching engine using dynamic levels and courses
-    const matchedResponse = matchAndAnswerAcademyQuery(
+    // ─── 2. INSTANT FALLBACK ENGINE (Contextual & Dynamic) ───
+    const fallbackText = matchAndAnswerAcademyQuery(
       latestUserMessage,
       dynamicContext.levels,
       dynamicContext.courses,
-      dynamicContext.webinar
+      dynamicContext.webinar,
+      isOngoing
     );
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        const words = matchedResponse.split(' ');
-        for (let i = 0; i < words.length; i++) {
-          const chunk = words[i] + (i < words.length - 1 ? ' ' : '');
-          controller.enqueue(encoder.encode(chunk));
-          await new Promise((r) => setTimeout(r, 6));
-        }
-        controller.close();
-      }
-    });
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache, no-transform',
-      }
+    const action = extractContextualAction(fallbackText, latestUserMessage);
+    return NextResponse.json({
+      message: fallbackText,
+      action
     });
   } catch (error: any) {
     console.error('Chatbot API error:', error);
-    const fallbackText = matchAndAnswerAcademyQuery(latestUserMessage);
-    return new Response(fallbackText, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache, no-transform',
-      }
+    const fallbackText = matchAndAnswerAcademyQuery(latestUserMessage, undefined, undefined, undefined, true);
+    const action = extractContextualAction(fallbackText, latestUserMessage);
+    return NextResponse.json({
+      message: fallbackText,
+      action
     });
   }
 }
