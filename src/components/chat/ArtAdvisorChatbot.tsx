@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Sparkles,
-  MessageSquare,
   X,
   Send,
   RotateCcw,
@@ -15,7 +14,6 @@ import {
   MicOff,
   ExternalLink,
   ChevronDown,
-  Play,
   Square,
   Radio,
   Maximize2,
@@ -109,6 +107,21 @@ export const ArtAdvisorChatbot: React.FC = () => {
       window.removeEventListener('open-aura-chat', handleOpenChat);
     };
   }, []);
+
+  // Close or dock with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        if (isCentered) {
+          setIsCentered(false);
+        } else {
+          setIsOpen(false);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isCentered]);
 
   // Load chat history from sessionStorage
   useEffect(() => {
@@ -243,7 +256,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
     }
   };
 
-  // Send message with dynamic data payload
+  // Send message with dynamic data payload and resilient fallback routing
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
     if (!query || isLoading) return;
@@ -263,20 +276,34 @@ export const ArtAdvisorChatbot: React.FC = () => {
     setHasInteracted(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          dynamicData: {
-            levels: dynamicLevels,
-            courses: dynamicCourses,
-            webinar: dynamicWebinar
-          }
-        })
+      const payload = JSON.stringify({
+        messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+        dynamicData: {
+          levels: dynamicLevels,
+          courses: dynamicCourses,
+          webinar: dynamicWebinar
+        }
       });
 
-      if (!response.ok || !response.body) {
+      // Try /api/ai-chat first (immune to backend rewrites), then fallback to /api/chat
+      let response: Response | null = null;
+      try {
+        response = await fetch('/api/ai-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        });
+      } catch (_) {}
+
+      if (!response || !response.ok) {
+        response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        });
+      }
+
+      if (!response || !response.ok || !response.body) {
         throw new Error('Network response was not ok');
       }
 
@@ -351,7 +378,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
           <Link
             key={match.index}
             href={linkUrl}
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setIsCentered(false);
+            }}
             className="inline-flex items-center gap-1 font-semibold text-[#c45a28] hover:text-[#9e3f16] underline underline-offset-3 decoration-[#c45a28]/60 transition-colors"
           >
             {linkText}
@@ -397,10 +427,226 @@ export const ArtAdvisorChatbot: React.FC = () => {
 
   if (isAdminPage) return null;
 
+  // The complete internal chat window content
+  const renderChatBody = (inCenterModal: boolean) => (
+    <>
+      {/* Luxury Terracotta Header */}
+      <div className="shrink-0 flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 bg-gradient-to-r from-[#8f3611] via-[#b84c1b] to-[#c45a28] text-white border-b border-[#a33f15] shadow-sm select-none">
+        <div className="flex items-center gap-3">
+          <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/40 text-white shadow-inner backdrop-blur-xs">
+            <Sparkles size={18} className="text-amber-200" />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#8f3611]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-sm sm:text-base font-bold tracking-tight text-white font-display">Vraj AI</h3>
+            </div>
+            <p className="text-[10px] sm:text-[11px] text-amber-100/90">Ravishing Art Hub • Online</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1">
+          {/* Voice Mode Toggle */}
+          <button
+            onClick={() => {
+              const nextState = !isVoiceEnabled;
+              setIsVoiceEnabled(nextState);
+              if (!nextState) stopSpeaking();
+            }}
+            title={isVoiceEnabled ? 'Auto-Voice Mode: ON (Click to mute)' : 'Auto-Voice Mode: OFF (Click to hear answers)'}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border cursor-pointer ${
+              isVoiceEnabled
+                ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-xs'
+                : 'bg-white/15 text-white border-white/25 hover:bg-white/25'
+            }`}
+          >
+            {isVoiceEnabled ? <Volume2 size={13} className="text-stone-950 animate-pulse" /> : <VolumeX size={13} />}
+            <span className="hidden xs:inline">{isVoiceEnabled ? 'Voice ON' : 'Voice'}</span>
+          </button>
+
+          {/* Center Popup / Dock Toggle Button */}
+          <button
+            onClick={() => setIsCentered(!isCentered)}
+            title={inCenterModal ? 'Dock to bottom-right' : 'Open in center popup modal'}
+            className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+          >
+            {inCenterModal ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
+          </button>
+
+          {/* Reset conversation */}
+          <button
+            onClick={handleResetChat}
+            title="Restart conversation"
+            className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+          >
+            <RotateCcw size={16} />
+          </button>
+
+          {/* Close */}
+          <button
+            onClick={() => {
+              stopSpeaking();
+              setIsOpen(false);
+              setIsCentered(false);
+            }}
+            title="Close chat"
+            className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+          >
+            {inCenterModal ? <X size={20} /> : <ChevronDown size={20} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Audio Wave Playing Banner */}
+      {currentlySpeakingId && (
+        <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-[#f3d3c0] text-[#9e3f16] text-xs font-semibold animate-pulse">
+          <div className="flex items-center gap-2">
+            <Radio size={14} className="animate-spin text-[#c45a28]" />
+            <span>Vraj is speaking...</span>
+          </div>
+          <button
+            onClick={stopSpeaking}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#c45a28] text-white text-[10px] font-bold hover:bg-[#9e3f16] transition-colors cursor-pointer"
+          >
+            <Square size={10} className="fill-white" />
+            Stop Audio
+          </button>
+        </div>
+      )}
+
+      {/* Messages Container (Warm Canvas Paper Tone) */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 bg-[#faf7f2]/90 overscroll-contain">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            {msg.role === 'assistant' && (
+              <div className="shrink-0 w-8 h-8 rounded-full bg-[#f3d3c0] border border-[#e0783f]/40 text-[#c45a28] flex items-center justify-center mt-0.5 shadow-xs">
+                <Sparkles size={14} />
+              </div>
+            )}
+
+            <div
+              className={`relative ${inCenterModal ? 'max-w-[82%]' : 'max-w-[86%]'} rounded-2xl px-4 py-3 ${
+                msg.role === 'user'
+                  ? 'bg-[#231b15] text-[#fff6f0] border border-[#3e3128] rounded-tr-xs shadow-sm text-[13px] sm:text-[14px] leading-relaxed'
+                  : 'bg-white border border-[#eadfd4] text-stone-900 rounded-tl-xs shadow-[0_6px_20px_-10px_rgba(100,50,20,0.12)]'
+              }`}
+            >
+              {msg.role === 'user' ? (
+                <p className="text-[13px] sm:text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+              ) : (
+                <div>
+                  {renderFormattedContent(msg.content)}
+
+                  {/* Message Footer: Listen to Voice Button */}
+                  <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between">
+                    <button
+                      onClick={() => speakMessage(msg.id, msg.content)}
+                      title={currentlySpeakingId === msg.id ? 'Stop audio' : 'Listen to this response'}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
+                        currentlySpeakingId === msg.id
+                          ? 'bg-[#c45a28] text-white shadow-xs'
+                          : 'bg-[#f8ede4] hover:bg-[#c45a28] text-[#9e3f16] hover:text-white border border-[#f3d3c0]'
+                      }`}
+                    >
+                      {currentlySpeakingId === msg.id ? (
+                        <>
+                          <Square size={11} className="fill-white" />
+                          <span>Stop Audio</span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 size={12} />
+                          <span>Listen to Answer</span>
+                        </>
+                      )}
+                    </button>
+
+                    <span className="text-[10px] text-stone-400 font-medium">Ravishing Art Hub</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Typing Animation */}
+        {isLoading && (
+          <div className="flex items-center gap-2 text-stone-400 text-xs pl-10">
+            <span className="flex gap-1.5 items-center bg-white border border-[#eadfd4] px-3.5 py-1.5 rounded-full shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28] animate-bounce" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28] animate-bounce [animation-delay:0.2s]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28] animate-bounce [animation-delay:0.4s]" />
+              <span className="ml-1 text-[11px] font-bold text-stone-600">Vraj is consulting...</span>
+            </span>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Quick Suggestion Pills (Hidden Native Scrollbar) */}
+      <div className="shrink-0 px-3 py-2 bg-[#fffdfa] border-t border-[#f0e6dc] overflow-x-auto flex items-center gap-1.5 flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {QUICK_SUGGESTIONS.map((s, idx) => (
+          <button
+            key={idx}
+            disabled={isLoading}
+            onClick={() => handleSendMessage(s.prompt)}
+            className="shrink-0 text-[11px] font-bold bg-[#fbf3ec] hover:bg-[#c45a28] text-[#9e3f16] hover:text-white border border-[#f3d3c0] hover:border-[#c45a28] px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-50"
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Input & Voice Controls */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSendMessage();
+        }}
+        className="shrink-0 p-3 sm:p-3.5 bg-white border-t border-[#eadfd4] flex items-center gap-2"
+      >
+        {/* Microphone button for voice input */}
+        <button
+          type="button"
+          onClick={toggleVoiceInput}
+          title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
+          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all cursor-pointer shrink-0 ${
+            isListening
+              ? 'bg-rose-500 text-white border-rose-600 animate-pulse shadow-md'
+              : 'bg-[#fbf3ec] text-[#9e3f16] hover:bg-[#c45a28] hover:text-white border-[#f3d3c0]'
+          }`}
+        >
+          {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+        </button>
+
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={isListening ? 'Listening to your voice...' : 'Ask about courses, resin projects, pricing...'}
+          disabled={isLoading}
+          className="flex-1 text-[13px] sm:text-[14px] bg-stone-50 border border-[#eadfd4] rounded-full px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-[#c45a28]/40 focus:border-[#c45a28] focus:bg-white transition-all min-w-0"
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading || !input.trim()}
+          className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#9e3f16] via-[#c45a28] to-[#e0783f] text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 transition-all cursor-pointer shrink-0"
+        >
+          <Send size={15} className="-mr-0.5" />
+        </button>
+      </form>
+    </>
+  );
+
   return (
     <>
-      {/* ─── FLOATING LAUNCHER BUTTON ─── */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+      {/* ─── FLOATING LAUNCHER BUTTON (Bottom-Right) ─── */}
+      <div className="fixed bottom-6 right-6 z-[90] flex items-center gap-3">
         {!isOpen && !hasInteracted && (
           <div
             onClick={() => setIsOpen(true)}
@@ -413,7 +659,15 @@ export const ArtAdvisorChatbot: React.FC = () => {
         )}
 
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            if (isOpen) {
+              stopSpeaking();
+              setIsOpen(false);
+              setIsCentered(false);
+            } else {
+              setIsOpen(true);
+            }
+          }}
           aria-label="Toggle AI Art Advisor Chat"
           className="relative group flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#9e3f16] via-[#c45a28] to-[#e0783f] text-white shadow-[0_14px_30px_-6px_rgba(196,90,40,0.55)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border-2 border-white/60"
         >
@@ -431,233 +685,26 @@ export const ArtAdvisorChatbot: React.FC = () => {
         </button>
       </div>
 
-      {/* ─── BACKDROP FOR CENTER POPUP MODAL MODE ─── */}
+      {/* ─── OPTION A: CENTER POPUP MODAL (Screen Safe Flexbox Centering) ─── */}
       {isOpen && isCentered && (
-        <div
-          onClick={() => setIsCentered(false)}
-          className="fixed inset-0 z-50 bg-stone-950/60 backdrop-blur-sm animate-in fade-in duration-200"
-        />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsCentered(false)}
+            className="absolute inset-0 bg-stone-950/60 backdrop-blur-sm animate-in fade-in duration-200"
+          />
+
+          {/* Modal Container — Always within screen view */}
+          <div className="relative z-10 flex flex-col w-full max-w-[620px] h-[min(650px,calc(100dvh-2.5rem))] max-h-[92dvh] rounded-[24px] sm:rounded-[28px] border border-[#eadfd4] bg-[#fffdfa] shadow-[0_32px_80px_-15px_rgba(30,15,5,0.6)] overflow-hidden animate-in zoom-in-95">
+            {renderChatBody(true)}
+          </div>
+        </div>
       )}
 
-      {/* ─── CHAT WINDOW: DOCKED (Bottom-Right) OR CENTERED POPUP ─── */}
-      {isOpen && (
-        <div
-          className={`fixed z-50 flex flex-col rounded-[28px] border border-[#eadfd4] bg-[#fffdfa] shadow-[0_24px_60px_-15px_rgba(60,30,10,0.35)] overflow-hidden transition-all duration-300 ${
-            isCentered
-              ? 'inset-x-4 inset-y-8 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[650px] sm:h-[720px] max-h-[90vh] shadow-[0_32px_80px_-15px_rgba(30,15,5,0.6)] animate-in zoom-in-95'
-              : 'inset-x-3 bottom-24 sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-[420px] h-[600px] max-h-[82vh] animate-in fade-in slide-in-from-bottom-6'
-          }`}
-        >
-
-          {/* Luxury Terracotta Header */}
-          <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#8f3611] via-[#b84c1b] to-[#c45a28] text-white border-b border-[#a33f15] shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/20 border border-white/40 text-white shadow-inner backdrop-blur-xs">
-                <Sparkles size={20} className="text-amber-200" />
-                <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#8f3611]" />
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-base font-bold tracking-tight text-white font-display">Vraj AI</h3>
-                </div>
-                <p className="text-[11px] text-amber-100/90">Ravishing Art Hub • Online</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1">
-              {/* Voice Mode Toggle */}
-              <button
-                onClick={() => {
-                  const nextState = !isVoiceEnabled;
-                  setIsVoiceEnabled(nextState);
-                  if (!nextState) stopSpeaking();
-                }}
-                title={isVoiceEnabled ? 'Auto-Voice Mode: ON (Click to mute)' : 'Auto-Voice Mode: OFF (Click to hear answers)'}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border cursor-pointer ${
-                  isVoiceEnabled
-                    ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-xs'
-                    : 'bg-white/15 text-white border-white/25 hover:bg-white/25'
-                }`}
-              >
-                {isVoiceEnabled ? <Volume2 size={13} className="text-stone-950 animate-pulse" /> : <VolumeX size={13} />}
-                <span className="hidden xs:inline">{isVoiceEnabled ? 'Voice ON' : 'Voice'}</span>
-              </button>
-
-              {/* Center Popup / Dock Toggle Button */}
-              <button
-                onClick={() => setIsCentered(!isCentered)}
-                title={isCentered ? 'Dock to bottom-right' : 'Open in center popup modal'}
-                className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                {isCentered ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
-              </button>
-
-              {/* Reset conversation */}
-              <button
-                onClick={handleResetChat}
-                title="Restart conversation"
-                className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                <RotateCcw size={16} />
-              </button>
-
-              {/* Close */}
-              <button
-                onClick={() => {
-                  stopSpeaking();
-                  setIsOpen(false);
-                }}
-                title="Close chat"
-                className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
-              >
-                {isCentered ? <X size={19} /> : <ChevronDown size={20} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Audio Wave Playing Banner */}
-          {currentlySpeakingId && (
-            <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-[#f3d3c0] text-[#9e3f16] text-xs font-semibold animate-pulse">
-              <div className="flex items-center gap-2">
-                <Radio size={14} className="animate-spin text-[#c45a28]" />
-                <span>Vraj is speaking...</span>
-              </div>
-              <button
-                onClick={stopSpeaking}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#c45a28] text-white text-[10px] font-bold hover:bg-[#9e3f16] transition-colors cursor-pointer"
-              >
-                <Square size={10} className="fill-white" />
-                Stop Audio
-              </button>
-            </div>
-          )}
-
-          {/* Messages Container (Warm Canvas Paper Tone) */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 bg-[#faf7f2]/90">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#f3d3c0] border border-[#e0783f]/40 text-[#c45a28] flex items-center justify-center mt-0.5 shadow-xs">
-                    <Sparkles size={14} />
-                  </div>
-                )}
-
-                <div
-                  className={`relative ${isCentered ? 'max-w-[80%]' : 'max-w-[86%]'} rounded-2xl px-4 py-3 ${
-                    msg.role === 'user'
-                      ? 'bg-[#231b15] text-[#fff6f0] border border-[#3e3128] rounded-tr-xs shadow-sm text-[13px] sm:text-[14px] leading-relaxed'
-                      : 'bg-white border border-[#eadfd4] text-stone-900 rounded-tl-xs shadow-[0_6px_20px_-10px_rgba(100,50,20,0.12)]'
-                  }`}
-                >
-                  {msg.role === 'user' ? (
-                    <p className="text-[13px] sm:text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                  ) : (
-                    <div>
-                      {renderFormattedContent(msg.content)}
-
-                      {/* Message Footer: Listen to Voice Button */}
-                      <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-center justify-between">
-                        <button
-                          onClick={() => speakMessage(msg.id, msg.content)}
-                          title={currentlySpeakingId === msg.id ? 'Stop audio' : 'Listen to this response'}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
-                            currentlySpeakingId === msg.id
-                              ? 'bg-[#c45a28] text-white shadow-xs'
-                              : 'bg-[#f8ede4] hover:bg-[#c45a28] text-[#9e3f16] hover:text-white border border-[#f3d3c0]'
-                          }`}
-                        >
-                          {currentlySpeakingId === msg.id ? (
-                            <>
-                              <Square size={11} className="fill-white" />
-                              <span>Stop Audio</span>
-                            </>
-                          ) : (
-                            <>
-                              <Volume2 size={12} />
-                              <span>Listen to Answer</span>
-                            </>
-                          )}
-                        </button>
-
-                        <span className="text-[10px] text-stone-400 font-medium">Ravishing Art Hub</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {/* Typing Animation */}
-            {isLoading && (
-              <div className="flex items-center gap-2 text-stone-400 text-xs pl-10">
-                <span className="flex gap-1.5 items-center bg-white border border-[#eadfd4] px-3.5 py-1.5 rounded-full shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28] animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28] animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28] animate-bounce [animation-delay:0.4s]" />
-                  <span className="ml-1 text-[11px] font-bold text-stone-600">Vraj is consulting...</span>
-                </span>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Quick Suggestion Pills (Terracotta & Cream Tone) */}
-          <div className="px-3 py-2 bg-[#fffdfa] border-t border-[#f0e6dc] overflow-x-auto no-scrollbar flex items-center gap-1.5 flex-nowrap">
-            {QUICK_SUGGESTIONS.map((s, idx) => (
-              <button
-                key={idx}
-                disabled={isLoading}
-                onClick={() => handleSendMessage(s.prompt)}
-                className="flex-shrink-0 text-[11px] font-bold bg-[#fbf3ec] hover:bg-[#c45a28] text-[#9e3f16] hover:text-white border border-[#f3d3c0] hover:border-[#c45a28] px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-50"
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Input & Voice Controls */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage();
-            }}
-            className="p-3 sm:p-3.5 bg-white border-t border-[#eadfd4] flex items-center gap-2"
-          >
-            {/* Microphone button for voice input */}
-            <button
-              type="button"
-              onClick={toggleVoiceInput}
-              title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
-              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
-                isListening
-                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse shadow-md'
-                  : 'bg-[#fbf3ec] text-[#9e3f16] hover:bg-[#c45a28] hover:text-white border-[#f3d3c0]'
-              }`}
-            >
-              {isListening ? <MicOff size={16} /> : <Mic size={16} />}
-            </button>
-
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={isListening ? 'Listening to your voice...' : 'Ask about courses, resin projects, pricing...'}
-              disabled={isLoading}
-              className="flex-1 text-[13px] sm:text-[14px] bg-stone-50 border border-[#eadfd4] rounded-full px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-[#c45a28]/40 focus:border-[#c45a28] focus:bg-white transition-all"
-            />
-
-            <button
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#9e3f16] via-[#c45a28] to-[#e0783f] text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 transition-all cursor-pointer"
-            >
-              <Send size={15} className="-mr-0.5" />
-            </button>
-          </form>
+      {/* ─── OPTION B: DOCKED BOTTOM-RIGHT POPUP ─── */}
+      {isOpen && !isCentered && (
+        <div className="fixed z-[100] inset-x-3 bottom-24 sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-[420px] h-[min(580px,calc(100dvh-7.5rem))] max-h-[82vh] flex flex-col rounded-[24px] sm:rounded-[28px] border border-[#eadfd4] bg-[#fffdfa] shadow-[0_24px_60px_-15px_rgba(60,30,10,0.35)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
+          {renderChatBody(false)}
         </div>
       )}
     </>
