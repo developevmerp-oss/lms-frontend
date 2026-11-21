@@ -8,6 +8,9 @@ import {
   COMMON_FAQS
 } from '@/lib/ai/knowledgeBase';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
+
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -35,7 +38,7 @@ let serverCache: {
 const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
 
 /**
- * Fetch dynamic levels, courses, and next webinar from the backend database API
+ * Fetch dynamic levels, courses, and next webinar with fast timeout protection
  */
 async function getDynamicServerData(): Promise<DynamicContext> {
   const now = Date.now();
@@ -51,15 +54,18 @@ async function getDynamicServerData(): Promise<DynamicContext> {
     process.env.INTERNAL_API_URL,
     process.env.BACKEND_API_URL,
     process.env.NEXT_PUBLIC_API_URL,
-    'https://api.ravishingarthub.com/api',
-    'http://localhost:5000/api'
   ].filter(Boolean) as string[];
+
+  // Fallback candidate if no env is set
+  if (backendUrlsToTry.length === 0) {
+    backendUrlsToTry.push('http://localhost:5000/api');
+  }
 
   for (const baseUrl of backendUrlsToTry) {
     try {
       const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const timeoutId = setTimeout(() => controller.abort(), 1200);
 
       const [levelsRes, coursesRes, webinarRes] = await Promise.allSettled([
         fetch(`${cleanBase}/dashboard/levels`, { signal: controller.signal }).then((r) => r.ok ? r.json() : []),
@@ -93,7 +99,7 @@ async function getDynamicServerData(): Promise<DynamicContext> {
         };
       }
     } catch (_) {
-      // Try next candidate URL
+      // Continue to next or fallback
     }
   }
 
@@ -337,9 +343,9 @@ function matchAndAnswerAcademyQuery(
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { messages, dynamicData: clientDynamicData } = body as {
-      messages: ChatMessage[];
+      messages?: ChatMessage[];
       dynamicData?: DynamicContext;
     };
 
@@ -480,9 +486,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('Chatbot API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process message', details: error?.message },
-      { status: 500 }
-    );
+    // Even in error, return a graceful 200 stream so UI never crashes or displays a connection error
+    const fallbackText = "✨ **Hello! I'm Vraj, your AI Art Advisor at Ravishing Art Hub.**\n\nI can help you explore our **30 curriculum courses**, find out about our **membership tiers (L0 to L3+)**, or help you register for founder **Vrajangna Patel's** next live free masterclass!\n\n👉 **[Register for Free Live Masterclass](/webinar)** or **[Explore Memberships](/subscribe)**!";
+    return new Response(fallbackText, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      }
+    });
   }
 }
