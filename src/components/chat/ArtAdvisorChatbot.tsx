@@ -277,12 +277,37 @@ export const ArtAdvisorChatbot: React.FC = () => {
     setHasInteracted(true);
 
     try {
+      // Lightweight serialization: strip heavy base64 images & HTML descriptions to avoid 413 Payload Too Large
+      const compactLevels = Array.isArray(dynamicLevels) ? dynamicLevels.map((l: any) => ({
+        code: l.code || l.levelCode,
+        name: l.name || l.title,
+        price: l.price,
+        offerActive: l.offerActive,
+        offerTitle: l.offerTitle,
+        discountValue: l.discountValue,
+        discountType: l.discountType,
+        installmentsEnabled: l.installmentsEnabled,
+        totalInstallments: l.totalInstallments
+      })) : [];
+
+      const compactCourses = Array.isArray(dynamicCourses) ? dynamicCourses.map((c: any) => ({
+        id: c.id,
+        title: c.title,
+        level: c.level,
+        category: c.category
+      })) : [];
+
+      const compactWebinar = dynamicWebinar ? {
+        scheduledAt: dynamicWebinar.scheduledAt,
+        title: dynamicWebinar.title
+      } : null;
+
       const payload = JSON.stringify({
-        messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+        messages: newMessages.slice(-8).map(m => ({ role: m.role, content: m.content })),
         dynamicData: {
-          levels: dynamicLevels,
-          courses: dynamicCourses,
-          webinar: dynamicWebinar
+          levels: compactLevels,
+          courses: compactCourses,
+          webinar: compactWebinar
         }
       });
 
