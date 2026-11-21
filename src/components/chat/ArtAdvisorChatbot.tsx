@@ -285,23 +285,12 @@ export const ArtAdvisorChatbot: React.FC = () => {
         }
       });
 
-      // Try /api/ai-chat first (immune to backend rewrites), then fallback to /api/chat
-      let response: Response | null = null;
-      try {
-        response = await fetch('/api/ai-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: payload
-        });
-      } catch (_) {}
-
-      if (!response || !response.ok) {
-        response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: payload
-        });
-      }
+      // Direct call to /api/chat with dynamic data payload
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+      });
 
       if (!response || !response.ok || !response.body) {
         throw new Error('Network response was not ok');
@@ -588,7 +577,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
       </div>
 
       {/* Quick Suggestion Pills (Hidden Native Scrollbar) */}
-      <div className="shrink-0 px-3 py-2 bg-[#fffdfa] border-t border-[#f0e6dc] overflow-x-auto flex items-center gap-1.5 flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="shrink-0 px-3 py-2 bg-[#fffdfa] border-t border-[#f0e6dc] overflow-x-auto flex items-center gap-1.5 flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
         {QUICK_SUGGESTIONS.map((s, idx) => (
           <button
             key={idx}
@@ -701,9 +693,9 @@ export const ArtAdvisorChatbot: React.FC = () => {
         </div>
       )}
 
-      {/* ─── OPTION B: DOCKED BOTTOM-RIGHT POPUP ─── */}
+      {/* ─── OPTION B: DOCKED BOTTOM-RIGHT POPUP (Screen-Safe, Header Always Clickable) ─── */}
       {isOpen && !isCentered && (
-        <div className="fixed z-[100] inset-x-3 bottom-24 sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-[420px] h-[min(580px,calc(100dvh-7.5rem))] max-h-[82vh] flex flex-col rounded-[24px] sm:rounded-[28px] border border-[#eadfd4] bg-[#fffdfa] shadow-[0_24px_60px_-15px_rgba(60,30,10,0.35)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
+        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-22 sm:w-[410px] md:w-[420px] top-4 sm:top-auto max-h-[calc(100dvh-6rem)] h-[min(520px,calc(100dvh-6.5rem))] flex flex-col rounded-[24px] sm:rounded-[28px] border border-[#eadfd4] bg-[#fffdfa] shadow-[0_24px_60px_-15px_rgba(60,30,10,0.35)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
           {renderChatBody(false)}
         </div>
       )}
