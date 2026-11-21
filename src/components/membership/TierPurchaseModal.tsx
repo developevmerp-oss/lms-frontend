@@ -19,6 +19,7 @@ import {
   Tag,
   Clock,
   Info,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { processRazorpayPayment } from "@/utils/razorpay";
@@ -723,9 +724,9 @@ export const TierPurchaseModal = ({
                   type="button"
                   onClick={handleRazorpayPayment}
                   disabled={isProcessing}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs md:text-sm shadow-md shadow-[#c4431d]/25 transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs md:text-sm shadow-md shadow-[#c4431d]/25 transition-all hover:scale-105 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-60"
                 >
-                  <Zap size={14} />
+                  {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
                   {isProcessing ? "Processing..." : "Create Instalment"}
                 </button>
               </div>
@@ -868,9 +869,9 @@ export const TierPurchaseModal = ({
             type="button"
             onClick={handleRazorpayPayment}
             disabled={isProcessing}
-            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm rounded-xl shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+            className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm rounded-xl shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-60"
           >
-            <CreditCard size={17} />
+            {isProcessing ? <Loader2 size={17} className="animate-spin" /> : <CreditCard size={17} />}
             {isProcessing
               ? "Opening Razorpay..."
               : isPayingInstallment

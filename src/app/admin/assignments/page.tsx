@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { ClipboardList, Plus, X, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
+import { ClipboardList, Plus, X, CheckCircle2, XCircle, Clock, ExternalLink, Loader2 } from "lucide-react";
 import { StatCardSkeleton, AdminTableSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 
@@ -21,6 +21,7 @@ export default function AdminAssignments() {
   const [dueDate, setDueDate] = useState("");
   const [courseId, setCourseId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'pending' | 'assignments'>('pending');
 
@@ -78,6 +79,7 @@ export default function AdminAssignments() {
   };
 
   const handleReview = async (submissionId: string, status: string, pointsAwarded: number) => {
+    setReviewingId(submissionId);
     try {
       const res = await fetch(`${API_BASE_URL}/assignments/submissions/${submissionId}/review`, {
         method: "PUT",
@@ -90,6 +92,8 @@ export default function AdminAssignments() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setReviewingId(null);
     }
   };
 
@@ -214,15 +218,17 @@ export default function AdminAssignments() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleReview(sub.id, 'rejected', 0)}
-                      className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors text-sm font-bold"
+                      disabled={reviewingId === sub.id}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors text-sm font-bold disabled:opacity-50 cursor-pointer"
                     >
-                      <XCircle size={16} /> Reject
+                      {reviewingId === sub.id ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />} Reject
                     </button>
                     <button
                       onClick={() => handleReview(sub.id, 'approved', sub.assignment?.points || 50)}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl hover:bg-green-500/20 transition-colors text-sm font-bold"
+                      disabled={reviewingId === sub.id}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl hover:bg-green-500/20 transition-colors text-sm font-bold disabled:opacity-50 cursor-pointer"
                     >
-                      <CheckCircle2 size={16} /> Approve (+{sub.assignment?.points || 50} pts)
+                      {reviewingId === sub.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Approve (+{sub.assignment?.points || 50} pts)
                     </button>
                   </div>
                 </div>
@@ -331,7 +337,8 @@ export default function AdminAssignments() {
               </div>
               <div className="flex gap-4 pt-2">
                 <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors font-bold border border-stone-300 cursor-pointer">Cancel</button>
-                <button type="submit" disabled={isSubmitting} className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25">
+                <button type="submit" disabled={isSubmitting} className="flex-1 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer">
+                  {isSubmitting && <Loader2 size={16} className="animate-spin" />}
                   {isSubmitting ? "Creating..." : "Create Assignment"}
                 </button>
               </div>

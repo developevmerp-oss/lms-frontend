@@ -16,28 +16,28 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45 }}
-      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
+      className="bg-white/95 border border-[#ecdccb] p-6 sm:p-7 rounded-3xl h-full min-h-[300px] sm:min-h-[340px] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
-              <Award size={16} />
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0 shadow-2xs">
+              <Award size={18} />
             </div>
-            <h2 className="text-sm sm:text-base font-bold text-stone-900">Badges Earned</h2>
+            <h2 className="text-base sm:text-lg font-bold text-stone-900">Badges Earned</h2>
           </div>
-          <span className="text-xs text-stone-400 font-medium shrink-0">
+          <span className="text-xs sm:text-sm text-stone-400 font-semibold shrink-0">
             {displayedBadges.length} badge{displayedBadges.length !== 1 ? "s" : ""} collected
           </span>
         </div>
 
         {/* Content */}
         {displayedBadges.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-4 text-center">
+          <div className="flex flex-col items-center justify-center py-6 text-center">
             {/* Star Burst Icon matching Image 4 */}
-            <div className="w-12 h-12 flex items-center justify-center text-[#e86034] mb-1">
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <div className="w-16 h-16 flex items-center justify-center text-[#e86034] mb-2">
+              <svg width="48" height="48" viewBox="0 0 40 40" fill="none">
                 {/* Circular dashed/solid rings */}
                 <circle
                   cx="20"
@@ -61,46 +61,46 @@ export const BadgesEarned = ({ badges = [] }: BadgesEarnedProps) => {
               </svg>
             </div>
 
-            <h3 className="text-xs sm:text-sm font-bold text-stone-800">No badges yet.</h3>
-            <p className="text-xs text-stone-400 max-w-[200px] mt-0.5 leading-snug">
+            <h3 className="text-sm sm:text-base font-bold text-stone-800">No badges yet.</h3>
+            <p className="text-xs sm:text-sm text-stone-400 max-w-[220px] mt-1 leading-snug">
               Keep learning, stay consistent, and earn your first badge!
             </p>
           </div>
         ) : displayedBadges.length === 1 ? (
-          <div className="pt-1">
+          <div className="pt-2">
             {displayedBadges.map((badge, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-3 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] shadow-xs"
+                className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] shadow-xs"
               >
-                <div className="w-11 h-11 rounded-xl bg-white shadow-xs border border-[#f5ded0] flex items-center justify-center text-2xl shrink-0">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white shadow-xs border border-[#f5ded0] flex items-center justify-center text-3xl shrink-0">
                   {badge.icon || "🎨"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-stone-900 block truncate">
+                  <span className="text-sm sm:text-base font-bold text-stone-900 block truncate">
                     {badge.name || "Achievement"}
                   </span>
-                  <span className="text-xs text-stone-500 block truncate mt-0.5">
+                  <span className="text-xs sm:text-sm text-stone-500 block truncate mt-1">
                     {badge.description || "Official milestone achievement"}
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#fde5d6] text-[#c4431d] text-xs font-bold shrink-0">
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#fde5d6] text-[#c4431d] text-xs sm:text-sm font-bold shrink-0">
                   ✓ Earned
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-3 pt-2">
             {displayedBadges.slice(0, 4).map((badge, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] text-center"
+                className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-[#faf8f5] border border-[#ecdccb] text-center"
               >
-                <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-[#f5ded0] flex items-center justify-center text-xl mb-1.5">
+                <div className="w-12 h-12 rounded-xl bg-white shadow-xs border border-[#f5ded0] flex items-center justify-center text-2xl mb-2">
                   {badge.icon || "🏅"}
                 </div>
-                <span className="text-xs font-bold text-stone-900 line-clamp-1 w-full px-1">
+                <span className="text-xs sm:text-sm font-bold text-stone-900 line-clamp-1 w-full px-1">
                   {badge.name || "Achievement"}
                 </span>
                 <span className="text-xs text-[#c4431d] font-bold mt-1 bg-[#fde5d6]/70 px-2 py-0.5 rounded-full">

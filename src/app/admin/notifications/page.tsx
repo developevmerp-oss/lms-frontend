@@ -20,7 +20,8 @@ import {
   Layers,
   ArrowRight,
   Eye,
-  X
+  X,
+  Loader2,
 } from "lucide-react";
 import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -407,7 +408,11 @@ export default function AdminNotifications() {
                 disabled={isSubmitting}
                 className="w-full py-3.5 md:py-4 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-60 text-white font-black text-sm md:text-base lg:text-sm transition-all shadow-md shadow-[#c4431d]/25 hover:scale-[1.01] cursor-pointer flex items-center justify-center gap-2"
               >
-                <Send size={16} className="shrink-0" />
+                {isSubmitting ? (
+                  <Loader2 size={16} className="animate-spin shrink-0" />
+                ) : (
+                  <Send size={16} className="shrink-0" />
+                )}
                 <span>{isSubmitting ? "Broadcasting to Students..." : `🚀 Broadcast to ${form.targetAudience.toUpperCase()} Students`}</span>
               </button>
             </form>

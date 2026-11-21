@@ -59,11 +59,11 @@ export default function StudentDashboard() {
             setLiveTiers(data.levelTiers);
             try {
               sessionStorage.setItem("cached_level_tiers", JSON.stringify(data.levelTiers));
-            } catch (_) {}
+            } catch (_) { }
           }
           try {
             sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
-          } catch (_) {}
+          } catch (_) { }
         }
       })
       .catch((err) => console.error("Error fetching student stats:", err))
@@ -83,7 +83,7 @@ export default function StudentDashboard() {
           return;
         }
       }
-    } catch (_) {}
+    } catch (_) { }
     fetchStats();
     fetchInstallments();
   }, [token]);
@@ -134,7 +134,7 @@ export default function StudentDashboard() {
       try {
         const cached = sessionStorage.getItem("cached_level_tiers");
         if (cached) return JSON.parse(cached);
-      } catch (_) {}
+      } catch (_) { }
     }
     return [];
   });
@@ -148,17 +148,17 @@ export default function StudentDashboard() {
           setLiveTiers(data);
           try {
             sessionStorage.setItem("cached_level_tiers", JSON.stringify(data));
-          } catch (_) {}
+          } catch (_) { }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     fetch(`${API_BASE_URL}/dashboard/offers`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setCampaignOffers(data);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const effectiveLevel =
@@ -282,39 +282,36 @@ export default function StudentDashboard() {
                 const nextNum = (plan.paidInstallments || 0) + 1;
                 const dueDateStr = plan.nextDueDate
                   ? new Date(plan.nextDueDate).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
                   : "Scheduled Soon";
 
                 return (
                   <div
                     key={plan.id}
-                    className={`p-4 md:p-5 rounded-3xl border transition-all shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                      isOverdue
+                    className={`p-4 md:p-5 rounded-3xl border transition-all shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 ${isOverdue
                         ? "bg-red-500/10 border-red-500/40 text-red-200"
                         : "bg-white/95 border border-[#ecdccb] text-stone-900 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start md:items-center gap-3.5">
                       <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 ${
-                          isOverdue
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 ${isOverdue
                             ? "bg-red-500/20 text-red-400 border border-red-500/40"
                             : "bg-[#fde5d6] text-[#942008] border border-[#f5ded0]"
-                        }`}
+                          }`}
                       >
                         {isOverdue ? <AlertCircle size={24} /> : <CreditCard size={24} />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`text-[0.65rem] font-black uppercase px-2 py-0.5 rounded-full ${
-                              isOverdue
+                            className={`text-[0.65rem] font-black uppercase px-2 py-0.5 rounded-full ${isOverdue
                                 ? "bg-red-500/20 text-red-300 border border-red-500/40"
                                 : "bg-[#fde5d6] text-[#942008] border border-[#f5ded0]"
-                            }`}
+                              }`}
                           >
                             {isOverdue ? "⚠️ Overdue Installment" : "🔔 Next Installment Scheduled"}
                           </span>
@@ -354,8 +351,8 @@ export default function StudentDashboard() {
                         {payingPlanId === plan.id
                           ? "Processing..."
                           : `Pay Installment #${nextNum} (₹${Number(
-                              plan.installmentAmount
-                            ).toLocaleString("en-IN")})`}
+                            plan.installmentAmount
+                          ).toLocaleString("en-IN")})`}
                       </button>
                     </div>
                   </div>

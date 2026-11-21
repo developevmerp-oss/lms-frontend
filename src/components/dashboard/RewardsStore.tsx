@@ -110,40 +110,40 @@ export const RewardsStore = ({
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="bg-white/95 border border-[#ecdccb] p-5 sm:p-6 rounded-3xl h-full shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
+      className="bg-white/95 border border-[#ecdccb] p-6 sm:p-7 rounded-3xl h-full min-h-[300px] sm:min-h-[340px] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0">
-            <Gift size={16} />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#fff2ea] flex items-center justify-center text-[#e86034] shrink-0 shadow-2xs">
+            <Gift size={18} />
           </div>
-          <h2 className="text-sm sm:text-base font-bold text-stone-900">Rewards Store</h2>
+          <h2 className="text-base sm:text-lg font-bold text-stone-900">Rewards Store</h2>
         </div>
 
         <Link
           href="/student/rewards"
-          className="text-xs font-bold text-[#c4431d] hover:text-[#942008] transition-colors flex items-center gap-0.5 cursor-pointer shrink-0"
+          className="text-xs sm:text-sm font-bold text-[#c4431d] hover:text-[#942008] transition-colors flex items-center gap-1 cursor-pointer shrink-0"
         >
           <span>View All</span>
-          <ArrowRight size={13} />
+          <ArrowRight size={14} />
         </Link>
       </div>
 
-      {/* Carousel of Reward Items centered with balanced vertical proportions */}
-      <div className="flex-1 flex items-center justify-between gap-1.5 py-1">
+      {/* Carousel of Reward Items centered with taller thumbnails */}
+      <div className="flex-1 flex items-center justify-between gap-2 py-2">
         {/* Left Arrow Button */}
         <button
           type="button"
           onClick={handlePrev}
-          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border border-stone-200 hover:border-[#c4431d] text-stone-600 hover:text-[#c4431d] shadow-2xs flex items-center justify-center cursor-pointer transition-all shrink-0 z-10"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-stone-200 hover:border-[#c4431d] text-stone-600 hover:text-[#c4431d] shadow-2xs flex items-center justify-center cursor-pointer transition-all shrink-0 z-10"
           aria-label="Previous reward"
         >
-          <ChevronLeft size={13} />
+          <ChevronLeft size={16} />
         </button>
 
         {/* Cards Row (3 visible) */}
-        <div className="flex-1 grid grid-cols-3 gap-1.5 sm:gap-2">
+        <div className="flex-1 grid grid-cols-3 gap-2 sm:gap-3">
           {visibleRewards.map((reward, idx) => (
             <Link
               key={`${reward.id}-${idx}`}
@@ -151,7 +151,7 @@ export const RewardsStore = ({
               className="group flex flex-col items-center cursor-pointer"
               title={`${reward.title} (${reward.pointCost} XP)`}
             >
-              <div className="w-full h-20 sm:h-22 rounded-xl overflow-hidden bg-stone-100 border border-stone-200 relative group-hover:border-[#e86034] transition-all">
+              <div className="w-full h-28 sm:h-34 rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 relative group-hover:border-[#e86034] transition-all shadow-2xs">
                 <img
                   src={reward.imageUrl}
                   alt={reward.title}
@@ -159,11 +159,11 @@ export const RewardsStore = ({
                 />
               </div>
               {/* Reward title */}
-              <p className="text-xs font-bold text-stone-800 truncate w-full text-center mt-1 group-hover:text-[#c4431d] transition-colors">
+              <p className="text-xs sm:text-sm font-bold text-stone-800 truncate w-full text-center mt-2 group-hover:text-[#c4431d] transition-colors">
                 {reward.title}
               </p>
               {/* XP Pill Tag */}
-              <span className="mt-0.5 text-xs sm:text-xs font-extrabold px-1.5 py-0.5 rounded-md bg-[#fff2ea] text-[#c4431d] border border-[#fbdcd0] transition-colors whitespace-nowrap">
+              <span className="mt-1 text-xs font-black px-2.5 py-1 rounded-lg bg-[#fff2ea] text-[#c4431d] border border-[#fbdcd0] transition-colors whitespace-nowrap shadow-2xs">
                 {reward.pointCost} XP
               </span>
             </Link>
@@ -174,10 +174,10 @@ export const RewardsStore = ({
         <button
           type="button"
           onClick={handleNext}
-          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border border-stone-200 hover:border-[#c4431d] text-stone-600 hover:text-[#c4431d] shadow-2xs flex items-center justify-center cursor-pointer transition-all shrink-0 z-10"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-stone-200 hover:border-[#c4431d] text-stone-600 hover:text-[#c4431d] shadow-2xs flex items-center justify-center cursor-pointer transition-all shrink-0 z-10"
           aria-label="Next reward"
         >
-          <ChevronRight size={13} />
+          <ChevronRight size={16} />
         </button>
       </div>
     </motion.div>

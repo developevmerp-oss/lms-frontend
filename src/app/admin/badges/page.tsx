@@ -19,7 +19,8 @@ import {
   Send,
   X,
   Search,
-  ArrowDownRight
+  ArrowDownRight,
+  Loader2,
 } from "lucide-react";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -70,6 +71,8 @@ export default function AdminBadges() {
   // Create / Edit Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBadge, setEditingBadge] = useState<Badge | null>(null);
+  const [isSavingBadge, setIsSavingBadge] = useState(false);
+  const [deletingBadgeId, setDeletingBadgeId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     icon: "🎨",
@@ -152,11 +155,12 @@ export default function AdminBadges() {
 
   const handleSaveBadge = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      showError("Badge name is required");
+    if (!formData.name.trim() || isSavingBadge) {
+      if (!formData.name.trim()) showError("Badge name is required");
       return;
     }
 
+    setIsSavingBadge(true);
     try {
       const payload = {
         name: formData.name.trim(),
@@ -191,11 +195,15 @@ export default function AdminBadges() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setIsSavingBadge(false);
     }
   };
 
   const handleDeleteBadge = async (id: string, name: string) => {
+    if (deletingBadgeId === id) return;
     if (!confirm(`Are you sure you want to delete badge "${name}"?`)) return;
+    setDeletingBadgeId(id);
     try {
       const res = await fetch(`${API}/admin/badges/${id}`, {
         method: "DELETE",
@@ -209,6 +217,8 @@ export default function AdminBadges() {
       }
     } catch (err: any) {
       showError(err.message || "An error occurred");
+    } finally {
+      setDeletingBadgeId(null);
     }
   };
 
@@ -393,10 +403,11 @@ export default function AdminBadges() {
                       <button
                         type="button"
                         onClick={() => handleDeleteBadge(badge.id, badge.name)}
-                        className="hover:text-red-500 transition-colors cursor-pointer p-0.5"
+                        disabled={deletingBadgeId === badge.id}
+                        className="hover:text-red-500 transition-colors cursor-pointer p-0.5 disabled:opacity-50"
                         title="Delete Badge"
                       >
-                        <Trash2 size={13} />
+                        {deletingBadgeId === badge.id ? <Loader2 size={13} className="animate-spin text-rose-500" /> : <Trash2 size={13} />}
                       </button>
                     </div>
                   </div>
@@ -512,9 +523,11 @@ export default function AdminBadges() {
                 <div className="flex items-center gap-3 pt-4 border-t border-stone-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer"
+                    disabled={isSavingBadge}
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    {editingBadge ? "Update Badge" : "Create Badge"}
+                    {isSavingBadge && <Loader2 size={16} className="animate-spin" />}
+                    <span>{isSavingBadge ? "Saving..." : editingBadge ? "Update Badge" : "Create Badge"}</span>
                   </button>
                   <button
                     type="button"
@@ -574,9 +587,10 @@ export default function AdminBadges() {
                   <button
                     onClick={handleAwardBadge}
                     disabled={isAwarding}
-                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-sm h-11 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Send size={15} /> {isAwarding ? "Awarding..." : "Confirm & Award"}
+                    {isAwarding ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                    <span>{isAwarding ? "Awarding..." : "Confirm & Award"}</span>
                   </button>
                   <button
                     onClick={() => setAwardModal({ isOpen: false, badge: null })}

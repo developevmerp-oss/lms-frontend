@@ -18,6 +18,7 @@ import {
   Upload,
   Image as ImageIcon,
   LogOut,
+  Loader2,
 } from "lucide-react";
 
 interface ProfileUpdateModalProps {
@@ -380,6 +381,7 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: Pro
                                         disabled={isSaving}
                                         className="px-5 sm:px-6 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-[#c4431d]/20 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                                       >
+                                        {isSaving && <Loader2 size={13} className="animate-spin" />}
                                         {isSaving ? "Saving..." : "Save Changes"}
                                       </button>
                                     </div>

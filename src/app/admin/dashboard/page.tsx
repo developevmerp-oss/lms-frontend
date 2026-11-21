@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus, IndianRupee, Layers, ArrowRight, Search, ArrowUpDown, User, Eye, MoreHorizontal, X } from "lucide-react";
+import { Users, BookOpen, Bell, Trophy, TrendingUp, Heart, Send, Trash2, Plus, IndianRupee, Layers, ArrowRight, Search, ArrowUpDown, User, Eye, MoreHorizontal, X, Loader2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { StatCardSkeleton, AdminTableSkeleton, CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 
@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const [sending, setSending] = useState(false);
   const [postingWin, setPostingWin] = useState(false);
   const [uploadingWinFile, setUploadingWinFile] = useState(false);
+  const [deletingWinId, setDeletingWinId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'notifications' | 'wins'>('overview');
   const [notifSearch, setNotifSearch] = useState("");
   const [notifSort, setNotifSort] = useState<{ field: 'title' | 'recipient' | 'status' | 'createdAt' | null; asc: boolean }>({ field: null, asc: true });
@@ -198,8 +199,14 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteWin = async (winId: string) => {
-    await fetch(`${API}/admin/community-wins/${winId}`, { method: 'DELETE', headers });
-    setWins(prev => prev.filter(w => w.id !== winId));
+    setDeletingWinId(winId);
+    try {
+      await fetch(`${API}/admin/community-wins/${winId}`, { method: 'DELETE', headers });
+      setWins(prev => prev.filter(w => w.id !== winId));
+    } catch (_) {
+    } finally {
+      setDeletingWinId(null);
+    }
   };
 
   const statCards = [
@@ -209,23 +216,112 @@ export default function AdminDashboard() {
     { label: 'Notifications Sent', value: notifications.length, icon: <Bell className="text-[#c4431d]" size={22} />, color: 'text-[#c4431d]', bg: 'bg-[#fff5ee]', border: 'border-[#f5ded0]' },
   ];
 
-  const tierChartData = revenueData.tiers.map((t) => ({
-    code: t.code,
-    name: t.name,
-    revenue: Number(t.estimatedRevenue) || 0,
-    students: Number(t.enrolledCount) || 0,
-    price: t.price,
-  }));
+  const maxRevenue = React.useMemo(() => {
+    return Math.max(...(revenueData.tiers || []).map((t: any) => Number(t.estimatedRevenue) || 0), 0);
+  }, [revenueData.tiers]);
+
+  // Dynamic linear Y-axis ceiling and ticks calculation with 25% headroom so data peak never touches the top ceiling
+  const { yDomain, yTicks } = React.useMemo(() => {
+    if (maxRevenue <= 0) {
+      return {
+        yDomain: [0, 10000] as [number, number],
+        yTicks: [0, 2500, 5000, 7500, 10000],
+      };
+    }
+    const target = maxRevenue * 1.25; // 25% headroom so highest point never hits the top ceiling
+    const mag = Math.pow(10, Math.floor(Math.log10(target)));
+    const f = target / mag;
+    let niceMax: number;
+    let step: number;
+    if (f <= 1) { niceMax = 1 * mag; step = niceMax / 4; }
+    else if (f <= 2) { niceMax = 2 * mag; step = niceMax / 4; }
+    else if (f <= 2.5) { niceMax = 2.5 * mag; step = niceMax / 5; }
+    else if (f <= 4) { niceMax = 4 * mag; step = niceMax / 4; }
+    else if (f <= 5) { niceMax = 5 * mag; step = niceMax / 5; }
+    else if (f <= 8) { niceMax = 8 * mag; step = niceMax / 4; }
+    else { niceMax = 10 * mag; step = niceMax / 5; }
+
+    const ticks: number[] = [];
+    for (let v = 0; v <= niceMax; v += step) {
+      ticks.push(Math.round(v));
+    }
+    return {
+      yDomain: [0, niceMax] as [number, number],
+      yTicks: ticks,
+    };
+  }, [maxRevenue]);
+
+  const tierChartData = React.useMemo(() => {
+    const visualBase = (yDomain[1] || 10000) * 0.055; // Gentle 5.5% visual lift for non-zero revenue so smaller earnings clearly stand out above 0
+    return (revenueData.tiers || []).map((t) => {
+      const rev = Number(t.estimatedRevenue) || 0;
+      return {
+        code: t.code,
+        name: t.name,
+        revenue: rev,
+        displayRevenue: rev > 0 ? Math.max(rev, visualBase) : 0,
+        students: Number(t.enrolledCount) || 0,
+        price: t.price ? (String(t.price).trim().startsWith('₹') ? String(t.price).trim() : `₹${String(t.price).trim()}`) : '₹0',
+      };
+    });
+  }, [revenueData.tiers, yDomain]);
 
   const formatRupeeAxis = (value: number) => {
+    if (value >= 10000000) {
+      const cr = value / 10000000;
+      return `₹${Number.isInteger(cr) ? cr : cr.toFixed(1)}Cr`;
+    }
     if (value >= 100000) {
       const lakhs = value / 100000;
       return `₹${Number.isInteger(lakhs) ? lakhs : lakhs.toFixed(1)}L`;
     }
     if (value >= 1000) {
-      return `₹${Math.round(value / 1000)}k`;
+      const k = value / 1000;
+      return `₹${Number.isInteger(k) ? k : k.toFixed(1)}k`;
     }
     return `₹${value}`;
+  };
+
+  const renderRevenueDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    if (!cx || !cy || !payload) return null;
+    const isZero = (payload.revenue || 0) <= 0;
+    if (isZero) {
+      return <circle cx={cx} cy={cy} r={3.5} fill="#ea580c" stroke="#ffffff" strokeWidth={1.5} />;
+    }
+
+    const labelText = payload.revenue >= 10000
+      ? `₹${Math.round(payload.revenue / 1000)}k`
+      : `₹${payload.revenue.toLocaleString('en-IN')}`;
+
+    return (
+      <g key={`dot-${payload.code}`}>
+        <circle cx={cx} cy={cy} r={5.5} fill="#c4431d" stroke="#ffffff" strokeWidth={2} />
+        <g transform={`translate(${cx}, ${cy - 12})`}>
+          <rect
+            x={-24}
+            y={-18}
+            width={48}
+            height={18}
+            rx={9}
+            fill="#942008"
+            stroke="#ffffff"
+            strokeWidth={1.5}
+          />
+          <text
+            x={0}
+            y={-6}
+            textAnchor="middle"
+            fill="#ffffff"
+            fontSize={10}
+            fontWeight={800}
+            fontFamily="monospace"
+          >
+            {labelText}
+          </text>
+        </g>
+      </g>
+    );
   };
 
   const toggleNotifSort = (field: 'title' | 'recipient' | 'status' | 'createdAt') => {
@@ -279,7 +375,7 @@ export default function AdminDashboard() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 max-w-[1920px] mx-auto">
         {/*
         <header className="flex flex-wrap justify-between items-start gap-4 mb-6">
           <div>
@@ -348,192 +444,205 @@ export default function AdminDashboard() {
               </div>
 
               {/* Middle Bento Row: Revenue Chart + Level-Wise Breakdown */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
                 {/* Left Card: Revenue Overview + Area Chart */}
-                <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shrink-0">
-                        <IndianRupee size={19} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h2 className="text-lg font-black text-stone-900">
-                            Course &amp; Level-Wise Revenue Breakdown
-                          </h2>
-                          <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
-                            Real-time
-                          </span>
+                <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
+                      <div className="flex items-start gap-2.5 sm:gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shrink-0">
+                          <IndianRupee size={19} />
                         </div>
-                        <p className="text-xs text-stone-500 font-medium mt-0.5">
-                          Track earnings, active subscribers, and tier market share.
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h2 className="text-base sm:text-lg font-black text-stone-900">
+                              Course &amp; Level-Wise Revenue Breakdown
+                            </h2>
+                            <span className="text-[11px] sm:text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
+                              Real-time
+                            </span>
+                          </div>
+                          <p className="text-xs text-stone-500 font-medium mt-0.5">
+                            Track earnings, active subscribers, and tier market share.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="sm:text-right shrink-0">
+                        <span className="text-xs font-semibold text-stone-500 block">Total Platform Value:</span>
+                        <p className="text-xl sm:text-2xl font-black text-emerald-600 font-mono leading-tight">
+                          ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
                         </p>
                       </div>
                     </div>
 
-                    <div className="sm:text-right shrink-0">
-                      <span className="text-xs font-semibold text-stone-500 block">Total Platform Value:</span>
-                      <p className="text-2xl font-black text-emerald-600 font-mono leading-tight">
-                        ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
-                      </p>
-                    </div>
+                    {tierChartData.length === 0 ? (
+                      <div className="h-[250px] sm:h-[280px] flex items-center justify-center text-stone-400 text-sm font-medium bg-[#fcfaf7] rounded-2xl border border-stone-100">
+                        No revenue data available yet
+                      </div>
+                    ) : (
+                      <div className="h-[250px] sm:h-[280px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={tierChartData} margin={{ top: 22, right: 14, left: -10, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="adminTierRevenueGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#c4431d" stopOpacity={0.32} />
+                                <stop offset="95%" stopColor="#ea580c" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0e6db" />
+                            <XAxis
+                              dataKey="code"
+                              stroke="#78716c"
+                              fontSize={12}
+                              fontWeight={700}
+                              tickLine={false}
+                              axisLine={false}
+                              dy={8}
+                            />
+                            <YAxis
+                              domain={yDomain}
+                              ticks={yTicks}
+                              stroke="#a8a29e"
+                              fontSize={11}
+                              tickLine={false}
+                              axisLine={false}
+                              width={46}
+                              tickFormatter={formatRupeeAxis}
+                            />
+                            <Tooltip
+                              content={({ active, payload }) => {
+                                if (!active || !payload || !payload.length) return null;
+                                const item = payload[0].payload;
+                                return (
+                                  <div className="bg-white/95 backdrop-blur-sm border border-[#ecdccb] rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs min-w-[210px]">
+                                    <div className="flex items-center justify-between gap-2 border-b border-stone-100 pb-1.5 mb-1.5">
+                                      <span className="font-black text-stone-900 text-sm">{item.code}</span>
+                                      <span className="text-[11px] font-semibold text-amber-800 font-mono">
+                                        Price: {item.price}
+                                      </span>
+                                    </div>
+                                    <p className="font-bold text-stone-800 line-clamp-1 mb-2">{item.name}</p>
+                                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-stone-100/80">
+                                      <div>
+                                        <span className="text-[10px] uppercase font-bold text-stone-400 block">Revenue</span>
+                                        <span className="font-mono font-black text-sm text-[#c4431d]">
+                                          ₹{Number(item.revenue).toLocaleString("en-IN")}
+                                        </span>
+                                      </div>
+                                      <div className="text-right">
+                                        <span className="text-[10px] uppercase font-bold text-stone-400 block">Students</span>
+                                        <span className="font-black text-sm text-stone-800">
+                                          {item.students} {item.students === 1 ? 'Student' : 'Students'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="displayRevenue"
+                              stroke="#c4431d"
+                              strokeWidth={2.5}
+                              fillOpacity={1}
+                              fill="url(#adminTierRevenueGrad)"
+                              dot={renderRevenueDot}
+                              activeDot={{ r: 6.5, fill: "#942008", stroke: "#ffffff", strokeWidth: 2 }}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
                   </div>
-
-                  {tierChartData.length === 0 ? (
-                    <div className="h-[235px] flex items-center justify-center text-stone-400 text-sm font-medium bg-[#fcfaf7] rounded-2xl border border-stone-100">
-                      No revenue data available yet
-                    </div>
-                  ) : (
-                    <div className="h-[235px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={tierChartData} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="adminTierRevenueGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#c4431d" stopOpacity={0.28} />
-                              <stop offset="95%" stopColor="#ea580c" stopOpacity={0.01} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0e6db" />
-                          <XAxis
-                            dataKey="code"
-                            stroke="#78716c"
-                            fontSize={12}
-                            fontWeight={700}
-                            tickLine={false}
-                            axisLine={false}
-                            dy={8}
-                          />
-                          <YAxis
-                            stroke="#a8a29e"
-                            fontSize={11}
-                            tickLine={false}
-                            axisLine={false}
-                            width={54}
-                            tickFormatter={formatRupeeAxis}
-                          />
-                          <Tooltip
-                            content={({ active, payload }) => {
-                              if (!active || !payload || !payload.length) return null;
-                              const item = payload[0].payload;
-                              return (
-                                <div className="bg-white/95 border border-[#ecdccb] rounded-2xl px-3.5 py-2.5 shadow-lg text-xs">
-                                  <p className="font-black text-stone-900">{item.code} · {item.name}</p>
-                                  <p className="font-mono font-bold text-[#c4431d] mt-1">
-                                    ₹{Number(item.revenue).toLocaleString("en-IN")}
-                                  </p>
-                                  <p className="text-stone-500 font-medium mt-0.5">{item.students} Students</p>
-                                </div>
-                              );
-                            }}
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="revenue"
-                            stroke="#c4431d"
-                            strokeWidth={2.5}
-                            fillOpacity={1}
-                            fill="url(#adminTierRevenueGrad)"
-                            dot={{ r: 4, fill: "#ea580c", stroke: "#ffffff", strokeWidth: 2 }}
-                            activeDot={{ r: 6, fill: "#942008", stroke: "#ffffff", strokeWidth: 2 }}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  )}
                 </div>
 
                 {/* Right Card: Tier-Wise Breakdown Rows */}
-                <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
-                  <div className="flex items-start justify-between gap-3 mb-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
-                        <Layers size={19} />
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-black text-stone-900">
-                          Tier Market Share
-                        </h2>
-                        <p className="text-xs text-stone-500 font-medium">
-                          Track earnings, active subscribers, and tier market share.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-full shrink-0">
-                      {revenueData.totalStudents} Students
-                    </span>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {revenueData.tiers.map((t) => {
-                      const sharePct = revenueData.totalRevenue > 0 ? Math.round((t.estimatedRevenue / revenueData.totalRevenue) * 100) : 0;
-                      const isLeading = sharePct >= 50 && t.estimatedRevenue > 0;
-
-                      return (
-                        <div
-                          key={t.id}
-                          className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 bg-[#fcfaf7] border border-[#ecdccb]/80 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/40 rounded-2xl px-4 py-3 transition-all"
-                        >
-                          {/* Tier Badge + Name */}
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <span
-                              className={`w-10 h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 ${
-                                isLeading
-                                  ? 'bg-gradient-to-br from-[#942008] to-[#c4431d] text-white shadow-xs'
-                                  : 'bg-[#fde5d6] text-[#942008] border border-[#f5ded0]'
-                              }`}
-                            >
-                              {t.code}
-                            </span>
-                            <div className="min-w-0">
-                              <p className="text-xs sm:text-sm font-black text-stone-900 truncate flex items-center gap-1.5">
-                                <span>{t.icon}</span>
-                                <span className="truncate">{t.name}</span>
-                              </p>
-                              <p className="text-xs font-mono font-semibold text-amber-700">{t.price}</p>
-                            </div>
-                          </div>
-
-                          {/* Revenue & Students */}
-                          <div className="flex items-center gap-5 shrink-0">
-                            <div className="min-w-[78px]">
-                              <p className="text-xs sm:text-sm font-black text-emerald-700 font-mono">
-                                ₹{t.estimatedRevenue.toLocaleString("en-IN")}
-                              </p>
-                              <p className="text-xs text-stone-400 font-semibold">Revenue</p>
-                            </div>
-                            <div className="min-w-[50px]">
-                              <p className="text-xs sm:text-sm font-black text-stone-800">{t.enrolledCount}</p>
-                              <p className="text-xs text-stone-400 font-semibold">Students</p>
-                            </div>
-                          </div>
-
-                          {/* Share Progress Bar */}
-                          <div className="flex items-center gap-2.5 w-full sm:w-32 shrink-0">
-                            <div className="flex-1 bg-stone-200/80 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] h-2 rounded-full transition-all"
-                                style={{ width: `${sharePct > 0 ? Math.max(5, sharePct) : 0}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-black text-stone-700 w-9 text-right">{sharePct}%</span>
-                          </div>
+                <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-5">
+                      <div className="flex items-center gap-2.5 sm:gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] flex items-center justify-center text-[#c4431d] shrink-0">
+                          <Layers size={19} />
                         </div>
-                      );
-                    })}
-                    {revenueData.tiers.length === 0 && (
-                      <p className="text-stone-400 text-center py-8 text-sm font-medium">No tiers configured yet</p>
-                    )}
+                        <div>
+                          <h2 className="text-base sm:text-lg font-black text-stone-900">
+                            Tier Market Share
+                          </h2>
+                          <p className="text-xs text-stone-500 font-medium">
+                            Track earnings, active subscribers, and tier market share.
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-full shrink-0">
+                        {revenueData.totalStudents} Students
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {revenueData.tiers.map((t) => {
+                        const hasRevenue = Number(t.estimatedRevenue || 0) > 0;
+                        const formattedPrice = t.price
+                          ? (String(t.price).trim().startsWith('₹') ? String(t.price).trim() : `₹${String(t.price).trim()}`)
+                          : '₹0';
+
+                        return (
+                          <div
+                            key={t.id}
+                            className="flex items-center justify-between gap-2.5 sm:gap-4 bg-[#fcfaf7] border border-[#ecdccb]/80 hover:border-[#c4431d]/40 hover:bg-[#fff5ee]/40 rounded-2xl px-3.5 sm:px-4 py-3 transition-all"
+                          >
+                            {/* Tier Badge + Name & Price */}
+                            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                              <span
+                                className={`w-9 sm:w-10 h-8 sm:h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 ${
+                                  hasRevenue
+                                    ? 'bg-gradient-to-br from-[#942008] to-[#c4431d] text-white shadow-xs'
+                                    : 'bg-[#fde5d6] text-[#942008] border border-[#f5ded0]'
+                                }`}
+                              >
+                                {t.code}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="text-xs sm:text-sm font-black text-stone-900 truncate flex items-center gap-1.5">
+                                  <span>{t.icon}</span>
+                                  <span className="truncate">{t.name}</span>
+                                </p>
+                                <p className="text-xs font-mono font-semibold text-amber-700">{formattedPrice}</p>
+                              </div>
+                            </div>
+
+                            {/* Revenue & Students */}
+                            <div className="flex items-center gap-3 sm:gap-6 shrink-0 text-right sm:text-left">
+                              <div className="min-w-[68px] sm:min-w-[84px]">
+                                <p className="text-xs sm:text-sm font-black text-emerald-700 font-mono">
+                                  ₹{Number(t.estimatedRevenue || 0).toLocaleString("en-IN")}
+                                </p>
+                                <p className="text-[10px] sm:text-xs text-stone-400 font-semibold uppercase tracking-wider">Revenue</p>
+                              </div>
+                              <div className="min-w-[48px] sm:min-w-[56px]">
+                                <p className="text-xs sm:text-sm font-black text-stone-800">{t.enrolledCount || 0}</p>
+                                <p className="text-[10px] sm:text-xs text-stone-400 font-semibold uppercase tracking-wider">Students</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {revenueData.tiers.length === 0 && (
+                        <p className="text-stone-400 text-center py-8 text-sm font-medium">No tiers configured yet</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Bento Row: All Students Table + Sent Notifications Feed */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
                 {/* All Students Table */}
-                <div className="lg:col-span-8 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+                <div className="lg:col-span-8 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <h2 className="text-lg sm:text-xl font-black text-stone-900 flex items-center gap-2">
-                      <Users size={20} className="text-[#c4431d]" /> All Students
+                    <h2 className="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
+                      <Users size={19} className="text-[#c4431d]" /> All Students
                     </h2>
                     <Link
                       href="/admin/students"
@@ -544,7 +653,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="overflow-x-auto max-h-[420px] overflow-y-auto custom-scrollbar">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-sm min-w-[620px]">
                       <thead className="sticky top-0 bg-white/95 z-10">
                         <tr className="border-b border-[#ecdccb]/80 text-stone-500">
                           <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Student</th>
@@ -594,10 +703,10 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Sent Notifications Card */}
-                <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col">
+                <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col">
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <h2 className="text-lg sm:text-xl font-black text-stone-900 flex items-center gap-2">
-                      <Bell size={20} className="text-[#c4431d]" /> Sent Notifications
+                    <h2 className="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
+                      <Bell size={19} className="text-[#c4431d]" /> Sent Notifications
                     </h2>
                     <button
                       type="button"
@@ -649,11 +758,11 @@ export default function AdminDashboard() {
 
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
             {/* Send notification form */}
-            <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
-              <h2 className="text-xl font-black text-stone-900 mb-6 flex items-center gap-2">
-                <Send size={20} className="text-[#c4431d]" /> Send Notification
+            <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h2 className="text-lg sm:text-xl font-black text-stone-900 mb-5 sm:mb-6 flex items-center gap-2">
+                <Send size={19} className="text-[#c4431d]" /> Send Notification
               </h2>
 
               <div className="space-y-4">
@@ -699,7 +808,7 @@ export default function AdminDashboard() {
                   disabled={sending || !selectedStudent || !notifTitle || !notifMessage}
                   className="w-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Send size={16} />{' '}
+                  {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                   {sending
                     ? 'Sending...'
                     : selectedStudent === 'all'
@@ -716,7 +825,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Notification history table (matching reference design) */}
-            <div className="lg:col-span-8 bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+            <div className="lg:col-span-8 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
               {/* Top Header + Search */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                 <div className="flex items-start gap-3">
@@ -945,11 +1054,11 @@ export default function AdminDashboard() {
 
         {/* Win Wall Tab */}
         {activeTab === 'wins' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
             {/* Post a Win form */}
-            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
-              <h2 className="text-xl font-black text-stone-900 mb-6 flex items-center gap-2">
-                <Plus size={20} className="text-[#c4431d]" /> Post a Community Win
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h2 className="text-lg sm:text-xl font-black text-stone-900 mb-5 sm:mb-6 flex items-center gap-2">
+                <Plus size={19} className="text-[#c4431d]" /> Post a Community Win
               </h2>
 
               <div className="space-y-4">
@@ -1045,12 +1154,17 @@ export default function AdminDashboard() {
                           );
                         }
 
-                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
+                        const isVideo =
+                          mediaUrl.startsWith('data:video') ||
+                          /\.(mp4|webm|mov|m4v|avi|mkv)(\?.*)?$/i.test(mediaUrl) ||
+                          mediaUrl.includes('/video/upload/') ||
+                          mediaUrl.includes('/uploads/videos/') ||
+                          mediaUrl.includes('/videos/');
                         if (isVideo) {
                           return <video src={getMediaUrl(mediaUrl)} controls className="max-h-36 rounded-lg w-full object-contain mt-2 bg-black" />;
                         }
 
-                        const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl);
+                        const isDoc = !isVideo && (mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl));
                         if (isDoc) {
                           return (
                             <div className="p-3 text-xs font-bold text-[#942008] flex items-center gap-2 mt-2 bg-[#fde5d6]/50 border border-[#f5ded0] rounded-xl">
@@ -1060,7 +1174,7 @@ export default function AdminDashboard() {
                         }
 
                         const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
-                        const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+                        const isDirectImage = !isVideo && !isDoc && (mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || (mediaUrl.includes('cloudinary') && !mediaUrl.includes('/video/')));
 
                         if (isWebUrl && !isDirectImage) {
                           return (
@@ -1081,15 +1195,20 @@ export default function AdminDashboard() {
                   disabled={postingWin || uploadingWinFile || !winAchievement}
                   className="w-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Heart size={16} /> {uploadingWinFile ? 'Uploading file...' : postingWin ? 'Posting...' : 'Post Win to Wall'}
+                  {postingWin || uploadingWinFile ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Heart size={16} />
+                  )}
+                  {uploadingWinFile ? 'Uploading file...' : postingWin ? 'Posting...' : 'Post Win to Wall'}
                 </button>
               </div>
             </div>
 
             {/* Win history */}
-            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
-              <h2 className="text-xl font-black text-stone-900 mb-6 flex items-center gap-2">
-                <Trophy size={20} className="text-[#c4431d]" /> Community Win Wall
+            <div className="bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)]">
+              <h2 className="text-lg sm:text-xl font-black text-stone-900 mb-5 sm:mb-6 flex items-center gap-2">
+                <Trophy size={19} className="text-[#c4431d]" /> Community Win Wall
               </h2>
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                 {wins.length === 0 && <p className="text-stone-400 text-center py-8 font-medium">No wins posted yet</p>}
@@ -1111,9 +1230,14 @@ export default function AdminDashboard() {
                         </div>
                         <button
                           onClick={() => handleDeleteWin(w.id)}
-                          className="text-stone-400 hover:text-red-500 transition-colors p-1 ml-2 shrink-0 cursor-pointer"
+                          disabled={deletingWinId === w.id}
+                          className="text-stone-400 hover:text-red-500 transition-colors p-1 ml-2 shrink-0 cursor-pointer disabled:opacity-50"
                         >
-                          <Trash2 size={14} />
+                          {deletingWinId === w.id ? (
+                            <Loader2 size={14} className="animate-spin text-red-500" />
+                          ) : (
+                            <Trash2 size={14} />
+                          )}
                         </button>
                       </div>
 
@@ -1144,7 +1268,12 @@ export default function AdminDashboard() {
                           );
                         }
 
-                        const isVideo = mediaUrl.startsWith('data:video') || /\.(mp4|webm|mov|m4v|avi)$/i.test(mediaUrl) || mediaUrl.includes('/uploads/videos/');
+                        const isVideo =
+                          mediaUrl.startsWith('data:video') ||
+                          /\.(mp4|webm|mov|m4v|avi|mkv)(\?.*)?$/i.test(mediaUrl) ||
+                          mediaUrl.includes('/video/upload/') ||
+                          mediaUrl.includes('/uploads/videos/') ||
+                          mediaUrl.includes('/videos/');
                         if (isVideo) {
                           return (
                             <div className="mt-2 rounded-2xl overflow-hidden border border-stone-200 bg-black shadow-md">
@@ -1153,7 +1282,7 @@ export default function AdminDashboard() {
                           );
                         }
 
-                        const isDoc = mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl);
+                        const isDoc = !isVideo && (mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx|zip|rar)$/i.test(mediaUrl));
                         if (isDoc) {
                           return (
                             <div className="mt-2 p-3 rounded-2xl bg-white border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
@@ -1180,7 +1309,7 @@ export default function AdminDashboard() {
                         }
 
                         const isWebUrl = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://');
-                        const isDirectImage = mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || mediaUrl.includes('cloudinary');
+                        const isDirectImage = !isVideo && !isDoc && (mediaUrl.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|svg)$/i.test(mediaUrl) || mediaUrl.includes('unsplash.com') || (mediaUrl.includes('cloudinary') && !mediaUrl.includes('/video/')));
 
                         if (isWebUrl && !isDirectImage) {
                           return (

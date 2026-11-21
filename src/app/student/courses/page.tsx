@@ -30,6 +30,7 @@ import {
   ClipboardList,
   Crown,
   ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -87,7 +88,7 @@ export function getCourseOffer(course: any, basePriceStr: string) {
 
 export const LEVEL_TIER_CONFIG: Record<string, { name: string; price: string; color: string; bg: string; border: string }> = {
   L0: { name: "Fast Track", price: "₹499", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-300" },
-  L1: { name: "Explore Membership", price: "₹14,999", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-300" },
+  L1: { name: "Explore Membership", price: "₹4,999", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-300" },
   L2: { name: "Master Membership", price: "₹19,999", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-300" },
   L3: { name: "Renaissance Certification", price: "₹59,999", color: "text-cyan-700", bg: "bg-cyan-50", border: "border-cyan-300" },
   "L3+": { name: "Masters Club", price: "Exclusive", color: "text-purple-700", bg: "bg-purple-50", border: "border-purple-300" },
@@ -819,8 +820,8 @@ export default function StudentCourses() {
                         key={lvl}
                         id={`level-card-${lvl}`}
                         className={`rounded-3xl bg-white flex flex-col justify-between border transition-all overflow-hidden shadow-sm hover:shadow-md scroll-mt-24 ${isCurrent
-                            ? "border-2 border-[#c4431d]"
-                            : "border-stone-200/90 hover:border-stone-300"
+                          ? "border-2 border-[#c4431d]"
+                          : "border-stone-200/90 hover:border-stone-300"
                           }`}
                       >
                         {/* Level Banner Image Thumbnail */}
@@ -873,11 +874,37 @@ export default function StudentCourses() {
                               </div>
                             </div>
 
-                            <h3 className="text-lg font-black text-stone-900 mt-2 mb-1">{levelDisplayName}</h3>
-                            <p className="text-xs text-stone-500 mb-4 leading-relaxed line-clamp-2 min-h-[34px]">
+                            {/* Dynamic Category & Validity Tag */}
+                            {(liveLevel?.category || (liveLevel?.validityDays !== undefined && liveLevel?.validityDays !== null)) && (
+                              <div className="flex items-center gap-1.5 text-[0.6875rem] font-bold text-stone-400 uppercase tracking-wider mb-1">
+                                {liveLevel?.category && <span>{liveLevel.category}</span>}
+                                {liveLevel?.category && (liveLevel?.validityDays !== undefined && liveLevel?.validityDays !== null) && <span>•</span>}
+                                {liveLevel?.validityDays !== undefined && liveLevel?.validityDays !== null && (
+                                  <span>
+                                    {liveLevel.validityDays === 0
+                                      ? "Lifetime Access"
+                                      : liveLevel.validityDays >= 365
+                                        ? `${Math.round(liveLevel.validityDays / 365)} Years Access`
+                                        : `${liveLevel.validityDays} Days Access`}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            <h3 className="text-lg font-black text-stone-900 mt-1 mb-1">{levelDisplayName}</h3>
+                            <p className="text-xs text-stone-500 mb-3 leading-relaxed line-clamp-2 min-h-[34px]">
                               {levelDisplayDesc}
                             </p>
 
+                            {/* Dynamic EMI Tag */}
+                            {liveLevel?.installmentsEnabled && (
+                              <div className="mb-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                                <span>💳</span>
+                                <span>EMI Available ({liveLevel.totalInstallments || 3} parts)</span>
+                              </div>
+                            )}
+
+                            {/* Dynamic Feature Highlights */}
                             <div className="space-y-2 mb-5 text-xs text-stone-700">
                               <div
                                 onClick={() => handleOpenLevelModal(lvl)}
@@ -885,18 +912,29 @@ export default function StudentCourses() {
                                 title="Click to view course modules"
                               >
                                 <CheckCircle2 size={14} className="text-[#c4431d] shrink-0" />
-                                <span className="group-hover/mod:text-[#c4431d] transition-colors">
+                                <span className="group-hover/mod:text-[#c4431d] transition-colors font-semibold">
                                   Includes {moduleCount} Masterclass Modules
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <CheckCircle2 size={14} className="text-[#c4431d] shrink-0" />
-                                <span>Full Community Access</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <CheckCircle2 size={14} className="text-[#c4431d] shrink-0" />
-                                <span>{lvl === "L3" ? "Exclusive Merch Store & Rewards Redemption" : "Q&A & Support Vault"}</span>
-                              </div>
+                              {(() => {
+                                const rawDesc = (liveLevel?.description || "").trim();
+                                const points = rawDesc
+                                  .split(/\r?\n|•|;/)
+                                  .map((p: string) => p.replace(/^[-*]\s*/, "").trim())
+                                  .filter((p: string) => p.length > 2);
+                                const parsedPoints = points.length > 1
+                                  ? points
+                                  : points.length === 1 && (rawDesc.includes(",") || rawDesc.includes(" and "))
+                                    ? rawDesc.replace(/\band\b/gi, ",").split(",").map((p: string) => p.trim()).filter((p: string) => p.length > 2)
+                                    : points;
+
+                                return parsedPoints.slice(0, 3).map((pt: string, pIdx: number) => (
+                                  <div key={pIdx} className="flex items-center gap-2">
+                                    <CheckCircle2 size={14} className="text-[#c4431d] shrink-0" />
+                                    <span className="line-clamp-1">{pt}</span>
+                                  </div>
+                                ));
+                              })()}
                             </div>
                           </div>
 
@@ -938,22 +976,28 @@ export default function StudentCourses() {
             {/* Unified Single Course & Tier Modal (Image 3 UI) */}
             {(expandedLevel || selectedCourse) && (() => {
               const currentLvl = (expandedLevel || selectedCourse?.levelCode || "L0").toUpperCase();
+              const isStandaloneCourse =
+                currentLvl === "STANDALONE" ||
+                !selectedCourse?.levelCode ||
+                selectedCourse?.levelCode?.toUpperCase() === "NONE" ||
+                selectedCourse?.levelCode?.toUpperCase() === "STANDALONE";
+
               const matchedTier = levelTiers.find((t: any) => (t.code || "").toUpperCase() === currentLvl);
               const cfg = LEVEL_TIER_CONFIG[currentLvl] || LEVEL_TIER_CONFIG["L0"];
               const tierPricing = getComputedTierPricing(currentLvl, levelTiers, campaignOffers);
-              const tierName = currentLvl === "STANDALONE"
-                ? "Standalone Masterclasses"
+              const tierName = isStandaloneCourse
+                ? "Standalone Masterclass"
                 : (matchedTier?.name || tierPricing.name || cfg?.name || `${currentLvl} Membership`);
 
-              let levelCourses = currentLvl === "STANDALONE"
-                ? courses.filter(c => !c.levelCode || c.levelCode.toUpperCase() === "NONE" || c.levelCode.toUpperCase() === "STANDALONE")
+              let levelCourses = isStandaloneCourse
+                ? (selectedCourse ? [selectedCourse] : courses.filter(c => !c.levelCode || c.levelCode.toUpperCase() === "NONE" || c.levelCode.toUpperCase() === "STANDALONE"))
                 : courses.filter(
-                    c =>
-                      c.levelCode &&
-                      c.levelCode.toUpperCase() !== "NONE" &&
-                      c.levelCode.toUpperCase() !== "STANDALONE" &&
-                      c.levelCode.toUpperCase() === currentLvl
-                  );
+                  c =>
+                    c.levelCode &&
+                    c.levelCode.toUpperCase() !== "NONE" &&
+                    c.levelCode.toUpperCase() !== "STANDALONE" &&
+                    c.levelCode.toUpperCase() === currentLvl
+                );
 
               levelCourses.sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
@@ -990,97 +1034,186 @@ export default function StudentCourses() {
                     {/* Modal Content Grid */}
                     <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-6 p-4 sm:p-6">
 
-                      {/* ── LEFT COLUMN: Course Navigation List ── */}
+                      {/* ── LEFT COLUMN: Course Navigation List (Tier Mode) or Chapter/Lesson List (Standalone Mode) ── */}
                       <div className={`lg:col-span-4 lg:border-r lg:border-stone-200/80 lg:pr-6 space-y-3 ${mobileCourseView === "detail" ? "hidden lg:block" : "block"
                         }`}>
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <h3 className="font-serif text-base sm:text-lg font-black text-stone-900">
-                            Courses in {tierName} ({levelCourses.length})
-                          </h3>
-                        </div>
-
-                        <div className="space-y-2.5 overflow-y-auto max-h-[70vh] pr-1">
-                          {levelCourses.length === 0 ? (
-                            <div className="p-8 text-center bg-stone-50/70 rounded-2xl border border-dashed border-stone-200">
-                              <BookOpen className="w-8 h-8 mx-auto text-stone-300 mb-2" />
-                              <p className="text-xs font-bold text-stone-700">No Courses Added Yet</p>
-                              <p className="text-[0.6875rem] text-stone-400 mt-1">Courses for this level will appear once published by admin.</p>
+                        {isStandaloneCourse ? (
+                          <>
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                              <div>
+                                <h3 className="font-serif text-base sm:text-lg font-black text-stone-900">
+                                  Course Lessons ({activeCourse?.chapters?.length || 0})
+                                </h3>
+                                <p className="text-[0.6875rem] text-stone-500 line-clamp-1">
+                                  {cleanCourseTitle || activeCourse?.title}
+                                </p>
+                              </div>
                             </div>
-                          ) : (
-                            levelCourses.map((c: any, idx: number) => {
-                              const cUnlocked = isCourseUnlocked(c);
-                              const isSelected = activeCourse && (
-                                (activeCourse.id && c.id && String(activeCourse.id) === String(c.id)) ||
-                                activeCourse.title === c.title
-                              );
-                              const progress = getProgress(c);
-                              const cImg = c.image || c.flyerImage || matchedTier?.thumbnail || TIER_CARD_UI[c.levelCode || currentLvl]?.fallbackImage || "/images/journey/level-0.jpg";
 
-                              return (
-                                <div
-                                  key={c.id || idx}
-                                  onClick={() => {
-                                    handleOpenCourse(c);
-                                    setMobileCourseView("detail");
-                                  }}
-                                  className={`p-3 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all ${isSelected
-                                      ? "border-2 border-[#f0c2a4] bg-[#fff8f4] shadow-xs"
-                                      : "border border-stone-200/80 bg-white hover:bg-stone-50/80 hover:border-stone-300"
-                                    }`}
-                                >
-                                  {/* Course Thumbnail */}
-                                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-stone-100 shrink-0 border border-stone-200/70 shadow-xs">
-                                    <img
-                                      src={getImageUrl(cImg)}
-                                      alt={c.title}
-                                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
-                                  </div>
-
-                                  {/* Course Title & Action */}
-                                  <div className="min-w-0 flex-1">
-                                    <h4 className={`text-xs sm:text-sm font-bold leading-snug line-clamp-2 ${isSelected ? "text-stone-950 font-black" : "text-stone-800"
-                                      }`}>
-                                      {c.title.match(/^\d+/) ? c.title : `${idx + 1}. ${c.title}`}
-                                    </h4>
-
-                                    {cUnlocked ? (
-                                      <div className="mt-2 flex items-center">
-                                        <span
-                                          className={`inline-flex items-center gap-1.5 text-xs sm:text-xs font-bold px-2.5 py-1 rounded-xl transition-all ${isSelected
-                                              ? "bg-emerald-600 text-white shadow-xs"
-                                              : "bg-emerald-50 text-emerald-700 border border-emerald-200 group-hover:bg-emerald-100"
-                                            }`}
-                                        >
-                                          <PlayCircle size={13} className={isSelected ? "text-white" : "text-emerald-600"} />
-                                          <span>Open Course →</span>
-                                        </span>
-                                      </div>
-                                    ) : (
-                                      <div className="mt-2">
-                                        <span className="bg-[#fde5d6] text-[#942008] text-xs sm:text-xs font-bold px-2.5 py-1 rounded-xl inline-flex items-center gap-1 border border-[#f5ded0]">
-                                          <Lock size={11} /> Unlock at {c.levelCode && c.levelCode !== "NONE" ? c.levelCode : (currentLvl === "L0" ? "L1" : currentLvl)}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Status Icon */}
-                                  <div className="shrink-0 pl-1">
-                                    {cUnlocked ? (
-                                      <ChevronRight
-                                        size={16}
-                                        className={isSelected ? "text-[#c4431d]" : "text-stone-400"}
-                                      />
-                                    ) : (
-                                      <Lock size={15} className="text-stone-400" />
-                                    )}
-                                  </div>
+                            <div className="space-y-2.5 overflow-y-auto max-h-[70vh] pr-1">
+                              {(!activeCourse?.chapters || activeCourse.chapters.length === 0) ? (
+                                <div className="p-8 text-center bg-stone-50/70 rounded-2xl border border-dashed border-stone-200">
+                                  <PlayCircle className="w-8 h-8 mx-auto text-stone-300 mb-2" />
+                                  <p className="text-xs font-bold text-stone-700">No Video Lessons Yet</p>
+                                  <p className="text-[0.6875rem] text-stone-400 mt-1">Lessons for this standalone course will appear once published by admin.</p>
                                 </div>
-                              );
-                            })
-                          )}
-                        </div>
+                              ) : (
+                                activeCourse.chapters.map((chapter: any, idx: number) => {
+                                  const isSelected = activeVideoLesson?.title === chapter.title;
+                                  return (
+                                    <div
+                                      key={chapter.id || idx}
+                                      onClick={() => {
+                                        if (isUnlocked && chapter.videoUrl) {
+                                          setActiveVideoLesson({ title: chapter.title, videoUrl: chapter.videoUrl });
+                                        }
+                                        setCourseModalTab("lessons");
+                                        setMobileCourseView("detail");
+                                      }}
+                                      className={`p-3 rounded-2xl flex items-center justify-between gap-3 transition-all ${isUnlocked && chapter.videoUrl ? "cursor-pointer" : "cursor-default"
+                                        } ${isSelected
+                                          ? "border-2 border-[#f0c2a4] bg-[#fff8f4] shadow-xs"
+                                          : "border border-stone-200/80 bg-white hover:bg-stone-50/80 hover:border-stone-300"
+                                        }`}
+                                    >
+                                      {/* Number badge */}
+                                      <div className="w-8 h-8 rounded-full bg-[#fde5d6] text-[#942008] font-bold text-xs flex items-center justify-center shrink-0">
+                                        {idx + 1}
+                                      </div>
+
+                                      {/* Title & Info */}
+                                      <div className="min-w-0 flex-1">
+                                        <h4 className={`text-xs sm:text-sm font-bold leading-snug line-clamp-2 ${isSelected ? "text-stone-950 font-black" : "text-stone-800"
+                                          }`}>
+                                          {chapter.title?.match(/^Lesson/i) ? chapter.title : `Lesson ${idx + 1}: ${chapter.title || "Lesson"}`}
+                                        </h4>
+                                        <div className="flex items-center gap-2 mt-1">
+                                          <span className="text-teal-600 font-bold text-[0.6875rem] flex items-center gap-1">
+                                            <Video size={11} className="text-teal-600" /> HD Video
+                                          </span>
+                                          {chapter.duration && (
+                                            <span className="text-stone-400 text-[0.6875rem] font-mono">
+                                              • {chapter.duration}
+                                            </span>
+                                          )}
+                                          {chapter.pdfUrl && (
+                                            <span className="text-blue-600 font-semibold text-[0.6875rem] flex items-center gap-1">
+                                              • <FileText size={10} /> Notes
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Play / Lock icon */}
+                                      <div className="shrink-0 pl-1">
+                                        {isUnlocked ? (
+                                          chapter.videoUrl ? (
+                                            <PlayCircle size={18} className="text-[#c4431d]" />
+                                          ) : (
+                                            <span className="text-[0.6875rem] text-stone-400 font-medium">Coming Soon</span>
+                                          )
+                                        ) : (
+                                          <Lock size={15} className="text-stone-400" />
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                              <h3 className="font-serif text-base sm:text-lg font-black text-stone-900">
+                                Courses in {tierName} ({levelCourses.length})
+                              </h3>
+                            </div>
+
+                            <div className="space-y-2.5 overflow-y-auto max-h-[70vh] pr-1">
+                              {levelCourses.length === 0 ? (
+                                <div className="p-8 text-center bg-stone-50/70 rounded-2xl border border-dashed border-stone-200">
+                                  <BookOpen className="w-8 h-8 mx-auto text-stone-300 mb-2" />
+                                  <p className="text-xs font-bold text-stone-700">No Courses Added Yet</p>
+                                  <p className="text-[0.6875rem] text-stone-400 mt-1">Courses for this level will appear once published by admin.</p>
+                                </div>
+                              ) : (
+                                levelCourses.map((c: any, idx: number) => {
+                                  const cUnlocked = isCourseUnlocked(c);
+                                  const isSelected = activeCourse && (
+                                    (activeCourse.id && c.id && String(activeCourse.id) === String(c.id)) ||
+                                    activeCourse.title === c.title
+                                  );
+                                  const progress = getProgress(c);
+                                  const cImg = c.image || c.flyerImage || matchedTier?.thumbnail || TIER_CARD_UI[c.levelCode || currentLvl]?.fallbackImage || "/images/journey/level-0.jpg";
+
+                                  return (
+                                    <div
+                                      key={c.id || idx}
+                                      onClick={() => {
+                                        handleOpenCourse(c);
+                                        setMobileCourseView("detail");
+                                      }}
+                                      className={`p-3 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all ${isSelected
+                                        ? "border-2 border-[#f0c2a4] bg-[#fff8f4] shadow-xs"
+                                        : "border border-stone-200/80 bg-white hover:bg-stone-50/80 hover:border-stone-300"
+                                        }`}
+                                    >
+                                      {/* Course Thumbnail */}
+                                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-stone-100 shrink-0 border border-stone-200/70 shadow-xs">
+                                        <img
+                                          src={getImageUrl(cImg)}
+                                          alt={c.title}
+                                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                      </div>
+
+                                      {/* Course Title & Action */}
+                                      <div className="min-w-0 flex-1">
+                                        <h4 className={`text-xs sm:text-sm font-bold leading-snug line-clamp-2 ${isSelected ? "text-stone-950 font-black" : "text-stone-800"
+                                          }`}>
+                                          {c.title.match(/^\d+/) ? c.title : `${idx + 1}. ${c.title}`}
+                                        </h4>
+
+                                        {cUnlocked ? (
+                                          <div className="mt-2 flex items-center">
+                                            <span
+                                              className={`inline-flex items-center gap-1.5 text-xs sm:text-xs font-bold px-2.5 py-1 rounded-xl transition-all ${isSelected
+                                                ? "bg-emerald-600 text-white shadow-xs"
+                                                : "bg-emerald-50 text-emerald-700 border border-emerald-200 group-hover:bg-emerald-100"
+                                                }`}
+                                            >
+                                              <PlayCircle size={13} className={isSelected ? "text-white" : "text-emerald-600"} />
+                                              <span>Open Course →</span>
+                                            </span>
+                                          </div>
+                                        ) : (
+                                          <div className="mt-2">
+                                            <span className="bg-[#fde5d6] text-[#942008] text-xs sm:text-xs font-bold px-2.5 py-1 rounded-xl inline-flex items-center gap-1 border border-[#f5ded0]">
+                                              <Lock size={11} /> Unlock at {c.levelCode && c.levelCode !== "NONE" ? c.levelCode : (currentLvl === "L0" ? "L1" : currentLvl)}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Status Icon */}
+                                      <div className="shrink-0 pl-1">
+                                        {cUnlocked ? (
+                                          <ChevronRight
+                                            size={16}
+                                            className={isSelected ? "text-[#c4431d]" : "text-stone-400"}
+                                          />
+                                        ) : (
+                                          <Lock size={15} className="text-stone-400" />
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       {/* ── RIGHT COLUMN: Selected Course Details & Lessons ── */}
@@ -1091,7 +1224,7 @@ export default function StudentCourses() {
                           onClick={() => setMobileCourseView("list")}
                           className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-all mb-2 cursor-pointer"
                         >
-                          <ArrowLeft size={14} /> Back to Courses ({levelCourses.length})
+                          <ArrowLeft size={14} /> Back to {isStandaloneCourse ? `Lessons (${activeCourse?.chapters?.length || 0})` : `Courses (${levelCourses.length})`}
                         </button>
 
                         {activeCourse ? (
@@ -1099,7 +1232,7 @@ export default function StudentCourses() {
                             {/* Course Banner */}
                             <div className="relative w-full h-44 sm:h-52 rounded-2xl overflow-hidden border border-stone-200/80 bg-stone-900 shadow-sm shrink-0">
                               <img
-                                src={getImageUrl(activeCourse.image || activeCourse.flyerImage || matchedTier?.thumbnail || TIER_CARD_UI[activeCourse.levelCode || currentLvl]?.fallbackImage || "/images/journey/level-0.jpg")}
+                                src={getImageUrl(activeCourse.image || activeCourse.flyerImage || (!isStandaloneCourse ? (matchedTier?.thumbnail || TIER_CARD_UI[activeCourse.levelCode || currentLvl]?.fallbackImage) : null) || "/images/courses/powder-secrets-flyer.jpeg")}
                                 alt={activeCourse.title}
                                 className="w-full h-full object-cover"
                               />
@@ -1122,7 +1255,7 @@ export default function StudentCourses() {
                             {/* Course Title & Meta */}
                             <div>
                               <span className="px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-[#fde5d6] text-[#942008] border border-[#f5ded0] inline-block mb-1.5">
-                                {activeCourse.levelCode || currentLvl} • {tierName}
+                                {isStandaloneCourse ? "STANDALONE MASTERCLASS" : `${activeCourse.levelCode || currentLvl} • ${tierName}`}
                               </span>
                               <h2 className="text-xl sm:text-2xl font-black text-stone-900 leading-tight mb-1">
                                 {cleanCourseTitle || activeCourse.title}
@@ -1138,8 +1271,8 @@ export default function StudentCourses() {
                                 type="button"
                                 onClick={() => setCourseModalTab("lessons")}
                                 className={`pb-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer border-b-2 -mb-px shrink-0 ${courseModalTab === "lessons"
-                                    ? "text-[#942008] border-[#942008]"
-                                    : "text-stone-500 border-transparent hover:text-stone-800"
+                                  ? "text-[#942008] border-[#942008]"
+                                  : "text-stone-500 border-transparent hover:text-stone-800"
                                   }`}
                               >
                                 <PlayCircle size={15} />
@@ -1149,8 +1282,8 @@ export default function StudentCourses() {
                                 type="button"
                                 onClick={() => setCourseModalTab("assignments")}
                                 className={`pb-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer border-b-2 -mb-px shrink-0 ${courseModalTab === "assignments"
-                                    ? "text-[#942008] border-[#942008]"
-                                    : "text-stone-500 border-transparent hover:text-stone-800"
+                                  ? "text-[#942008] border-[#942008]"
+                                  : "text-stone-500 border-transparent hover:text-stone-800"
                                   }`}
                               >
                                 <ClipboardList size={15} />
@@ -1160,8 +1293,8 @@ export default function StudentCourses() {
                                 type="button"
                                 onClick={() => setCourseModalTab("about")}
                                 className={`pb-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer border-b-2 -mb-px shrink-0 ${courseModalTab === "about"
-                                    ? "text-[#942008] border-[#942008]"
-                                    : "text-stone-500 border-transparent hover:text-stone-800"
+                                  ? "text-[#942008] border-[#942008]"
+                                  : "text-stone-500 border-transparent hover:text-stone-800"
                                   }`}
                               >
                                 <Layers size={15} />
@@ -1522,10 +1655,10 @@ export default function StudentCourses() {
                         const vInfo = getCourseValidityInfo(course);
                         return (
                           <div className={`mb-4 px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border backdrop-blur-sm ${vInfo.isExpired
-                              ? 'bg-red-50 text-red-700 border-red-200'
-                              : vInfo.isEnrolled
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-purple-50 text-purple-700 border-purple-200'
+                            ? 'bg-red-50 text-red-700 border-red-200'
+                            : vInfo.isEnrolled
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-purple-50 text-purple-700 border-purple-200'
                             }`}>
                             <Clock size={12} className="shrink-0" />
                             <span>{course.validityMonths ? `${course.validityMonths} Months Validity (starts on registration/purchase)` : vInfo.text}</span>
@@ -1876,7 +2009,11 @@ export default function StudentCourses() {
                       disabled={isProcessingPayment}
                       className="w-full py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-stone-900 font-black text-sm rounded-2xl shadow-xl shadow-purple-900/40 hover:shadow-purple-900/60 transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
-                      <Sparkles size={16} className="text-amber-300" />
+                      {isProcessingPayment ? (
+                        <Loader2 size={16} className="animate-spin text-amber-300" />
+                      ) : (
+                        <Sparkles size={16} className="text-amber-300" />
+                      )}
                       <span>
                         {isProcessingPayment
                           ? "Connecting to Razorpay..."

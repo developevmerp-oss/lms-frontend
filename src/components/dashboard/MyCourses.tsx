@@ -119,7 +119,7 @@ export const MyCourses = ({
       'L0',
       'Fast Track: Resin FastStart Bundle',
       'Foundations, chemistry, and first creations',
-      '₹399',
+      '₹499',
       'bg-[#ffedd5] text-[#c2410c]',
       isTierEnrolled('L0', 0)
     ),

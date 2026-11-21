@@ -18,6 +18,9 @@ import {
   Video,
   ClipboardList,
   Award,
+  Palette,
+  LogOut,
+  User,
 } from 'lucide-react';
 import { ProfileUpdateModal } from '@/components/profile/ProfileUpdateModal';
 import { AccessLockModal } from '@/components/layout/AccessLockModal';
@@ -92,6 +95,8 @@ export const StudentNav = ({ user, level, points, logout, notifications = [], ti
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileNotifications, setShowMobileNotifications] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const [lockModal, setLockModal] = useState<{
     isOpen: boolean;
     featureName: string;
@@ -160,6 +165,15 @@ export const StudentNav = ({ user, level, points, logout, notifications = [], ti
       requiredLevel: 'General',
       requiredPoints: 0,
       description: 'Structured video masterclasses, assignments, and practical resin modules.',
+    },
+    {
+      name: 'My Portfolio',
+      path: '/student/portfolio',
+      icon: Palette,
+      isAccessible: true,
+      requiredLevel: 'General',
+      requiredPoints: 0,
+      description: 'Upload and showcase your finished resin artwork for mentor review and feedback.',
     },
     {
       name: 'Live Classes',
@@ -231,19 +245,26 @@ export const StudentNav = ({ user, level, points, logout, notifications = [], ti
   };
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifications(false);
       }
       if (mobileNotifRef.current && !mobileNotifRef.current.contains(e.target as Node)) {
         setShowMobileNotifications(false);
       }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
     };
-    if (showNotifications || showMobileNotifications) {
+    if (showNotifications || showMobileNotifications || showProfileMenu) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showNotifications, showMobileNotifications]);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showNotifications, showMobileNotifications, showProfileMenu]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -390,36 +411,88 @@ export const StudentNav = ({ user, level, points, logout, notifications = [], ti
             )}
           </div>
 
-          {/* User Profile Pill matching Reference Image 4 */}
-          <button
-            type="button"
-            onClick={() => setIsProfileModalOpen(true)}
-            className="flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl hover:bg-stone-50 transition-all cursor-pointer group text-left shrink-0"
-            title="Edit Profile"
+          {/* User Profile Pill with Hover & Click Dropdown */}
+          <div
+            ref={profileMenuRef}
+            className="relative shrink-0"
+            onMouseEnter={() => {
+              if (typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                setShowProfileMenu(true);
+              }
+            }}
+            onMouseLeave={() => {
+              if (typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                setShowProfileMenu(false);
+              }
+            }}
           >
-            {/* Avatar Circle */}
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#c4431d] text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 overflow-hidden shadow-xs ring-2 ring-[#c4431d]/20 group-hover:ring-[#c4431d]/40 transition-all">
-              {effectiveUser?.avatarUrl ? (
-                <img
-                  src={effectiveUser.avatarUrl}
-                  alt={studentName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span>{studentInitial}</span>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowProfileMenu((prev) => !prev);
+              }}
+              className="flex items-center gap-2.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl hover:bg-stone-50 transition-all cursor-pointer text-left shrink-0 group"
+              title="Profile & Settings"
+              aria-expanded={showProfileMenu}
+            >
+              {/* Avatar Circle */}
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#c4431d] text-white font-bold text-sm sm:text-base flex items-center justify-center shrink-0 overflow-hidden shadow-xs ring-2 ring-[#c4431d]/20 group-hover:ring-[#c4431d]/40 transition-all">
+                {effectiveUser?.avatarUrl ? (
+                  <img
+                    src={effectiveUser.avatarUrl}
+                    alt={studentName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{studentInitial}</span>
+                )}
+              </div>
 
-            {/* User Info (Name + Level Subtitle) */}
-            <div className="hidden sm:flex flex-col min-w-0 max-w-[160px] md:max-w-[200px]">
-              <span className="text-xs sm:text-sm font-bold text-stone-900 truncate leading-snug group-hover:text-[#c4431d] transition-colors">
-                {studentName}
-              </span>
-              <span className="text-[0.6875rem] sm:text-xs text-stone-500 font-medium truncate leading-tight mt-0.5">
-                {studentLevelCode !== 'GENERAL' ? `${studentLevelCode} Student` : 'Student'}
-              </span>
-            </div>
-          </button>
+              {/* User Info (Name + Level Subtitle) */}
+              <div className="hidden sm:flex flex-col min-w-0 max-w-[160px] md:max-w-[200px]">
+                <span className="text-xs sm:text-sm font-bold text-stone-900 truncate leading-snug group-hover:text-[#c4431d] transition-colors">
+                  {studentName}
+                </span>
+                <span className="text-[0.6875rem] sm:text-xs text-stone-500 font-medium truncate leading-tight mt-0.5">
+                  {studentLevelCode !== 'GENERAL' ? `${studentLevelCode} Student` : 'Student'}
+                </span>
+              </div>
+            </button>
+
+            {/* Floating Dropdown Menu matching Reference Image */}
+            {showProfileMenu && (
+              <div className="absolute right-0 top-full pt-1.5 z-50 min-w-[200px] animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="bg-white rounded-2xl border border-stone-200/90 shadow-2xl p-1.5 space-y-0.5">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProfileMenu(false);
+                      setIsProfileModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 hover:text-stone-950 hover:bg-stone-50 transition-colors text-left cursor-pointer group"
+                  >
+                    <User size={16} className="text-stone-400 group-hover:text-stone-700 transition-colors shrink-0" />
+                    <span>Edit Profile</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowProfileMenu(false);
+                      effectiveLogout();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors text-left cursor-pointer group"
+                  >
+                    <LogOut size={16} className="text-rose-500 group-hover:text-rose-700 group-hover:-translate-x-0.5 transition-transform shrink-0" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

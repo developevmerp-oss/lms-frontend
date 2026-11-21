@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
-import { Check, X, Star, ImageIcon, MessageSquare } from "lucide-react";
+import { Check, X, Star, ImageIcon, MessageSquare, Loader2 } from "lucide-react";
 
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -246,6 +246,7 @@ export default function AdminMentoring() {
                   disabled={isSubmitting}
                   className="w-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
+                  {isSubmitting && <Loader2 size={20} className="animate-spin" />}
                   {isSubmitting ? 'Submitting Review...' : 'Approve & Award XP'}
                   {!isSubmitting && <Check size={20} />}
                 </button>
