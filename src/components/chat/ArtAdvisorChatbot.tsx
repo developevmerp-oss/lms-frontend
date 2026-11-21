@@ -20,6 +20,7 @@ import {
   Minimize2
 } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
+import { matchAndAnswerAcademyQuery } from '@/lib/ai/knowledgeBase';
 
 interface Message {
   id: string;
@@ -139,7 +140,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
           }
         ]);
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   // Save chat history
@@ -147,7 +148,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
     if (messages.length > 1) {
       try {
         sessionStorage.setItem('rah_vraj_chat_v2', JSON.stringify(messages));
-      } catch (_) {}
+      } catch (_) { }
     }
   }, [messages]);
 
@@ -321,14 +322,27 @@ export const ArtAdvisorChatbot: React.FC = () => {
       }
     } catch (err) {
       console.error('Chat error:', err);
+      // Instant fail-safe: Answer accurately from local academy knowledge base and dynamic pricing
+      const fallbackText = matchAndAnswerAcademyQuery(
+        query,
+        dynamicLevels,
+        dynamicCourses,
+        dynamicWebinar
+      );
+
+      const fallbackMsgId = (Date.now() + 1).toString();
       setMessages(prev => [
         ...prev,
         {
-          id: Date.now().toString(),
+          id: fallbackMsgId,
           role: 'assistant',
-          content: 'I apologize, but I encountered a momentary connection issue. Please feel free to ask again or visit our [Live Masterclass](/webinar) page directly!'
+          content: fallbackText
         }
       ]);
+
+      if (isVoiceEnabled && fallbackText) {
+        speakMessage(fallbackMsgId, fallbackText);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -443,11 +457,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
               if (!nextState) stopSpeaking();
             }}
             title={isVoiceEnabled ? 'Auto-Voice Mode: ON (Click to mute)' : 'Auto-Voice Mode: OFF (Click to hear answers)'}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border cursor-pointer ${
-              isVoiceEnabled
-                ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-xs'
-                : 'bg-white/15 text-white border-white/25 hover:bg-white/25'
-            }`}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border cursor-pointer ${isVoiceEnabled
+              ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-xs'
+              : 'bg-white/15 text-white border-white/25 hover:bg-white/25'
+              }`}
           >
             {isVoiceEnabled ? <Volume2 size={13} className="text-stone-950 animate-pulse" /> : <VolumeX size={13} />}
             <span className="hidden xs:inline">{isVoiceEnabled ? 'Voice ON' : 'Voice'}</span>
@@ -517,11 +530,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
             )}
 
             <div
-              className={`relative ${inCenterModal ? 'max-w-[82%]' : 'max-w-[86%]'} rounded-2xl px-4 py-3 ${
-                msg.role === 'user'
-                  ? 'bg-[#231b15] text-[#fff6f0] border border-[#3e3128] rounded-tr-xs shadow-sm text-[13px] sm:text-[14px] leading-relaxed'
-                  : 'bg-white border border-[#eadfd4] text-stone-900 rounded-tl-xs shadow-[0_6px_20px_-10px_rgba(100,50,20,0.12)]'
-              }`}
+              className={`relative ${inCenterModal ? 'max-w-[82%]' : 'max-w-[86%]'} rounded-2xl px-4 py-3 ${msg.role === 'user'
+                ? 'bg-[#231b15] text-[#fff6f0] border border-[#3e3128] rounded-tr-xs shadow-sm text-[13px] sm:text-[14px] leading-relaxed'
+                : 'bg-white border border-[#eadfd4] text-stone-900 rounded-tl-xs shadow-[0_6px_20px_-10px_rgba(100,50,20,0.12)]'
+                }`}
             >
               {msg.role === 'user' ? (
                 <p className="text-[13px] sm:text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
@@ -534,11 +546,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
                     <button
                       onClick={() => speakMessage(msg.id, msg.content)}
                       title={currentlySpeakingId === msg.id ? 'Stop audio' : 'Listen to this response'}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
-                        currentlySpeakingId === msg.id
-                          ? 'bg-[#c45a28] text-white shadow-xs'
-                          : 'bg-[#f8ede4] hover:bg-[#c45a28] text-[#9e3f16] hover:text-white border border-[#f3d3c0]'
-                      }`}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${currentlySpeakingId === msg.id
+                        ? 'bg-[#c45a28] text-white shadow-xs'
+                        : 'bg-[#f8ede4] hover:bg-[#c45a28] text-[#9e3f16] hover:text-white border border-[#f3d3c0]'
+                        }`}
                     >
                       {currentlySpeakingId === msg.id ? (
                         <>
@@ -606,11 +617,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
           type="button"
           onClick={toggleVoiceInput}
           title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
-          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all cursor-pointer shrink-0 ${
-            isListening
-              ? 'bg-rose-500 text-white border-rose-600 animate-pulse shadow-md'
-              : 'bg-[#fbf3ec] text-[#9e3f16] hover:bg-[#c45a28] hover:text-white border-[#f3d3c0]'
-          }`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all cursor-pointer shrink-0 ${isListening
+            ? 'bg-rose-500 text-white border-rose-600 animate-pulse shadow-md'
+            : 'bg-[#fbf3ec] text-[#9e3f16] hover:bg-[#c45a28] hover:text-white border-[#f3d3c0]'
+            }`}
         >
           {isListening ? <MicOff size={16} /> : <Mic size={16} />}
         </button>
