@@ -12,6 +12,24 @@ export const detectUploadKind = (file: File): UploadKind => {
 };
 
 /**
+ * Call this when someone uploaded a file in a form and then removes/replaces it BEFORE saving, so the unsaved
+ * file is deleted from Cloudinary too. The backend only deletes its own Cloudinary files that no saved record
+ * uses; anything else (pasted external links, files already in use) is left alone. Never throws.
+ */
+export const discardUploadedFile = async (url?: string | null, token?: string | null): Promise<void> => {
+  if (!url || !url.includes('res.cloudinary.com')) return;
+  try {
+    await fetch(`${API_BASE_URL}/upload`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ url }),
+    });
+  } catch {
+    // cleanup is best-effort: never block the form because of it
+  }
+};
+
+/**
  * Uploads a file with multipart/form-data to the correct typed route and returns its URL
  * (a Cloudinary https link when the backend has Cloudinary configured).
  * If the backend is an older version without the typed routes, it falls back to the old /upload/video route.
