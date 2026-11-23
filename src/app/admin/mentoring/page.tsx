@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -110,7 +110,7 @@ export default function AdminMentoring() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">

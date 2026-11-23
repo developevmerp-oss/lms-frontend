@@ -319,40 +319,40 @@ export default function AdminWebinarCRM() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-5 lg:px-5 py-5 sm:py-6 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              {/* <Sparkles size={12} /> */}
-              <span>Marketing &amp; Growth</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Webinar Management &amp; Leads CRM</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Webinar Management &amp; Leads CRM
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Schedule future webinar sessions, update Zoom &amp; WhatsApp links, and manage leads.
-            </p>
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
+        {/* Header - Page title is handled in top nav bar */}
+        {/*
+        <div>
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
+            <span>Marketing &amp; Growth</span>
+            <span className="text-stone-300">/</span>
+            <span className="text-stone-700 font-medium">Webinar Management &amp; Leads CRM</span>
           </div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
+            Webinar Management &amp; Leads CRM
+          </h1>
+          <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+            Schedule future webinar sessions, update Zoom &amp; WhatsApp links, and manage leads.
+          </p>
+        </div>
+        */}
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={handleOpenCreateModal}
-              className="px-4 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs sm:text-sm rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center gap-2 cursor-pointer"
-            >
-              <Plus size={16} /> Schedule New Webinar
-            </button>
-            <a
-              href="/webinar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2.5 bg-white hover:bg-stone-50 text-stone-700 font-bold text-xs sm:text-sm rounded-xl border border-stone-300 shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-            >
-              Live Funnel <ExternalLink size={14} />
-            </a>
-          </div>
+        {/* Actions Bar - Left Aligned */}
+        <div className="flex flex-wrap items-center justify-start gap-3 mb-6">
+          <button
+            onClick={handleOpenCreateModal}
+            className="px-4 py-2.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-black text-xs sm:text-sm rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center gap-2 cursor-pointer"
+          >
+            <Plus size={16} /> Schedule New Webinar
+          </button>
+          <a
+            href="/webinar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 bg-white hover:bg-stone-50 text-stone-700 font-bold text-xs sm:text-sm rounded-xl border border-stone-300 shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+          >
+            Live Funnel <ExternalLink size={14} />
+          </a>
         </div>
 
         {/* Quick Stats Grid */}

@@ -139,35 +139,19 @@ export default function StudentNotificationsPage() {
         notifications={notifications}
       />
 
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header Banner */}
-        <header className="mb-6 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-6 md:p-8 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            {/*
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Communications</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Notifications &amp; Broadcasts</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Notifications &amp; Broadcasts
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5 max-w-2xl">
-              Stay updated with exclusive level upgrades, discount offers, live class reminders, and official announcements from Team Ravishing Art Hub.
-            </p>
-            */}
-          </div>
-
-          <div className="bg-[#faf8f5] border border-stone-200 rounded-2xl p-4 flex items-center gap-4 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-[#fde5d6] text-[#942008] flex items-center justify-center font-black">
-              <Sparkles size={20} />
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Level Access Pill */}
+        <div className="mb-6 flex justify-end">
+          <div className="bg-white/95 border border-[#ecdccb] shadow-[0_4px_16px_-4px_rgba(90,55,20,0.06)] rounded-2xl px-4 py-2.5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#fde5d6] text-[#942008] flex items-center justify-center font-black">
+              <Sparkles size={16} />
             </div>
             <div>
-              <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">Your Level Access</div>
-              <div className="text-sm font-black text-stone-900">{getLevelName()}</div>
+              <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Your Level Access</div>
+              <div className="text-xs sm:text-sm font-black text-stone-900">{getLevelName()}</div>
             </div>
           </div>
-        </header>
+        </div>
 
         {/* Filter Controls & Search */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-8">

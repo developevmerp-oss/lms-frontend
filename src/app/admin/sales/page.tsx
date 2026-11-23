@@ -72,29 +72,14 @@ export default function AdminSalesRecords() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <header className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Students &amp; CRM</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Student Revenue &amp; Sales</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Student Revenue &amp; Sales Monitor
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Review live client orders and commercial revenue logged directly by students.
-            </p>
-          </div>
-          */}
-          {successMsg && (
-            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full self-start md:self-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {successMsg && (
+          <div className="mb-6">
+            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full inline-block">
               ✓ {successMsg}
             </span>
-          )}
-        </header>
+          </div>
+        )}
 
         {/* Info Note: Student Self-Reporting */}
         <div className="mb-6 p-4 rounded-2xl bg-[#fff5ee] border border-[#f5ded0] text-[#942008] text-xs md:text-sm font-semibold flex items-center gap-3">

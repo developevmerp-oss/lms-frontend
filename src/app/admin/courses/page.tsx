@@ -907,33 +907,16 @@ export default function AdminCourses() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            {/*
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Curriculum &amp; Content</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Course Management</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Course Management
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Organize sequential level-wise courses (L0-L3) or create standalone individual courses with custom pricing.
-            </p>
-            */}
-          </div>
-
-          <div className="flex items-center gap-3 flex-wrap">
-            <button
-              onClick={handleSyncCurriculum}
-              disabled={isSubmitting}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-stone-50 text-amber-700 font-bold text-xs border border-amber-300 shadow-xs transition-all cursor-pointer"
-              title="Populate or sync all 30 standard courses into the database"
-            >
-              <Sparkles size={16} /> Sync 30 Curriculum Courses
-            </button>
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <header className="flex flex-wrap items-center justify-start gap-3 mb-6">
+          <button
+            onClick={handleSyncCurriculum}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-stone-50 text-amber-700 font-bold text-xs border border-amber-300 shadow-xs transition-all cursor-pointer"
+            title="Populate or sync all 30 standard courses into the database"
+          >
+            <Sparkles size={16} /> Sync 30 Curriculum Courses
+          </button>
 
             <button
               onClick={() => {
@@ -962,7 +945,6 @@ export default function AdminCourses() {
             >
               <Plus size={18} /> Create New Course
             </button>
-          </div>
         </header>
 
         {successMsg && (

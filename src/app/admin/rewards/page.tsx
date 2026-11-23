@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -243,7 +243,7 @@ export default function AdminRewardsManager() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Commented out top standalone CTA button per user instruction */}
         {/*
         <div className="flex flex-col md:flex-row md:items-start justify-end gap-4 mb-6">

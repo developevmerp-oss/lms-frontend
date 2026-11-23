@@ -174,29 +174,14 @@ export default function AdminMilestones() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <header className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Gamification &amp; Recognition</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Milestone Management</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Milestone Management
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Create, rename, complete, and customize Business Milestones across all student journeys.
-            </p>
-          </div>
-          */}
-          {successMsg && (
-            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2 self-start md:self-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {successMsg && (
+          <div className="mb-6">
+            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full inline-flex items-center gap-2">
               <CheckCircle2 size={16} /> {successMsg}
             </span>
-          )}
-        </header>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

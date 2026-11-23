@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Bookmark, Loader2 } from 'lucide-react';
+import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Loader2, Trash2, Edit3 } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAuth } from '@/context/AuthContext';
 import { uploadMediaFile, discardUploadedFile } from '@/utils/uploadFile';
@@ -14,6 +14,7 @@ interface CommentItem {
 
 interface WinItem {
   id: string;
+  userId?: string;
   studentName: string;
   studentLevel: string;
   title: string;
@@ -40,7 +41,19 @@ export const WinWall = ({
   const { user } = useAuth();
   const [wins, setWins] = useState<any[]>(communityWins);
   const [myPostMap, setMyPostMap] = useState<Record<string, string>>({});
-  const [bookmarkedWins, setBookmarkedWins] = useState<Record<string, boolean>>({});
+  const [openMenuPostId, setOpenMenuPostId] = useState<string | null>(null);
+  const [postToDelete, setPostToDelete] = useState<WinItem | null>(null);
+  const [deletingPost, setDeletingPost] = useState(false);
+  const [editingPost, setEditingPost] = useState<WinItem | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    salesAmount: '',
+    technique: '',
+    notes: '',
+    imageUrl: '',
+  });
+  const [uploadingEditFile, setUploadingEditFile] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedCommentsId, setExpandedCommentsId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState<{ [winId: string]: string }>({});
@@ -49,11 +62,151 @@ export const WinWall = ({
   // posts whose image file can no longer be loaded (old files that were stored on a server disk)
   const [brokenMedia, setBrokenMedia] = useState<Record<string, boolean>>({});
 
-  const toggleBookmark = (winId: string) => {
-    setBookmarkedWins((prev) => ({
-      ...prev,
-      [winId]: !prev[winId],
-    }));
+  const startEditPost = (win: any) => {
+    const rawAchievement = win.achievement || win.title || '';
+
+    // Extract sales amount if present (e.g. "(₹890 sale!)" or "(₹1,200 sale!)")
+    const amountMatch = rawAchievement.match(/\([₹rRsS\.]*([\d,]+)\s+sale!\)/i);
+    const parsedAmount = amountMatch
+      ? amountMatch[1].replace(/,/g, '')
+      : (win.amount ? String(win.amount).replace(/[^\d]/g, '') : (win.salesAmount ? String(win.salesAmount).replace(/[^\d]/g, '') : ''));
+
+    // Extract technique if present (e.g. "• Technique: chnarges")
+    const techMatch = rawAchievement.match(/•\s*Technique:\s*([^•\n]+)/i);
+    const parsedTech = techMatch ? techMatch[1].trim() : (win.technique || '');
+
+    // Cleaned main text without the (₹... sale!) and • Technique: ...
+    const baseText = rawAchievement
+      .replace(/\s*\([₹rRsS\.]*[\d,]+\s+sale!\)/gi, '')
+      .replace(/\s*•\s*Technique:\s*[^•\n]+/gi, '')
+      .trim();
+
+    setEditingPost(win);
+    setEditForm({
+      title: baseText || win.title || '',
+      salesAmount: parsedAmount,
+      technique: parsedTech,
+      notes: win.notes || '',
+      imageUrl: win.image || win.imageUrl || '',
+    });
+  };
+
+  const handleEditFileBrowserSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingEditFile(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const { url } = await uploadMediaFile(file, token || undefined);
+      setEditForm((prev) => ({ ...prev, imageUrl: url }));
+    } catch (err) {
+      console.error(err);
+      alert('File upload failed. Please try again or paste a link.');
+    } finally {
+      setUploadingEditFile(false);
+    }
+  };
+
+  const saveEditedPost = async () => {
+    if (!editingPost) return;
+    const finalTitle = editForm.title.trim();
+    if (!finalTitle && !editForm.notes.trim()) {
+      alert('Please provide a title or story for your post.');
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch(`${API_BASE_URL}/dashboard/community-wins/${editingPost.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          title: finalTitle,
+          achievement: editForm.notes.trim() || finalTitle,
+          salesAmount: editForm.salesAmount.trim(),
+          technique: editForm.technique.trim(),
+          imageUrl: editForm.imageUrl.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        let updatedAchievement = data.win?.achievement;
+        if (!updatedAchievement) {
+          updatedAchievement = editForm.notes.trim() || finalTitle;
+          if (editForm.salesAmount.trim()) {
+            updatedAchievement += ` (₹${Number(editForm.salesAmount.trim()).toLocaleString()} sale!)`;
+          }
+          if (editForm.technique.trim()) {
+            updatedAchievement += ` • Technique: ${editForm.technique.trim()}`;
+          }
+        }
+        const updatedImage = data.win?.image !== undefined ? data.win.image : (editForm.imageUrl.trim() || null);
+
+        setWins((prev) =>
+          prev.map((w) =>
+            w.id === editingPost.id
+              ? {
+                  ...w,
+                  ...(data.win || {}),
+                  achievement: updatedAchievement,
+                  title: updatedAchievement,
+                  image: updatedImage,
+                  imageUrl: updatedImage,
+                  amount: editForm.salesAmount.trim() ? `₹${Number(editForm.salesAmount.trim()).toLocaleString('en-IN')}` : undefined,
+                  salesAmount: editForm.salesAmount.trim() || undefined,
+                  technique: editForm.technique.trim() || undefined,
+                }
+              : w
+          )
+        );
+        setEditingPost(null);
+        if (onWinAdded) onWinAdded();
+      } else {
+        alert(data.message || 'Failed to update post.');
+      }
+    } catch (err) {
+      console.error('Error saving post:', err);
+      alert('Failed to update post. Please try again.');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const confirmDeletePost = async () => {
+    if (!postToDelete) return;
+    setDeletingPost(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch(`${API_BASE_URL}/dashboard/community-wins/${postToDelete.id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        setWins((prev) => prev.filter((w) => w.id !== postToDelete.id));
+        if (myPostMap[postToDelete.id]) {
+          const nextMap = { ...myPostMap };
+          delete nextMap[postToDelete.id];
+          setMyPostMap(nextMap);
+          try {
+            localStorage.setItem('my_community_wins', JSON.stringify(nextMap));
+          } catch (_) {}
+        }
+        if (onWinAdded) onWinAdded();
+        setPostToDelete(null);
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Failed to delete post.');
+      }
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      alert('Failed to delete post. Please try again.');
+    } finally {
+      setDeletingPost(false);
+    }
   };
 
   const handleShare = async (win: WinItem) => {
@@ -307,6 +460,7 @@ export const WinWall = ({
     }
     return {
       id: w.id || String(idx),
+      userId: w.userId,
       studentName: resolveAuthorName(w),
       studentLevel: w.level || 'L1 Member',
       title: w.achievement || w.title || 'Achieved a new breakthrough!',
@@ -432,7 +586,11 @@ export const WinWall = ({
           {displayWins.map((win) => {
             const isExpanded = expandedCommentsId === win.id;
             const authorInitial = (win.studentName || 'P').charAt(0).toUpperCase();
-            const isBookmarked = Boolean(bookmarkedWins[win.id]);
+            const isMyPost = Boolean(
+              (win.userId && user?.id && String(win.userId) === String(user.id)) ||
+              (win.studentName && user?.name && win.studentName.trim().toLowerCase() === user.name.trim().toLowerCase()) ||
+              (win.id && myPostMap[win.id])
+            );
 
             return (
               <div
@@ -440,7 +598,7 @@ export const WinWall = ({
                 className="bg-white rounded-3xl border border-[#ecdccb]/80 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(90,55,20,0.05)] flex flex-col justify-between transition-all hover:shadow-[0_8px_30px_-6px_rgba(90,55,20,0.08)] w-full"
               >
                 <div>
-                  {/* 1. Header: Avatar + Stacked Name & Time + Three Dots (Matches Reference Image 2) */}
+                  {/* 1. Header: Avatar + Stacked Name & Time + Three Dots (Only visible to post author) */}
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-full bg-[#fde5d6] text-[#c4431d] font-bold text-sm flex items-center justify-center shrink-0">
@@ -456,12 +614,52 @@ export const WinWall = ({
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      className="p-1 text-stone-700 hover:text-stone-900 rounded-lg hover:bg-stone-50 transition-colors cursor-pointer"
-                    >
-                      <MoreHorizontal size={20} />
-                    </button>
+                    {isMyPost && (
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setOpenMenuPostId(openMenuPostId === win.id ? null : win.id)}
+                          className="p-1 text-stone-700 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer"
+                          title="Post options"
+                          aria-label="Post options"
+                        >
+                          <MoreHorizontal size={20} />
+                        </button>
+
+                        {openMenuPostId === win.id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-30"
+                              onClick={() => setOpenMenuPostId(null)}
+                            />
+                            <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-2xl shadow-xl border border-stone-200/90 py-1.5 z-40 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenMenuPostId(null);
+                                  startEditPost(win);
+                                }}
+                                className="w-full px-3.5 py-2 text-left text-xs font-bold text-stone-700 hover:text-stone-900 hover:bg-stone-50 flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <Edit3 size={14} className="text-stone-500" />
+                                <span>Edit Post</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenMenuPostId(null);
+                                  setPostToDelete(win);
+                                }}
+                                className="w-full px-3.5 py-2 text-left text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
+                              >
+                                <Trash2 size={14} className="text-red-500" />
+                                <span>Delete Post</span>
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* 2. Media Image / Video Placed FIRST with Floating ⭐ +100 XP Badge (Matches Reference Image 2) */}
@@ -597,50 +795,36 @@ export const WinWall = ({
                     );
                   })()}
 
-                  {/* 3. Action Bar: Heart, Comment, Send on Left — Bookmark on Right (Matches Reference Image 2) */}
-                  <div className="flex items-center justify-between mt-3.5 pt-1">
-                    <div className="flex items-center gap-4 text-stone-700">
-                      <button
-                        type="button"
-                        onClick={() => handleLike(win.id)}
-                        className="hover:text-rose-500 transition-colors cursor-pointer"
-                        title="Like"
-                      >
-                        <Heart
-                          size={22}
-                          className={win.likedByMe ? 'text-rose-500 fill-rose-500' : 'text-stone-800 hover:text-rose-500'}
-                        />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
-                        className="hover:text-[#c4431d] transition-colors cursor-pointer text-stone-800"
-                        title="Comments"
-                      >
-                        <MessageCircle size={22} />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleShare(win)}
-                        className="hover:text-stone-900 transition-colors cursor-pointer text-stone-800"
-                        title="Share"
-                      >
-                        <Send size={20} className="rotate-[-10deg]" />
-                      </button>
-                    </div>
+                  {/* 3. Action Bar: Heart, Comment, Send on Left */}
+                  <div className="flex items-center gap-4 mt-3.5 pt-1 text-stone-700">
+                    <button
+                      type="button"
+                      onClick={() => handleLike(win.id)}
+                      className="hover:text-rose-500 transition-colors cursor-pointer"
+                      title="Like"
+                    >
+                      <Heart
+                        size={22}
+                        className={win.likedByMe ? 'text-rose-500 fill-rose-500' : 'text-stone-800 hover:text-rose-500'}
+                      />
+                    </button>
 
                     <button
                       type="button"
-                      onClick={() => toggleBookmark(win.id)}
-                      className="text-stone-800 hover:text-stone-900 transition-colors cursor-pointer"
-                      title="Save"
+                      onClick={() => setExpandedCommentsId(isExpanded ? null : win.id)}
+                      className="hover:text-[#c4431d] transition-colors cursor-pointer text-stone-800"
+                      title="Comments"
                     >
-                      <Bookmark
-                        size={22}
-                        className={isBookmarked ? 'fill-stone-900 text-stone-900' : 'text-stone-800'}
-                      />
+                      <MessageCircle size={22} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleShare(win)}
+                      className="hover:text-stone-900 transition-colors cursor-pointer text-stone-800"
+                      title="Share"
+                    >
+                      <Send size={20} className="rotate-[-10deg]" />
                     </button>
                   </div>
 
@@ -782,12 +966,12 @@ export const WinWall = ({
             </button>
 
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008]">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 lg:w-9 lg:h-9 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] shrink-0">
                 <Trophy size={18} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-stone-900">Post Your Win on the Feed</h3>
-                <p className="text-xs text-stone-500">
+                <h3 className="text-base sm:text-2xl lg:text-lg font-black text-stone-900">Post Your Win on the Feed</h3>
+                <p className="text-xs sm:text-base lg:text-xs text-stone-500">
                   {canEarnWinXp
                     ? '🌟 Share your milestone and earn +100 XP!'
                     : 'Share your milestone with the sisterhood!'}
@@ -796,54 +980,54 @@ export const WinWall = ({
             </div>
 
             {successMsg ? (
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold text-center">
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs sm:text-base lg:text-sm font-bold text-center">
                 {successMsg}
               </div>
             ) : (
               <form onSubmit={handlePostWin} className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-stone-600">Win / Milestone Title</label>
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Win / Milestone Title</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sold my first 3D Geode Wall Clock!"
                     value={winForm.title}
                     onChange={(e) => setWinForm({ ...winForm, title: e.target.value })}
-                    className="flex h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                    className="flex h-10 sm:h-12 lg:h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-stone-600">Sales Amount (₹ optional)</label>
+                    <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Sales Amount (₹ optional)</label>
                     <input
                       type="number"
                       placeholder="e.g. 4500"
                       value={winForm.salesAmount}
                       onChange={(e) => setWinForm({ ...winForm, salesAmount: e.target.value })}
-                      className="flex h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                      className="flex h-10 sm:h-12 lg:h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-stone-600">Technique Used</label>
+                    <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Technique Used</label>
                     <input
                       type="text"
                       placeholder="e.g. Ocean Wave Lacing"
                       value={winForm.technique}
                       onChange={(e) => setWinForm({ ...winForm, technique: e.target.value })}
-                      className="flex h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                      className="flex h-10 sm:h-12 lg:h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Browser File Upload & URL input */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-600 flex items-center justify-between">
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <Image size={13} className="text-[#942008]" /> Upload File (Image, Video, Document)
+                      <Image size={14} className="text-[#942008]" /> Upload File (Image, Video, Document)
                     </span>
-                    <span className="text-xs text-slate-500 font-normal">Browser File Picker</span>
+                    <span className="text-xs sm:text-base lg:text-xs text-slate-500 font-normal">Browser File Picker</span>
                   </label>
 
                   <div className="flex flex-col gap-2">
@@ -853,10 +1037,10 @@ export const WinWall = ({
                         accept="image/*,video/*,.pdf,.doc,.docx"
                         onChange={handleFileBrowserSelect}
                         disabled={uploadingFile}
-                        className="w-full text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#fde5d6]/80 cursor-pointer bg-[#faf8f5] border border-stone-200 rounded-xl p-1 disabled:opacity-50"
+                        className="w-full text-xs sm:text-base lg:text-xs text-stone-600 file:mr-3 file:py-1.5 sm:file:py-2.5 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-base lg:file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#fde5d6]/80 cursor-pointer bg-[#faf8f5] border border-stone-200 rounded-xl p-1 disabled:opacity-50"
                       />
                       {uploadingFile && (
-                        <span className="absolute inset-0 flex items-center justify-center bg-[#faf8f5]/80 rounded-xl text-xs font-bold text-[#942008]">
+                        <span className="absolute inset-0 flex items-center justify-center bg-[#faf8f5]/80 rounded-xl text-xs sm:text-base lg:text-xs font-bold text-[#942008]">
                           ⏳ Uploading file...
                         </span>
                       )}
@@ -867,7 +1051,7 @@ export const WinWall = ({
                       placeholder="Or paste external file / image URL..."
                       value={winForm.imageUrl}
                       onChange={(e) => setWinForm({ ...winForm, imageUrl: e.target.value })}
-                      className="flex h-9 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                      className="flex h-9 sm:h-11 lg:h-9 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
                     />
                   </div>
 
@@ -877,21 +1061,21 @@ export const WinWall = ({
                       <button
                         type="button"
                         onClick={() => { discardUploadedFile(winForm.imageUrl, localStorage.getItem('token')); setWinForm({ ...winForm, imageUrl: '' }); }}
-                        className="absolute right-2 top-2 bg-white text-stone-500 hover:text-stone-900 p-1 rounded-lg z-10"
+                        className="absolute right-2 top-2 bg-white text-stone-500 hover:text-stone-900 p-1 rounded-lg z-10 shadow-xs cursor-pointer"
                       >
                         <X size={12} />
                       </button>
 
                       {winForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || (winForm.imageUrl.includes('cloudinary') && !winForm.imageUrl.includes('/video/')) ? (
-                        <img src={getMediaUrl(winForm.imageUrl)} alt="Preview" className="max-h-36 rounded-lg w-full object-cover" />
+                        <img src={getMediaUrl(winForm.imageUrl)} alt="Preview" className="max-h-36 sm:max-h-48 lg:max-h-36 rounded-lg w-full object-cover" />
                       ) : winForm.imageUrl.match(/\.(mp4|webm|mov|m4v|avi|mkv)$/i) || winForm.imageUrl.includes('/uploads/videos/') || winForm.imageUrl.includes('/video/upload/') || winForm.imageUrl.startsWith('data:video') ? (
-                        <video src={getMediaUrl(winForm.imageUrl)} controls className="max-h-36 rounded-lg w-full object-contain bg-black" />
+                        <video src={getMediaUrl(winForm.imageUrl)} controls className="max-h-36 sm:max-h-48 lg:max-h-36 rounded-lg w-full object-contain bg-black" />
                       ) : winForm.imageUrl.startsWith('http') ? (
-                        <div className="p-3 text-xs font-bold text-cyan-400 flex items-center gap-2">
+                        <div className="p-3 text-xs sm:text-base lg:text-sm font-bold text-cyan-700 flex items-center gap-2">
                           🔗 External link attached
                         </div>
                       ) : (
-                        <div className="p-3 text-xs font-bold text-emerald-400 flex items-center gap-2">
+                        <div className="p-3 text-xs sm:text-base lg:text-sm font-bold text-emerald-700 flex items-center gap-2">
                           ✅ File uploaded successfully!
                         </div>
                       )}
@@ -900,13 +1084,13 @@ export const WinWall = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-stone-600">Story / Reflection</label>
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Story / Reflection</label>
                   <textarea
                     rows={2}
                     placeholder="How did you achieve this? What did you learn?"
                     value={winForm.notes}
                     onChange={(e) => setWinForm({ ...winForm, notes: e.target.value })}
-                    className="flex w-full rounded-xl border border-stone-200 bg-[#faf8f5] p-3 text-xs text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none resize-none"
+                    className="flex w-full rounded-xl border border-stone-200 bg-[#faf8f5] p-3 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none resize-none"
                   />
                 </div>
 
@@ -914,7 +1098,7 @@ export const WinWall = ({
                   <button
                     type="submit"
                     disabled={posting || uploadingFile}
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs sm:text-base lg:text-xs h-10 sm:h-12 lg:h-10 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {(posting || uploadingFile) && <Loader2 size={14} className="animate-spin" />}
                     {posting ? 'Publishing...' : `Publish Win ${canEarnWinXp ? '(+100 XP)' : ''}`}
@@ -922,13 +1106,211 @@ export const WinWall = ({
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="border border-stone-300 shimmer-box text-stone-600 font-semibold text-xs h-10 px-4 rounded-xl cursor-pointer"
+                    className="border border-stone-300 shimmer-box text-stone-600 font-semibold text-xs sm:text-base lg:text-xs h-10 sm:h-12 lg:h-10 px-4 rounded-xl cursor-pointer"
                   >
                     Cancel
                   </button>
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Delete Confirmation Modal ─── */}
+      {postToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-7 shadow-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-4 mx-auto">
+              <Trash2 size={24} className="sm:w-7 sm:h-7" />
+            </div>
+            <h3 className="text-lg sm:text-2xl lg:text-lg font-black text-stone-900 text-center">Delete Post?</h3>
+            <p className="text-xs sm:text-base lg:text-xs text-stone-500 text-center mt-1.5 leading-relaxed">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+
+            <div className="flex items-center gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setPostToDelete(null)}
+                disabled={deletingPost}
+                className="flex-1 py-2.5 sm:py-3.5 px-4 rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 text-xs sm:text-base lg:text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeletePost}
+                disabled={deletingPost}
+                className="flex-1 py-2.5 sm:py-3.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs sm:text-base lg:text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {deletingPost ? <Loader2 size={14} className="animate-spin" /> : 'Delete Post'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Edit Post Modal (Matches Reference Design) ─── */}
+      {editingPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#faf8f5]/80 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-3xl border border-[#ecdccb] bg-white p-6 sm:p-7 shadow-2xl text-stone-900 max-h-[90vh] overflow-y-auto">
+            <button
+              type="button"
+              onClick={() => setEditingPost(null)}
+              className="absolute right-4 top-4 text-stone-500 hover:text-stone-900 cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 lg:w-9 lg:h-9 rounded-xl bg-[#fde5d6] border border-[#f5ded0] flex items-center justify-center text-[#942008] shrink-0">
+                <Trophy size={18} />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-2xl lg:text-lg font-black text-stone-900">Edit Your Post</h3>
+                <p className="text-xs sm:text-base lg:text-xs text-stone-500">
+                  Update your milestone details and media
+                </p>
+              </div>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveEditedPost();
+              }}
+              className="space-y-3.5"
+            >
+              <div className="space-y-1">
+                <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Win / Milestone Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Sold my first 3D Geode Wall Clock!"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
+                  className="flex h-10 sm:h-12 lg:h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Sales Amount (₹ optional)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 4500"
+                    value={editForm.salesAmount}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, salesAmount: e.target.value }))}
+                    className="flex h-10 sm:h-12 lg:h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Technique Used</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Ocean Wave Lacing"
+                    value={editForm.technique}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, technique: e.target.value }))}
+                    className="flex h-10 sm:h-12 lg:h-10 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3.5 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Browser File Upload & URL input */}
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Image size={14} className="text-[#942008]" /> Upload File (Image, Video, Document)
+                  </span>
+                  <span className="text-xs sm:text-base lg:text-xs text-slate-500 font-normal">Browser File Picker</span>
+                </label>
+
+                <div className="flex flex-col gap-2">
+                  <label className="relative w-full">
+                    <input
+                      type="file"
+                      accept="image/*,video/*,.pdf,.doc,.docx"
+                      onChange={handleEditFileBrowserSelect}
+                      disabled={uploadingEditFile}
+                      className="w-full text-xs sm:text-base lg:text-xs text-stone-600 file:mr-3 file:py-1.5 sm:file:py-2.5 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-base lg:file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#fde5d6]/80 cursor-pointer bg-[#faf8f5] border border-stone-200 rounded-xl p-1 disabled:opacity-50"
+                    />
+                    {uploadingEditFile && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-[#faf8f5]/80 rounded-xl text-xs sm:text-base lg:text-xs font-bold text-[#942008]">
+                        ⏳ Uploading file...
+                      </span>
+                    )}
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Or paste external file / image URL..."
+                    value={editForm.imageUrl}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
+                    className="flex h-9 sm:h-11 lg:h-9 w-full rounded-xl border border-stone-200 bg-[#faf8f5] px-3 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none"
+                  />
+                </div>
+
+                {/* Preview — shows current media or newly uploaded media */}
+                {editForm.imageUrl && (
+                  <div className="mt-2 p-2 rounded-xl bg-[#faf8f5] border border-stone-200 relative">
+                    <button
+                      type="button"
+                      onClick={() => setEditForm((prev) => ({ ...prev, imageUrl: '' }))}
+                      className="absolute right-2 top-2 bg-white text-stone-500 hover:text-stone-900 p-1 rounded-lg z-10 shadow-xs cursor-pointer"
+                      title="Remove media"
+                    >
+                      <X size={12} />
+                    </button>
+
+                    {editForm.imageUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || (editForm.imageUrl.includes('cloudinary') && !editForm.imageUrl.includes('/video/')) ? (
+                      <img src={getMediaUrl(editForm.imageUrl)} alt="Preview" className="max-h-36 sm:max-h-48 lg:max-h-36 rounded-lg w-full object-cover" />
+                    ) : editForm.imageUrl.match(/\.(mp4|webm|mov|m4v|avi|mkv)$/i) || editForm.imageUrl.includes('/uploads/videos/') || editForm.imageUrl.includes('/video/upload/') || editForm.imageUrl.startsWith('data:video') ? (
+                      <video src={getMediaUrl(editForm.imageUrl)} controls className="max-h-36 sm:max-h-48 lg:max-h-36 rounded-lg w-full object-contain bg-black" />
+                    ) : editForm.imageUrl.startsWith('http') ? (
+                      <div className="p-3 text-xs sm:text-base lg:text-sm font-bold text-cyan-600 flex items-center gap-2">
+                        🔗 External link attached
+                      </div>
+                    ) : (
+                      <div className="p-3 text-xs sm:text-base lg:text-sm font-bold text-emerald-600 flex items-center gap-2">
+                        ✅ File uploaded successfully!
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Story / Reflection</label>
+                <textarea
+                  rows={2}
+                  placeholder="How did you achieve this? What did you learn?"
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
+                  className="flex w-full rounded-xl border border-stone-200 bg-[#faf8f5] p-3 text-xs sm:text-lg lg:text-sm text-stone-900 placeholder-slate-500 focus:border-[#c4431d] focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={savingEdit || uploadingEditFile}
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs sm:text-base lg:text-xs h-10 sm:h-12 lg:h-10 rounded-xl shadow-md hover:scale-[1.02] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {(savingEdit || uploadingEditFile) && <Loader2 size={14} className="animate-spin" />}
+                  {savingEdit ? 'Saving Changes...' : 'Save Changes'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingPost(null)}
+                  disabled={savingEdit || uploadingEditFile}
+                  className="border border-stone-300 shimmer-box text-stone-600 font-semibold text-xs sm:text-base lg:text-xs h-10 sm:h-12 lg:h-10 px-4 rounded-xl cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
