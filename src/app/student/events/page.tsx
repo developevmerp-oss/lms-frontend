@@ -166,26 +166,10 @@ export default function StudentEventsPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Live Coaching</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Live Coaching &amp; Attendance Portal</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Live Coaching &amp; Attendance Portal
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Join live interactive coaching sessions with Vrajangna Patel. Clicking &quot;Join Live Class&quot; marks your attendance and awards bonus XP.
-            </p>
-          </div>
-          */}
-
-          <div className="flex items-center gap-2 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-1.5 rounded-2xl self-start md:self-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Tabs Bar - Left Aligned */}
+        <div className="flex flex-wrap items-center justify-start gap-4 mb-6">
+          <div className="flex items-center gap-2 bg-white/95 border border-[#ecdccb] shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] p-1.5 rounded-2xl">
             <button
               onClick={() => setActiveTab("upcoming")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${

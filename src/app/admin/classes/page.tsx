@@ -448,31 +448,14 @@ export default function AdminClassesPage() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-end gap-4 mb-6">
-          {/*
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Live Masterclasses</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Online Class &amp; Attendance</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Online Class &amp; Attendance Management
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Schedule live Zoom coaching calls, manage meeting links, track student attendance, and upload video replays.
-            </p>
-          </div>
-          */}
-
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 lg:gap-2.5 self-start lg:self-auto shrink-0">
-            <button
-              onClick={handleExportAllAttendance}
-              disabled={isExporting}
-              className="inline-flex items-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs h-11 px-3.5 lg:px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105 whitespace-nowrap shrink-0"
-              title="Download complete attendance history across all classes in Excel / CSV format"
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Actions Bar - Left Aligned */}
+        <div className="flex flex-wrap items-center justify-start gap-2 lg:gap-2.5 mb-6">
+          <button
+            onClick={handleExportAllAttendance}
+            disabled={isExporting}
+            className="inline-flex items-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs h-11 px-3.5 lg:px-4 rounded-2xl shadow-md transition-all cursor-pointer hover:scale-105 whitespace-nowrap shrink-0"
+            title="Download complete attendance history across all classes in Excel / CSV format"
             >
               <FileSpreadsheet size={16} className="shrink-0" />
               {isExporting ? "Exporting..." : "Download Full Sheet (.xlsx / .csv)"}
@@ -495,7 +478,6 @@ export default function AdminClassesPage() {
               <Plus size={18} className="shrink-0" /> Schedule Live Class
             </button>
           </div>
-        </div>
 
         {/* Success Alert */}
         {successMsg && (

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -164,7 +164,7 @@ export default function StudentLeaderboard() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Header: Left aligned, no trophy icon, responsive typography */}
         {/*
         <header className="mb-6 text-left">

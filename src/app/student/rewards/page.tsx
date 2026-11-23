@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -231,7 +231,7 @@ export default function StudentRewards() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative z-10">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 relative z-10">
         {isLoading ? (
           /* Shimmer Loading Skeleton matching the page layout */
           <div className="w-full space-y-6 sm:space-y-8">

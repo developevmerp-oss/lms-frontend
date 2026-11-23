@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNav } from "@/components/layout/AdminNav";
 import {
@@ -22,6 +22,8 @@ import {
   Eye,
   X,
   Loader2,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { ListSkeleton } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
@@ -112,6 +114,9 @@ export default function AdminNotifications() {
 
 
   const [liveLevels, setLiveLevels] = useState<any[]>([]);
+  const [standaloneCourses, setStandaloneCourses] = useState<any[]>([]);
+  const [isAudienceDropdownOpen, setIsAudienceDropdownOpen] = useState(false);
+  const audienceDropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchLiveLevels = async () => {
     if (!token) return;
@@ -124,28 +129,96 @@ export default function AdminNotifications() {
     } catch (err) { console.error(err); }
   };
 
+  const fetchStandaloneCourses = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/courses`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const standalone = data.filter((c: any) => !c.levelCode || c.levelCode === 'NONE' || String(c.levelCode).trim() === '');
+        setStandaloneCourses(standalone);
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (audienceDropdownRef.current && !audienceDropdownRef.current.contains(e.target as Node)) {
+        setIsAudienceDropdownOpen(false);
+      }
+    };
+    if (isAudienceDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isAudienceDropdownOpen]);
+
   useEffect(() => {
     if (token) {
       fetchHistory();
       fetchLiveLevels();
+      fetchStandaloneCourses();
     }
   }, [token]);
 
   const targetAudienceOptions = [
-    { id: "all", label: "All Students (Global Broadcast)", icon: "👥", color: "text-[#942008]", bg: "bg-[#fde5d6]", border: "border-[#f5ded0]" },
+    {
+      id: "all",
+      code: "ALL",
+      name: "All Students (Global Broadcast)",
+      label: "All Students (Global Broadcast)",
+      icon: "👥",
+      group: "Global",
+    },
     ...(liveLevels.length > 0
       ? liveLevels.map((l: any) => ({
           id: l.code,
-          label: `${l.code}: ${l.name} (${l.price || '₹499'})`,
+          code: l.code,
+          name: l.name || l.title || l.code,
+          label: `${l.code}: ${l.name || l.title || l.code}`,
           icon: l.icon || "⚡",
-          color: "text-amber-400",
-          bg: "bg-stone-100",
-          border: "border-stone-200",
+          group: "Level Memberships",
         }))
-      : TARGET_AUDIENCE_OPTIONS.slice(1, 5)
+      : TARGET_AUDIENCE_OPTIONS.slice(1, 5).map((t) => ({
+          id: t.id,
+          code: t.id.toUpperCase(),
+          name: t.label.split(":")[1]?.trim() || t.label,
+          label: t.label,
+          icon: t.icon,
+          group: "Level Memberships",
+        }))
     ),
-    { id: "webinar", label: "Webinar Leads & Attendees", icon: "🎟️", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
+    {
+      id: "standalone",
+      code: "STANDALONE",
+      name: "All Standalone Students",
+      label: "Standalone Students (Individual Masterclasses)",
+      icon: "✨",
+      group: "Standalone Courses",
+    },
+    ...standaloneCourses.map((c: any) => ({
+      id: `course_${c.id}`,
+      code: "STANDALONE COURSE",
+      name: c.title,
+      label: `${c.title} (Standalone Masterclass)`,
+      icon: "🎨",
+      group: "Standalone Courses",
+    })),
+    {
+      id: "webinar",
+      code: "WEBINAR",
+      name: "Webinar Leads & Attendees",
+      label: "Webinar Leads & Attendees",
+      icon: "🎟️",
+      group: "Webinar & Leads",
+    },
   ];
+
+  const selectedAudience =
+    targetAudienceOptions.find((o) => o.id === form.targetAudience) || targetAudienceOptions[0];
 
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,29 +284,7 @@ export default function AdminNotifications() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        
-        {/* Header */}
-        <header className="mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/*
-            <div>
-              <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-                <span>Communications</span>
-                <span className="text-stone-300">/</span>
-                <span className="text-stone-700 font-medium">Targeted Broadcast Center</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-                Send Notifications to L0, L1, L2, L3 &amp; Webinar Leads
-              </h1>
-              <p className="text-stone-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
-                Push instant announcements, limited-time discount offers, and class reminders directly to student notification bells.
-              </p>
-            </div>
-            */}
-          </div>
-        </header>
-
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {successMsg && (
           <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm md:text-base lg:text-sm font-bold flex items-center gap-2">
             <CheckCircle2 size={18} className="shrink-0" /> {successMsg}
@@ -276,32 +327,96 @@ export default function AdminNotifications() {
               </div>
             </div>
 
-            {/* 1. Target Audience Segment */}
+            {/* 1. Target Audience Segment - Dropdown List */}
             <div>
-              <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-2.5 flex items-center gap-1.5">
+              <label className="block text-xs md:text-sm lg:text-xs font-bold text-stone-700 mb-2 flex items-center gap-1.5">
                 <Users size={14} className="text-[#c4431d] shrink-0" /> Select Target Student Segment:
               </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                {targetAudienceOptions.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setForm({ ...form, targetAudience: opt.id })}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-start min-w-0 ${
-                      form.targetAudience === opt.id
-                        ? "bg-[#fff5ee] border-[#c4431d] shadow-xs"
-                        : "bg-[#fcfaf7] border-stone-200 hover:border-stone-300"
+
+              <div className="relative" ref={audienceDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsAudienceDropdownOpen((prev) => !prev)}
+                  className={`w-full p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    isAudienceDropdownOpen
+                      ? "bg-[#fff5ee] border-[#c4431d] ring-2 ring-[#c4431d]/15 shadow-sm"
+                      : "bg-[#fcfaf7] border-stone-200 hover:border-[#c4431d]/60 shadow-xs"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xl shrink-0 leading-none">{selectedAudience?.icon}</span>
+                    <div className="min-w-0 flex flex-col">
+                      <span className="text-xs font-black text-[#942008] uppercase tracking-wide leading-tight">
+                        {selectedAudience?.code || selectedAudience?.id.toUpperCase()}
+                      </span>
+                      <span className="text-xs md:text-sm lg:text-xs font-bold text-stone-800 truncate leading-snug">
+                        {selectedAudience?.name || selectedAudience?.label}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronDown
+                    size={18}
+                    className={`text-stone-400 shrink-0 transition-transform duration-200 ${
+                      isAudienceDropdownOpen ? "rotate-180 text-[#c4431d]" : ""
                     }`}
-                  >
-                    <span className="text-lg md:text-xl lg:text-lg mb-1 leading-none">{opt.icon}</span>
-                    <span className={`text-xs md:text-sm lg:text-xs font-black leading-tight ${form.targetAudience === opt.id ? "text-[#942008]" : "text-stone-900"}`}>
-                      {opt.id.toUpperCase()}
-                    </span>
-                    <span className="text-xs md:text-sm lg:text-xs text-stone-500 line-clamp-2 mt-0.5 font-medium leading-snug break-words">
-                      {opt.label.split(":")[0]}
-                    </span>
-                  </button>
-                ))}
+                  />
+                </button>
+
+                {isAudienceDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white border border-[#ecdccb] rounded-2xl shadow-[0_16px_36px_-8px_rgba(90,55,20,0.18)] max-h-80 overflow-y-auto p-1.5 divide-y divide-stone-100 animate-in fade-in zoom-in-95 duration-150">
+                    {[
+                      { groupName: "Global", items: targetAudienceOptions.filter((o) => o.group === "Global") },
+                      { groupName: "Level Memberships", items: targetAudienceOptions.filter((o) => o.group === "Level Memberships") },
+                      { groupName: "Standalone Courses", items: targetAudienceOptions.filter((o) => o.group === "Standalone Courses") },
+                      { groupName: "Webinar & Leads", items: targetAudienceOptions.filter((o) => o.group === "Webinar & Leads") },
+                    ]
+                      .filter((g) => g.items.length > 0)
+                      .map((grp) => (
+                        <div key={grp.groupName} className="py-1 first:pt-0 last:pb-0">
+                          <div className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-stone-400">
+                            {grp.groupName}
+                          </div>
+                          <div className="space-y-0.5">
+                            {grp.items.map((opt: any) => {
+                              const isSelected = form.targetAudience === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setForm({ ...form, targetAudience: opt.id });
+                                    setIsAudienceDropdownOpen(false);
+                                  }}
+                                  className={`w-full px-3 py-2 rounded-xl text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                                    isSelected
+                                      ? "bg-[#fff5ee] text-[#942008] border border-[#f5ded0] font-bold"
+                                      : "hover:bg-[#faf8f5] text-stone-700"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <span className="text-base shrink-0 leading-none">{opt.icon}</span>
+                                    <div className="min-w-0 flex flex-col">
+                                      <span
+                                        className={`text-[11px] font-black uppercase leading-tight ${
+                                          isSelected ? "text-[#942008]" : "text-stone-900"
+                                        }`}
+                                      >
+                                        {opt.code}
+                                      </span>
+                                      <span className="text-xs text-stone-500 truncate font-medium">
+                                        {opt.name || opt.label}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {isSelected && <Check size={16} className="text-[#c4431d] shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -413,7 +528,7 @@ export default function AdminNotifications() {
                 ) : (
                   <Send size={16} className="shrink-0" />
                 )}
-                <span>{isSubmitting ? "Broadcasting to Students..." : `🚀 Broadcast to ${form.targetAudience.toUpperCase()} Students`}</span>
+                <span>{isSubmitting ? "Broadcasting to Students..." : ` Broadcast to ${selectedAudience?.code || form.targetAudience.toUpperCase()} Students`}</span>
               </button>
             </form>
           </div>
@@ -435,7 +550,7 @@ export default function AdminNotifications() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
                       <span className="text-xs md:text-sm lg:text-xs font-bold text-[#942008] bg-[#fde5d6] px-2 py-0.5 rounded-md uppercase tracking-wider">
-                        {form.type.toUpperCase()} • {form.targetAudience.toUpperCase()}
+                        {form.type.toUpperCase()} • {selectedAudience?.code || form.targetAudience.toUpperCase()}
                       </span>
                       <span className="text-xs md:text-sm lg:text-xs text-stone-400 font-medium">Just Now</span>
                     </div>

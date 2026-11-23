@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -140,7 +140,7 @@ export default function StudentWebinarPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-8">
         {isGeneral ? (
           <div className="py-16 px-4 max-w-2xl mx-auto text-center space-y-6">
             <div className="w-16 h-16 rounded-3xl bg-[#fde5d6] border-2 border-[#f5ded0] flex items-center justify-center text-[#942008] mx-auto shadow-2xl">

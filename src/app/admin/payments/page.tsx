@@ -302,33 +302,53 @@ export default function AdminPaymentTransactions() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 transition-colors lg:pl-64">
+    <div
+      className="min-h-screen bg-[#faf8f5] text-stone-900 transition-colors lg:pl-64"
+      style={{
+        backgroundColor: "#faf8f5",
+        backgroundImage: "radial-gradient(circle, #e2ded4 1.5px, transparent 1.5px)",
+        backgroundSize: "24px 24px",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Breadcrumb & Page Header - moved to top bar */}
-        {/*
-        <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-          <span>Students &amp; CRM</span>
-          <span className="text-stone-300">/</span>
-          <span className="text-stone-700 font-medium">Payment Transactions</span>
-        </div>
-        */}
-
-        {/* Page Header */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Razorpay Payment &amp; Transactions
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Complete audit log of all membership checkout attempts with live gateway verification.
-            </p>
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* View Switcher Tabs & Refresh in same row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <button
+              onClick={() => handleMainTabChange("transactions")}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-xs ${
+                activeMainTab === "transactions"
+                  ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-md shadow-[#c4431d]/20"
+                  : "bg-white border border-stone-200/90 text-stone-700 hover:bg-stone-50"
+              }`}
+            >
+              <CreditCard size={15} /> All Gateway Transactions
+            </button>
+            <button
+              onClick={() => handleMainTabChange("installments")}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-xs ${
+                activeMainTab === "installments"
+                  ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-md shadow-[#c4431d]/20"
+                  : "bg-white border border-stone-200/90 text-stone-700 hover:bg-stone-50"
+              }`}
+            >
+              <Calendar size={15} /> Student Installment Plans
+              {installmentPlans.length > 0 && (
+                <span className={`text-xs px-2 py-0.5 rounded-full font-bold ml-1 ${
+                  activeMainTab === "installments"
+                    ? "bg-white/20 text-white"
+                    : "bg-[#FDF0E9] text-[#C45E32] border border-[#F6D8C8]"
+                }`}>
+                  {installmentPlans.length}
+                </span>
+              )}
+            </button>
           </div>
-          */}
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 self-end sm:self-auto">
             {toastMsg && (
               <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-xl">
                 ✓ {toastMsg}
@@ -339,40 +359,11 @@ export default function AdminPaymentTransactions() {
                 if (activeMainTab === "transactions") fetchTransactions();
                 else fetchInstallments();
               }}
-              className="flex items-center gap-1.5 bg-white hover:bg-stone-50 border border-stone-200/90 text-stone-700 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 bg-white hover:bg-stone-50 border border-stone-200/90 text-stone-700 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
             >
               <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} /> Refresh
             </button>
           </div>
-        </header>
-
-        {/* View Switcher Tabs */}
-        <div className="flex items-center gap-2 sm:gap-3 mb-6 flex-wrap">
-          <button
-            onClick={() => handleMainTabChange("transactions")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all cursor-pointer shadow-xs ${
-              activeMainTab === "transactions"
-                ? "bg-[#B84A1A] text-white"
-                : "bg-white border border-stone-200/90 text-stone-700 hover:bg-stone-50"
-            }`}
-          >
-            <CreditCard size={15} /> All Gateway Transactions
-          </button>
-          <button
-            onClick={() => handleMainTabChange("installments")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all cursor-pointer shadow-xs ${
-              activeMainTab === "installments"
-                ? "bg-[#B84A1A] text-white"
-                : "bg-white border border-stone-200/90 text-stone-700 hover:bg-stone-50"
-            }`}
-          >
-            <Calendar size={15} /> Student Installment Plans
-            {installmentPlans.length > 0 && (
-              <span className="bg-[#FDF0E9] text-[#C45E32] text-xs px-2 py-0.5 rounded-full font-bold ml-1 border border-[#F6D8C8]">
-                {installmentPlans.length}
-              </span>
-            )}
-          </button>
         </div>
 
         {activeMainTab === "installments" ? (
@@ -727,9 +718,9 @@ export default function AdminPaymentTransactions() {
                   <button
                     key={tab.value}
                     onClick={() => handleStatusFilterChange(tab.value)}
-                    className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
+                    className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                       statusFilter === tab.value
-                        ? "bg-[#B84A1A] text-white shadow-xs"
+                        ? "bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] text-white shadow-md shadow-[#c4431d]/20"
                         : "text-stone-600 hover:text-stone-900 hover:bg-stone-100/60"
                     }`}
                   >
@@ -740,7 +731,7 @@ export default function AdminPaymentTransactions() {
 
               {/* Search Box */}
               <form onSubmit={handleSearch} className="w-full md:w-[360px] lg:w-[400px]">
-                <div className="bg-white border border-stone-200/90 rounded-2xl flex items-center p-1 pl-3.5 shadow-xs transition-all focus-within:border-[#B84A1A] focus-within:ring-1 focus-within:ring-[#B84A1A]/20">
+                <div className="bg-white border border-stone-200/90 rounded-2xl flex items-center p-1 pl-3.5 shadow-xs transition-all focus-within:border-[#c4431d] focus-within:ring-1 focus-within:ring-[#c4431d]/20">
                   <Search size={16} className="text-stone-400 shrink-0 mr-2" />
                   <input
                     type="text"
@@ -751,7 +742,7 @@ export default function AdminPaymentTransactions() {
                   />
                   <button
                     type="submit"
-                    className="bg-[#B84A1A] hover:bg-[#A03E14] text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0"
+                    className="bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-opacity cursor-pointer shrink-0 shadow-sm shadow-[#c4431d]/20"
                   >
                     Search
                   </button>

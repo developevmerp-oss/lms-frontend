@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -132,7 +132,7 @@ export default function StudentAssignments() {
         notifications={stats.notifications}
       />
 
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">

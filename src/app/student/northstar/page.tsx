@@ -144,34 +144,18 @@ export default function NorthstarTrackingPage() {
         notifications={stats?.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Business &amp; Growth</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Northstar Revenue &amp; Goal Tracker</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Northstar Revenue &amp; Goal Tracker
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Track your journey from art creation to consistent ₹3,00,000/month commercial business growth.
-            </p>
-          </div>
-          */}
-
-          {isAccessible && (
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Actions Bar - Left Aligned */}
+        {isAccessible && (
+          <div className="flex flex-wrap items-center justify-start gap-4 mb-6">
             <button
               onClick={() => setShowAddSaleModal(true)}
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs md:text-sm h-11 px-6 rounded-2xl shadow-md shadow-[#c4431d]/20 transition-all hover:scale-105 cursor-pointer self-start md:self-auto"
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs md:text-sm h-11 px-6 rounded-2xl shadow-md shadow-[#c4431d]/20 transition-all hover:scale-105 cursor-pointer"
             >
               <Plus size={16} /> Log New Client Sale (+100 XP)
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {feedbackMsg && (
           <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-bold flex items-center gap-2">

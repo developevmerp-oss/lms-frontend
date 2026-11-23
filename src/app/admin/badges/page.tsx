@@ -268,26 +268,12 @@ export default function AdminBadges() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#fde5d6]/80 border border-[#f5ded0] text-[#942008] text-[0.6875rem] sm:text-xs font-bold uppercase tracking-wider px-3 py-1 mb-2">
-              <span>GAMIFICATION &amp; RECOGNITION</span>
-            </div>
-            <h1 className="text-2xl sm:text-[1.75rem] font-bold text-stone-900 tracking-tight">
-              Badge &amp; Reward Management
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Create, edit, and award custom mastery badges and milestone honors to students.
-            </p>
-          </div>
-          */}
-
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Actions Bar - Left Aligned */}
+        <div className="flex flex-wrap items-center justify-start gap-4 mb-6">
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-1.5 bg-[#c4431d] hover:bg-[#a93313] text-white font-bold text-xs sm:text-sm h-10 px-4 sm:px-5 rounded-xl shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold text-xs sm:text-sm h-10 px-4 sm:px-5 rounded-xl shadow-md shadow-[#c4431d]/25 transition-all cursor-pointer self-start sm:self-auto shrink-0"
           >
             <Plus size={16} /> Create New Badge
           </button>

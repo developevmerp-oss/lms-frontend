@@ -112,37 +112,20 @@ export default function AdminAssignments() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Learning &amp; Courses</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Assignment Management</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Assignment Management
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Create tasks, review submissions, and award points.
-            </p>
-          </div>
-          */}
-          <div className="flex items-center gap-4">
-            {successMsg && (
-              <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
-                <CheckCircle2 size={14} /> {successMsg}
-              </span>
-            )}
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold transition-all shadow-md shadow-[#c4431d]/25"
-            >
-              <Plus size={18} /> Create Assignment
-            </button>
-          </div>
-        </header>
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="flex flex-wrap items-center justify-start gap-4 mb-6">
+          {successMsg && (
+            <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
+              <CheckCircle2 size={14} /> {successMsg}
+            </span>
+          )}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold transition-all shadow-md shadow-[#c4431d]/25 cursor-pointer"
+          >
+            <Plus size={18} /> Create Assignment
+          </button>
+        </div>
 
         {isLoading ? (
           <div className="space-y-6">
