@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 import { StudentNav } from "@/components/layout/StudentNav";
-import { uploadMediaFile } from "@/utils/uploadFile";
+import { uploadMediaFile, discardUploadedFile } from "@/utils/uploadFile";
 
 interface PortfolioItem {
   id?: string;
@@ -76,6 +76,7 @@ export default function StudentPortfolio() {
     setUploadError("");
     try {
       const { url } = await uploadMediaFile(file, token);
+      discardUploadedFile(formData.imageUrl, token); // a previous, still unsaved upload is replaced: delete it from Cloudinary
       setFormData((prev) => ({ ...prev, imageUrl: url }));
     } catch (err: any) {
       console.error("Portfolio upload error:", err);
@@ -444,7 +445,7 @@ export default function StudentPortfolio() {
                       </span>
                       <button
                         type="button"
-                        onClick={() => setFormData((prev) => ({ ...prev, imageUrl: "" }))}
+                        onClick={() => { discardUploadedFile(formData.imageUrl, token); setFormData((prev) => ({ ...prev, imageUrl: "" })); }}
                         className="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold cursor-pointer shrink-0 transition-colors"
                       >
                         Remove

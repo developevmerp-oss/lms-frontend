@@ -9,7 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { StatCardSkeleton, AdminTableSkeleton, CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 
 import { API_BASE_URL } from "@/config/api";
-import { uploadMediaFile } from "@/utils/uploadFile";
+import { uploadMediaFile, discardUploadedFile } from "@/utils/uploadFile";
 
 const API = API_BASE_URL;
 
@@ -80,6 +80,7 @@ export default function AdminDashboard() {
     try {
       // Images go to /upload/image, videos to /upload/video, documents to /upload/document
       const { url } = await uploadMediaFile(file, token);
+      discardUploadedFile(winImage, token); // a previous, still unsaved upload is replaced: delete it from Cloudinary
       setWinImage(url);
     } catch (err) {
       console.error('File upload error:', err);
@@ -1127,7 +1128,7 @@ export default function AdminDashboard() {
                     <div className="mt-2 p-2 rounded-xl bg-stone-50 border border-stone-200 relative">
                       <button
                         type="button"
-                        onClick={() => setWinImage('')}
+                        onClick={() => { discardUploadedFile(winImage, token); setWinImage(''); }}
                         className="absolute right-2 top-2 bg-stone-200 hover:bg-stone-300 text-stone-700 p-1 rounded-lg z-10 text-xs cursor-pointer"
                       >
                         ✕
