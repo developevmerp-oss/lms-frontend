@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Sparkles, Plus, CheckCircle2, ChevronRight, X, DollarSign, Award, Flame, MessageCircle, Image, Send, Heart, Gem, MoreHorizontal, Bookmark, Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAuth } from '@/context/AuthContext';
-import { uploadMediaFile } from '@/utils/uploadFile';
+import { uploadMediaFile, discardUploadedFile } from '@/utils/uploadFile';
 
 interface CommentItem {
   author: string;
@@ -136,6 +136,7 @@ export const WinWall = ({
       // Images go to /upload/image, videos to /upload/video, documents to /upload/document
       // (the backend saves them in Cloudinary and returns the link)
       const { url } = await uploadMediaFile(file, token);
+      discardUploadedFile(winForm.imageUrl, token); // a previous, still unsaved upload is replaced: delete it from Cloudinary
       setWinForm((prev) => ({ ...prev, imageUrl: url }));
     } catch (err) {
       console.error('Upload error:', err);
@@ -875,7 +876,7 @@ export const WinWall = ({
                     <div className="mt-2 p-2 rounded-xl bg-[#faf8f5] border border-stone-200 relative">
                       <button
                         type="button"
-                        onClick={() => setWinForm({ ...winForm, imageUrl: '' })}
+                        onClick={() => { discardUploadedFile(winForm.imageUrl, localStorage.getItem('token')); setWinForm({ ...winForm, imageUrl: '' }); }}
                         className="absolute right-2 top-2 bg-white text-stone-500 hover:text-stone-900 p-1 rounded-lg z-10"
                       >
                         <X size={12} />
