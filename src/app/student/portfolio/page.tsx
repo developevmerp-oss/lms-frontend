@@ -146,23 +146,9 @@ export default function StudentPortfolio() {
     >
       <StudentNav user={user} level={user?.membershipLevel || "General"} points={user?.points || 0} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 md:px-8 lg:px-10 py-6 sm:py-8 max-w-7xl mx-auto">
-        {/* Responsive Header */}
-        <header className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Student Hub</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">My Portfolio</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
-              My Portfolio
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Upload and showcase your finished resin artwork for mentor feedback and skill ratings.
-            </p>
-          </div>
-
+      <main className="w-full px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-6 max-w-7xl mx-auto">
+        {/* Actions Bar - Left Aligned */}
+        <div className="mb-6 flex flex-wrap items-center justify-start gap-4">
           <button
             onClick={() => {
               setFormData({ title: "", technique: "", imageUrl: "" });
@@ -174,7 +160,7 @@ export default function StudentPortfolio() {
             <Plus size={16} />
             <span>Upload Artwork</span>
           </button>
-        </header>
+        </div>
 
         {!mounted || !user ? (
           <div className="bg-white/95 border border-[#ecdccb] p-8 rounded-3xl min-h-[50vh] flex flex-col items-center justify-center text-center shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] space-y-4">

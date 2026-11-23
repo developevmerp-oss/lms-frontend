@@ -5799,22 +5799,18 @@ body::-webkit-scrollbar,
    - All Desktop screens: lg (1024px+ including MacBook 13", 14", 15", 16" & 1080p+ Desktops)
    ========================================================================= */
 
-/* Mac Screen & Laptop Fluid Scaling for Admin & Student Panels */
-@media (min-width: 1024px) and (max-width: 1535px) {
+/* =========================================================================
+   RESPONSIVE FONT-SIZE ENGINE (ADMIN & STUDENT PANELS + ALL POPUPS)
+   Calibrated to match the breakpoint hierarchy in admin/dashboard/page.tsx:
+   - Mobile View (< 640px): Minimum visible scale (no illegible 10px/11px text)
+   - Tablet View (640px - 1023px, sm:): Prominent, large visible scale (18px base/labels/inputs)
+   - Desktop View (>= 1024px, lg:): Clean, balanced desktop standard scale (14px-15px labels, 16px body)
+   ========================================================================= */
 
-  html:has(.admin-panel),
-  html:has(.student-panel) {
-    /* Fluid scaling on Mac screens so UI elements & font sizes match desktop proportions */
-    font-size: clamp(14px, 0.45vw + 9.5px, 16px);
-  }
-}
-
-@media (min-width: 640px) and (max-width: 1023px) {
-
-  html:has(.admin-panel),
-  html:has(.student-panel) {
-    font-size: 15px;
-  }
+/* Ensure standard 16px root everywhere so rem units are reliable */
+html:has(.admin-panel),
+html:has(.student-panel) {
+  font-size: 16px !important;
 }
 
 /* Base typography & responsive rendering for admin & student panels */
@@ -5826,18 +5822,261 @@ body::-webkit-scrollbar,
   width: 100%;
 }
 
-/* Ensure smooth responsive headers and prevent text wrapping awkwardness on Mac screens */
-@media (min-width: 1024px) {
+/* ─── 1. MOBILE VIEW (Default, < 640px) ─── */
+.admin-panel,
+.student-panel,
+div[class*="fixed"][class*="inset-0"],
+[role="dialog"] {
+  font-size: 0.875rem; /* 14px */
+}
 
-  .admin-panel h1,
-  .student-panel h1 {
-    letter-spacing: -0.025em;
+/* Eliminate tiny unreadable fonts (10px, 11px) */
+.admin-panel [class*="text-[10px]"],
+.student-panel [class*="text-[10px]"],
+.admin-panel [class*="text-[11px]"],
+.student-panel [class*="text-[11px]"],
+.admin-panel [class*="text-[0.6875rem]"],
+.student-panel [class*="text-[0.6875rem]"],
+div[class*="fixed"][class*="inset-0"] [class*="text-[10px]"],
+div[class*="fixed"][class*="inset-0"] [class*="text-[11px]"],
+[role="dialog"] [class*="text-[10px]"],
+[role="dialog"] [class*="text-[11px]"] {
+  font-size: 0.75rem !important; /* 12px min */
+  line-height: 1.4;
+}
+
+/* text-xs: enhanced to 13px for mobile legibility */
+.admin-panel .text-xs:not([class*="sm:"], [class*="lg:"]),
+.student-panel .text-xs:not([class*="sm:"], [class*="lg:"]),
+div[class*="fixed"][class*="inset-0"] .text-xs:not([class*="sm:"], [class*="lg:"]),
+[role="dialog"] .text-xs:not([class*="sm:"], [class*="lg:"]) {
+  font-size: 0.8125rem !important; /* 13px */
+  line-height: 1.45;
+}
+
+/* text-sm: 14px */
+.admin-panel .text-sm:not([class*="sm:"], [class*="lg:"]),
+.student-panel .text-sm:not([class*="sm:"], [class*="lg:"]),
+div[class*="fixed"][class*="inset-0"] .text-sm:not([class*="sm:"], [class*="lg:"]),
+[role="dialog"] .text-sm:not([class*="sm:"], [class*="lg:"]) {
+  font-size: 0.875rem !important; /* 14px */
+  line-height: 1.5;
+}
+
+/* Form labels on mobile */
+.admin-panel label:not([class*="sm:"], [class*="lg:"]),
+.student-panel label:not([class*="sm:"], [class*="lg:"]),
+div[class*="fixed"][class*="inset-0"] label:not([class*="sm:"], [class*="lg:"]),
+[role="dialog"] label:not([class*="sm:"], [class*="lg:"]) {
+  font-size: 0.875rem !important; /* 14px */
+}
+
+/* Form inputs on mobile (14px prevents iOS zoom) */
+.admin-panel input:not([type="checkbox"], [type="radio"], [class*="sm:"], [class*="lg:"]),
+.student-panel input:not([type="checkbox"], [type="radio"], [class*="sm:"], [class*="lg:"]),
+.admin-panel select:not([class*="sm:"], [class*="lg:"]),
+.student-panel select:not([class*="sm:"], [class*="lg:"]),
+.admin-panel textarea:not([class*="sm:"], [class*="lg:"]),
+.student-panel textarea:not([class*="sm:"], [class*="lg:"]),
+div[class*="fixed"][class*="inset-0"] input:not([type="checkbox"], [type="radio"], [class*="sm:"], [class*="lg:"]),
+div[class*="fixed"][class*="inset-0"] select:not([class*="sm:"], [class*="lg:"]),
+div[class*="fixed"][class*="inset-0"] textarea:not([class*="sm:"], [class*="lg:"]),
+[role="dialog"] input:not([type="checkbox"], [type="radio"], [class*="sm:"], [class*="lg:"]),
+[role="dialog"] select:not([class*="sm:"], [class*="lg:"]),
+[role="dialog"] textarea:not([class*="sm:"], [class*="lg:"]) {
+  font-size: 0.875rem !important; /* 14px */
+}
+
+/* ─── 2. TABLET VIEW (640px - 1023px, sm:) ─── */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .admin-panel,
+  .student-panel,
+  div[class*="fixed"][class*="inset-0"],
+  [role="dialog"] {
+    font-size: 1.125rem; /* 18px base */
   }
 
-  .admin-panel main,
-  .student-panel main {
-    max-width: 100%;
-    min-width: 0;
+  /* Any tiny text boosted on tablet */
+  .admin-panel [class*="text-[10px]"],
+  .student-panel [class*="text-[10px]"],
+  .admin-panel [class*="text-[11px]"],
+  .student-panel [class*="text-[11px]"],
+  .admin-panel [class*="text-[0.6875rem]"],
+  .student-panel [class*="text-[0.6875rem]"],
+  div[class*="fixed"][class*="inset-0"] [class*="text-[10px]"],
+  div[class*="fixed"][class*="inset-0"] [class*="text-[11px]"],
+  [role="dialog"] [class*="text-[10px]"],
+  [role="dialog"] [class*="text-[11px]"] {
+    font-size: 1rem !important; /* 16px */
+    line-height: 1.5;
+  }
+
+  /* text-xs on tablet: scales up to 18px (matches sm:text-lg from admin/dashboard) */
+  .admin-panel .text-xs:not([class*="sm:text-"]),
+  .student-panel .text-xs:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-xs:not([class*="sm:text-"]),
+  [role="dialog"] .text-xs:not([class*="sm:text-"]) {
+    font-size: 1.125rem !important; /* 18px */
+    line-height: 1.6;
+  }
+
+  /* text-sm on tablet: scales up to 18px (matches sm:text-lg from admin/dashboard) */
+  .admin-panel .text-sm:not([class*="sm:text-"]),
+  .student-panel .text-sm:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-sm:not([class*="sm:text-"]),
+  [role="dialog"] .text-sm:not([class*="sm:text-"]) {
+    font-size: 1.125rem !important; /* 18px */
+    line-height: 1.6;
+  }
+
+  /* text-base on tablet: scales up to 20px (matches sm:text-xl from admin/dashboard) */
+  .admin-panel .text-base:not([class*="sm:text-"]),
+  .student-panel .text-base:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-base:not([class*="sm:text-"]),
+  [role="dialog"] .text-base:not([class*="sm:text-"]) {
+    font-size: 1.25rem !important; /* 20px */
+    line-height: 1.6;
+  }
+
+  /* text-lg on tablet: 22px */
+  .admin-panel .text-lg:not([class*="sm:text-"]),
+  .student-panel .text-lg:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-lg:not([class*="sm:text-"]),
+  [role="dialog"] .text-lg:not([class*="sm:text-"]) {
+    font-size: 1.375rem !important; /* 22px */
+    line-height: 1.5;
+  }
+
+  /* text-xl on tablet: 24px */
+  .admin-panel .text-xl:not([class*="sm:text-"]),
+  .student-panel .text-xl:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-xl:not([class*="sm:text-"]),
+  [role="dialog"] .text-xl:not([class*="sm:text-"]) {
+    font-size: 1.5rem !important; /* 24px */
+    line-height: 1.4;
+  }
+
+  /* Form labels on tablet: 18px */
+  .admin-panel label:not([class*="sm:text-"]),
+  .student-panel label:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] label:not([class*="sm:text-"]),
+  [role="dialog"] label:not([class*="sm:text-"]) {
+    font-size: 1.125rem !important; /* 18px */
+  }
+
+  /* Form inputs, selects, textareas on tablet: 18px */
+  .admin-panel input:not([type="checkbox"], [type="radio"], [class*="sm:text-"]),
+  .student-panel input:not([type="checkbox"], [type="radio"], [class*="sm:text-"]),
+  .admin-panel select:not([class*="sm:text-"]),
+  .student-panel select:not([class*="sm:text-"]),
+  .admin-panel textarea:not([class*="sm:text-"]),
+  .student-panel textarea:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] input:not([type="checkbox"], [type="radio"], [class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] select:not([class*="sm:text-"]),
+  div[class*="fixed"][class*="inset-0"] textarea:not([class*="sm:text-"]),
+  [role="dialog"] input:not([type="checkbox"], [type="radio"], [class*="sm:text-"]),
+  [role="dialog"] select:not([class*="sm:text-"]),
+  [role="dialog"] textarea:not([class*="sm:text-"]) {
+    font-size: 1.125rem !important; /* 18px */
+  }
+
+  /* Table headers and cells on tablet: 18px */
+  .admin-panel table th:not([class*="sm:text-"]),
+  .student-panel table th:not([class*="sm:text-"]),
+  .admin-panel table td:not([class*="sm:text-"]),
+  .student-panel table td:not([class*="sm:text-"]) {
+    font-size: 1.125rem !important; /* 18px */
+  }
+}
+
+/* ─── 3. DESKTOP VIEW (>= 1024px, lg:) ─── */
+@media (min-width: 1024px) {
+  .admin-panel,
+  .student-panel,
+  div[class*="fixed"][class*="inset-0"],
+  [role="dialog"] {
+    font-size: 0.9375rem; /* 15px */
+  }
+
+  /* text-xs on desktop: 14px (matches lg:text-sm from admin/dashboard) */
+  .admin-panel .text-xs:not([class*="lg:text-"]),
+  .student-panel .text-xs:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-xs:not([class*="lg:text-"]),
+  [role="dialog"] .text-xs:not([class*="lg:text-"]) {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.45;
+  }
+
+  /* text-sm on desktop: 15px (matches lg:text-base from admin/dashboard) */
+  .admin-panel .text-sm:not([class*="lg:text-"]),
+  .student-panel .text-sm:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-sm:not([class*="lg:text-"]),
+  [role="dialog"] .text-sm:not([class*="lg:text-"]) {
+    font-size: 0.9375rem !important; /* 15px */
+    line-height: 1.5;
+  }
+
+  /* text-base on desktop: 16px */
+  .admin-panel .text-base:not([class*="lg:text-"]),
+  .student-panel .text-base:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-base:not([class*="lg:text-"]),
+  [role="dialog"] .text-base:not([class*="lg:text-"]) {
+    font-size: 1rem !important; /* 16px */
+    line-height: 1.55;
+  }
+
+  /* text-lg on desktop: 18px (matches lg:text-lg from admin/dashboard) */
+  .admin-panel .text-lg:not([class*="lg:text-"]),
+  .student-panel .text-lg:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-lg:not([class*="lg:text-"]),
+  [role="dialog"] .text-lg:not([class*="lg:text-"]) {
+    font-size: 1.125rem !important; /* 18px */
+    line-height: 1.5;
+  }
+
+  /* text-xl on desktop: 20px */
+  .admin-panel .text-xl:not([class*="lg:text-"]),
+  .student-panel .text-xl:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] .text-xl:not([class*="lg:text-"]),
+  [role="dialog"] .text-xl:not([class*="lg:text-"]) {
+    font-size: 1.25rem !important; /* 20px */
+    line-height: 1.4;
+  }
+
+  /* Form labels on desktop: 14px */
+  .admin-panel label:not([class*="lg:text-"]),
+  .student-panel label:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] label:not([class*="lg:text-"]),
+  [role="dialog"] label:not([class*="lg:text-"]) {
+    font-size: 0.875rem !important; /* 14px */
+  }
+
+  /* Form inputs, selects, textareas on desktop: 14px */
+  .admin-panel input:not([type="checkbox"], [type="radio"], [class*="lg:text-"]),
+  .student-panel input:not([type="checkbox"], [type="radio"], [class*="lg:text-"]),
+  .admin-panel select:not([class*="lg:text-"]),
+  .student-panel select:not([class*="lg:text-"]),
+  .admin-panel textarea:not([class*="lg:text-"]),
+  .student-panel textarea:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] input:not([type="checkbox"], [type="radio"], [class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] select:not([class*="lg:text-"]),
+  div[class*="fixed"][class*="inset-0"] textarea:not([class*="lg:text-"]),
+  [role="dialog"] input:not([type="checkbox"], [type="radio"], [class*="lg:text-"]),
+  [role="dialog"] select:not([class*="lg:text-"]),
+  [role="dialog"] textarea:not([class*="lg:text-"]) {
+    font-size: 0.875rem !important; /* 14px */
+  }
+
+  /* Table headers on desktop: 14px */
+  .admin-panel table th:not([class*="lg:text-"]),
+  .student-panel table th:not([class*="lg:text-"]) {
+    font-size: 0.875rem !important; /* 14px */
+  }
+
+  /* Table cells on desktop: 14.5px */
+  .admin-panel table td:not([class*="lg:text-"]),
+  .student-panel table td:not([class*="lg:text-"]) {
+    font-size: 0.9rem !important; /* 14.5px */
   }
 }
 

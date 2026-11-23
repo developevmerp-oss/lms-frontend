@@ -288,43 +288,25 @@ export default function AdminMarketingPage() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
-          {/*
-          <div>
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
-              <span>Marketing &amp; Growth</span>
-              <span className="text-stone-300">/</span>
-              <span className="text-stone-700 font-medium">Tracking Manager</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 tracking-tight">
-              Marketing &amp; Tracking Manager
-            </h1>
-            <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
-              Dynamic Meta (Facebook) Pixel integration with zero code changes and fail-safe operation.
-            </p>
-          </div>
-          */}
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => fetchSettings()}
-              disabled={isLoading}
-              className="px-3.5 py-2 text-xs font-bold text-stone-600 bg-white border border-[#ecdccb] rounded-xl hover:bg-stone-100 transition-all flex items-center gap-1.5 shadow-sm"
-            >
-              <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
-              Refresh
-            </button>
-            <button
-              onClick={() => handleSave()}
-              disabled={isSaving || isLoading}
-              className="px-5 py-2 text-sm font-bold text-white bg-[#c4431d] hover:bg-rose-700 active:scale-95 rounded-xl transition-all shadow-md shadow-rose-200 flex items-center gap-2 disabled:opacity-50"
-            >
-              {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-              {isSaving ? "Saving..." : "Save Settings"}
-            </button>
-          </div>
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Actions Bar - Left Aligned */}
+        <div className="flex flex-wrap items-center justify-start gap-2 mb-6">
+          <button
+            onClick={() => fetchSettings()}
+            disabled={isLoading}
+            className="px-3.5 py-2 text-xs font-bold text-stone-600 bg-white border border-[#ecdccb] rounded-xl hover:bg-stone-100 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+          >
+            <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
+            Refresh
+          </button>
+          <button
+            onClick={() => handleSave()}
+            disabled={isSaving || isLoading}
+            className="px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 active:scale-95 rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+          >
+            {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+            {isSaving ? "Saving..." : "Save Settings"}
+          </button>
         </div>
 
         {/* Notifications */}

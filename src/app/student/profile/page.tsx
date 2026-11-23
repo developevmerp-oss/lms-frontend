@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -171,7 +171,7 @@ export default function StudentProfile() {
         notifications={stats.notifications}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Page Header - Moved to Top Bar per user instruction */}
         {/*
         <header className="mb-4 sm:mb-6">

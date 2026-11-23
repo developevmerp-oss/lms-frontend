@@ -28,6 +28,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`theme-orange ${fraunces.variable} ${nunito.variable} ${caveat.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className={`${inter.className} text-text-primary min-h-screen bg-background`}>
         <AuthProvider>
           <MetaPixelProvider />

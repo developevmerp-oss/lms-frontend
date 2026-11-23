@@ -122,12 +122,29 @@ export const AdminNav = ({ user, logout, title }: AdminNavProps) => {
   const isCrmActive = crmItems.some((item) => isItemActive(item.path));
   const isCourseActive = courseItems.some((item) => isItemActive(item.path));
 
-  // Accordion state: closed by default on login/initial landing
-  const [openDropdown, setOpenDropdown] = useState<'crm' | 'courses' | null>(null);
+  // Accordion state: automatically open if the current page belongs to that dropdown
+  const [openDropdown, setOpenDropdown] = useState<'crm' | 'courses' | null>(() => {
+    if (crmItems.some((item) => pathname === item.path || pathname.startsWith(item.path + '/'))) {
+      return 'crm';
+    }
+    if (courseItems.some((item) => pathname === item.path || pathname.startsWith(item.path + '/'))) {
+      return 'courses';
+    }
+    return null;
+  });
 
   const toggleDropdown = (key: 'crm' | 'courses') => {
     setOpenDropdown((prev) => (prev === key ? null : key));
   };
+
+  // Auto-expand the dropdown menu if the currently selected page belongs to it
+  useEffect(() => {
+    if (isCrmActive) {
+      setOpenDropdown('crm');
+    } else if (isCourseActive) {
+      setOpenDropdown('courses');
+    }
+  }, [pathname, isCrmActive, isCourseActive]);
 
   // Close mobile drawer on path change
   useEffect(() => {

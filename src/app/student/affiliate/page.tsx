@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
@@ -58,7 +58,7 @@ export default function StudentAffiliatePage() {
     >
       <StudentNav user={user} level="Affiliate Partner" points={0} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-8">
         {!mounted || !user ? (
           <div className="space-y-8">
             {/* Header Skeleton */}

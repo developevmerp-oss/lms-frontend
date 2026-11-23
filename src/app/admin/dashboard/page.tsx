@@ -26,6 +26,8 @@ export default function AdminDashboard() {
     totalStudents: 0,
     tiers: [],
   });
+  const [levels, setLevels] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [wins, setWins] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -96,13 +98,15 @@ export default function AdminDashboard() {
 
     // Fire all fetches in parallel
     Promise.all([
-      fetch(`${API}/dashboard/admin`, { headers }).then(r => r.json()),
-      fetch(`${API}/admin/students/summary`, { headers }).then(r => r.json()),
-      fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json()),
-      fetch(`${API}/admin/notifications`, { headers }).then(r => r.json()),
-      fetch(`${API}/admin/revenue-by-tier`, { headers }).then(r => r.json()),
+      fetch(`${API}/dashboard/admin`, { headers }).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/admin/students/summary`, { headers }).then(r => r.json()).catch(() => []),
+      fetch(`${API}/admin/community-wins`, { headers }).then(r => r.json()).catch(() => []),
+      fetch(`${API}/admin/notifications`, { headers }).then(r => r.json()).catch(() => []),
+      fetch(`${API}/admin/revenue-by-tier`, { headers }).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/admin/levels`, { headers }).then(r => r.json()).catch(() => []),
+      fetch(`${API}/courses`, { headers }).then(r => r.json()).catch(() => []),
     ])
-      .then(([statsData, studentsData, winsData, notifsData, revData]) => {
+      .then(([statsData, studentsData, winsData, notifsData, revData, levelsData, coursesData]) => {
         if (statsData && !statsData.message) setStats(statsData);
         // summary returns plain array
         if (Array.isArray(studentsData)) setStudents(studentsData);
@@ -112,55 +116,169 @@ export default function AdminDashboard() {
         if (notifsData?.data && Array.isArray(notifsData.data)) setNotifications(notifsData.data);
         else if (Array.isArray(notifsData)) setNotifications(notifsData);
         if (revData && revData.tiers) setRevenueData(revData);
+        if (Array.isArray(levelsData) && levelsData.length > 0) setLevels(levelsData);
+        if (Array.isArray(coursesData) && coursesData.length > 0) setCourses(coursesData);
       })
       .catch(err => console.error('Admin dashboard fetch error:', err))
       .finally(() => setIsLoading(false));
   }, [token]);
 
+  const dynamicLevels = React.useMemo(() => {
+    if (levels && levels.length > 0) return levels;
+    if (revenueData.tiers && revenueData.tiers.length > 0) return revenueData.tiers;
+    return [
+      { code: 'L0', name: 'Fast Track', icon: '🌱', price: '₹499' },
+      { code: 'L1', name: 'Silver Member', icon: '🥈', price: '₹4,999' },
+      { code: 'L2', name: 'Gold Member', icon: '🥇', price: '₹19,999' },
+      { code: 'L3', name: 'Diamond Club', icon: '💎', price: '₹59,999' },
+      { code: 'L3+', name: 'Masters Club', icon: '👑', price: 'Custom' },
+    ];
+  }, [levels, revenueData.tiers]);
+
+  const standaloneCourses = React.useMemo(() => {
+    if (!courses || !Array.isArray(courses)) return [];
+    return courses.filter((c: any) => {
+      const lvl = (c.levelCode || '').toUpperCase().trim();
+      return !lvl || lvl === 'NONE' || lvl === 'STANDALONE';
+    });
+  }, [courses]);
+
+  const getSendButtonLabel = () => {
+    if (selectedStudent === 'all') return 'Broadcast to All Students';
+    if (selectedStudent === 'group:general' || selectedStudent === 'general') return 'Send to All General Students';
+    if (selectedStudent === 'group:webinar' || selectedStudent === 'webinar') return 'Send to All Webinar Students';
+    if (selectedStudent.startsWith('group:')) {
+      const code = selectedStudent.replace('group:', '');
+      const foundLevel = dynamicLevels.find((l: any) => l.code?.toUpperCase() === code.toUpperCase());
+      return foundLevel
+        ? `Send to All ${foundLevel.code} (${foundLevel.name}) Students`
+        : `Send to All ${code.toUpperCase()} Students`;
+    }
+    if (selectedStudent.startsWith('course:')) {
+      const courseId = selectedStudent.replace('course:', '');
+      const foundCourse = standaloneCourses.find((c: any) => String(c.id) === String(courseId));
+      return foundCourse
+        ? `Send to Students of "${foundCourse.title}"`
+        : 'Send to Standalone Course Students';
+    }
+    return 'Send Notification';
+  };
+
   const handleSendNotification = async () => {
     if (!selectedStudent || !notifTitle || !notifMessage) return;
     setSending(true);
     try {
-      const isGroup = selectedStudent.startsWith('group:') || selectedStudent === 'all' || ['L0', 'L1', 'L2', 'L3', 'webinar'].includes(selectedStudent);
+      let successMessage = '';
 
-      let res;
-      if (isGroup) {
-        const targetAudience = selectedStudent.startsWith('group:')
-          ? selectedStudent.replace('group:', '')
-          : selectedStudent;
-        res = await fetch(`${API}/admin/notifications/broadcast`, {
+      if (selectedStudent.startsWith('course:')) {
+        const courseId = selectedStudent.replace('course:', '');
+        const targetCourse = standaloneCourses.find((c: any) => String(c.id) === String(courseId));
+        const courseTitle = targetCourse?.title || 'Standalone Course';
+
+        // Check which students are enrolled in this standalone course
+        const studentDetailPromises = students.map((s: any) =>
+          fetch(`${API}/admin/students/${s.id}`, { headers })
+            .then(r => (r.ok ? r.json() : null))
+            .catch(() => null)
+        );
+        const detailedStudents = await Promise.all(studentDetailPromises);
+        const enrolledStudents = detailedStudents.filter(
+          (s: any) => s && Array.isArray(s.courses) && s.courses.some((c: any) => String(c.id) === String(courseId))
+        );
+
+        if (enrolledStudents.length === 0) {
+          alert(`No students are currently enrolled in "${courseTitle}".`);
+          setSending(false);
+          return;
+        }
+
+        const sendPromises = enrolledStudents.map((s: any) =>
+          fetch(`${API}/admin/students/${s.id}/notifications`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              title: notifTitle,
+              message: notifMessage,
+            }),
+          })
+        );
+        await Promise.all(sendPromises);
+        successMessage = `Notification sent to ${enrolledStudents.length} student(s) enrolled in "${courseTitle}"!`;
+      } else if (selectedStudent.startsWith('group:')) {
+        const targetCode = selectedStudent.replace('group:', '');
+        const isStandardGroup = ['L0', 'L1', 'L2', 'L3', 'general', 'webinar'].includes(targetCode);
+
+        if (isStandardGroup) {
+          const res = await fetch(`${API}/admin/notifications/broadcast`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              title: notifTitle,
+              message: notifMessage,
+              targetAudience: targetCode,
+              type: 'info',
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.message || 'Failed to send broadcast');
+          successMessage = data.message || `Broadcast sent to ${targetCode} students!`;
+        } else {
+          // Dynamic level (e.g. L3+, L4, etc.)
+          const matchingStudents = students.filter((s: any) => {
+            const m = (s.membershipLevel || '').toUpperCase();
+            return m === targetCode.toUpperCase() || m.includes(targetCode.toUpperCase());
+          });
+
+          if (matchingStudents.length === 0) {
+            alert(`No active students found in level ${targetCode}.`);
+            setSending(false);
+            return;
+          }
+
+          const sendPromises = matchingStudents.map((s: any) =>
+            fetch(`${API}/admin/students/${s.id}/notifications`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ title: notifTitle, message: notifMessage }),
+            })
+          );
+          await Promise.all(sendPromises);
+          successMessage = `Notification sent to ${matchingStudents.length} student(s) in ${targetCode}!`;
+        }
+      } else if (selectedStudent === 'all') {
+        const res = await fetch(`${API}/admin/notifications/broadcast`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
             title: notifTitle,
             message: notifMessage,
-            targetAudience,
+            targetAudience: 'all',
             type: 'info',
           }),
         });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'Failed to send broadcast');
+        successMessage = data.message || 'Global broadcast sent to all students!';
       } else {
         const studentId = selectedStudent.startsWith('student:')
           ? selectedStudent.replace('student:', '')
           : selectedStudent;
-        res = await fetch(`${API}/admin/students/${studentId}/notifications`, {
+        const res = await fetch(`${API}/admin/students/${studentId}/notifications`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ title: notifTitle, message: notifMessage }),
         });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'Failed to send notification');
+        successMessage = 'Notification sent successfully!';
       }
 
-      const data = await res.json().catch(() => ({}));
-
-      if (res.ok) {
-        setNotifTitle('');
-        setNotifMessage('');
-        const updated = await fetch(`${API}/admin/notifications`, { headers }).then(r => r.json());
-        const notifList = updated?.data ?? (Array.isArray(updated) ? updated : []);
-        setNotifications(notifList);
-        alert(data.message || 'Notification sent successfully!');
-      } else {
-        alert(data.message || 'Failed to send notification');
-      }
+      setNotifTitle('');
+      setNotifMessage('');
+      const updated = await fetch(`${API}/admin/notifications`, { headers }).then(r => r.json());
+      const notifList = updated?.data ?? (Array.isArray(updated) ? updated : []);
+      setNotifications(notifList);
+      alert(successMessage || 'Notification sent successfully!');
     } catch (err: any) {
       console.error('Error sending notification:', err);
       alert(err?.message || 'Error sending notification');
@@ -291,18 +409,17 @@ export default function AdminDashboard() {
       return <circle cx={cx} cy={cy} r={3.5} fill="#ea580c" stroke="#ffffff" strokeWidth={1.5} />;
     }
 
-    const labelText = payload.revenue >= 10000
-      ? `₹${Math.round(payload.revenue / 1000)}k`
-      : `₹${payload.revenue.toLocaleString('en-IN')}`;
+    const labelText = `₹${(payload.revenue || 0).toLocaleString('en-IN')}`;
+    const badgeWidth = Math.max(48, labelText.length * 7 + 14);
 
     return (
       <g key={`dot-${payload.code}`}>
         <circle cx={cx} cy={cy} r={5.5} fill="#c4431d" stroke="#ffffff" strokeWidth={2} />
         <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect
-            x={-24}
+            x={-badgeWidth / 2}
             y={-18}
-            width={48}
+            width={badgeWidth}
             height={18}
             rx={9}
             fill="#942008"
@@ -376,7 +493,7 @@ export default function AdminDashboard() {
     >
       <AdminNav user={user} logout={logout} />
 
-      <main className="w-full px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 max-w-[1920px] mx-auto">
+      <main className="w-full px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-[1920px] mx-auto">
         {/*
         <header className="flex flex-wrap justify-between items-start gap-4 mb-6">
           <div>
@@ -448,41 +565,38 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
                 {/* Left Card: Revenue Overview + Area Chart */}
                 <div className="lg:col-span-6 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col justify-between">
-                  <div>
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
-                      <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shrink-0">
-                          <IndianRupee size={19} />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-base sm:text-lg font-black text-stone-900">
-                              Course &amp; Level-Wise Revenue Breakdown
-                            </h2>
-                            <span className="text-[11px] sm:text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
-                              Real-time
-                            </span>
-                          </div>
-                          <p className="text-xs text-stone-500 font-medium mt-0.5">
-                            Track earnings, active subscribers, and tier market share.
-                          </p>
-                        </div>
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+                    <div className="flex items-start gap-2.5 sm:gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 shrink-0">
+                        <IndianRupee size={19} />
                       </div>
-
-                      <div className="sm:text-right shrink-0">
-                        <span className="text-xs font-semibold text-stone-500 block">Total Platform Value:</span>
-                        <p className="text-xl sm:text-2xl font-black text-emerald-600 font-mono leading-tight">
-                          ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
-                        </p>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-base sm:text-lg font-black text-stone-900">
+                            Course &amp; Level-Wise Revenue Breakdown
+                          </h2>
+                          <span className="text-[11px] sm:text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
+                            Real-time
+                          </span>
+                        </div>
                       </div>
                     </div>
 
+                    <div className="sm:text-right shrink-0">
+                      <span className="text-xs font-semibold text-stone-500 block">Total Platform Value:</span>
+                      <p className="text-xl sm:text-2xl font-black text-emerald-600 font-mono leading-tight">
+                        ₹{revenueData.totalRevenue.toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-col justify-center my-auto w-full py-2">
                     {tierChartData.length === 0 ? (
-                      <div className="h-[250px] sm:h-[280px] flex items-center justify-center text-stone-400 text-sm font-medium bg-[#fcfaf7] rounded-2xl border border-stone-100">
+                      <div className="h-[260px] sm:h-[300px] flex items-center justify-center text-stone-400 text-sm font-medium bg-[#fcfaf7] rounded-2xl border border-stone-100">
                         No revenue data available yet
                       </div>
                     ) : (
-                      <div className="h-[250px] sm:h-[280px] w-full">
+                      <div className="h-[280px] sm:h-[320px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={tierChartData} margin={{ top: 22, right: 14, left: -10, bottom: 0 }}>
                             <defs>
@@ -495,7 +609,7 @@ export default function AdminDashboard() {
                             <XAxis
                               dataKey="code"
                               stroke="#78716c"
-                              fontSize={12}
+                              fontSize={15}
                               fontWeight={700}
                               tickLine={false}
                               axisLine={false}
@@ -504,8 +618,8 @@ export default function AdminDashboard() {
                             <YAxis
                               domain={yDomain}
                               ticks={yTicks}
-                              stroke="#a8a29e"
-                              fontSize={11}
+                              stroke="#78716c"
+                              fontSize={15}
                               tickLine={false}
                               axisLine={false}
                               width={46}
@@ -518,21 +632,21 @@ export default function AdminDashboard() {
                                 return (
                                   <div className="bg-white/95 backdrop-blur-sm border border-[#ecdccb] rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs min-w-[210px]">
                                     <div className="flex items-center justify-between gap-2 border-b border-stone-100 pb-1.5 mb-1.5">
-                                      <span className="font-black text-stone-900 text-sm">{item.code}</span>
-                                      <span className="text-[11px] font-semibold text-amber-800 font-mono">
+                                      <span className="font-black text-stone-900 text-base">{item.code}</span>
+                                      <span className="text-lg font-semibold text-amber-800 font-mono">
                                         Price: {item.price}
                                       </span>
                                     </div>
                                     <p className="font-bold text-stone-800 line-clamp-1 mb-2">{item.name}</p>
                                     <div className="grid grid-cols-2 gap-2 pt-1 border-t border-stone-100/80">
                                       <div>
-                                        <span className="text-[10px] uppercase font-bold text-stone-400 block">Revenue</span>
+                                        <span className="text-sm uppercase font-bold text-stone-400 block">Revenue</span>
                                         <span className="font-mono font-black text-sm text-[#c4431d]">
                                           ₹{Number(item.revenue).toLocaleString("en-IN")}
                                         </span>
                                       </div>
                                       <div className="text-right">
-                                        <span className="text-[10px] uppercase font-bold text-stone-400 block">Students</span>
+                                        <span className="text-sm uppercase font-bold text-stone-400 block">Students</span>
                                         <span className="font-black text-sm text-stone-800">
                                           {item.students} {item.students === 1 ? 'Student' : 'Students'}
                                         </span>
@@ -571,9 +685,6 @@ export default function AdminDashboard() {
                           <h2 className="text-base sm:text-lg font-black text-stone-900">
                             Tier Market Share
                           </h2>
-                          <p className="text-xs text-stone-500 font-medium">
-                            Track earnings, active subscribers, and tier market share.
-                          </p>
                         </div>
                       </div>
                       <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-full shrink-0">
@@ -596,34 +707,33 @@ export default function AdminDashboard() {
                             {/* Tier Badge + Name & Price */}
                             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                               <span
-                                className={`w-9 sm:w-10 h-8 sm:h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 ${
-                                  hasRevenue
-                                    ? 'bg-gradient-to-br from-[#942008] to-[#c4431d] text-white shadow-xs'
-                                    : 'bg-[#fde5d6] text-[#942008] border border-[#f5ded0]'
-                                }`}
+                                className={`w-9 sm:w-10 h-8 sm:h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 ${hasRevenue
+                                  ? 'bg-gradient-to-br from-[#942008] to-[#c4431d] text-white shadow-xs'
+                                  : 'bg-[#fde5d6] text-[#942008] border border-[#f5ded0]'
+                                  }`}
                               >
                                 {t.code}
                               </span>
                               <div className="min-w-0">
-                                <p className="text-xs sm:text-sm font-black text-stone-900 truncate flex items-center gap-1.5">
+                                <p className="text-xs sm:text-xl lg:text-base font-semibold text-stone-900 truncate flex items-center gap-1.5">
                                   <span>{t.icon}</span>
                                   <span className="truncate">{t.name}</span>
                                 </p>
-                                <p className="text-xs font-mono font-semibold text-amber-700">{formattedPrice}</p>
+                                <p className="text-xs sm:text-lg lg:text-sm font-mono font-semibold text-amber-700">{formattedPrice}</p>
                               </div>
                             </div>
 
                             {/* Revenue & Students */}
                             <div className="flex items-center gap-3 sm:gap-6 shrink-0 text-right sm:text-left">
                               <div className="min-w-[68px] sm:min-w-[84px]">
-                                <p className="text-xs sm:text-sm font-black text-emerald-700 font-mono">
+                                <p className="text-xs sm:text-lg lg:text-sm font-black text-emerald-700 font-mono">
                                   ₹{Number(t.estimatedRevenue || 0).toLocaleString("en-IN")}
                                 </p>
-                                <p className="text-[10px] sm:text-xs text-stone-400 font-semibold uppercase tracking-wider">Revenue</p>
+                                <p className="text-xs sm:text-lg lg:text-sm text-stone-400 font-semibold uppercase tracking-wider">Revenue</p>
                               </div>
                               <div className="min-w-[48px] sm:min-w-[56px]">
-                                <p className="text-xs sm:text-sm font-black text-stone-800">{t.enrolledCount || 0}</p>
-                                <p className="text-[10px] sm:text-xs text-stone-400 font-semibold uppercase tracking-wider">Students</p>
+                                <p className="text-xs sm:text-xl lg:text-sm font-semibold text-stone-800">{t.enrolledCount || 0}</p>
+                                <p className="text-[10px] sm:text-lg lg:text-sm text-stone-400 font-semibold uppercase tracking-wider">Students</p>
                               </div>
                             </div>
                           </div>
@@ -657,7 +767,7 @@ export default function AdminDashboard() {
                     <table className="w-full text-sm min-w-[620px]">
                       <thead className="sticky top-0 bg-white/95 z-10">
                         <tr className="border-b border-[#ecdccb]/80 text-stone-500">
-                          <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Student</th>
+                          <th className="text-left pb-3 font-bold text-xs  uppercase tracking-wider text-stone-500">Student</th>
                           <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Level</th>
                           <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">XP</th>
                           <th className="text-left pb-3 font-bold text-xs uppercase tracking-wider text-stone-500">Streak</th>
@@ -674,23 +784,23 @@ export default function AdminDashboard() {
                                   {s.name?.charAt(0)?.toUpperCase() || 'S'}
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="text-stone-900 font-bold text-sm truncate">{s.name}</p>
-                                  <p className="text-stone-500 text-xs truncate">{s.email}</p>
+                                  <p className="text-stone-900 font-bold text-base sm:text-lg lg:text-xl truncate">{s.name}</p>
+                                  <p className="text-stone-500 text-sm sm:text-lg lg:text-sm truncate">{s.email}</p>
                                 </div>
                               </div>
                             </td>
                             <td className="py-3 pr-3">
-                              <span className="text-[#942008] font-bold text-xs bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-lg whitespace-nowrap">
+                              <span className="text-[#942008] font-bold text-base sm:text-lg lg:text-sm bg-[#fde5d6] border border-[#f5ded0] px-2.5 py-1 rounded-lg whitespace-nowrap">
                                 {s.membershipLevel || 'L0'}
                               </span>
                             </td>
-                            <td className="py-3 pr-3 text-amber-700 font-bold font-mono whitespace-nowrap">{(s.points || 0).toLocaleString()}</td>
-                            <td className="py-3 pr-3 text-[#ea580c] font-bold whitespace-nowrap">🔥 {s.streak || 0}d</td>
-                            <td className="py-3 pr-3 text-stone-700 font-semibold">{s.courses?.length || 0}</td>
+                            <td className="py-3 pr-3 text-amber-700 font-bold font-mono whitespace-nowrap text-base sm:text-lg lg:text-base">{(s.points || 0).toLocaleString()}</td>
+                            <td className="py-3 pr-3 text-[#ea580c] font-bold whitespace-nowrap text-base sm:text-lg lg:text-base">🔥 {s.streak || 0}d</td>
+                            <td className="py-3 pr-3 text-stone-700 font-semibold text-base sm:text-lg lg:text-base">{s.courses?.length || 0}</td>
                             <td className="py-3 whitespace-nowrap">
                               <div className="flex items-center gap-1 font-medium">
-                                <span className="text-emerald-700 font-bold text-xs">{s.milestones?.filter((m: any) => m.completed).length || 0} done</span>
-                                <span className="text-stone-400 text-xs">/ {s.milestones?.length || 0}</span>
+                                <span className="text-emerald-700 font-bold text-xs sm:text-base lg:text-xs">{s.milestones?.filter((m: any) => m.completed).length || 0} done</span>
+                                <span className="text-stone-400 text-xs sm:text-base lg:text-xs">/ {s.milestones?.length || 0}</span>
                               </div>
                             </td>
                           </tr>
@@ -706,13 +816,13 @@ export default function AdminDashboard() {
                 {/* Sent Notifications Card */}
                 <div className="lg:col-span-4 bg-white/95 border border-[#ecdccb] rounded-3xl p-4 sm:p-6 shadow-[0_10px_30px_-12px_rgba(90,55,20,0.08)] flex flex-col">
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <h2 className="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
+                    <h2 className="text-base sm:text-xl lg:text-lg font-black text-stone-900 flex items-center gap-2">
                       <Bell size={19} className="text-[#c4431d]" /> Sent Notifications
                     </h2>
                     <button
                       type="button"
                       onClick={() => setActiveTab('notifications')}
-                      className="text-xs font-bold text-[#c4431d] hover:text-[#942008] inline-flex items-center gap-1 transition-colors cursor-pointer"
+                      className="text-xs sm:text-sm lg:text-xs font-bold text-[#c4431d] hover:text-[#942008] inline-flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       View All <ArrowRight size={13} />
                     </button>
@@ -720,33 +830,31 @@ export default function AdminDashboard() {
 
                   <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1 custom-scrollbar flex-1">
                     {notifications.length === 0 && (
-                      <p className="text-stone-400 text-center py-12 font-medium text-sm">No notifications sent yet</p>
+                      <p className="text-stone-400 text-center py-12 font-medium text-sm sm:text-base lg:text-lg">No notifications sent yet</p>
                     )}
                     {notifications.map((n, i) => (
                       <div
                         key={n.id || i}
                         className="flex items-start gap-3 bg-[#fcfaf7] border border-stone-200/80 hover:border-[#ecdccb] rounded-2xl p-3.5 transition-colors"
                       >
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 border ${
-                          n.isRead
-                            ? 'bg-stone-100 border-stone-200 text-stone-500'
-                            : 'bg-[#fff5ee] border-[#f5ded0] text-[#c4431d]'
-                        }`}>
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 border ${n.isRead
+                          ? 'bg-stone-100 border-stone-200 text-stone-500'
+                          : 'bg-[#fff5ee] border-[#f5ded0] text-[#c4431d]'
+                          }`}>
                           <Bell size={15} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start gap-2">
-                            <h4 className="font-bold text-stone-900 text-xs sm:text-sm truncate">{n.title}</h4>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold shrink-0 ${
-                              n.isRead
-                                ? 'bg-stone-100 text-stone-500'
-                                : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                            }`}>
+                            <h4 className="font-bold text-stone-900 text-base smLtext-xl lg:text-lg truncate">{n.title}</h4>
+                            <span className={`text-xs text-base lg:text-sm px-2 py-0.5 rounded-full font-bold shrink-0 ${n.isRead
+                              ? 'bg-stone-100 text-stone-500'
+                              : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                              }`}>
                               {n.isRead ? 'Read' : 'Unread'}
                             </span>
                           </div>
-                          <p className="text-xs text-stone-600 mt-0.5 line-clamp-2 leading-relaxed">{n.message}</p>
-                          <p className="text-xs text-stone-400 font-medium mt-1">To: {n.user?.name || 'Student'}</p>
+                          <p className="text-sm sm:text-lg lg:text-base text-stone-600 mt-0.5 line-clamp-2 leading-relaxed">{n.message}</p>
+                          <p className="text-xs sm:text-base lg:text=sm text-stone-400 font-medium mt-1">To: {n.user?.name || 'Student'}</p>
                         </div>
                       </div>
                     ))}
@@ -768,24 +876,47 @@ export default function AdminDashboard() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-bold text-stone-700 block mb-2">Select Target Audience</label>
+                  <label className="text-sm sm:text-lg lg:text-sm font-bold text-stone-700 block mb-2">Select Target Audience</label>
                   <select
                     value={selectedStudent}
                     onChange={e => setSelectedStudent(e.target.value)}
                     className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 font-medium transition-colors"
                   >
                     <option value="">-- Choose target audience --</option>
-                    <option value="group:L0">🌱 Level 0 (L0) Students</option>
-                    <option value="group:L1">🥈 Level 1 (L1) Students</option>
-                    <option value="group:L2">🥇 Level 2 (L2) Students</option>
-                    <option value="group:L3">💎 Level 3 (L3) Students</option>
-                    <option value="group:general">👤 General Students (No Level)</option>
-                    <option value="group:webinar">🎟️ Webinar Registered Students</option>
-                    <option value="all">🌐 All Students (Global Broadcast)</option>
+
+                    <optgroup label="🌐 Global & General Audiences">
+                      <option value="all">🌐 All Students (Global Broadcast)</option>
+                      <option value="group:general">👤 General Students (No Level)</option>
+                      <option value="group:webinar">🎟️ Webinar Registered Students</option>
+                    </optgroup>
+
+                    <optgroup label="💎 Level Memberships (Dynamic)">
+                      {dynamicLevels.map((lvl: any) => {
+                        const priceDisplay = lvl.price ? (String(lvl.price).startsWith('₹') ? lvl.price : `₹${lvl.price}`) : '';
+                        return (
+                          <option key={lvl.id || lvl.code} value={`group:${lvl.code}`}>
+                            {lvl.icon || '⚡'} {lvl.code} - {lvl.name} {priceDisplay ? `(${priceDisplay})` : ''}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+
+                    {standaloneCourses.length > 0 && (
+                      <optgroup label="📚 Standalone / Individual Courses (Dynamic)">
+                        {standaloneCourses.map((c: any) => {
+                          const priceDisplay = c.price ? (String(c.price).startsWith('₹') ? c.price : `₹${c.price}`) : '';
+                          return (
+                            <option key={c.id} value={`course:${c.id}`}>
+                              ✨ Standalone: {c.title} {priceDisplay ? `(${priceDisplay})` : ''}
+                            </option>
+                          );
+                        })}
+                      </optgroup>
+                    )}
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-bold text-stone-700 block mb-2">Title</label>
+                  <label className="text-sm sm:text-lg lg:text-sm font-bold text-stone-700 block mb-2">Title</label>
                   <input
                     type="text"
                     value={notifTitle}
@@ -795,7 +926,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-bold text-stone-700 block mb-2">Message</label>
+                  <label className="text-sm sm:text-lg lg:text-sm font-bold text-stone-700 block mb-2">Message</label>
                   <textarea
                     value={notifMessage}
                     onChange={e => setNotifMessage(e.target.value)}
@@ -810,17 +941,7 @@ export default function AdminDashboard() {
                   className="w-full bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-[#c4431d]/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                  {sending
-                    ? 'Sending...'
-                    : selectedStudent === 'all'
-                      ? 'Broadcast to All Students'
-                      : selectedStudent === 'group:general' || selectedStudent === 'general'
-                        ? 'Send to All General Students'
-                        : selectedStudent === 'group:webinar' || selectedStudent === 'webinar'
-                          ? 'Send to All Webinar Students'
-                          : selectedStudent.startsWith('group:')
-                            ? `Send to All ${selectedStudent.replace('group:', '').toUpperCase()} Students`
-                            : 'Send Notification'}
+                  {sending ? 'Sending...' : getSendButtonLabel()}
                 </button>
               </div>
             </div>
@@ -835,9 +956,6 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <h2 className="text-xl font-black text-stone-900 leading-tight">Sent Notifications</h2>
-                    <p className="text-xs text-stone-500 font-medium mt-0.5">
-                      A history of all notifications sent to your students and members.
-                    </p>
                   </div>
                 </div>
 
@@ -857,7 +975,7 @@ export default function AdminDashboard() {
               <div className="overflow-x-auto max-h-[520px] overflow-y-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse min-w-[680px]">
                   <thead className="sticky top-0 z-10">
-                    <tr className="bg-[#fff5ee] border-y border-[#f5ded0]/80 text-stone-700 text-xs font-bold">
+                    <tr className="bg-[#fff5ee] border-y border-[#f5ded0]/80 text-stone-700 text-xs sm:text-lg lg:text-sm font-bold">
                       <th className="py-3 pl-4 pr-3 rounded-l-xl">
                         <button
                           type="button"
@@ -905,36 +1023,35 @@ export default function AdminDashboard() {
                   <tbody className="divide-y divide-stone-100">
                     {filteredNotifications.map((n, i) => (
                       <tr key={n.id || i} className="hover:bg-[#fff5ee]/40 transition-colors">
-                        <td className="py-3.5 pl-4 pr-3 align-middle max-w-[200px]">
-                          <p className="font-bold text-stone-900 text-xs sm:text-sm leading-snug line-clamp-2">
+                        <td className="py-3.5 pl-4 pr-1.7 align-middle ">
+                          <p className="font-bold text-stone-900 text-xs sm:text-lg lg:text-[0.9rem] leading-snug line-clamp-2">
                             {n.title}
                           </p>
                         </td>
-                        <td className="py-3.5 px-3 align-middle max-w-[240px]">
-                          <p className="text-xs text-stone-600 leading-relaxed line-clamp-2">
+                        <td className="py-3.5 px-2 align-middle ">
+                          <p className="text-xs sm:text-base lg:text-[0.9rem] text-stone-600 leading-relaxed line-clamp-2">
                             {n.message}
                           </p>
                         </td>
                         <td className="py-3.5 px-3 align-middle whitespace-nowrap">
-                          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-700">
-                            <User size={13} className="text-stone-400 shrink-0" />
+                          <div className="inline-flex items-center gap-1.5 text-xs sm:text-base lg:text-sm font-medium text-stone-700">
+                            <User size={15} className="text-stone-400 shrink-0" />
                             <span>{n.user?.name || 'Student'}</span>
                           </div>
                         </td>
                         <td className="py-3.5 px-3 align-middle whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                              n.isRead
-                                ? 'bg-stone-100 text-stone-500 border border-stone-200'
-                                : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                            }`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs sm:text-base lg:text-xs font-bold ${n.isRead
+                              ? 'bg-stone-100 text-stone-500 border border-stone-200'
+                              : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                              }`}
                           >
                             {n.isRead ? 'Seen' : 'Unseen'}
                           </span>
                         </td>
                         <td className="py-3.5 px-3 align-middle whitespace-nowrap">
                           {n.createdAt ? (
-                            <div className="text-xs leading-tight">
+                            <div className="text-xs sm:text-base lg:text-xs leading-tight">
                               <p className="font-semibold text-stone-700">
                                 {new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </p>
@@ -943,7 +1060,7 @@ export default function AdminDashboard() {
                               </p>
                             </div>
                           ) : (
-                            <span className="text-xs text-stone-400">—</span>
+                            <span className="text-xs sm:text-base lg:text-xs text-stone-400">—</span>
                           )}
                         </td>
                         <td className="py-3.5 pl-3 pr-4 align-middle whitespace-nowrap">
@@ -1027,11 +1144,10 @@ export default function AdminDashboard() {
 
               <div className="flex items-center justify-between pt-2">
                 <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                    viewingNotification.isRead
-                      ? 'bg-stone-100 text-stone-500 border border-stone-200'
-                      : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                  }`}
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${viewingNotification.isRead
+                    ? 'bg-stone-100 text-stone-500 border border-stone-200'
+                    : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                    }`}
                 >
                   {viewingNotification.isRead ? 'Seen' : 'Unseen'}
                 </span>
@@ -1065,49 +1181,49 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-bold text-stone-600 block mb-1">Sales Amount (₹ optional)</label>
+                    <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block mb-1">Sales Amount (₹ optional)</label>
                     <input
                       type="number"
                       placeholder="e.g. 4500"
                       value={winSalesAmount}
                       onChange={e => setWinSalesAmount(e.target.value)}
-                      className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2.5 text-xs lg:text-sm sm:text-lg  focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-stone-600 block mb-1">Technique Used</label>
+                    <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block mb-1">Technique Used</label>
                     <input
                       type="text"
                       placeholder="e.g. Ocean Wave Lacing"
                       value={winTechnique}
                       onChange={e => setWinTechnique(e.target.value)}
-                      className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
+                      className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-2.5 text-xs sm:text-lg lg:text-sm focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-bold text-stone-700 block mb-2">Achievement / Story</label>
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-700 block mb-2">Achievement / Story</label>
                   <textarea
                     value={winAchievement}
                     onChange={e => setWinAchievement(e.target.value)}
                     placeholder="e.g. Got her first corporate order for 50 custom clocks!"
                     rows={3}
-                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none text-xs transition-colors"
+                    className="w-full bg-[#fcfaf7] border border-stone-300 text-stone-900 placeholder:text-stone-400 rounded-xl p-3 focus:outline-none focus:border-[#c4431d] focus:ring-1 focus:ring-[#c4431d]/30 resize-none text-xs sm:text-lg lg:text-sm transition-colors"
                   />
                 </div>
 
                 {/* Browser File Upload (Image, Video, Document) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-600 block">Upload File (Image, Video, Document)</label>
-                  <label className="relative block w-full">
+                  <label className="text-xs sm:text-lg lg:text-sm font-bold text-stone-600 block">Upload File (Image, Video, Document)</label>
+                  <label className="relative block w-full ">
                     <input
                       type="file"
                       accept="image/*,video/*,.pdf,.doc,.docx"
                       onChange={handleAdminFileSelect}
                       disabled={uploadingWinFile}
-                      className="w-full text-xs text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#f8d4bf] cursor-pointer bg-[#fcfaf7] border border-stone-300 rounded-xl p-1 disabled:opacity-50"
+                      className="w-full text-xs sm:text-lg lg:text-sm text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#fde5d6] file:text-[#942008] hover:file:bg-[#f8d4bf] cursor-pointer bg-[#fcfaf7] border border-stone-300 rounded-xl p-1 disabled:opacity-50"
                     />
                     {uploadingWinFile && (
                       <span className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-xl text-xs font-bold text-[#c4431d]">
@@ -1168,7 +1284,7 @@ export default function AdminDashboard() {
                         const isDoc = !isVideo && (mediaUrl.startsWith('data:application') || /\.(pdf|doc|docx)$/i.test(mediaUrl));
                         if (isDoc) {
                           return (
-                            <div className="p-3 text-xs font-bold text-[#942008] flex items-center gap-2 mt-2 bg-[#fde5d6]/50 border border-[#f5ded0] rounded-xl">
+                            <div className="p-3 text-xs sm:text-lg lg:text-sm font-bold text-[#942008] flex items-center gap-2 mt-2 bg-[#fde5d6]/50 border border-[#f5ded0] rounded-xl">
                               📄 Attached Document / File Ready!
                             </div>
                           );
@@ -1179,7 +1295,7 @@ export default function AdminDashboard() {
 
                         if (isWebUrl && !isDirectImage) {
                           return (
-                            <div className="p-3 text-xs font-bold text-sky-700 flex items-center gap-2 mt-2 bg-sky-50 border border-sky-200 rounded-xl truncate">
+                            <div className="p-3 text-xs sm:text-lg lg:text-sm font-bold text-sky-700 flex items-center gap-2 mt-2 bg-sky-50 border border-sky-200 rounded-xl truncate">
                               🔗 External Web Link: <span className="text-stone-900 underline truncate">{mediaUrl}</span>
                             </div>
                           );
@@ -1221,13 +1337,13 @@ export default function AdminDashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-bold text-stone-900 text-sm flex items-center gap-2">
+                          <h4 className="font-bold text-stone-900 text-sm sm:text-xl lg:text-lg flex items-center gap-2">
                             {w.studentName}
                             {w.studentName?.includes('Admin') && (
                               <span className="text-xs font-bold text-[#942008] bg-[#fde5d6] border border-[#f5ded0] px-2 py-0.5 rounded-md">Admin</span>
                             )}
                           </h4>
-                          <p className="text-xs text-stone-600 mt-1 leading-relaxed">{w.achievement}</p>
+                          <p className="text-xs sm:text-lg lg:text-base text-stone-600 mt-1 leading-relaxed">{w.achievement}</p>
                         </div>
                         <button
                           onClick={() => handleDeleteWin(w.id)}

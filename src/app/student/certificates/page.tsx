@@ -4,13 +4,18 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL, getImageUrl } from "@/config/api";
 import { StudentNav } from "@/components/layout/StudentNav";
 
 export default function StudentCertificates() {
   const { token, user, logout } = useAuth();
   const [certificates, setCertificates] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const cleanCourseTitle = (rawTitle?: string): string => {
+    if (!rawTitle) return "";
+    return rawTitle.replace(/^\s*\d+[\.\:\-\)\s]+\s*/, "").replace(/ Completion Certificate$/i, "").trim();
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -38,7 +43,7 @@ export default function StudentCertificates() {
     >
       <StudentNav user={user} level={user?.membershipLevel || "General"} points={user?.points || 0} logout={logout} />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/*
         <header className="mb-6">
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1 font-medium">
@@ -77,19 +82,19 @@ export default function StudentCertificates() {
                   </div>
                   
                   <h3 className="text-xl font-bold text-stone-900 mb-2">Certificate of Completion</h3>
-                  <p className="text-teal-300 font-semibold mb-6">{cert.course?.title || "Special Course"}</p>
+                  <p className="text-[#942008] font-semibold mb-6">{cleanCourseTitle(cert.course?.title || cert.title || "Special Course")}</p>
                   
                   <div className="text-sm text-stone-500 mb-8 border-t border-b border-stone-200 py-4">
                     Awarded on {new Date(cert.createdAt).toLocaleDateString()}
                   </div>
                   
                   <a 
-                    href={cert.pdfUrl} 
+                    href={getImageUrl(cert.pdfUrl || cert.certificateUrl)} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-block px-6 py-3 bg-gradient-to-r from-[#942008] via-[#c4431d] to-[#ea580c] hover:opacity-95 text-white font-bold rounded-full transition-opacity shadow-md"
                   >
-                    View / Download PDF
+                    View / Download Certificate
                   </a>
                 </div>
               </div>
