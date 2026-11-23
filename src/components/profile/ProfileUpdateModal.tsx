@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/config/api";
+import { uploadMediaFile } from "@/utils/uploadFile";
 import {
   X,
   Camera,
@@ -82,23 +83,29 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: Pro
   if (!isOpen) return null;
 
   // Handle local file selection -> convert to Base64 image
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit (max 4MB)
-    if (file.size > 4 * 1024 * 1024) {
-      setErrorMsg("Image must be smaller than 4MB");
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMsg("Image must be smaller than 10MB");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setPreviewAvatar(base64);
-      setFormData((prev) => ({ ...prev, avatarUrl: base64 }));
-    };
-    reader.readAsDataURL(file);
+    setIsUploadingAvatar(true);
+    setErrorMsg("");
+    try {
+      const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const { url } = await uploadMediaFile(file, storedToken);
+      setPreviewAvatar(url);
+      setFormData((prev) => ({ ...prev, avatarUrl: url }));
+    } catch (err: any) {
+      setErrorMsg(`Avatar upload failed: ${err.message || "Unknown error"}`);
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   const handlePresetSelect = (url: string) => {

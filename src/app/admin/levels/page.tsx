@@ -41,6 +41,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl } from "@/config/api";
+import { uploadMediaFile } from "@/utils/uploadFile";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { LevelQrCodeModal } from "@/components/admin/LevelQrCodeModal";
 
@@ -1409,18 +1410,19 @@ export default function AdminLevels() {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (!file) return;
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                const dataUrl = reader.result as string;
+                              try {
+                                const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+                                const { url } = await uploadMediaFile(file, storedToken);
                                 setFormData((prev) => ({
                                   ...prev,
-                                  thumbnail: dataUrl,
+                                  thumbnail: url,
                                 }));
-                              };
-                              reader.readAsDataURL(file);
+                              } catch (err: any) {
+                                alert(`Banner upload failed: ${err.message || 'Unknown error'}`);
+                              }
                             }}
                             className="hidden"
                           />

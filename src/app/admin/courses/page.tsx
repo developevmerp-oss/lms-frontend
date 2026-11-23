@@ -42,6 +42,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { API_BASE_URL, getImageUrl, getFileUrl } from "@/config/api";
+import { uploadMediaFile } from "@/utils/uploadFile";
 import { CardGridSkeleton } from "@/components/ui/SkeletonLoader";
 import { CourseQrCodeModal } from "@/components/admin/CourseQrCodeModal";
 
@@ -274,34 +275,45 @@ export default function AdminCourses() {
     setTimeout(() => setSuccessMsg(""), 3500);
   };
 
-  const handleDirectCourseBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingFlyer, setUploadingFlyer] = useState(false);
+
+  const handleDirectCourseBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
+    setUploadingBanner(true);
+    try {
+      const { url } = await uploadMediaFile(file, token);
       setCourseForm((prev) => ({
         ...prev,
-        image: dataUrl,
+        image: url,
       }));
-    };
-    reader.readAsDataURL(file);
+      showSuccess("Banner uploaded to Cloudinary successfully!");
+    } catch (err: any) {
+      alert(`Banner upload failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setUploadingBanner(false);
+    }
   };
 
-  const handleDirectCourseFlyerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDirectCourseFlyerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
+    setUploadingFlyer(true);
+    try {
+      const { url } = await uploadMediaFile(file, token);
       setCourseForm((prev) => ({
         ...prev,
-        flyerImage: dataUrl,
+        flyerImage: url,
       }));
-    };
-    reader.readAsDataURL(file);
+      showSuccess("Flyer uploaded to Cloudinary successfully!");
+    } catch (err: any) {
+      alert(`Flyer upload failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setUploadingFlyer(false);
+    }
   };
 
   const handleOpenImageFullSize = (imageUrl: string | null) => {
