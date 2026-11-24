@@ -62,6 +62,7 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: Pro
 
   const [previewAvatar, setPreviewAvatar] = useState<string>(user?.avatarUrl || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -81,9 +82,6 @@ export const ProfileUpdateModal = ({ isOpen, onClose, onSuccess, onLogout }: Pro
   }, [user, isOpen]);
 
   if (!isOpen) return null;
-
-  // Handle local file selection -> convert to Base64 image
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
