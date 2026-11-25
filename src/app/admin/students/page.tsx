@@ -9,7 +9,8 @@ import { Shimmer } from "@/components/ui/SkeletonLoader";
 import { API_BASE_URL } from "@/config/api";
 import {
   Users, Search, SlidersHorizontal, ChevronDown, ChevronRight, X, Plus, Trash2, CheckCircle2,
-  Circle, Star, Edit3, Trophy, Flame, IndianRupee, BookOpen, Save, UserPlus, Eye, EyeOff, Send, AlertTriangle, Loader2
+  Circle, Star, Edit3, Trophy, Flame, IndianRupee, BookOpen, Save, UserPlus, Eye, EyeOff, Send, AlertTriangle, Loader2,
+  ExternalLink
 } from "lucide-react";
 
 interface Student {
@@ -35,7 +36,7 @@ export default function AdminStudents() {
   const { token, user, logout } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'milestones' | 'sales' | 'skills' | 'courses' | 'badges'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'milestones' | 'sales' | 'skills' | 'courses' | 'badges' | 'portfolio'>('profile');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
@@ -632,6 +633,7 @@ export default function AdminStudents() {
     { key: 'skills', label: 'Skills' },
     { key: 'courses', label: 'Courses' },
     { key: 'badges', label: '🎖️ Badges' },
+    { key: 'portfolio', label: '🎨 Portfolio' },
   ];
 
   const skillKeys = ['resinBasics', 'mixing', 'colourTheory', 'finishing', 'creativity', 'professionalQuality'];
@@ -1436,6 +1438,87 @@ export default function AdminStudents() {
                           )}
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* ===== PORTFOLIO TAB ===== */}
+                  {activeTab === 'portfolio' && (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-stone-900 font-bold text-base flex items-center gap-2">
+                          🎨 Student Portfolio Artworks
+                          <span className="ml-1 text-xs font-bold bg-[#fde5d6] text-[#942008] border border-[#f5ded0] px-2.5 py-0.5 rounded-full">
+                            {(selectedStudent.portfolios || []).length} project{(selectedStudent.portfolios || []).length !== 1 ? 's' : ''}
+                          </span>
+                        </h3>
+                        <Link
+                          href="/admin/mentoring"
+                          className="text-xs font-bold text-[#c4431d] hover:text-[#942008] flex items-center gap-1"
+                        >
+                          Go to Mentoring Review Center →
+                        </Link>
+                      </div>
+
+                      {(selectedStudent.portfolios || []).length === 0 ? (
+                        <div className="p-8 bg-[#fcfaf7] border border-stone-200 rounded-2xl text-center">
+                          <p className="text-stone-500 text-sm font-medium">No portfolio artworks uploaded by this student yet.</p>
+                          <p className="text-stone-400 text-xs mt-1 font-medium">Artworks submitted by the student will show up here and in the Mentoring Center.</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {(selectedStudent.portfolios || []).map((item: any) => (
+                            <div
+                              key={item.id}
+                              className="bg-[#fcfaf7] border border-stone-200/90 rounded-2xl overflow-hidden shadow-xs hover:border-[#c4431d]/40 transition-all flex flex-col"
+                            >
+                              <div className="h-44 w-full bg-stone-100 relative overflow-hidden flex items-center justify-center">
+                                {item.imageUrl?.toLowerCase().includes('.mp4') || item.imageUrl?.toLowerCase().includes('/video/') ? (
+                                  <video src={item.imageUrl} controls className="w-full h-full object-cover" />
+                                ) : (
+                                  <img
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                )}
+                                <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-white/90 backdrop-blur-xs text-[#942008] shadow-2xs">
+                                  {item.technique || "Resin Artwork"}
+                                </span>
+                              </div>
+                              <div className="p-4 flex-1 flex flex-col justify-between">
+                                <div>
+                                  <h4 className="font-bold text-stone-900 text-sm truncate">{item.title}</h4>
+                                  <p className="text-xs text-stone-400 mt-0.5">
+                                    Submitted {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'recently'}
+                                  </p>
+                                  {item.feedback && (
+                                    <div className="mt-2.5 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-amber-900">
+                                      <span className="font-bold block text-[11px] text-amber-800 uppercase tracking-wide">Mentor Feedback:</span>
+                                      <p className="mt-0.5">{item.feedback}</p>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-stone-200/70 flex items-center justify-between">
+                                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                                    item.feedback ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  }`}>
+                                    {item.feedback ? '✓ Reviewed' : '⏳ Pending Review'}
+                                  </span>
+                                  <a
+                                    href={item.imageUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs font-bold text-[#c4431d] hover:text-[#942008] flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <span>View Media</span>
+                                    <ExternalLink size={12} />
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 

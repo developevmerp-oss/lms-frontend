@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -70,7 +70,7 @@ export default function AdminMentoring() {
       
       const data = await res.json();
       if (res.ok) {
-        setSuccessMsg(`✅ Review submitted! Student awarded 500 XP.`);
+        setSuccessMsg(`✅ Review submitted! Student awarded 50 XP.`);
         setSelectedItem(null);
         setFeedback("");
         setScores({
