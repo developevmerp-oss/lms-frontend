@@ -14,9 +14,10 @@ interface PortfolioProjectItem {
 
 interface PortfolioGalleryProps {
   portfolios?: PortfolioProjectItem[];
+  onUploadPortfolio?: () => void;
 }
 
-export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
+export const PortfolioGallery = ({ portfolios, onUploadPortfolio }: PortfolioGalleryProps) => {
   const activePortfolios = portfolios || [];
 
   return (
@@ -34,12 +35,22 @@ export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
           </div>
           <h2 className="text-base sm:text-lg font-bold text-stone-900">Portfolio Projects</h2>
         </div>
-        <Link
-          href="/student/portfolio"
-          className="text-xs sm:text-sm font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-3 py-1.5 rounded-full shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-        >
-          <Plus size={14} /> Upload New
-        </Link>
+        {onUploadPortfolio ? (
+          <button
+            type="button"
+            onClick={onUploadPortfolio}
+            className="text-xs sm:text-sm font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-3 py-1.5 rounded-full shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+          >
+            <Plus size={14} /> Upload New
+          </button>
+        ) : (
+          <Link
+            href="/student/portfolio?upload=true"
+            className="text-xs sm:text-sm font-bold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 px-3 py-1.5 rounded-full shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+          >
+            <Plus size={14} /> Upload New
+          </Link>
+        )}
       </div>
 
       {/* Content centered vertically with plenty of height */}
@@ -48,12 +59,22 @@ export const PortfolioGallery = ({ portfolios }: PortfolioGalleryProps) => {
           <div className="flex flex-col items-center justify-center text-center py-6">
             <UploadCloud size={44} className="text-[#e86034] mb-2.5" />
             <p className="text-stone-700 text-sm font-semibold">No projects uploaded yet.</p>
-            <Link
-              href="/student/portfolio"
-              className="text-[#c4431d] hover:text-[#942008] text-xs sm:text-sm font-bold transition-colors mt-1"
-            >
-              Start your portfolio
-            </Link>
+            {onUploadPortfolio ? (
+              <button
+                type="button"
+                onClick={onUploadPortfolio}
+                className="text-[#c4431d] hover:text-[#942008] text-xs sm:text-sm font-bold transition-colors mt-1 cursor-pointer"
+              >
+                Start your portfolio
+              </button>
+            ) : (
+              <Link
+                href="/student/portfolio?upload=true"
+                className="text-[#c4431d] hover:text-[#942008] text-xs sm:text-sm font-bold transition-colors mt-1"
+              >
+                Start your portfolio
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-3">

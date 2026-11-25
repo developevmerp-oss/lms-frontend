@@ -17,6 +17,7 @@ import { RewardsStore } from "@/components/dashboard/RewardsStore";
 import { AiMentor } from "@/components/dashboard/AiMentor";
 import { DashboardSkeleton } from "@/components/ui/SkeletonLoader";
 import { ProfileUpdateModal } from "@/components/profile/ProfileUpdateModal";
+import { UploadPortfolioModal } from "@/components/portfolio/UploadPortfolioModal";
 import { Sparkles, Lock, Zap, CreditCard, Calendar, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { TierPurchaseModal } from "@/components/membership/TierPurchaseModal";
@@ -33,6 +34,7 @@ export default function StudentDashboard() {
   const [installmentPlans, setInstallmentPlans] = useState<any[]>([]);
   const [payingPlanId, setPayingPlanId] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showUploadPortfolioModal, setShowUploadPortfolioModal] = useState(false);
   const [stats, setStats] = useState<any>({
     points: 0,
     streak: 0,
@@ -409,13 +411,17 @@ export default function StudentDashboard() {
                   enrolledCourse={enrolledCourse}
                   nextGoal={stats.nextGoal}
                   progress={dynamicProgress}
+                  onUploadPortfolio={() => setShowUploadPortfolioModal(true)}
                 />
               </div>
             </div>
 
             {/* Row 4: 4 Cards (Portfolio Projects, Sales & Income, Badges Earned, Rewards Store) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-5 items-stretch">
-              <PortfolioGallery portfolios={stats.portfolios} />
+              <PortfolioGallery
+                portfolios={stats.portfolios}
+                onUploadPortfolio={() => setShowUploadPortfolioModal(true)}
+              />
               <SalesAndCommunity
                 sales={stats.salesRecords}
                 communityWins={stats.communityWins}
@@ -449,6 +455,16 @@ export default function StudentDashboard() {
       <ProfileUpdateModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+      />
+
+      {/* Upload Portfolio Artwork Modal */}
+      <UploadPortfolioModal
+        isOpen={showUploadPortfolioModal}
+        onClose={() => setShowUploadPortfolioModal(false)}
+        onSuccess={() => {
+          fetchStats();
+        }}
+        token={token}
       />
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Check, ArrowRight } from "lucide-react";
+import { Calendar, Check, ArrowRight, Plus } from "lucide-react";
 import Link from "next/link";
 
 interface FocusItem {
@@ -16,12 +16,14 @@ interface TodayFocusProps {
   enrolledCourse?: { title?: string };
   nextGoal?: string;
   progress?: number;
+  onUploadPortfolio?: () => void;
 }
 
 export const TodayFocus = ({
   enrolledCourse,
   nextGoal,
   progress = 0,
+  onUploadPortfolio,
 }: TodayFocusProps) => {
   const [completedTaskIds, setCompletedTaskIds] = useState<number[]>([]);
 
@@ -81,7 +83,13 @@ export const TodayFocus = ({
             return (
               <div
                 key={task.id}
-                onClick={() => toggleTask(task.id)}
+                onClick={() => {
+                  if (task.id === 3 && onUploadPortfolio) {
+                    onUploadPortfolio();
+                  } else {
+                    toggleTask(task.id);
+                  }
+                }}
                 className={`flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer select-none group ${
                   isDone
                     ? "bg-[#faf8f5]/40 border-stone-200/60"
@@ -90,6 +98,10 @@ export const TodayFocus = ({
               >
                 {/* Square checkbox */}
                 <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleTask(task.id);
+                  }}
                   className={`w-5 h-5 rounded-md border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
                     isDone
                       ? "bg-[#e86034] border-[#e86034] text-white"
@@ -101,15 +113,29 @@ export const TodayFocus = ({
 
                 {/* Content */}
                 <div className="min-w-0 flex-1">
-                  <h3
-                    className={`text-xs sm:text-sm font-bold leading-tight transition-colors ${
-                      isDone
-                        ? "text-stone-400 line-through"
-                        : "text-stone-900 group-hover:text-[#c4431d]"
-                    }`}
-                  >
-                    {task.title}
-                  </h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3
+                      className={`text-xs sm:text-sm font-bold leading-tight transition-colors ${
+                        isDone
+                          ? "text-stone-400 line-through"
+                          : "text-stone-900 group-hover:text-[#c4431d]"
+                      }`}
+                    >
+                      {task.title}
+                    </h3>
+                    {task.id === 3 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onUploadPortfolio) onUploadPortfolio();
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-[#fff2ea] hover:bg-[#fde5d6] text-[#c4431d] text-[11px] font-bold border border-[#f5ded0] transition-colors cursor-pointer shrink-0"
+                      >
+                        Upload
+                      </button>
+                    )}
+                  </div>
                   <p className="text-xs text-stone-500 mt-0.5 leading-snug">
                     {task.description}
                   </p>
