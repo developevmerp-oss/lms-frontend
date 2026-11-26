@@ -12,7 +12,7 @@ const nunito = Nunito_Sans({ subsets: ["latin"], variable: "--font-landing" });
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-script" });
 
 export const metadata: Metadata = {
-  title: "Ravishing Art Hub | Masterclass & LMS",
+  title: "Ravishing Art Hub",
   description: "Learn and master digital and traditional art.",
   icons: {
     icon: "/new_favicon.png",
