@@ -39,7 +39,7 @@ const QUICK_SUGGESTIONS = [
 const INITIAL_WELCOME_MESSAGE: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: `Hi there! I'm Vraj, your Art Advisor at Ravishing Art Hub 👋\n\nI can help you explore our 30 step-by-step resin courses, check dynamic membership pricing, or reserve your seat for Vrajangna Patel's next live masterclass.\n\nWhat would you love to learn or create today?`
+  content: `Hi! I'm Vraj, your Ravishing Art Hub guide. I can help you explore our 30 step-by-step resin courses, membership pricing, and Vrajangna Patel's next live masterclass. What would you like to know?`
 };
 
 export const ArtAdvisorChatbot: React.FC = () => {
@@ -402,8 +402,8 @@ export const ArtAdvisorChatbot: React.FC = () => {
 
       if (line.trim().startsWith('•') || line.trim().startsWith('*')) {
         return (
-          <div key={idx} className="flex items-start gap-2 my-1 pl-0.5 text-sm text-stone-800 leading-relaxed">
-            <span className="text-[#c45a28] font-black text-sm leading-none select-none mt-1">•</span>
+          <div key={idx} className="flex items-start gap-2 my-1 pl-0.5 text-[0.875rem] text-stone-800 leading-[1.6]">
+            <span className="text-[#c45a28] font-black text-[0.875rem] leading-none select-none mt-1">•</span>
             <div className="flex-1">{renderedParts}</div>
           </div>
         );
@@ -414,7 +414,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
       }
 
       return (
-        <p key={idx} className="my-1 text-sm text-stone-800 leading-relaxed">
+        <p key={idx} className="my-1 text-[0.875rem] text-stone-800 leading-[1.6]">
           {renderedParts}
         </p>
       );
@@ -428,24 +428,24 @@ export const ArtAdvisorChatbot: React.FC = () => {
   // Chat window body
   const renderChatBody = (inCenterModal: boolean) => (
     <>
-      {/* ─── EVM ERP STYLE HEADER ─── */}
-      <div className="relative flex items-center justify-between px-4 py-3.5 bg-gradient-to-r from-[#8f3611] via-[#b84c1b] to-[#c45a28] text-white flex-shrink-0 overflow-hidden shadow-sm select-none">
+      {/* ─── HEADER ─── */}
+      <div className="relative flex items-center justify-between px-4 py-3.5 bg-gradient-to-r from-[#7c260a] via-[#b84217] to-[#e06a2b] text-white flex-shrink-0 overflow-hidden shadow-sm select-none">
         {/* Subtle diagonal reflection overlay */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),transparent_50%)]" />
 
         {/* Advisor Identity */}
         <div className="relative flex items-center gap-3 min-w-0">
-          <span className="w-9 h-9 text-sm rounded-full bg-white/20 border border-white/30 text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-md ring-2 ring-white/25">
+          <span className="w-9 h-9 text-[0.875rem] rounded-full bg-white/15 border border-white/30 text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-md ring-2 ring-white/20">
             V
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-sm leading-none tracking-wide text-white">Vraj</h3>
-              <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-xs">
+              <h3 className="font-bold text-[0.9375rem] leading-none tracking-wide text-white">Vraj</h3>
+              <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wider text-white/95 backdrop-blur-xs">
                 Art Advisor
               </span>
             </div>
-            <p className="mt-1 flex items-center gap-1.5 text-white/90 text-xs">
+            <p className="mt-1 flex items-center gap-1.5 text-white/90 text-[0.75rem]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_6px_rgba(110,231,183,0.8)]" />
               Ravishing Art Hub · Online
             </p>
@@ -463,7 +463,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
             }}
             title={isVoiceEnabled ? 'Voice: ON (Click to mute)' : 'Voice: OFF (Click to listen)'}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              isVoiceEnabled ? 'bg-amber-400 text-stone-950 shadow-xs' : 'text-white/80 hover:text-white hover:bg-white/10'
+              isVoiceEnabled ? 'bg-amber-400 text-stone-950 shadow-xs' : 'text-white/85 hover:text-white hover:bg-white/15'
             }`}
           >
             {isVoiceEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
@@ -473,7 +473,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
           <button
             onClick={() => setIsCentered(!isCentered)}
             title={inCenterModal ? 'Dock to bottom-right' : 'Expand full view'}
-            className="text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors p-1.5 cursor-pointer"
+            className="text-white/85 hover:text-white hover:bg-white/15 rounded-lg transition-colors p-1.5 cursor-pointer"
           >
             {inCenterModal ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
           </button>
@@ -486,7 +486,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
               setIsCentered(false);
             }}
             title="Close chat"
-            className="text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors p-1.5 cursor-pointer"
+            className="text-white/85 hover:text-white hover:bg-white/15 rounded-lg transition-colors p-1.5 cursor-pointer"
           >
             <X size={15} />
           </button>
@@ -494,7 +494,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
       </div>
 
       {/* ─── MESSAGES CONTAINER ─── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3.5 scroll-smooth bg-[#fbfbfc]">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 scroll-smooth bg-[#fbfbfc] [scrollbar-width:thin] [scrollbar-color:rgba(168,162,158,0.5)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stone-300/80 hover:[&::-webkit-scrollbar-thumb]:bg-stone-400/80">
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
 
@@ -504,17 +504,17 @@ export const ArtAdvisorChatbot: React.FC = () => {
               className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row items-start'}`}
             >
               {!isUser && (
-                <span className="w-7 h-7 text-xs rounded-full bg-gradient-to-tr from-[#8f3611] to-[#c45a28] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/30 mt-0.5">
+                <span className="w-7 h-7 text-[0.75rem] rounded-full bg-gradient-to-tr from-[#8f3611] to-[#e0783f] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/40 mt-0.5">
                   V
                 </span>
               )}
 
               <div className={`max-w-[84%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
                 <div
-                  className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-xs ${
+                  className={`px-4 py-2.5 rounded-2xl text-[0.875rem] leading-[1.6] ${
                     isUser
-                      ? 'bg-gradient-to-tr from-[#9e3f16] via-[#c45a28] to-[#e0783f] text-white rounded-tr-sm shadow-[0_4px_14px_rgba(196,90,40,0.25)] whitespace-pre-wrap'
-                      : 'bg-white border border-stone-200/80 text-stone-700 rounded-tl-sm'
+                      ? 'bg-gradient-to-r from-[#8f3611] via-[#b84217] to-[#e06a2b] text-white rounded-tr-sm shadow-[0_4px_12px_rgba(184,66,23,0.22)] whitespace-pre-wrap'
+                      : 'bg-white border border-stone-200/75 text-stone-700 rounded-tl-sm shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
                   }`}
                 >
                   {isUser ? msg.content : renderFormattedContent(msg.content)}
@@ -527,7 +527,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
                       setIsOpen(false);
                       setIsCentered(false);
                     }}
-                    className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#c45a28] bg-[#c45a28]/8 hover:bg-[#c45a28]/15 border border-[#c45a28]/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs active:scale-95"
+                    className="mt-2 inline-flex items-center gap-1.5 text-[0.75rem] font-semibold text-[#c45a28] bg-[#c45a28]/8 hover:bg-[#c45a28]/15 border border-[#c45a28]/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs active:scale-95"
                   >
                     {msg.action.label} <ExternalLink size={12} />
                   </Link>
@@ -537,7 +537,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1 ml-1">
                     <button
                       onClick={() => speakMessage(msg.id, msg.content)}
-                      className="text-[11px] text-stone-400 hover:text-[#c45a28] flex items-center gap-1 transition-colors cursor-pointer"
+                      className="text-[0.6875rem] text-stone-400 hover:text-[#c45a28] flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       {currentlySpeakingId === msg.id ? (
                         <>
@@ -561,10 +561,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
         {/* TYPING INDICATOR */}
         {isLoading && (
           <div className="flex gap-2.5 items-end">
-            <span className="w-7 h-7 text-xs rounded-full bg-gradient-to-tr from-[#8f3611] to-[#c45a28] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/30">
+            <span className="w-7 h-7 text-[0.75rem] rounded-full bg-gradient-to-tr from-[#8f3611] to-[#e0783f] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/40">
               V
             </span>
-            <div className="bg-white border border-stone-200/80 shadow-xs rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex gap-1.5 items-center">
+            <div className="bg-white border border-stone-200/75 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex gap-1.5 items-center">
               <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce" />
               <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce [animation-delay:0.15s]" />
               <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce [animation-delay:0.3s]" />
@@ -572,34 +572,34 @@ export const ArtAdvisorChatbot: React.FC = () => {
           </div>
         )}
 
+        {/* ─── QUICK STARTER CHIPS (Visible before first question) ─── */}
+        {!hasUserMessages && (
+          <div className="mt-auto pt-2 flex flex-wrap gap-1.5">
+            {QUICK_SUGGESTIONS.map((s, idx) => (
+              <button
+                key={idx}
+                disabled={isLoading}
+                onClick={() => handleSendMessage(s.prompt)}
+                className="text-[0.75rem] font-medium bg-white border border-stone-200/90 text-[#9e3f16] hover:border-[#c45a28]/50 hover:bg-[#c45a28]/5 px-3 py-1.5 rounded-full transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-95 disabled:opacity-50"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ─── QUICK STARTER CHIPS (Visible before first question) ─── */}
-      {!hasUserMessages && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1.5 bg-[#fbfbfc]">
-          {QUICK_SUGGESTIONS.map((s, idx) => (
-            <button
-              key={idx}
-              disabled={isLoading}
-              onClick={() => handleSendMessage(s.prompt)}
-              className="text-xs font-medium bg-white border border-[#c45a28]/25 text-[#9e3f16] hover:border-[#c45a28]/60 hover:bg-[#c45a28]/8 px-3 py-1.5 rounded-full transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* ─── EVM ERP STYLE INPUT BAR ─── */}
-      <div className="border-t border-stone-200/80 px-3 py-3 bg-white flex items-end gap-2 flex-shrink-0">
-        <div className="flex flex-1 items-end gap-2 rounded-xl border border-stone-200 bg-[#fbfbfc] px-3 py-2 focus-within:border-[#c45a28]/40 focus-within:ring-2 focus-within:ring-[#c45a28]/15 transition-all">
+      {/* ─── INPUT BAR ─── */}
+      <div className="border-t border-stone-200/80 px-3.5 py-3 bg-white flex items-center gap-2.5 flex-shrink-0">
+        <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#c45a28]/30 bg-white px-3 py-2 focus-within:border-[#c45a28]/60 focus-within:ring-2 focus-within:ring-[#c45a28]/15 transition-all">
           {/* Voice Mic Button */}
           <button
             type="button"
             onClick={toggleVoiceInput}
             title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
-            className={`p-1 rounded-full transition-colors cursor-pointer flex-shrink-0 ${
+            className={`p-0.5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${
               isListening ? 'text-rose-600 animate-pulse' : 'text-stone-400 hover:text-[#c45a28]'
             }`}
           >
@@ -617,10 +617,10 @@ export const ArtAdvisorChatbot: React.FC = () => {
                 handleSendMessage();
               }
             }}
-            placeholder={isListening ? 'Listening to your voice...' : 'Ask about resin art, courses, pricing...'}
+            placeholder={isListening ? 'Listening to your voice...' : 'Ask about Ravishing Art Hub...'}
             rows={1}
             disabled={isLoading}
-            className="flex-1 resize-none text-sm text-stone-800 placeholder-stone-400 outline-none bg-transparent leading-relaxed max-h-24 overflow-y-auto"
+            className="flex-1 resize-none text-[0.875rem] text-stone-800 placeholder-stone-400 outline-none bg-transparent leading-[1.5] max-h-24 overflow-y-auto"
           />
 
           {/* New conversation reset */}
@@ -628,9 +628,9 @@ export const ArtAdvisorChatbot: React.FC = () => {
             type="button"
             onClick={handleResetChat}
             title="Start new conversation"
-            className="text-stone-400 hover:text-[#c45a28] transition-colors p-1 cursor-pointer flex-shrink-0"
+            className="text-stone-400 hover:text-[#c45a28] transition-colors p-0.5 cursor-pointer flex-shrink-0"
           >
-            <RotateCcw size={14} />
+            <RotateCcw size={15} />
           </button>
         </div>
 
@@ -639,7 +639,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
           type="button"
           onClick={() => handleSendMessage()}
           disabled={!input.trim() || isLoading}
-          className="bg-gradient-to-tr from-[#9e3f16] via-[#c45a28] to-[#e0783f] hover:brightness-105 disabled:opacity-40 text-white rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer disabled:cursor-not-allowed shadow-md shadow-[#9e3f16]/25"
+          className="bg-gradient-to-tr from-[#8f3611] via-[#c45a28] to-[#e0783f] hover:brightness-105 disabled:opacity-40 text-white rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer disabled:cursor-not-allowed shadow-md shadow-[#9e3f16]/20"
         >
           <Send size={14} className="-mr-0.5" />
         </button>
@@ -649,7 +649,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
 
   return (
     <>
-      {/* ─── EVM ERP STYLE FLOATING LAUNCHER BUTTON ─── */}
+      {/* ─── FLOATING LAUNCHER BUTTON ─── */}
       <div className="fixed bottom-6 right-4 sm:right-6 z-[90] flex items-center gap-3">
         <button
           onClick={() => {
@@ -662,17 +662,17 @@ export const ArtAdvisorChatbot: React.FC = () => {
             }
           }}
           aria-label="Toggle Art Advisor Chat"
-          className="flex items-center gap-2 text-white transition-all cursor-pointer rounded-2xl px-4 py-2.5 bg-gradient-to-r from-[#8f3611] via-[#b84c1b] to-[#c45a28] hover:brightness-105 shadow-lg shadow-[#8f3611]/30 active:scale-95 border border-white/20"
+          className="flex items-center gap-2 text-white transition-all cursor-pointer rounded-full px-5 py-2.5 bg-gradient-to-r from-[#8f3611] via-[#b84c1b] to-[#c45a28] hover:brightness-105 shadow-lg shadow-[#8f3611]/30 active:scale-95 border border-white/20"
         >
           {isOpen ? (
             <>
-              <X size={18} />
-              <span className="text-sm font-semibold">Close</span>
+              <X size={17} />
+              <span className="text-[0.875rem] font-semibold">Close</span>
             </>
           ) : (
             <>
-              <MessageSquare size={18} />
-              <span className="text-sm font-semibold">Chat with Vraj</span>
+              <MessageSquare size={17} />
+              <span className="text-[0.875rem] font-semibold">Chat with Vraj</span>
             </>
           )}
         </button>
@@ -686,15 +686,15 @@ export const ArtAdvisorChatbot: React.FC = () => {
             className="absolute inset-0 bg-stone-950/60 backdrop-blur-xs animate-in fade-in duration-200"
           />
 
-          <div className="relative z-10 flex flex-col w-full max-w-[620px] h-[min(680px,calc(100dvh-2.5rem))] max-h-[92dvh] rounded-2xl border border-stone-200/80 bg-white shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in zoom-in-95">
+          <div className="relative z-10 flex flex-col w-full max-w-[680px] h-[min(720px,82dvh)] rounded-2xl border border-stone-200/80 bg-white shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in zoom-in-95">
             {renderChatBody(true)}
           </div>
         </div>
       )}
 
-      {/* ─── DOCKED BOTTOM-RIGHT POPUP (EVM ERP Style) ─── */}
+      {/* ─── DOCKED BOTTOM-RIGHT POPUP ─── */}
       {isOpen && !isCentered && (
-        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-22 sm:w-[410px] md:w-[420px] top-4 sm:top-auto max-h-[calc(100dvh-6.5rem)] h-[min(540px,calc(100dvh-7rem))] flex flex-col rounded-2xl border border-stone-200/80 bg-[#fbfbfc] shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
+        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-22 sm:w-[420px] md:w-[440px] top-4 sm:top-auto max-h-[calc(100dvh-6.5rem)] h-[min(600px,calc(100dvh-6.5rem))] flex flex-col rounded-2xl border border-stone-200/80 bg-[#fbfbfc] shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
           {renderChatBody(false)}
         </div>
       )}
