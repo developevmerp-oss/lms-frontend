@@ -136,7 +136,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
           setMessages(parsed);
         }
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   // Save chat history to sessionStorage
@@ -145,12 +145,12 @@ export const ArtAdvisorChatbot: React.FC = () => {
       if (messages.length > 0) {
         sessionStorage.setItem('rah_vraj_chat_v3', JSON.stringify(messages));
       }
-    } catch (_) {}
+    } catch (_) { }
   }, [messages]);
 
-  // Scroll to bottom
+  // Scroll to bottom when conversation has started
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && (messages.length > 1 || isLoading)) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isLoading, isOpen]);
@@ -462,9 +462,8 @@ export const ArtAdvisorChatbot: React.FC = () => {
               if (!nextState) stopSpeaking();
             }}
             title={isVoiceEnabled ? 'Voice: ON (Click to mute)' : 'Voice: OFF (Click to listen)'}
-            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              isVoiceEnabled ? 'bg-amber-400 text-stone-950 shadow-xs' : 'text-white/85 hover:text-white hover:bg-white/15'
-            }`}
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isVoiceEnabled ? 'bg-amber-400 text-stone-950 shadow-xs' : 'text-white/85 hover:text-white hover:bg-white/15'
+              }`}
           >
             {isVoiceEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
@@ -494,157 +493,155 @@ export const ArtAdvisorChatbot: React.FC = () => {
       </div>
 
       {/* ─── MESSAGES CONTAINER ─── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 scroll-smooth bg-[#fbfbfc] [scrollbar-width:thin] [scrollbar-color:rgba(168,162,158,0.5)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stone-300/80 hover:[&::-webkit-scrollbar-thumb]:bg-stone-400/80">
-        {messages.map((msg) => {
-          const isUser = msg.role === 'user';
+      <div className="flex-1 overflow-y-auto px-4 py-3 sm:py-3.5 flex flex-col gap-2.5 sm:gap-3 scroll-smooth bg-[#fbfbfc] [scrollbar-width:thin] [scrollbar-color:rgba(168,162,158,0.5)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stone-300/80 hover:[&::-webkit-scrollbar-thumb]:bg-stone-400/80">
+          {messages.map((msg) => {
+            const isUser = msg.role === 'user';
 
-          return (
-            <div
-              key={msg.id}
-              className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row items-start'}`}
-            >
-              {!isUser && (
-                <span className="w-7 h-7 text-[0.75rem] rounded-full bg-gradient-to-tr from-[#8f3611] to-[#e0783f] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/40 mt-0.5">
-                  V
-                </span>
-              )}
+            return (
+              <div
+                key={msg.id}
+                className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row items-start'}`}
+              >
+                {!isUser && (
+                  <span className="w-7 h-7 text-[0.75rem] rounded-full bg-gradient-to-tr from-[#8f3611] to-[#e0783f] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/40 mt-0.5">
+                    V
+                  </span>
+                )}
 
-              <div className={`max-w-[84%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
-                <div
-                  className={`px-4 py-2.5 rounded-2xl text-[0.875rem] leading-[1.6] ${
-                    isUser
+                <div className={`max-w-[84%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+                  <div
+                    className={`px-4 py-2.5 rounded-2xl text-[0.875rem] leading-[1.6] ${isUser
                       ? 'bg-gradient-to-r from-[#8f3611] via-[#b84217] to-[#e06a2b] text-white rounded-tr-sm shadow-[0_4px_12px_rgba(184,66,23,0.22)] whitespace-pre-wrap'
                       : 'bg-white border border-stone-200/75 text-stone-700 rounded-tl-sm shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
-                  }`}
-                >
-                  {isUser ? msg.content : renderFormattedContent(msg.content)}
-                </div>
-
-                {!isUser && msg.action && (
-                  <Link
-                    href={msg.action.path}
-                    onClick={() => {
-                      setIsOpen(false);
-                      setIsCentered(false);
-                    }}
-                    className="mt-2 inline-flex items-center gap-1.5 text-[0.75rem] font-semibold text-[#c45a28] bg-[#c45a28]/8 hover:bg-[#c45a28]/15 border border-[#c45a28]/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs active:scale-95"
+                      }`}
                   >
-                    {msg.action.label} <ExternalLink size={12} />
-                  </Link>
-                )}
-
-                {!isUser && (
-                  <div className="flex items-center gap-2 mt-1 ml-1">
-                    <button
-                      onClick={() => speakMessage(msg.id, msg.content)}
-                      className="text-[0.6875rem] text-stone-400 hover:text-[#c45a28] flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      {currentlySpeakingId === msg.id ? (
-                        <>
-                          <VolumeX size={12} className="text-[#c45a28]" />
-                          <span className="text-[#c45a28] font-medium">Mute</span>
-                        </>
-                      ) : (
-                        <>
-                          <Volume2 size={12} />
-                          <span>Listen</span>
-                        </>
-                      )}
-                    </button>
+                    {isUser ? msg.content : renderFormattedContent(msg.content)}
                   </div>
-                )}
+
+                  {!isUser && msg.action && (
+                    <Link
+                      href={msg.action.path}
+                      onClick={() => {
+                        setIsOpen(false);
+                        setIsCentered(false);
+                      }}
+                      className="mt-2 inline-flex items-center gap-1.5 text-[0.75rem] font-semibold text-[#c45a28] bg-[#c45a28]/8 hover:bg-[#c45a28]/15 border border-[#c45a28]/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs active:scale-95"
+                    >
+                      {msg.action.label} <ExternalLink size={12} />
+                    </Link>
+                  )}
+
+                  {!isUser && (
+                    <div className="flex items-center gap-2 mt-1 ml-1">
+                      <button
+                        onClick={() => speakMessage(msg.id, msg.content)}
+                        className="text-[0.6875rem] text-stone-400 hover:text-[#c45a28] flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        {currentlySpeakingId === msg.id ? (
+                          <>
+                            <VolumeX size={12} className="text-[#c45a28]" />
+                            <span className="text-[#c45a28] font-medium">Mute</span>
+                          </>
+                        ) : (
+                          <>
+                            <Volume2 size={12} />
+                            <span>Listen</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* TYPING INDICATOR */}
+          {isLoading && (
+            <div className="flex gap-2.5 items-end">
+              <span className="w-7 h-7 text-[0.75rem] rounded-full bg-gradient-to-tr from-[#8f3611] to-[#e0783f] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/40">
+                V
+              </span>
+              <div className="bg-white border border-stone-200/75 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex gap-1.5 items-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce [animation-delay:0.15s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce [animation-delay:0.3s]" />
               </div>
             </div>
-          );
-        })}
+          )}
 
-        {/* TYPING INDICATOR */}
-        {isLoading && (
-          <div className="flex gap-2.5 items-end">
-            <span className="w-7 h-7 text-[0.75rem] rounded-full bg-gradient-to-tr from-[#8f3611] to-[#e0783f] text-white font-bold flex items-center justify-center flex-shrink-0 select-none shadow-xs ring-2 ring-white/40">
-              V
-            </span>
-            <div className="bg-white border border-stone-200/75 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl rounded-tl-sm px-3.5 py-2.5 flex gap-1.5 items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce [animation-delay:0.15s]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c45a28]/60 animate-bounce [animation-delay:0.3s]" />
+          {/* ─── QUICK STARTER CHIPS (Visible before first question) ─── */}
+          {!hasUserMessages && (
+            <div className="mt-auto pt-1 flex flex-wrap gap-1.5 sm:gap-2">
+              {QUICK_SUGGESTIONS.map((s, idx) => (
+                <button
+                  key={idx}
+                  disabled={isLoading}
+                  onClick={() => handleSendMessage(s.prompt)}
+                  className="text-[0.6875rem] sm:text-[0.75rem] font-medium bg-white border border-stone-200/90 text-[#9e3f16] hover:border-[#c45a28]/50 hover:bg-[#c45a28]/5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-95 disabled:opacity-50"
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ─── QUICK STARTER CHIPS (Visible before first question) ─── */}
-        {!hasUserMessages && (
-          <div className="mt-auto pt-2 flex flex-wrap gap-2">
-            {QUICK_SUGGESTIONS.map((s, idx) => (
-              <button
-                key={idx}
-                disabled={isLoading}
-                onClick={() => handleSendMessage(s.prompt)}
-                className="text-[0.6875rem] sm:text-[0.75rem] font-medium bg-white border border-stone-200/90 text-[#9e3f16] hover:border-[#c45a28]/50 hover:bg-[#c45a28]/5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-95 disabled:opacity-50"
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* ─── INPUT BAR ─── */}
-      <div className="border-t border-stone-200/80 px-3.5 py-3 bg-white flex items-center gap-2.5 flex-shrink-0">
-        <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#c45a28]/30 bg-white px-3 py-2 focus-within:border-[#c45a28]/60 focus-within:ring-2 focus-within:ring-[#c45a28]/15 transition-all">
-          {/* Voice Mic Button */}
-          <button
-            type="button"
-            onClick={toggleVoiceInput}
-            title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
-            className={`p-0.5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${
-              isListening ? 'text-rose-600 animate-pulse' : 'text-stone-400 hover:text-[#c45a28]'
-            }`}
-          >
-            {isListening ? <MicOff size={16} /> : <Mic size={16} />}
-          </button>
-
-          {/* Text Input */}
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            placeholder={isListening ? 'Listening to your voice...' : 'Ask about Ravishing Art Hub...'}
-            rows={1}
-            disabled={isLoading}
-            className="flex-1 resize-none text-[0.875rem] text-stone-800 placeholder-stone-400 outline-none bg-transparent leading-[1.5] max-h-24 overflow-y-auto"
-          />
-
-          {/* New conversation reset */}
-          <button
-            type="button"
-            onClick={handleResetChat}
-            title="Start new conversation"
-            className="text-stone-400 hover:text-[#c45a28] transition-colors p-0.5 cursor-pointer flex-shrink-0"
-          >
-            <RotateCcw size={15} />
-          </button>
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Send Button */}
-        <button
-          type="button"
-          onClick={() => handleSendMessage()}
-          disabled={!input.trim() || isLoading}
-          className="bg-gradient-to-tr from-[#8f3611] via-[#c45a28] to-[#e0783f] hover:brightness-105 disabled:opacity-40 text-white rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer disabled:cursor-not-allowed shadow-md shadow-[#9e3f16]/20"
-        >
-          <Send size={14} className="-mr-0.5" />
-        </button>
-      </div>
-    </>
+        {/* ─── INPUT BAR ─── */}
+        <div className="border-t border-stone-200/80 px-3.5 py-3 bg-white flex items-center gap-2.5 flex-shrink-0">
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#c45a28]/30 bg-white px-3 py-2 focus-within:border-[#c45a28]/60 focus-within:ring-2 focus-within:ring-[#c45a28]/15 transition-all">
+            {/* Voice Mic Button */}
+            <button
+              type="button"
+              onClick={toggleVoiceInput}
+              title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
+              className={`p-0.5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${isListening ? 'text-rose-600 animate-pulse' : 'text-stone-400 hover:text-[#c45a28]'
+                }`}
+            >
+              {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+            </button>
+
+            {/* Text Input */}
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              placeholder={isListening ? 'Listening to your voice...' : 'Ask about Ravishing Art Hub...'}
+              rows={1}
+              disabled={isLoading}
+              className="flex-1 resize-none text-[0.875rem] text-stone-800 placeholder-stone-400 outline-none bg-transparent leading-[1.5] max-h-24 overflow-y-auto"
+            />
+
+            {/* New conversation reset */}
+            <button
+              type="button"
+              onClick={handleResetChat}
+              title="Start new conversation"
+              className="text-stone-400 hover:text-[#c45a28] transition-colors p-0.5 cursor-pointer flex-shrink-0"
+            >
+              <RotateCcw size={15} />
+            </button>
+          </div>
+
+          {/* Send Button */}
+          <button
+            type="button"
+            onClick={() => handleSendMessage()}
+            disabled={!input.trim() || isLoading}
+            className="bg-gradient-to-tr from-[#8f3611] via-[#c45a28] to-[#e0783f] hover:brightness-105 disabled:opacity-40 text-white rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer disabled:cursor-not-allowed shadow-md shadow-[#9e3f16]/20"
+          >
+            <Send size={14} className="-mr-0.5" />
+          </button>
+        </div>
+      </>
   );
 
   return (
@@ -686,7 +683,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
             className="absolute inset-0 bg-stone-950/60 backdrop-blur-xs animate-in fade-in duration-200"
           />
 
-          <div className="relative z-10 flex flex-col w-full max-w-[94vw] sm:max-w-[540px] md:max-w-[580px] lg:max-w-[640px] xl:max-w-[700px] 2xl:max-w-[740px] h-[84dvh] sm:h-[min(620px,84dvh)] lg:h-[min(680px,86dvh)] xl:h-[min(720px,86dvh)] 2xl:h-[min(760px,86dvh)] rounded-2xl border border-stone-200/80 bg-white shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in zoom-in-95">
+          <div className="relative z-10 flex flex-col w-full max-w-[94vw] sm:max-w-[540px] md:max-w-[580px] lg:max-w-[600px] xl:max-w-[640px] 2xl:max-w-[680px] h-[84dvh] sm:h-[min(640px,86dvh)] lg:h-[min(680px,86dvh)] xl:h-[min(700px,84dvh)] 2xl:h-[min(720px,82dvh)] rounded-2xl border border-stone-200/80 bg-white shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in zoom-in-95">
             {renderChatBody(true)}
           </div>
         </div>
@@ -694,7 +691,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
 
       {/* ─── DOCKED BOTTOM-RIGHT POPUP ─── */}
       {isOpen && !isCentered && (
-        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-20 sm:w-[370px] md:w-[385px] lg:w-[390px] xl:w-[400px] 2xl:w-[410px] max-h-[calc(100dvh-6.5rem)] h-[min(480px,70dvh)] sm:h-[min(490px,calc(100dvh-7.5rem))] lg:h-[min(510px,calc(100dvh-7.5rem))] xl:h-[min(520px,calc(100dvh-7rem))] 2xl:h-[min(540px,calc(100dvh-7rem))] flex flex-col rounded-2xl border border-stone-200/80 bg-[#fbfbfc] shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
+        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-20 sm:w-[370px] md:w-[385px] lg:w-[390px] xl:w-[400px] 2xl:w-[405px] max-h-[calc(100dvh-6.5rem)] h-[min(560px,calc(100dvh-6.5rem))] sm:h-[min(490px,calc(100dvh-7.5rem))] lg:h-[min(500px,calc(100dvh-7.5rem))] xl:h-[min(510px,calc(100dvh-7.5rem))] 2xl:h-[min(520px,calc(100dvh-7.5rem))] flex flex-col rounded-2xl border border-stone-200/80 bg-[#fbfbfc] shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
           {renderChatBody(false)}
         </div>
       )}
