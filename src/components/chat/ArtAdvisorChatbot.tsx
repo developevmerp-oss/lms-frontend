@@ -126,27 +126,12 @@ export const ArtAdvisorChatbot: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isCentered]);
 
-  // Load chat history from sessionStorage
+  // Clear any previously cached chat on page load so refresh starts clean
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem('rah_vraj_chat_v3');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed);
-        }
-      }
+      sessionStorage.removeItem('rah_vraj_chat_v3');
     } catch (_) { }
   }, []);
-
-  // Save chat history to sessionStorage
-  useEffect(() => {
-    try {
-      if (messages.length > 0) {
-        sessionStorage.setItem('rah_vraj_chat_v3', JSON.stringify(messages));
-      }
-    } catch (_) { }
-  }, [messages]);
 
   // Scroll to bottom when conversation has started
   useEffect(() => {
