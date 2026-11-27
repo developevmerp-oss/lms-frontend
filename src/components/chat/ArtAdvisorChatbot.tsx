@@ -574,13 +574,13 @@ export const ArtAdvisorChatbot: React.FC = () => {
 
         {/* ─── QUICK STARTER CHIPS (Visible before first question) ─── */}
         {!hasUserMessages && (
-          <div className="mt-auto pt-2 flex flex-wrap gap-1.5">
+          <div className="mt-auto pt-2 flex flex-wrap gap-2">
             {QUICK_SUGGESTIONS.map((s, idx) => (
               <button
                 key={idx}
                 disabled={isLoading}
                 onClick={() => handleSendMessage(s.prompt)}
-                className="text-[0.75rem] font-medium bg-white border border-stone-200/90 text-[#9e3f16] hover:border-[#c45a28]/50 hover:bg-[#c45a28]/5 px-3 py-1.5 rounded-full transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-95 disabled:opacity-50"
+                className="text-[0.6875rem] sm:text-[0.75rem] font-medium bg-white border border-stone-200/90 text-[#9e3f16] hover:border-[#c45a28]/50 hover:bg-[#c45a28]/5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-95 disabled:opacity-50"
               >
                 {s.label}
               </button>
@@ -686,7 +686,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
             className="absolute inset-0 bg-stone-950/60 backdrop-blur-xs animate-in fade-in duration-200"
           />
 
-          <div className="relative z-10 flex flex-col w-full max-w-[680px] h-[min(720px,82dvh)] rounded-2xl border border-stone-200/80 bg-white shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in zoom-in-95">
+          <div className="relative z-10 flex flex-col w-full max-w-[94vw] sm:max-w-[540px] md:max-w-[580px] lg:max-w-[640px] xl:max-w-[700px] 2xl:max-w-[740px] h-[84dvh] sm:h-[min(620px,84dvh)] lg:h-[min(680px,86dvh)] xl:h-[min(720px,86dvh)] 2xl:h-[min(760px,86dvh)] rounded-2xl border border-stone-200/80 bg-white shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in zoom-in-95">
             {renderChatBody(true)}
           </div>
         </div>
@@ -694,7 +694,7 @@ export const ArtAdvisorChatbot: React.FC = () => {
 
       {/* ─── DOCKED BOTTOM-RIGHT POPUP ─── */}
       {isOpen && !isCentered && (
-        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-22 sm:w-[420px] md:w-[440px] top-4 sm:top-auto max-h-[calc(100dvh-6.5rem)] h-[min(600px,calc(100dvh-6.5rem))] flex flex-col rounded-2xl border border-stone-200/80 bg-[#fbfbfc] shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
+        <div className="fixed z-[100] inset-x-3 bottom-20 sm:inset-x-auto sm:right-6 sm:bottom-20 sm:w-[370px] md:w-[385px] lg:w-[390px] xl:w-[400px] 2xl:w-[410px] max-h-[calc(100dvh-6.5rem)] h-[min(480px,70dvh)] sm:h-[min(490px,calc(100dvh-7.5rem))] lg:h-[min(510px,calc(100dvh-7.5rem))] xl:h-[min(520px,calc(100dvh-7rem))] 2xl:h-[min(540px,calc(100dvh-7rem))] flex flex-col rounded-2xl border border-stone-200/80 bg-[#fbfbfc] shadow-[0_24px_60px_rgba(60,30,10,0.22)] overflow-hidden animate-in fade-in slide-in-from-bottom-6">
           {renderChatBody(false)}
         </div>
       )}
